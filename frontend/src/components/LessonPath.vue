@@ -10,10 +10,26 @@
 // level boundary they're working toward.
 import { computed } from 'vue'
 import PathNode from './PathNode.vue'
+import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
   lessons: { type: Array, required: true }
 })
+
+const auth = useAuthStore()
+
+// Checkpoint state per level: a low-stakes recall quiz over everything
+// studied at that level. Opens at 5 studied sentences (backend MIN_STUDIED).
+function checkpointFor(level) {
+  const started = props.lessons
+    .filter((l) => l.level === level)
+    .reduce((sum, l) => sum + (l.started_count ?? 0), 0)
+  return {
+    level,
+    passed: !!auth.user?.checkpoints?.[level],
+    available: started >= 5
+  }
+}
 
 function isMastered(l) {
   return l.sentences_count > 0 && l.mastered_count >= l.sentences_count
@@ -42,11 +58,19 @@ const nodes = computed(() => {
       recommendedFound = true
     }
 
-    // A divider before the first lesson of a new CEFR level.
+    // A divider before the first lesson of a new CEFR level; the checkpoint
+    // for the level just completed sits on that boundary.
     const levelStart = i > 0 && prev && prev.level !== lesson.level ? lesson.level : null
+    const checkpoint = levelStart ? checkpointFor(prev.level) : null
 
-    return { lesson, status, index: i, recommended, levelStart }
+    return { lesson, status, index: i, recommended, levelStart, checkpoint }
   })
+})
+
+// The final level's checkpoint caps the end of the path.
+const endCheckpoint = computed(() => {
+  const last = props.lessons[props.lessons.length - 1]
+  return last ? checkpointFor(last.level) : null
 })
 
 // Overall level progress, e.g. "A0 · 3/32 mastered".
@@ -76,11 +100,23 @@ const levelSummary = computed(() => {
     </div>
 
     <template v-for="(n, i) in nodes" :key="n.lesson.id">
-      <div v-if="n.levelStart" class="level-divider">
-        <span class="level-line"></span>
-        <span class="level-label">Level {{ n.levelStart }} begins</span>
-        <span class="level-line"></span>
-      </div>
+      <template v-if="n.levelStart">
+        <component
+          :is="n.checkpoint.available ? 'router-link' : 'div'"
+          :to="n.checkpoint.available ? `/checkpoint/${n.checkpoint.level}` : undefined"
+          class="checkpoint-chip"
+          :class="{ passed: n.checkpoint.passed, locked: !n.checkpoint.available }"
+        >
+          <template v-if="n.checkpoint.passed">🏅 {{ n.checkpoint.level }} checkpoint passed — retake any time</template>
+          <template v-else-if="n.checkpoint.available">🎯 Take the {{ n.checkpoint.level }} checkpoint</template>
+          <template v-else>🔒 {{ n.checkpoint.level }} checkpoint — opens after 5 studied sentences</template>
+        </component>
+        <div class="level-divider">
+          <span class="level-line"></span>
+          <span class="level-label">Level {{ n.levelStart }} begins</span>
+          <span class="level-line"></span>
+        </div>
+      </template>
       <PathNode
         :lesson="n.lesson"
         :status="n.status"
@@ -89,6 +125,18 @@ const levelSummary = computed(() => {
         :is-last="i === nodes.length - 1"
       />
     </template>
+
+    <component
+      v-if="endCheckpoint"
+      :is="endCheckpoint.available ? 'router-link' : 'div'"
+      :to="endCheckpoint.available ? `/checkpoint/${endCheckpoint.level}` : undefined"
+      class="checkpoint-chip end"
+      :class="{ passed: endCheckpoint.passed, locked: !endCheckpoint.available }"
+    >
+      <template v-if="endCheckpoint.passed">🏅 {{ endCheckpoint.level }} checkpoint passed — retake any time</template>
+      <template v-else-if="endCheckpoint.available">🎯 Take the {{ endCheckpoint.level }} checkpoint</template>
+      <template v-else>🔒 {{ endCheckpoint.level }} checkpoint — opens after 5 studied sentences</template>
+    </component>
   </div>
 </template>
 
@@ -112,6 +160,34 @@ const levelSummary = computed(() => {
   padding: 4px 10px;
 }
 .level-chip b { color: var(--accent); margin-right: 2px; }
+
+.checkpoint-chip {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  margin: 4px 0 14px;
+  transition: filter 0.15s ease;
+}
+a.checkpoint-chip:hover { filter: brightness(1.1); }
+.checkpoint-chip.passed {
+  color: var(--green);
+  background: var(--green-soft);
+  border-color: var(--green);
+  border-style: solid;
+}
+.checkpoint-chip.locked {
+  color: var(--text-faint);
+  background: var(--bg-soft);
+  border-color: var(--border);
+  cursor: default;
+}
+.checkpoint-chip.end { margin-top: 10px; }
 
 .level-divider {
   display: flex;

@@ -92,9 +92,91 @@ class ImageSeeder extends Seeder
         'Tää on paras päivä ikinä.' => '1F929',
     ];
 
+    /** finnish_text → OpenMoji hex for the expansion lessons (9–16). */
+    public const EXPANSION_MAP = [
+        // At the Shop
+        'Mä etsin maitoo.' => '1F95B',
+        'Mis teil on leipä?' => '1F35E',
+        'Onks teil tätä isompana?' => '1F4CF',
+        'Mä vaan katselen, kiitti.' => '1F440',
+        'Otatsä muovipussin?' => '1F6CD',
+        'Ei kiitos, mul on oma kassi.' => '1F9FA',
+        'Missä kassa on?' => '1F4B5',
+        'Saanks mä kuitin?' => '1F9FE',
+        // How Are You Feeling?
+        'Mul on huono olo.' => '1F912',
+        'Mun päätä särkee.' => '1F915',
+        'Mua väsyttää tosi paljon.' => '1F62A',
+        'Onks sul kuumetta?' => '1F321',
+        'Mä meen apteekkiin.' => '1F3E5',
+        'Ota tää lääke ruoan kanssa.' => '1F48A',
+        'Parane pian!' => '1F33B',
+        'Mun pitäis levätä.' => '1F6CC',
+        // On the Phone
+        'Mä soitan sulle illalla.' => '1F4DE',
+        'Laita mulle viesti.' => '1F4AC',
+        'Anteeks, mä en kuule sua.' => '1F649',
+        'Mun akku on melkein loppu.' => '1FAAB',
+        'Voitsä soittaa mulle takasin?' => '1F4F2',
+        'Mikä sun numero on?' => '1F522',
+        'Mä lähetän sen sulle WhatsAppis.' => '1F4F1',
+        'Puhutaan myöhemmin!' => '1F5E3',
+        // Making Plans
+        'Mitä sä teet viikonloppuna?' => '1F4C5',
+        'Nähäänks huomenna?' => '1F91D',
+        'Sopiiks kuudelta?' => '1F555',
+        'Mul ei käy maanantaina.' => '274C',
+        'Mennään leffaan!' => '1F3AC',
+        'Mä oon vähän myöhässä.' => '23F3',
+        'Ei haittaa, mä odotan.' => '231B',
+        'Nähään sit siel!' => '1F4CD',
+        // What Do You Think?
+        'Mun mielestä tää on hyvä idea.' => '1F4A1',
+        'Mä oon samaa mieltä.' => '1F44D',
+        'Emmä oo ihan varma.' => '1F937',
+        'Toi on musta outoo.' => '1F928',
+        'Mikä sun lempiruoka on?' => '1F35C',
+        'Mä tykkään tästä tosi paljon.' => '1F60D',
+        'Se riippuu säästä.' => '1F326',
+        'Ihan hullu juttu!' => '1F92A',
+        // Last Weekend
+        'Mä olin eilen saunassa.' => '1F9D6',
+        'Me mentiin mökille.' => '1F3E1',
+        'Mä söin liikaa pizzaa.' => '1F355',
+        'Nukuitsä hyvin?' => '1F634',
+        'Se oli tosi kivaa.' => '1F389',
+        'Mä näin sut eilen kaupungilla.' => '1F3D9',
+        'Mitä sä teit viikonloppuna?' => '2753',
+        'En tehny yhtään mitään.' => '1F9A5',
+        // At Work
+        'Mä oon töissä kahteen asti.' => '1F4BC',
+        'Meil on kokous kymmeneltä.' => '1F4CB',
+        'Mun täytyy tehä tää loppuun.' => '2705',
+        'Voitsä auttaa mua tän kanssa?' => '1F198',
+        'Mä pidän tauon.' => '2615',
+        'Lähetä se mulle sähköpostilla.' => '1F4E7',
+        'Mun pomo on ihan jees.' => '1F60E',
+        'Mä lopetan tänään aikasin.' => '1F3C3',
+        // Telling Stories
+        'Eka mä heräsin, sit mä join kahvii.' => '1F305',
+        'Mä myöhästyin, ku bussi ei tullu.' => '1F68C',
+        'Me lähettiin, vaikka satoi.' => '1F327',
+        'Ja sit kaikki alko nauraa.' => '1F602',
+        'Arvaa mitä tapahtu!' => '1F632',
+        'Ei voi olla totta!' => '1F631',
+        'No siis, se oli aika mahtavaa.' => '1F929',
+        'Pitkä juttu, mä kerron saunassa.' => '2668',
+    ];
+
+    /** Every sentence → hex mapping, original and expansion combined. */
+    public static function all(): array
+    {
+        return self::MAP + self::EXPANSION_MAP;
+    }
+
     public function run(): void
     {
-        foreach (self::MAP as $text => $hex) {
+        foreach (self::all() as $text => $hex) {
             // Only link images whose SVG has actually been downloaded.
             if (! file_exists(public_path("images/{$hex}.svg"))) {
                 continue;

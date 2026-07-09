@@ -45,6 +45,20 @@ const rank = computed(() => {
 })
 
 const dueCount = computed(() => auth.stats?.due_count ?? 0)
+
+// The SRS schedule, made visible: reviews landing over the next 7 days.
+const forecast = computed(() => {
+  const rows = auth.stats?.forecast ?? []
+  const fmt = new Intl.DateTimeFormat('en', { weekday: 'short' })
+  const tomorrow = new Date(Date.now() + 86400000).toDateString()
+  return rows.slice(0, 4).map((r) => {
+    const d = new Date(`${r.date}T12:00:00`)
+    return {
+      label: d.toDateString() === tomorrow ? 'Tomorrow' : fmt.format(d),
+      count: r.count
+    }
+  })
+})
 </script>
 
 <template>
@@ -84,6 +98,14 @@ const dueCount = computed(() => auth.stats?.due_count ?? 0)
       <p class="muted session-hint">
         {{ dueCount ? `${dueCount} sentences due` : 'Fresh sentences are waiting' }} · daily goal {{ dailyGoal() }}
       </p>
+
+      <!-- review forecast: when your sentences come back -->
+      <div v-if="forecast.length" class="forecast">
+        <span class="forecast-label">🗓 Coming back:</span>
+        <span v-for="f in forecast" :key="f.label" class="forecast-chip">
+          {{ f.label }} <b>{{ f.count }}</b>
+        </span>
+      </div>
 
       <button v-if="installPrompt" class="btn btn-ghost btn-block install-btn" @click="install">
         📲 Install SaunaSpeak on this device
@@ -129,7 +151,25 @@ const dueCount = computed(() => auth.stats?.due_count ?? 0)
 .rank-next { font-size: 13px; margin-top: 2px; }
 
 .session-btn { font-size: 18px; padding: 17px; }
-.session-hint { text-align: center; margin: 10px 0 18px; }
+.session-hint { text-align: center; margin: 10px 0 12px; }
+.forecast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.forecast-label { font-size: 12px; color: var(--text-faint); }
+.forecast-chip {
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+}
+.forecast-chip b { color: var(--accent); }
 .install-btn { margin-bottom: 22px; font-size: 15px; }
 
 .journey-head {

@@ -28,7 +28,7 @@ async function submit() {
 <template>
   <div class="auth-page">
     <div class="hero">
-      <div class="hero-icon">🔥</div>
+      <img class="hero-logo" src="/logo-sm.png" alt="SaunaSpeak logo" />
       <h1>SaunaSpeak</h1>
       <p class="muted">Learn Finnish, one sauna session at a time.</p>
     </div>
@@ -58,7 +58,7 @@ async function submit() {
 <style scoped>
 .auth-page { margin-top: 8vh; }
 .hero { text-align: center; margin-bottom: 28px; }
-.hero-icon { font-size: 44px; margin-bottom: 8px; }
+.hero-logo { width: 76px; height: 76px; border-radius: 18px; margin-bottom: 10px; }
 .hero h1 { font-size: 30px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }
 .try-link { margin-top: 14px; }

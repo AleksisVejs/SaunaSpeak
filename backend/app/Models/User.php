@@ -24,6 +24,8 @@ class User extends Authenticatable
         'xp',
         'streak',
         'last_active_date',
+        'checkpoints',
+        'preferences',
     ];
 
     /**
@@ -47,6 +49,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_active_date' => 'date:Y-m-d',
+            'checkpoints' => 'array',
+            'preferences' => 'array',
         ];
     }
 

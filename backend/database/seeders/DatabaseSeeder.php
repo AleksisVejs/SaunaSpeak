@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(LessonSeeder::class);
         $this->call(PatternSeeder::class);
+        $this->call(ExpansionLessonSeeder::class);
         $this->call(ImageSeeder::class);
 
         User::factory()->create([

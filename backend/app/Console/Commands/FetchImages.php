@@ -28,7 +28,7 @@ class FetchImages extends Command
         $downloaded = 0;
         $failed = 0;
 
-        foreach (array_unique(ImageSeeder::MAP) as $hex) {
+        foreach (array_unique(ImageSeeder::all()) as $hex) {
             $file = "{$dir}/{$hex}.svg";
 
             if (File::exists($file) && ! $this->option('force')) {

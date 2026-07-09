@@ -10,12 +10,13 @@ const auth = useAuthStore()
 const { theme, toggleTheme } = useTheme()
 
 // Full-focus routes hide the shell chrome so learners aren't distracted.
-const FOCUS_ROUTES = ['session', 'onboarding', 'try', 'words-review']
+const FOCUS_ROUTES = ['session', 'onboarding', 'try', 'words-review', 'checkpoint']
 
 const showShell = computed(() => auth.isLoggedIn && !FOCUS_ROUTES.includes(route.name))
 
 const navItems = [
   { name: 'dashboard', to: '/dashboard', icon: '🧭', label: 'Learn' },
+  { name: 'chat', to: '/chat', icon: '💬', label: 'Chat' },
   { name: 'words', to: '/words', icon: '⭐', label: 'Words' },
   { name: 'profile', to: '/profile', icon: '🧖', label: 'Profile' }
 ]
@@ -31,7 +32,7 @@ async function logout() {
     <!-- Desktop sidebar (hidden on mobile) -->
     <aside v-if="showShell" class="sidebar">
       <router-link to="/dashboard" class="brand">
-        <span class="brand-flame">🔥</span>
+        <img class="brand-logo" src="/logo-sm.png" alt="" />
         <span class="brand-name">SaunaSpeak</span>
       </router-link>
 
@@ -110,12 +111,13 @@ async function logout() {
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 20px;
   font-weight: 800;
   color: var(--text);
   letter-spacing: -0.02em;
 }
+.brand-logo { width: 34px; height: 34px; border-radius: 9px; }
 
 .nav-link,
 .foot-btn {

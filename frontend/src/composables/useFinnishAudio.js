@@ -4,6 +4,8 @@
 // back to the browser SpeechSynthesis voice otherwise. This keeps a single
 // consistent voice for sentences, tapped words, the recap and the word bank.
 
+import api from '../api'
+
 let wordManifest = null // { "löylyä": "/audio/words/loylya-ab12cd.mp3", ... }
 let manifestPromise = null
 
@@ -36,11 +38,26 @@ function stopAll() {
   if ('speechSynthesis' in window) speechSynthesis.cancel()
 }
 
+// Emoji and pictographs must never reach a TTS engine — it reads them aloud.
+function stripEmoji(text) {
+  return text
+    .replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+// Prefer a male Finnish voice (matches the fi-FI-HarriNeural lesson audio);
+// Edge exposes "Microsoft Harri Online (Natural)", other browsers vary.
+function pickFinnishVoice() {
+  const voices = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('fi'))
+  return voices.find((v) => /harri|onni|\bmale\b/i.test(v.name)) ?? voices[0] ?? null
+}
+
 function speakTts(text, rate) {
   if (!('speechSynthesis' in window)) return
-  const utterance = new SpeechSynthesisUtterance(text)
+  const utterance = new SpeechSynthesisUtterance(stripEmoji(text))
   utterance.lang = 'fi-FI'
-  const voice = speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('fi'))
+  const voice = pickFinnishVoice()
   if (voice) utterance.voice = voice
   utterance.rate = rate
   speechSynthesis.speak(utterance)
@@ -120,6 +137,36 @@ export function useFinnishAudio() {
     return speakTtsAsync(text, rate)
   }
 
+  // Dynamic text (chat replies): synthesize server-side with the same male
+  // neural voice as lesson audio, cached by content. Falls back to browser
+  // speech where the server can't run edge-tts (e.g. shared hosting) — and
+  // remembers that for the session so we don't keep asking.
+  const spokenCache = new Map() // clean text → url | null
+  let serverTtsDown = false
+  async function playSpoken(text, rate = 0.95) {
+    const clean = stripEmoji(text)
+    if (!clean) return
+
+    if (!spokenCache.has(clean) && !serverTtsDown) {
+      try {
+        const { data } = await api.post('/tts', { text: clean })
+        spokenCache.set(clean, data.url ?? null)
+      } catch (e) {
+        spokenCache.set(clean, null)
+        // 503 = edge-tts not available on this server; stop asking.
+        if (e.response?.status === 503) serverTtsDown = true
+      }
+    }
+
+    const url = spokenCache.get(clean)
+    if (url) {
+      playUrl(url, rate, clean)
+    } else {
+      stopAll()
+      speakTts(clean, 0.85)
+    }
+  }
+
   // Play a single word: look it up in the manifest, else TTS.
   async function playWord(word, rate = 0.85) {
     const key = normalizeWord(word)
@@ -133,5 +180,5 @@ export function useFinnishAudio() {
     }
   }
 
-  return { playSentence, playSentenceAsync, playWord, stop: stopAll }
+  return { playSentence, playSentenceAsync, playSpoken, playWord, stop: stopAll }
 }

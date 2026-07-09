@@ -1,0 +1,226 @@
+<script setup>
+// Level checkpoint: a short, low-stakes cumulative recall quiz. The framing
+// matters — taking the test IS practice (testing effect), so failing is
+// explicitly fine and retakes are always open.
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from '../api'
+import { useAuthStore } from '../stores/auth'
+import { useFinnishAudio } from '../composables/useFinnishAudio'
+
+const route = useRoute()
+const router = useRouter()
+const auth = useAuthStore()
+const { playSentence } = useFinnishAudio()
+
+const level = String(route.params.level || 'A0').toUpperCase()
+
+const loading = ref(true)
+const ready = ref(false)
+const studied = ref(0)
+const needed = ref(5)
+const sentences = ref([])
+const index = ref(0)
+const revealed = ref(false)
+const correct = ref(0)
+const finished = ref(false)
+const passed = ref(false)
+const xpGained = ref(0)
+const submitting = ref(false)
+
+const current = computed(() => sentences.value[index.value] || null)
+const total = computed(() => sentences.value.length)
+const progressPct = computed(() => (total.value ? Math.round((index.value / total.value) * 100) : 0))
+const scorePct = computed(() => (total.value ? Math.round((correct.value / total.value) * 100) : 0))
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get(`/checkpoint/${level}`)
+    ready.value = data.ready
+    if (data.ready) {
+      sentences.value = data.sentences
+    } else {
+      studied.value = data.studied
+      needed.value = data.needed
+    }
+  } finally {
+    loading.value = false
+  }
+  window.addEventListener('keydown', onKey)
+})
+
+onUnmounted(() => window.removeEventListener('keydown', onKey))
+
+async function reveal() {
+  if (revealed.value) return
+  revealed.value = true
+  playSentence(current.value.finnish_text, current.value.audio_url)
+}
+
+async function mark(got) {
+  if (!revealed.value || submitting.value) return
+  if (got) correct.value++
+
+  if (index.value + 1 >= total.value) {
+    submitting.value = true
+    try {
+      const { data } = await api.post(`/checkpoint/${level}`, {
+        correct: correct.value,
+        total: total.value
+      })
+      passed.value = data.passed
+      xpGained.value = data.xp_gained
+      await auth.fetchUser()
+    } catch {
+      // Score still shows locally; badge will save on a retake.
+      passed.value = correct.value / total.value >= 0.8
+    } finally {
+      submitting.value = false
+      finished.value = true
+    }
+  } else {
+    index.value++
+    revealed.value = false
+  }
+}
+
+function onKey(e) {
+  if (finished.value || !ready.value) return
+  if (e.code === 'Space') {
+    e.preventDefault()
+    reveal()
+  } else if (revealed.value) {
+    if (e.key === '1') mark(false)
+    else if (e.key === '2') mark(true)
+  }
+}
+</script>
+
+<template>
+  <div class="checkpoint">
+    <div v-if="loading" class="spinner"></div>
+
+    <!-- Not enough studied material yet -->
+    <div v-else-if="!ready" class="panel">
+      <div class="big-icon">🌱</div>
+      <h1>Not quite yet</h1>
+      <p class="muted">
+        The {{ level }} checkpoint opens after you've studied {{ needed }} sentences —
+        you're at {{ studied }}. A Sauna Session or two will get you there.
+      </p>
+      <router-link to="/session" class="btn btn-primary btn-block">🧖 Start a session</router-link>
+      <button class="btn btn-ghost btn-block" @click="router.push('/dashboard')">Back</button>
+    </div>
+
+    <!-- Result -->
+    <div v-else-if="finished" class="panel">
+      <div class="big-icon">{{ passed ? '🏅' : '💪' }}</div>
+      <h1>{{ passed ? `${level} checkpoint passed!` : 'Good training!' }}</h1>
+      <div class="score" :class="{ pass: passed }">{{ correct }}/{{ total }} · {{ scorePct }}%</div>
+      <p v-if="passed && xpGained" class="xp-note">+{{ xpGained }} XP badge bonus</p>
+      <p class="muted">
+        {{ passed
+          ? 'Your badge is on the journey path. Retake it any time — recalling is rehearsing.'
+          : 'No pressure — every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.' }}
+      </p>
+      <router-link to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
+    </div>
+
+    <!-- Active quiz -->
+    <div v-else class="quiz">
+      <div class="quiz-top">
+        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit">✕</button>
+        <div class="progress-track"><div class="progress-fill" :style="{ width: progressPct + '%' }"></div></div>
+        <span class="counter">{{ index + 1 }}/{{ total }}</span>
+      </div>
+
+      <p class="stakes-note">🧘 Low stakes: taking this quiz is itself practice. Say each one out loud.</p>
+
+      <div class="card quiz-card">
+        <p class="hint">🧠 {{ level }} checkpoint — say it in Finnish</p>
+        <p class="prompt">{{ current.english_text }}</p>
+
+        <template v-if="revealed">
+          <p class="answer">{{ current.finnish_text }}</p>
+          <button class="replay" @click="playSentence(current.finnish_text, current.audio_url)">🔊 Hear it again</button>
+        </template>
+        <button v-else class="btn btn-ghost reveal-btn" @click="reveal">👁 Show the Finnish</button>
+      </div>
+
+      <div v-if="revealed" class="marks">
+        <button class="mark miss" :disabled="submitting" @click="mark(false)">
+          ✗ Missed it <span class="key">1</span>
+        </button>
+        <button class="mark got" :disabled="submitting" @click="mark(true)">
+          ✓ Got it <span class="key">2</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.checkpoint { min-height: 100vh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
+
+.panel { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; }
+.big-icon { font-size: 56px; }
+.panel h1 { font-size: 26px; }
+.panel .muted { line-height: 1.55; margin-bottom: 8px; }
+.score { font-size: 30px; font-weight: 800; color: var(--text-dim); }
+.score.pass { color: var(--green); }
+.xp-note { color: var(--accent); font-weight: 700; }
+
+.quiz { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.quiz-top { display: flex; align-items: center; gap: 12px; }
+.quit { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; font-family: inherit; }
+.quiz-top .progress-track { flex: 1; }
+.counter { font-size: 13px; color: var(--text-dim); font-weight: 600; }
+
+.stakes-note { text-align: center; color: var(--text-dim); font-size: 13px; }
+
+.quiz-card { display: flex; flex-direction: column; gap: 16px; padding: 26px 22px; }
+.quiz-card .hint {
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.prompt { font-size: 22px; font-weight: 700; line-height: 1.4; }
+.answer { font-size: 26px; font-weight: 800; line-height: 1.35; color: var(--accent); }
+.replay {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.replay:hover { border-color: var(--accent); color: var(--accent); }
+.reveal-btn { align-self: flex-start; padding: 10px 16px; font-size: 14px; }
+
+.marks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+.mark:disabled { opacity: 0.5; }
+.mark .key { font-size: 11px; color: var(--text-faint); font-weight: 600; }
+.mark.miss:hover { border-color: var(--red); color: var(--red); }
+.mark.got:hover { border-color: var(--green); color: var(--green); }
+</style>

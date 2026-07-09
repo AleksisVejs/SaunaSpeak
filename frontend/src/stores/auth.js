@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import api from '../api'
+import { usePrefs } from '../composables/usePrefs'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -34,6 +35,8 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.get('/user')
       this.user = data.user
       this.stats = data.stats
+      // Fresh device, existing account: pick up preferences from the server.
+      usePrefs().adoptServerPrefs(data.user?.preferences)
     },
 
     async logout() {

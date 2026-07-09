@@ -1,8 +1,9 @@
 import { ref } from 'vue'
+import api from '../api'
 
-// Learner preferences captured in the intake flow. Stored locally for now;
-// a backend `user.preferences` column can mirror this later without changing
-// the call sites.
+// Learner preferences captured in the intake flow. Local-first (instant),
+// mirrored to the backend `user.preferences` column so they follow the
+// learner across devices.
 const STORAGE_KEY = 'ss_prefs'
 
 // minutes/day → target sentences per session (backend clamps to 3–12).
@@ -25,6 +26,19 @@ export function usePrefs() {
     prefs.value = next
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
     localStorage.setItem('ss_onboarded', '1')
+
+    // Mirror to the server (fire-and-forget) so prefs survive device switches.
+    if (localStorage.getItem('token')) {
+      api.post('/preferences', { preferences: next }).catch(() => {})
+    }
+  }
+
+  // New device, existing account: adopt the server copy when local is empty.
+  function adoptServerPrefs(serverPrefs) {
+    if (!serverPrefs || Object.keys(prefs.value).length) return
+    prefs.value = serverPrefs
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serverPrefs))
+    localStorage.setItem('ss_onboarded', '1')
   }
 
   function hasOnboarded() {
@@ -33,5 +47,5 @@ export function usePrefs() {
 
   const dailyGoal = () => prefs.value.dailyGoal ?? 6
 
-  return { prefs, savePrefs, hasOnboarded, dailyGoal }
+  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, dailyGoal }
 }
