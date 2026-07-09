@@ -1,0 +1,261 @@
+/* ============================================================
+   SaunaSpeak design tokens
+   Dark is the default (sauna dusk); [data-theme="light"] overrides.
+   Legacy variable names (--bg, --card, --accent, ...) are preserved
+   so existing components keep working.
+   ============================================================ */
+:root,
+:root[data-theme="dark"] {
+  /* surfaces */
+  --bg: #12141a;
+  --bg-soft: #191c24;
+  --card: #1f232e;
+  --card-hover: #262b38;
+  --border: #2e3442;
+
+  /* text */
+  --text: #eef0f4;
+  --text-dim: #9aa1b0;
+  --text-faint: #6b7280;
+
+  /* brand — löyly amber */
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.14);
+  --accent-2: #fb923c;
+  --accent-contrast: #1a1204;
+
+  /* status */
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.14);
+  --red: #f87171;
+  --red-soft: rgba(248, 113, 113, 0.12);
+  --blue: #60a5fa;
+  --blue-soft: rgba(96, 165, 250, 0.14);
+
+  /* elevation */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-accent: 0 4px 20px rgba(245, 158, 11, 0.25);
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f4ef;
+  --bg-soft: #efece4;
+  --card: #ffffff;
+  --card-hover: #f4f1ea;
+  --border: #e2ddd2;
+
+  --text: #1f2530;
+  --text-dim: #5c6472;
+  --text-faint: #949aa6;
+
+  --accent: #e08600;
+  --accent-soft: rgba(224, 134, 0, 0.12);
+  --accent-2: #f2760b;
+  --accent-contrast: #fff7ec;
+
+  --green: #0f9d6b;
+  --green-soft: rgba(15, 157, 107, 0.12);
+  --red: #dc4c4c;
+  --red-soft: rgba(220, 76, 76, 0.1);
+  --blue: #2f6fd6;
+  --blue-soft: rgba(47, 111, 214, 0.12);
+
+  --shadow-sm: 0 1px 3px rgba(31, 37, 48, 0.08);
+  --shadow-md: 0 8px 28px rgba(31, 37, 48, 0.12);
+  --shadow-accent: 0 4px 20px rgba(224, 134, 0, 0.22);
+}
+
+:root {
+  /* radius */
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* spacing scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* typography scale */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 26px;
+  --text-3xl: 32px;
+
+  /* fonts (swappable — kept to system stacks so PWA works offline) */
+  --font-body: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-display: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+
+  /* layout */
+  --content-max: 560px;   /* comfortable reading column */
+  --shell-max: 1180px;    /* desktop shell width */
+  --nav-width: 224px;     /* desktop sidebar */
+
+  /* motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 22px;
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-accent);
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+
+.btn-ghost {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--card-hover); }
+
+.btn-block { width: 100%; }
+
+/* ---------- cards & forms ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.field input:focus { border-color: var(--accent); }
+
+.error-msg {
+  background: var(--red-soft);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: var(--red);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* ---------- progress bar ---------- */
+.progress-track {
+  height: 10px;
+  background: var(--bg-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s ease;
+}
+
+/* ---------- misc ---------- */
+.muted { color: var(--text-dim); font-size: 14px; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 40px auto;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,148 @@
+# 🔥 SaunaSpeak
+
+Learn **everyday spoken Finnish** through short daily **Sauna Sessions** — contextual sentence learning with speaking/listening practice, spaced repetition, and XP + streak gamification.
+
+## Learning approach
+
+SaunaSpeak teaches **puhekieli** (spoken Finnish) first — the language Finns actually use in shops, buses and saunas — because textbook **kirjakieli** alone leaves learners unable to follow real conversation:
+
+- **Spoken form is primary** — you learn *"Mä oon Anna"*, not *"Minä olen Anna"*. Where the registers differ, the written form is shown as a 📖 reference so you can still read signs, news and textbooks (Finnish-pedagogy consensus: learn both, side by side).
+- **Whole-sentence chunks in context** — formulaic sequences are acquired faster and are immediately usable, unlike isolated words.
+- **Listen first, then shadow** — new sentences auto-play before you study them, and every card prompts you to say the sentence out loud twice (shadowing builds pronunciation, prosody and listening in one move).
+- **Retrieval practice with scaffolding fade** — the exercise gets harder as a sentence climbs the SRS ladder, moving from input to output: **new** = listen & shadow → **learning** = cloze (catch the missing word from the audio) → **review** = dictation (audio only, no text) → **mastered** = full recall (English → Finnish from memory). Support is gradually removed as competence grows — the core idea of scaffolded instruction.
+- **End-of-session consolidation** — the finish screen lists everything studied with replay audio for one last read-aloud pass while the session is fresh.
+- **Tap any word** — every Finnish word is tappable: hear it pronounced and see its meaning, including what spoken form it reduces from (*oon → olen*) and what the case endings do (*Helsingissä = Helsinki + -ssä "in"*). Tapped words are auto-collected into a personal **word bank** (⭐ on the dashboard) — the words you tap are the ones your memory flagged as hard, so they become your self-built review list; mark them "✓ Learned" to clear them.
+- **Dialogue in context** — the *Sauna Small Talk* lesson is a real two-speaker conversation; each line shows 💬 the line it replies to, so sentences are learned as discourse moves (question → answer), not isolated strings.
+- **Spaced repetition** — completed sentences come back at expanding intervals (1 → 3 → 14 days).
+- **Small daily sessions + streaks** — distributed practice beats cramming; the streak and XP loop makes daily contact the habit.
+
+## Stack
+
+- **Backend** — Laravel 11 API (`backend/`), Sanctum token auth, MySQL
+- **Frontend** — Vue 3 + Vite + Pinia + Vue Router (`frontend/`), installable PWA, dark mode
+- **Audio** — pre-generated native Finnish neural voice MP3s (`php artisan audio:generate`, free via edge-tts), with browser SpeechSynthesis (`fi-FI`) as automatic fallback; speed control on both
+- **Speaking mode** — browser SpeechRecognition (`fi-FI`, Chrome/Edge) with typed-input fallback everywhere
+
+## Requirements
+
+- PHP 8.2+ and Composer
+- Node 18+ and npm
+- MySQL running locally
+
+## Setup
+
+### 1. Backend
+
+```bash
+cd backend
+composer install
+cp .env.example .env        # skip if .env already exists
+php artisan key:generate    # skip if APP_KEY is already set
+```
+
+Set your MySQL credentials in `backend/.env`:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=saunaspeak
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+Create the database (if it doesn't exist) and migrate + seed:
+
+```bash
+php artisan migrate --seed
+php artisan serve           # http://127.0.0.1:8000
+```
+
+Seeding creates 8 lessons (A0–A1) with 64 spoken-Finnish sentences (including the *Spoken Finnish Survival Kit* and the *Sauna Small Talk* dialogue), plus a test account: `test@example.com` / `password`. Each sentence stores the puhekieli form (`finnish_text`), the kirjakieli reference where it differs (`written_text`), and a per-word dictionary (`word_glosses` JSON) powering the tap-a-word feature.
+
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                 # http://localhost:5173
+```
+
+The Vite dev server proxies `/api` to `http://127.0.0.1:8000`, so no CORS config is needed. Open **http://localhost:5173**, register, and start your first Sauna Session.
+
+### Production build
+
+```bash
+cd frontend
+npm run build               # outputs dist/ with service worker + manifest
+```
+
+Serve `dist/` behind the same origin as the API (or any static host with `/api` proxied to Laravel).
+
+## How it works
+
+### Daily session (`GET /api/today-session`)
+
+Returns up to 8 sentences: **due reviews first** (oldest due first), topped up with brand-new sentences in lesson order.
+
+### Spaced repetition (graded)
+
+After each sentence the learner self-grades — the grade drives the schedule:
+
+| Grade | Effect |
+|---|---|
+| 🔁 Again | Lapse: back to *learning*, due immediately, re-queued once at the end of the current session |
+| ✓ Good | Advance one stage: new → learning (+1d) → review (+3d) → mastered (+14d, then +30d) |
+| ⚡ Easy | Skip a stage with a longer interval: new → review (+3d), learning → mastered (+14d), review → mastered (+30d), mastered +60d |
+
+### Speaking practice
+
+Every session card has a speak-or-type box: say the sentence with the 🎤 (SpeechRecognition, `fi-FI`) or type it, and it's checked against the expected target. Exact matches (ignoring case/punctuation) pass instantly; near-misses go to `/api/ai/correct` for feedback. The target follows the exercise: cloze cards check just the missing word, dictation and recall cards check the whole sentence. Checking an attempt reveals the answer, which unlocks self-grading.
+
+### XP & streak
+
+- +10 XP per completed sentence (+2 XP on an "Again" lapse)
+- +50 XP bonus for finishing the daily session (once per day)
+- Streak +1 for the first completed session each day; missing a full day resets it to 0
+- XP unlocks sauna ranks: 🪨 Kylmä Kiuas → 💧 Ensilöyly (150) → ♨️ Löylynheittäjä (400) → 🧖 Lauteiden Vakio (800) → 🔥 Löylymestari (1400) → 👑 Saunalegenda (2200)
+
+### AI correction (`POST /api/ai/correct`)
+
+Send `user_sentence` + `expected_sentence`, get back `corrected` + `explanation`. If `AI_API_KEY` is set in `backend/.env` it calls the Anthropic API; otherwise it returns a mock response with the identical shape. The AI is instructed to treat puhekieli forms (*mä oon*, *onks*, *emmä*…) as correct and never "fix" them into written Finnish.
+
+### Native audio (`php artisan audio:generate`)
+
+Audio is pre-generated as MP3s with a **free Finnish neural voice** using [edge-tts](https://github.com/rany2/edge-tts) (`pip install edge-tts`; voices `fi-FI-HarriNeural`, `fi-FI-NooraNeural`, `fi-FI-SelmaNeural`):
+
+- **Sentences** → `backend/public/audio/sentence-{id}.mp3`, with `audio_url` set per sentence.
+- **Words** → `backend/public/audio/words/{slug}.mp3`, indexed by `backend/public/audio/words.json` (a `word → url` map). Every glossed word gets its own native pronunciation.
+
+The frontend routes **all** playback through one `useFinnishAudio()` composable: it plays the native MP3 when one exists (sentence `audio_url`, or a word looked up in the manifest) and falls back to browser SpeechSynthesis otherwise — so the same voice is heard for sentence audio, tapped words, the end-of-session recap, and the word bank. MP3s are cached offline by the service worker (cache-first). Fully-offline open-source alternative: [Piper](https://github.com/rhasspy/piper) with a Finnish voice model, pointed at the same `public/audio/` layout.
+
+### PWA
+
+`vite-plugin-pwa` generates the manifest and a Workbox service worker that precaches the UI shell (offline-capable); API calls are never cached. Installable from the browser's "Install app" prompt — and the dashboard shows its own 📲 install button when the browser allows it (`beforeinstallprompt`).
+
+### Onboarding
+
+First visit to the dashboard shows a 3-slide intro (spoken Finnish first → listen/speak/recall method → streaks & sauna ranks), dismissed permanently via `localStorage`.
+
+## API reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/register` | Create account, returns token |
+| POST | `/api/login` | Login, returns token |
+| POST | `/api/logout` | Revoke current token |
+| GET | `/api/user` | Profile + stats (XP, streak, mastery, due count) |
+| GET | `/api/lessons` | Lessons with mastery counts |
+| GET | `/api/lessons/{id}` | Lesson with sentences + per-sentence status |
+| GET | `/api/today-session` | Today's Sauna Session sentences |
+| POST | `/api/progress/complete` | Grade a sentence (`grade`: again/good/easy, default good) — awards XP, schedules next review |
+| POST | `/api/session/complete` | Finish session (+50 XP bonus, streak update) |
+| POST | `/api/ai/correct` | AI (or mock) sentence correction |
+| GET | `/api/words` | The user's word bank (tapped words), newest first |
+| POST | `/api/words` | Save a word (idempotent per user+word) |
+| DELETE | `/api/words/{id}` | Remove a word ("learned") |
+
+All endpoints except register/login require `Authorization: Bearer <token>`.
