@@ -36,6 +36,19 @@ class ChatController extends Controller
             if ($response !== null) {
                 return response()->json($response);
             }
+
+            // Rate limited / out of credits: say so in character instead of
+            // silently degrading to the mock — a looping mock reads as "broken".
+            if (in_array(Llm::$lastStatus, [402, 429], true)) {
+                return response()->json([
+                    'reply' => 'Huh, nyt on liikaa löylyä! Väinö hengähtää hetken — kokeile kohta uudestaan. 🧖',
+                    'translation' => Llm::$lastStatus === 402
+                        ? 'Phew, too much steam! (AI credits are used up — top up to keep chatting.)'
+                        : 'Phew, too much steam! Väinö is catching his breath — try again in a minute. (AI rate limit reached.)',
+                    'correction' => null,
+                    'source' => 'rate_limited',
+                ]);
+            }
         }
 
         return response()->json($this->mockReply($data['messages']));

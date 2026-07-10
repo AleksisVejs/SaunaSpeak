@@ -28,9 +28,18 @@ return [
         // Anthropic (paid) — used first when set.
         'key' => env('AI_API_KEY'),
         'model' => env('AI_MODEL', 'claude-haiku-4-5-20251001'),
+        // OpenRouter (prepaid credits, no free-tier quota walls) — second priority.
+        // gemini-2.5-flash: strong puhekieli, ~€4 ≈ thousands of chat turns.
+        'openrouter_key' => env('OPENROUTER_API_KEY'),
+        // Chat: gemini-2.5-flash won the register bake-off (authentic puhekieli).
+        'openrouter_model' => env('OPENROUTER_MODEL', 'google/gemini-2.5-flash'),
+        // Corrections: deepseek-v4-flash caught every planted error in testing
+        // and costs ~1/15th on output — right tool for the high-volume endpoint.
+        'openrouter_model_correct' => env('OPENROUTER_MODEL_CORRECT', 'deepseek/deepseek-v4-flash'),
         // Google Gemini — free tier at https://aistudio.google.com/apikey
         'gemini_key' => env('GEMINI_API_KEY'),
-        'gemini_model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        // flash-lite: higher free-tier rate limits, plenty for A0-A2 chat.
+        'gemini_model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
     ],
 
     // Absolute path to the edge-tts binary for on-demand chat TTS. Web server

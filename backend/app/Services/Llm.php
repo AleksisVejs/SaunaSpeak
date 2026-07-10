@@ -11,20 +11,34 @@ use Illuminate\Support\Facades\Http;
  */
 class Llm
 {
+    /** HTTP status of the last failed call (e.g. 429 = rate limited), or null. */
+    public static ?int $lastStatus = null;
+
     /** True when any provider is configured. */
     public static function available(): bool
     {
-        return (bool) (config('services.ai.key') || config('services.ai.gemini_key'));
+        return (bool) (
+            config('services.ai.key')
+            || config('services.ai.openrouter_key')
+            || config('services.ai.gemini_key')
+        );
     }
 
     /**
      * Run one completion. $messages entries: ['role' => 'user'|'assistant', 'content' => string].
      * Returns the raw text reply, or null on any failure.
+     * $model overrides the configured model (honored by the OpenRouter provider).
      */
-    public static function generate(string $system, array $messages, int $maxTokens = 400): ?string
+    public static function generate(string $system, array $messages, int $maxTokens = 400, ?string $model = null): ?string
     {
+        self::$lastStatus = null;
+
         if ($key = config('services.ai.key')) {
             return self::anthropic($key, $system, $messages, $maxTokens);
+        }
+
+        if ($key = config('services.ai.openrouter_key')) {
+            return self::openrouter($key, $system, $messages, $maxTokens, $model);
         }
 
         if ($key = config('services.ai.gemini_key')) {
@@ -32,6 +46,43 @@ class Llm
         }
 
         return null;
+    }
+
+    /** OpenRouter: OpenAI-compatible API over prepaid credits. */
+    private static function openrouter(string $key, string $system, array $messages, int $maxTokens, ?string $model = null): ?string
+    {
+        try {
+            $response = Http::withToken($key)
+                ->withHeaders([
+                    // Shown in OpenRouter's usage dashboard.
+                    'HTTP-Referer' => config('app.url'),
+                    'X-Title' => 'SaunaSpeak',
+                ])
+                ->timeout(25)
+                ->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model' => $model ?? config('services.ai.openrouter_model', 'google/gemini-2.5-flash'),
+                    // Reasoning models spend invisible thinking tokens inside
+                    // max_tokens — disable it and keep headroom, or long
+                    // prompts come back as truncated (unparseable) JSON.
+                    'reasoning' => ['enabled' => false],
+                    'max_tokens' => max(2048, $maxTokens),
+                    'messages' => [
+                        ['role' => 'system', 'content' => $system],
+                        ...$messages,
+                    ],
+                ]);
+
+            if (! $response->successful()) {
+                // 402 = credits exhausted, 429 = rate limited.
+                self::$lastStatus = $response->status();
+
+                return null;
+            }
+
+            return $response->json('choices.0.message.content');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private static function anthropic(string $key, string $system, array $messages, int $maxTokens): ?string
@@ -47,7 +98,13 @@ class Llm
                 'messages' => $messages,
             ]);
 
-            return $response->successful() ? $response->json('content.0.text') : null;
+            if (! $response->successful()) {
+                self::$lastStatus = $response->status();
+
+                return null;
+            }
+
+            return $response->json('content.0.text');
         } catch (\Throwable) {
             return null;
         }
@@ -85,9 +142,13 @@ class Llm
                 $response = Http::timeout(20)->post($url, $payload);
             }
 
-            return $response->successful()
-                ? $response->json('candidates.0.content.parts.0.text')
-                : null;
+            if (! $response->successful()) {
+                self::$lastStatus = $response->status();
+
+                return null;
+            }
+
+            return $response->json('candidates.0.content.parts.0.text');
         } catch (\Throwable) {
             return null;
         }

@@ -46,19 +46,24 @@ const rank = computed(() => {
 
 const dueCount = computed(() => auth.stats?.due_count ?? 0)
 
-// The SRS schedule, made visible: reviews landing over the next 7 days.
-const forecast = computed(() => {
-  const rows = auth.stats?.forecast ?? []
+// The SRS schedule, made visible: a 7-day timeline of when sentences
+// come back. Today = what's due right now; later days from stats.forecast.
+const schedule = computed(() => {
+  const byDate = Object.fromEntries((auth.stats?.forecast ?? []).map((r) => [r.date, r.count]))
   const fmt = new Intl.DateTimeFormat('en', { weekday: 'short' })
-  const tomorrow = new Date(Date.now() + 86400000).toDateString()
-  return rows.slice(0, 4).map((r) => {
-    const d = new Date(`${r.date}T12:00:00`)
-    return {
-      label: d.toDateString() === tomorrow ? 'Tomorrow' : fmt.format(d),
-      count: r.count
-    }
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() + i * 86400000)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const count = i === 0 ? dueCount.value : (byDate[key] ?? 0)
+    return { key, label: i === 0 ? 'Now' : fmt.format(d), count }
   })
+
+  const max = Math.max(1, ...days.map((d) => d.count))
+  return days.map((d) => ({ ...d, pct: Math.round((d.count / max) * 100) }))
 })
+
+const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
 </script>
 
 <template>
@@ -99,12 +104,33 @@ const forecast = computed(() => {
         {{ dueCount ? `${dueCount} sentences due` : 'Fresh sentences are waiting' }} · daily goal {{ dailyGoal() }}
       </p>
 
-      <!-- review forecast: when your sentences come back -->
-      <div v-if="forecast.length" class="forecast">
-        <span class="forecast-label">🗓 Coming back:</span>
-        <span v-for="f in forecast" :key="f.label" class="forecast-chip">
-          {{ f.label }} <b>{{ f.count }}</b>
-        </span>
+      <!-- review schedule: when your sentences come back, and why -->
+      <div v-if="hasSchedule" class="card schedule">
+        <div class="schedule-head">
+          <p class="schedule-title">
+            <svg class="schedule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3.5 2" />
+            </svg>
+            Review schedule
+          </p>
+          <span class="schedule-sub muted">next 7 days</span>
+        </div>
+        <div class="schedule-days">
+          <div
+            v-for="d in schedule"
+            :key="d.key"
+            class="sday"
+            :class="{ today: d.label === 'Now', empty: !d.count }"
+          >
+            <span class="sday-count">{{ d.count || '·' }}</span>
+            <div class="sday-track"><div class="sday-fill" :style="{ height: d.pct + '%' }"></div></div>
+            <span class="sday-label">{{ d.label }}</span>
+          </div>
+        </div>
+        <p class="schedule-why muted">
+          Each sentence returns right before you'd forget it — that timing is what makes it stick.
+        </p>
       </div>
 
       <button v-if="installPrompt" class="btn btn-ghost btn-block install-btn" @click="install">
@@ -152,24 +178,42 @@ const forecast = computed(() => {
 
 .session-btn { font-size: 18px; padding: 17px; }
 .session-hint { text-align: center; margin: 10px 0 12px; }
-.forecast {
+.schedule { margin-bottom: 18px; }
+.schedule-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.schedule-title { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 7px; }
+.schedule-icon { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+.schedule-sub { font-size: 11px; }
+.schedule-days { display: flex; gap: 8px; align-items: flex-end; }
+.sday { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.sday-count { font-size: 13px; font-weight: 800; color: var(--text); }
+.sday.empty .sday-count { color: var(--text-faint); font-weight: 400; }
+.sday.today .sday-count { color: var(--accent); }
+.sday-track {
+  width: 100%;
+  height: 44px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 18px;
-}
-.forecast-label { font-size: 12px; color: var(--text-faint); }
-.forecast-chip {
-  font-size: 12px;
-  color: var(--text-dim);
+  align-items: flex-end;
   background: var(--bg-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 3px 10px;
+  border-radius: 7px;
+  overflow: hidden;
 }
-.forecast-chip b { color: var(--accent); }
+.sday-fill {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  transition: height 0.4s ease;
+}
+.sday.empty .sday-fill { background: var(--border); }
+.sday-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sday.today .sday-label { color: var(--accent); }
+.schedule-why { font-size: 12px; line-height: 1.5; margin-top: 12px; text-align: center; }
 .install-btn { margin-bottom: 22px; font-size: 15px; }
 
 .journey-head {

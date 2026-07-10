@@ -30,7 +30,9 @@ class PremiumTest extends TestCase
 
     public function test_everything_is_free_while_billing_is_unconfigured(): void
     {
-        config(['services.stripe.secret' => null]);
+        // Null AI keys too: this test must never spend real API credits.
+        config(['services.stripe.secret' => null, 'services.ai.key' => null,
+            'services.ai.gemini_key' => null, 'services.ai.openrouter_key' => null]);
 
         $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']]])
             ->assertOk();

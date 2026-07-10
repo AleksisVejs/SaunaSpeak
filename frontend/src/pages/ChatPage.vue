@@ -27,6 +27,8 @@ const OPENER = {
 const messages = ref([{ ...OPENER }])
 const draft = ref('')
 const sending = ref(false)
+// Re-keyed on every Väinö reply → one steam burst per reply (löyly!).
+const burst = ref(0)
 const showTranslation = ref({}) // index → bool
 const listening = ref(false)
 const listRef = ref(null)
@@ -90,6 +92,7 @@ async function send() {
       messages.value[messages.value.length - 1].correction = data.correction
     }
     messages.value.push({ role: 'assistant', content: data.reply, translation: data.translation })
+    burst.value = Date.now()
     playSpoken(data.reply)
   } catch {
     messages.value.push({
@@ -126,29 +129,47 @@ const full = () => messages.value.length >= MAX_TURNS
   </div>
 
   <div v-else class="chat sauna-scene">
-    <!-- steam wisps + kiuas glow (decoration only) -->
+    <!-- steam wisps + fog + kiuas glow (decoration only) -->
     <div class="steam" aria-hidden="true">
       <span v-for="i in 5" :key="i" class="wisp" :style="{ left: `${i * 19 - 5}%`, animationDelay: `${i * 1.7}s` }"></span>
     </div>
+    <div class="fog" aria-hidden="true"></div>
     <div class="kiuas-glow" aria-hidden="true"></div>
+    <!-- a throw of löyly every time Väinö replies: hiss, then rising puffs -->
+    <div v-if="burst" :key="burst" class="loyly" aria-hidden="true">
+      <i class="hiss"></i>
+      <i class="puff" style="--dx: 0px; --d: 0s; --s: 1"></i>
+      <i class="puff" style="--dx: -30px; --d: 0.18s; --s: 0.75"></i>
+      <i class="puff" style="--dx: 26px; --d: 0.34s; --s: 0.85"></i>
+      <i class="puff" style="--dx: -10px; --d: 0.52s; --s: 1.15"></i>
+    </div>
 
-    <header class="scene-head">
-      <span class="avatar">
-        <img
-          v-if="avatarOk"
-          :src="AVATAR_URL"
-          alt="Väinö"
-          @error="avatarOk = false"
-        />
-        <span v-else class="avatar-fallback">🧔</span>
-      </span>
-      <div>
-        <p class="who">Väinö</p>
-        <p class="who-sub">on the bench · speaks puhekieli · tap his bubbles for English</p>
-      </div>
-    </header>
+    <!-- Väinö himself, on his bench in the sauna (desktop) -->
+    <aside class="vaino-side">
+      <img class="vaino-big" :src="AVATAR_URL" alt="Väinö sitting on the sauna bench with a ladle" @error="avatarOk = false" />
+      <p class="who">Väinö</p>
+      <p class="who-sub">speaks puhekieli · tap his bubbles for English</p>
+    </aside>
 
-    <div ref="listRef" class="bubbles">
+    <!-- the chat, a panel beside him -->
+    <section class="chat-panel">
+      <header class="scene-head">
+        <span class="avatar">
+          <img
+            v-if="avatarOk"
+            :src="AVATAR_URL"
+            alt="Väinö"
+            @error="avatarOk = false"
+          />
+          <span v-else class="avatar-fallback">🧔</span>
+        </span>
+        <div>
+          <p class="who">Väinö</p>
+          <p class="who-sub">on the bench · speaks puhekieli · tap his bubbles for English</p>
+        </div>
+      </header>
+
+      <div ref="listRef" class="bubbles">
       <div
         v-for="(m, i) in messages"
         :key="i"
@@ -183,36 +204,40 @@ const full = () => messages.value.length >= MAX_TURNS
           <img v-if="avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
           <span v-else class="avatar-fallback">🧔</span>
         </span>
-        <div class="bubble assistant typing">Väinö miettii…</div>
+        <div class="bubble assistant typing">
+          Väinö miettii
+          <span class="tdots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span>
+        </div>
       </div>
     </div>
 
-    <div v-if="full()" class="full-note">
-      <p class="muted">The löyly ran out — great chat! 🧖</p>
-      <button class="btn btn-ghost" @click="reset">Start a fresh chat</button>
-    </div>
+      <div v-if="full()" class="full-note">
+        <p class="muted">The löyly ran out — great chat! 🧖</p>
+        <button class="btn btn-ghost" @click="reset">Start a fresh chat</button>
+      </div>
 
-    <div v-else class="composer">
-      <button
-        v-if="micSupported"
-        class="btn btn-ghost mic"
-        :class="{ listening }"
-        :title="listening ? 'Listening… tap to stop' : 'Say it in Finnish'"
-        @click="listening ? stopListening() : startListening()"
-      >{{ listening ? '👂' : '🎤' }}</button>
-      <input
-        v-model="draft"
-        type="text"
-        class="chat-input"
-        :placeholder="listening ? 'Listening…' : 'Sano jotain suomeks…'"
-        autocapitalize="none"
-        autocomplete="off"
-        spellcheck="false"
-        :disabled="sending"
-        @keyup.enter="send"
-      />
-      <button class="btn btn-primary send" :disabled="!draft.trim() || sending" @click="send">➤</button>
-    </div>
+      <div v-else class="composer">
+        <button
+          v-if="micSupported"
+          class="btn btn-ghost mic"
+          :class="{ listening }"
+          :title="listening ? 'Listening… tap to stop' : 'Say it in Finnish'"
+          @click="listening ? stopListening() : startListening()"
+        >{{ listening ? '👂' : '🎤' }}</button>
+        <input
+          v-model="draft"
+          type="text"
+          class="chat-input"
+          :placeholder="listening ? 'Listening…' : 'Sano jotain suomeks…'"
+          autocapitalize="none"
+          autocomplete="off"
+          spellcheck="false"
+          :disabled="sending"
+          @keyup.enter="send"
+        />
+        <button class="btn btn-primary send" :disabled="!draft.trim() || sending" @click="send">➤</button>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -231,7 +256,7 @@ const full = () => messages.value.length >= MAX_TURNS
 .chat-locked h1 { font-size: 24px; }
 .chat-locked .muted { line-height: 1.55; margin-bottom: 8px; }
 
-/* ---- the sauna ---- */
+/* ---- the sauna room (the big box) ---- */
 .sauna-scene {
   position: relative;
   overflow: hidden;
@@ -246,6 +271,54 @@ const full = () => messages.value.length >= MAX_TURNS
     ),
     linear-gradient(180deg, #241812 0%, #2d1c12 55%, #38200f 100%);
   border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+/* ---- Väinö on his bench (left side, desktop only) ---- */
+.vaino-side {
+  display: none;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 250px;
+  flex-shrink: 0;
+  padding: 0 8px 18px;
+  text-align: center;
+}
+.vaino-big {
+  width: 210px;
+  height: 210px;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
+  animation: breathe 5s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vaino-big { animation: none; }
+}
+.vaino-side .who { margin-top: 10px; font-size: 18px; }
+.vaino-side .who-sub { margin-top: 2px; max-width: 210px; line-height: 1.4; }
+
+/* ---- the chat panel (the small box) ---- */
+.chat-panel {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 10, 5, 0.55);
+  border: 1px solid rgba(243, 231, 211, 0.14);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+/* side-by-side once there's room; Väinö steps out of the header */
+@media (min-width: 760px) {
+  .sauna-scene { flex-direction: row; gap: 10px; padding: 18px; }
+  .vaino-side { display: flex; }
+  .chat-panel .scene-head { display: none; }
 }
 
 /* embers glowing at the bottom, like the kiuas */
@@ -281,8 +354,89 @@ const full = () => messages.value.length >= MAX_TURNS
   15% { opacity: 1; }
   to { transform: translateY(-540px) scale(1.7); opacity: 0; }
 }
+/* fog hanging under the ceiling, drifting slowly */
+.fog {
+  position: absolute;
+  top: -50px;
+  left: -15%;
+  right: -15%;
+  height: 130px;
+  background:
+    radial-gradient(45% 90% at 25% 60%, rgba(238, 240, 244, 0.10), transparent 70%),
+    radial-gradient(50% 100% at 65% 40%, rgba(238, 240, 244, 0.08), transparent 70%),
+    radial-gradient(40% 80% at 90% 60%, rgba(238, 240, 244, 0.09), transparent 70%);
+  filter: blur(14px);
+  pointer-events: none;
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translateX(-30px); }
+  to { transform: translateX(30px); }
+}
+
+/* a ladleful of löyly hitting the stones when Väinö replies */
+.loyly {
+  position: absolute;
+  bottom: 34px;
+  left: 17%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+/* the sharp bright hiss where water meets stone */
+.loyly .hiss {
+  position: absolute;
+  bottom: -6px;
+  left: -35px;
+  width: 70px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 244, 220, 0.85), rgba(255, 200, 120, 0.25) 55%, transparent 75%);
+  filter: blur(3px);
+  opacity: 0;
+  animation: hiss 0.55s ease-out forwards;
+}
+@keyframes hiss {
+  0% { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
+  30% { opacity: 1; transform: scaleX(1.15) scaleY(1); }
+  100% { opacity: 0; transform: scaleX(1.5) scaleY(0.7); }
+}
+/* the steam itself: staggered puffs wobbling upward */
+.loyly .puff {
+  position: absolute;
+  bottom: 0;
+  left: -48px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 55%, rgba(240, 242, 246, 0.34), rgba(240, 242, 246, 0.12) 55%, transparent 70%);
+  filter: blur(7px);
+  opacity: 0;
+  transform: translate(var(--dx, 0), 14px) scale(calc(var(--s, 1) * 0.3));
+  animation: puff-rise 2.4s cubic-bezier(0.25, 0.6, 0.45, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes puff-rise {
+  0% {
+    opacity: 0;
+    transform: translate(var(--dx, 0), 14px) scale(calc(var(--s, 1) * 0.3));
+    filter: blur(5px);
+  }
+  14% { opacity: 0.85; }
+  40% {
+    opacity: 0.5;
+    transform: translate(calc(var(--dx, 0) * 1.6), -130px) scale(calc(var(--s, 1) * 1.2));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx, 0) * 2.6), -320px) scale(calc(var(--s, 1) * 2.2));
+    filter: blur(16px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .wisp, .kiuas-glow { animation: none; }
+  .wisp, .kiuas-glow, .fog, .bubble, .vaino-big { animation: none; }
+  .loyly { display: none; }
 }
 
 /* ---- Väinö ---- */
@@ -327,22 +481,63 @@ const full = () => messages.value.length >= MAX_TURNS
 .row.user { justify-content: flex-end; }
 
 .bubble {
+  position: relative;
   max-width: 80%;
-  padding: 11px 14px;
-  border-radius: var(--radius);
+  padding: 12px 16px;
   line-height: 1.45;
+  animation: puff-in 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
+/* messages materialize like a puff of steam */
+@keyframes puff-in {
+  from { opacity: 0; transform: scale(0.82) translateY(8px); filter: blur(5px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
 .bubble.assistant {
-  /* pale birch wood — Väinö's side */
-  background: rgba(243, 231, 211, 0.94);
+  /* Väinö's words arrive as steam clouds */
+  background: radial-gradient(130% 160% at 30% 15%, rgba(255, 255, 255, 0.97), rgba(230, 233, 238, 0.88));
   color: #2b1c10;
-  border-bottom-left-radius: 6px;
+  border-radius: 26px 22px 24px 10px;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    inset 0 2px 6px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 10px rgba(160, 170, 185, 0.28);
   cursor: pointer;
 }
+/* cloud lumps along the top edge */
+.bubble.assistant::before,
+.bubble.assistant::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.85);
+  z-index: -1;
+}
+.bubble.assistant::before { width: 26px; height: 26px; top: -9px; left: 18px; }
+.bubble.assistant::after { width: 18px; height: 18px; top: -6px; left: 48px; }
+
 .bubble.user {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(251, 146, 60, 0.92));
+  /* the learner's löyly: warm amber steam */
+  background: radial-gradient(130% 160% at 70% 15%, rgba(252, 200, 96, 0.96), rgba(245, 145, 30, 0.92));
   color: #1a1204;
-  border-bottom-right-radius: 6px;
+  border-radius: 22px 26px 10px 24px;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    inset 0 2px 6px rgba(255, 226, 170, 0.85),
+    inset 0 -4px 10px rgba(160, 80, 10, 0.3);
+}
+.bubble.user::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  top: -8px;
+  right: 22px;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: inset 0 2px 4px rgba(255, 226, 170, 0.8);
+  z-index: -1;
 }
 .bubble-text { font-size: 15px; font-weight: 600; }
 .bubble-translation {
@@ -358,7 +553,29 @@ const full = () => messages.value.length >= MAX_TURNS
   margin-top: 6px;
   color: #7a3b00;
 }
-.bubble.typing { font-style: italic; font-size: 14px; color: rgba(43, 28, 16, 0.6); }
+.bubble.typing {
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(43, 28, 16, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* thinking = little steam puffs rising */
+.tdots { display: inline-flex; gap: 4px; align-items: flex-end; }
+.tdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(43, 28, 16, 0.45);
+  animation: tdot-rise 1.2s ease-in-out infinite;
+}
+.tdot:nth-child(2) { animation-delay: 0.2s; }
+.tdot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes tdot-rise {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
 
 .speak {
   background: rgba(243, 231, 211, 0.12);

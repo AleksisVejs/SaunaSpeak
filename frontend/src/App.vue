@@ -61,7 +61,7 @@ async function logout() {
       </div>
     </aside>
 
-    <main class="content">
+    <main class="content" :class="{ 'content--wide': route.meta.wide }">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
       </router-view>
@@ -209,6 +209,8 @@ async function logout() {
     padding: var(--space-8) 0 var(--space-10);
     max-width: 640px;
   }
+  /* scene pages (chat) get room to breathe */
+  .app-shell--chrome .content--wide { max-width: 980px; }
   .app-shell--chrome .tabbar { display: none; }
 }
 </style>

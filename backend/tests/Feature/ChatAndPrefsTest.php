@@ -30,7 +30,7 @@ class ChatAndPrefsTest extends TestCase
 
     public function test_chat_replies_without_an_api_key_via_mock(): void
     {
-        config(['services.ai.key' => null, 'services.ai.gemini_key' => null]);
+        config(['services.ai.key' => null, 'services.ai.gemini_key' => null, 'services.ai.openrouter_key' => null]);
 
         $this->postJson('/api/chat', [
             'messages' => [['role' => 'user', 'content' => 'Moi Aino!']],

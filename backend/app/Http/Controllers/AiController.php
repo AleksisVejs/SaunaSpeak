@@ -37,9 +37,11 @@ class AiController extends Controller
     {
         $prompt = "You are a friendly Finnish teacher who teaches everyday SPOKEN Finnish (puhekieli). The student tried to say: \"{$expectedSentence}\" and wrote: \"{$userSentence}\". Colloquial spoken forms (mä oon, sä oot, onks, emmä, tää, toi...) are CORRECT — never \"fix\" puhekieli into formal written Finnish (kirjakieli). Only correct real mistakes in meaning, word choice or endings. Reply with ONLY a JSON object: {\"corrected\": \"<corrected spoken-Finnish sentence>\", \"explanation\": \"<one short, encouraging sentence in English>\"}";
 
+        // Corrections use the precision-tuned model (bake-off winner for
+        // error detection); chat keeps the register-tuned default.
         $text = Llm::generate('You are a concise Finnish teacher. Reply with only the requested JSON.', [
             ['role' => 'user', 'content' => $prompt],
-        ], 300);
+        ], 300, config('services.ai.openrouter_model_correct'));
 
         if ($text !== null) {
             // Tolerate models that wrap JSON in markdown fences.
