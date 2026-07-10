@@ -48,35 +48,67 @@ GEMINI_API_KEY=AIzaSy...         # free tier: aistudio.google.com/apikey
 6. If the price shown in the app changes, update the text in
    `frontend/src/pages/UpgradePage.vue` ("€4.99/month") to match.
 
-## 3. Backend upload (cPanel)
+## 3. cPanel deploy via git (recommended)
 
-1. Upload `backend/` (with `vendor/` — run `composer install --no-dev` locally
-   first, or via SSH on the server).
-2. Point the domain's document root at `backend/public`.
-3. `php artisan key:generate && php artisan migrate --force && php artisan db:seed --force`
-   Then make yourself admin: `php artisan user:promote your@email.com`
-4. `php artisan config:cache && php artisan route:cache`
-5. Upload the pre-generated media as-is (no Python needed on the server):
-   - `backend/public/audio/` (sentence + word + try MP3s, words.json)
-   - `backend/public/images/` (OpenMoji SVGs)
+Everything ships through GitHub — the built SPA (`frontend/dist`), audio and
+images are committed, so the server needs no Node and no manual uploads.
+`deploy.sh` in the repo root does the whole server side.
 
-## 4. Frontend
+### One-time setup (cPanel Terminal)
 
-1. Locally: `cd frontend && npm run build`
-2. Upload the contents of `frontend/dist/` into the same document root
-   (`index.html`, `assets/`, icons, Väinö images, `sw.js`, ...). The SPA and
-   the API share the domain, so `/api`, `/audio`, `/images` need no config.
-3. Laravel must NOT swallow SPA routes: `routes/web.php` should return the
-   SPA's `index.html` for any non-API path (or use an `.htaccess` fallback).
+```bash
+# 0. In cPanel UI first: create the MySQL DB + user (MySQL Databases),
+#    and set PHP 8.2+ (MultiPHP Manager). Then in Terminal:
 
-## 5. After every content addition
+cd ~
+git clone https://github.com/AleksisVejs/SaunaTalk.git saunaspeak
+cd saunaspeak/backend
+
+cp ../scripts/env.production.example .env
+nano .env        # fill APP_URL, DB_*, OPENROUTER_API_KEY (see section 1)
+
+composer install --no-dev --optimize-autoloader
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force
+php artisan user:promote your@email.com
+
+cd ~/saunaspeak
+chmod +x deploy.sh
+./deploy.sh      # backs up public_html, symlinks it to backend/public
+```
+
+If `composer`/`php` aren't found, use your host's binaries, e.g.
+`/usr/local/bin/ea-php83` and `php composer.phar`; the script accepts
+`PHP_BIN=... COMPOSER_BIN=... ./deploy.sh`.
+
+### Every deploy after that
+
+```bash
+# locally:
+cd frontend && npm run build && cd ..
+git add -A && git commit -m "..." && git push
+
+# on cPanel Terminal:
+cd ~/saunaspeak && ./deploy.sh
+```
+
+The script: resets + pulls, composer install, copies `frontend/dist` into
+`backend/public`, runs migrations, clears + rebuilds caches, fixes
+permissions, and keeps the `public_html` symlink pointed at `backend/public`.
+Server-local files (`backend/.env`, `storage/`, generated chat TTS) survive
+because they're gitignored.
+
+## 4. After every content addition (locally)
 
 ```bash
 php artisan db:seed --class=<NewLessonSeeder> && php artisan audio:generate && php artisan images:fetch
+cd ../frontend && npm run build
+git add -A && git commit -m "new lessons" && git push
+# then on the server: ./deploy.sh  (+ run the same db:seed --class=... there once)
 ```
-then re-upload `public/audio` + `public/images`.
 
-## 6. Smoke test after deploy
+## 5. Smoke test after deploy
 
 - Register a fresh account, do one session end-to-end, check audio plays.
 - `POST /api/chat` replies with `source: "ai"` (needs GEMINI_API_KEY).

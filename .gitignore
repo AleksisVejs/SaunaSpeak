@@ -1,5 +1,5 @@
 node_modules/
-dist/
+# frontend/dist is committed: cPanel has no Node, so the build ships via git
 vendor/
 
 .env

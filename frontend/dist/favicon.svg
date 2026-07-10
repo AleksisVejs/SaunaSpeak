@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#12141a"/>
+  <!-- wide, open speech bubble, tail at bottom-right -->
+  <path d="M42 26.01 A20 15 0 0 1 47.32 48.64 L43 61 L37.18 53.49 A20 15 0 0 1 22 26.01"
+        fill="none" stroke="#eef0f4" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- steam rising from inside the bubble -->
+  <g fill="none" stroke="#f97316" stroke-width="3.4" stroke-linecap="round">
+    <path d="M32 8 C27 14, 37 20, 32 27 C27.5 33, 35.5 38, 32 44"/>
+    <path d="M25.5 14 C21 19, 30 23, 25.5 29 C22 33.5, 28 36.5, 25.5 40"/>
+    <path d="M38.5 13 C34 18, 43 22, 38.5 28 C35 32.5, 41 35.5, 38.5 39"/>
+  </g>
+</svg>
