@@ -57,8 +57,13 @@ images are committed, so the server needs no Node and no manual uploads.
 ### One-time setup (cPanel Terminal)
 
 ```bash
-# 0. In cPanel UI first: create the MySQL DB + user (MySQL Databases),
-#    and set PHP 8.2+ (MultiPHP Manager). Then in Terminal:
+# 0. In cPanel UI first:
+#    - MySQL Databases: create DB + user, grant ALL
+#    - Domains -> Create A New Domain (or Subdomains): add the domain/subdomain
+#      SaunaSpeak will live on, and set its Document Root to
+#      saunaspeak/backend/public   <- this replaces any public_html symlinking
+#    - MultiPHP Manager: set that domain to PHP 8.2+
+#    Then in Terminal:
 
 cd ~
 git clone https://github.com/AleksisVejs/SaunaTalk.git saunaspeak
@@ -75,7 +80,7 @@ php artisan user:promote your@email.com
 
 cd ~/saunaspeak
 chmod +x deploy.sh
-./deploy.sh      # backs up public_html, symlinks it to backend/public
+./deploy.sh      # caches, permissions, bakes the SPA; docroot comes from the domain setup
 ```
 
 If `composer`/`php` aren't found, use your host's binaries, e.g.

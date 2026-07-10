@@ -10,7 +10,11 @@
 
 # ---- Configuration: adjust once for your cPanel account ----
 REPO_PATH="$HOME/saunaspeak"
-PUBLIC_PATH="$HOME/public_html"
+# PUBLIC_PATH: leave EMPTY when the (sub)domain's document root already points
+# at backend/public (set it when creating the domain in cPanel — preferred).
+# Only set this if you want the script to manage a symlink, e.g. "$HOME/public_html".
+# NEVER point it at a public_html that serves another site (RigInspect!).
+PUBLIC_PATH="${PUBLIC_PATH:-}"
 PHP_BIN="${PHP_BIN:-php}"           # override e.g. PHP_BIN=/usr/local/bin/ea-php83 ./deploy.sh
 COMPOSER_BIN="${COMPOSER_BIN:-composer}"
 
@@ -61,8 +65,10 @@ $PHP_BIN artisan config:cache || fail "config:cache failed"
 $PHP_BIN artisan route:cache || fail "route:cache failed"
 $PHP_BIN artisan view:cache
 
-# public_html -> backend/public symlink (idempotent: only touches it when wrong)
-if [ "$(readlink -f "$PUBLIC_PATH")" != "$(readlink -f "$BACKEND/public")" ]; then
+# Optional docroot symlink — skipped unless PUBLIC_PATH is set explicitly.
+if [ -z "$PUBLIC_PATH" ]; then
+  echo "PUBLIC_PATH not set — skipping symlink (domain docroot should point at backend/public)."
+elif [ "$(readlink -f "$PUBLIC_PATH")" != "$(readlink -f "$BACKEND/public")" ]; then
   if [ -e "$PUBLIC_PATH" ] && [ ! -L "$PUBLIC_PATH" ]; then
     echo "Backing up existing public_html..."
     mv "$PUBLIC_PATH" "${PUBLIC_PATH}_backup_$(date +%Y%m%d_%H%M%S)" || fail "backup failed"
