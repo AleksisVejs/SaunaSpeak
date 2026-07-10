@@ -73,13 +73,14 @@ const endCheckpoint = computed(() => {
   return last ? checkpointFor(last.level) : null
 })
 
-// Overall level progress, e.g. "A0 · 3/32 mastered".
+// Overall level progress, e.g. "A0 · 3/32 mastered". Number() guards against
+// APIs serving SQL aggregates as strings (host-dependent) — += would concat.
 const levelSummary = computed(() => {
   const byLevel = {}
   props.lessons.forEach((l) => {
     byLevel[l.level] ??= { mastered: 0, total: 0 }
-    byLevel[l.level].mastered += l.mastered_count
-    byLevel[l.level].total += l.sentences_count
+    byLevel[l.level].mastered += Number(l.mastered_count) || 0
+    byLevel[l.level].total += Number(l.sentences_count) || 0
   })
   return Object.entries(byLevel).map(([level, c]) => ({ level, ...c }))
 })

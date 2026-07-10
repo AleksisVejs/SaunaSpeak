@@ -30,10 +30,13 @@ class LessonController extends Controller
             ->orderBy('order_index')
             ->get()
             ->map(function (Lesson $lesson) use ($masteredBySentence, $startedByLesson) {
-                $lesson->mastered_count = $lesson->sentences()
+                $lesson->mastered_count = (int) $lesson->sentences()
                     ->whereIn('id', $masteredBySentence)
                     ->count();
                 $lesson->started_count = (int) ($startedByLesson[$lesson->id] ?? 0);
+                // withCount aggregates arrive as strings on hosts without
+                // mysqlnd native types — the frontend does arithmetic on this.
+                $lesson->sentences_count = (int) $lesson->sentences_count;
 
                 return $lesson;
             });
