@@ -58,8 +58,11 @@ class AuthController extends Controller
         $user = $request->user();
         $user->syncStreak();
 
+        $fresh = $user->fresh();
+        $fresh->is_premium = $fresh->isPremium();
+
         return response()->json([
-            'user' => $user->fresh(),
+            'user' => $fresh,
             'stats' => [
                 'total_sentences' => Sentence::count(),
                 'mastered_count' => $user->progress()->where('status', UserProgress::STATUS_MASTERED)->count(),

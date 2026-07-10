@@ -22,7 +22,8 @@ class AiController extends Controller
             'expected_sentence' => ['required', 'string', 'max:500'],
         ]);
 
-        if (Llm::available()) {
+        // AI explanations are Löyly+; free users get the similarity mock below.
+        if (Llm::available() && $request->user()->isPremium()) {
             $response = $this->correctWithAi($data['user_sentence'], $data['expected_sentence']);
             if ($response !== null) {
                 return response()->json($response);

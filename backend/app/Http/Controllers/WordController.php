@@ -91,6 +91,13 @@ class WordController extends Controller
             'reviews' => $word->reviews + 1,
         ]);
 
+        \App\Models\ReviewLog::create([
+            'user_id' => $request->user()->id,
+            'kind' => 'word',
+            'grade' => $data['grade'],
+            'created_at' => now(),
+        ]);
+
         return response()->json([
             'word' => $word,
             'due_count' => $request->user()->words()->due()->count(),

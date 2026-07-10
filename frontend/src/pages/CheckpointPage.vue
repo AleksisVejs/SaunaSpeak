@@ -102,7 +102,7 @@ function onKey(e) {
 
     <!-- Not enough studied material yet -->
     <div v-else-if="!ready" class="panel">
-      <div class="big-icon">🌱</div>
+      <img class="big-icon vaino" src="/vaino-oops.png" alt="Väinö shrugging" />
       <h1>Not quite yet</h1>
       <p class="muted">
         The {{ level }} checkpoint opens after you've studied {{ needed }} sentences —
@@ -114,7 +114,11 @@ function onKey(e) {
 
     <!-- Result -->
     <div v-else-if="finished" class="panel">
-      <div class="big-icon">{{ passed ? '🏅' : '💪' }}</div>
+      <img
+        class="big-icon vaino"
+        :src="passed ? '/vaino-medal.png' : '/vaino-flex.png'"
+        :alt="passed ? 'Väinö holding a gold medal' : 'Väinö flexing encouragement'"
+      />
       <h1>{{ passed ? `${level} checkpoint passed!` : 'Good training!' }}</h1>
       <div class="score" :class="{ pass: passed }">{{ correct }}/{{ total }} · {{ scorePct }}%</div>
       <p v-if="passed && xpGained" class="xp-note">+{{ xpGained }} XP badge bonus</p>
@@ -164,6 +168,7 @@ function onKey(e) {
 
 .panel { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; }
 .big-icon { font-size: 56px; }
+.big-icon.vaino { width: 132px; height: 132px; margin: 0 auto; }
 .panel h1 { font-size: 26px; }
 .panel .muted { line-height: 1.55; margin-bottom: 8px; }
 .score { font-size: 30px; font-weight: 800; color: var(--text-dim); }

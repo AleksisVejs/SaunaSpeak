@@ -90,7 +90,7 @@ function confettiStyle(i) {
     <div class="confetti" aria-hidden="true">
       <span v-for="i in 24" :key="i" class="confetti-piece" :style="confettiStyle(i)"></span>
     </div>
-    <div class="finish-icon">🎉</div>
+    <img class="finish-icon vaino" src="/vaino-loyly.png" alt="Väinö throwing water on the sauna stones" />
     <h2>Session complete!</h2>
     <p class="muted">Löyly earned. See you tomorrow!</p>
     <div class="xp-summary">
@@ -116,7 +116,7 @@ function confettiStyle(i) {
 
   <!-- Empty state -->
   <div v-else-if="!session.total" class="finish card">
-    <div class="finish-icon">🧖</div>
+    <img class="finish-icon vaino" src="/vaino-relax.png" alt="Väinö relaxing on the sauna bench" />
     <h2>All caught up!</h2>
     <p class="muted">No sentences due right now. Come back later for more löyly.</p>
     <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to dashboard</router-link>
@@ -194,6 +194,7 @@ function confettiStyle(i) {
 
 .finish { text-align: center; margin-top: 6vh; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; }
 .finish-icon { font-size: 52px; animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.finish-icon.vaino { width: 132px; height: 132px; margin: 0 auto; }
 @keyframes pop-in {
   from { transform: scale(0.3); opacity: 0; }
   to { transform: scale(1); opacity: 1; }

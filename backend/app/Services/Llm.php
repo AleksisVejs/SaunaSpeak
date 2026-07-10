@@ -63,15 +63,27 @@ class Llm
 
         $model = config('services.ai.gemini_model', 'gemini-2.5-flash');
 
+        // Gemini 2.5 spends output tokens on internal "thinking" before the
+        // visible reply — disable it and keep a generous cap, or long replies
+        // come back truncated mid-JSON.
+        $payload = [
+            'system_instruction' => ['parts' => [['text' => $system]]],
+            'contents' => $contents,
+            'generationConfig' => [
+                'maxOutputTokens' => max(1024, $maxTokens),
+                'thinkingConfig' => ['thinkingBudget' => 0],
+            ],
+        ];
+
         try {
-            $response = Http::timeout(20)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}",
-                [
-                    'system_instruction' => ['parts' => [['text' => $system]]],
-                    'contents' => $contents,
-                    'generationConfig' => ['maxOutputTokens' => $maxTokens],
-                ],
-            );
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}";
+            $response = Http::timeout(20)->post($url, $payload);
+
+            // Models that don't accept thinkingConfig reject the request; retry without it.
+            if ($response->clientError()) {
+                unset($payload['generationConfig']['thinkingConfig']);
+                $response = Http::timeout(20)->post($url, $payload);
+            }
 
             return $response->successful()
                 ? $response->json('candidates.0.content.parts.0.text')

@@ -8,9 +8,9 @@ import { useFinnishAudio } from '../composables/useFinnishAudio'
 const { playSentence } = useFinnishAudio()
 
 const samples = [
-  { fi: 'Moi! Mä oon Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).' },
-  { fi: 'Onks sul nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).' },
-  { fi: 'Otetaanks kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.' }
+  { fi: 'Moi! Mä oon Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
+  { fi: 'Onks sul nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
+  { fi: 'Otetaanks kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.', audio: '/audio/try-3.mp3' }
 ]
 
 const index = ref(0)
@@ -21,7 +21,7 @@ const isLast = computed(() => index.value === samples.length - 1)
 const done = ref(false)
 
 function play() {
-  playSentence(current.value.fi)
+  playSentence(current.value.fi, current.value.audio)
 }
 
 function reveal() {
@@ -71,7 +71,7 @@ function next() {
 
     <template v-else>
       <div class="finish">
-        <div class="finish-icon">🧖</div>
+        <img class="finish-icon" src="/vaino-wave.png" alt="Väinö waving hello" />
         <h1>That's spoken Finnish.</h1>
         <p class="finish-text">
           SaunaSpeak brings each sentence back at the right moment — listen, fill the gap,
@@ -119,7 +119,7 @@ function next() {
 .note { font-size: 14px; color: var(--text); background: var(--bg-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; line-height: 1.5; }
 
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; }
-.finish-icon { font-size: 60px; }
+.finish-icon { width: 110px; height: 110px; margin: 0 auto; }
 .finish h1 { font-size: 28px; }
 .finish-text { color: var(--text-dim); font-size: 16px; line-height: 1.6; margin-bottom: 8px; }
 .login-link { margin-top: 4px; }

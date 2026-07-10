@@ -31,3 +31,11 @@ yarn-error.log
 Thumbs.db
 .idea/
 .vscode/
+
+# Deploy artifacts (rebuilt by scripts/deploy.sh)
+/release/
+saunaspeak-release.zip
+saunaspeak-release.tar.gz
+
+# Runtime TTS cache (regenerated on demand per chat reply)
+/backend/public/audio/tts/

@@ -26,6 +26,10 @@ class User extends Authenticatable
         'last_active_date',
         'checkpoints',
         'preferences',
+        'stripe_customer_id',
+        'stripe_subscription_id',
+        'premium_until',
+        'is_admin',
     ];
 
     /**
@@ -51,6 +55,8 @@ class User extends Authenticatable
             'last_active_date' => 'date:Y-m-d',
             'checkpoints' => 'array',
             'preferences' => 'array',
+            'premium_until' => 'datetime',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -62,6 +68,19 @@ class User extends Authenticatable
     public function words(): HasMany
     {
         return $this->hasMany(UserWord::class);
+    }
+
+    /**
+     * Löyly+ access. While billing is unconfigured (no STRIPE_SECRET), every
+     * feature is open — flip the paywall on by adding the Stripe keys.
+     */
+    public function isPremium(): bool
+    {
+        if (! config('services.stripe.secret')) {
+            return true;
+        }
+
+        return $this->premium_until !== null && $this->premium_until->isFuture();
     }
 
     /**

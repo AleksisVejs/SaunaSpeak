@@ -37,8 +37,23 @@ return [
     // processes often have a leaner PATH than your shell, so a full path is
     // the reliable option. Leave unset where edge-tts isn't installed —
     // the /api/tts endpoint then returns 503 and the browser voice takes over.
+    // Stripe subscription billing for Löyly+. All three unset → billing is
+    // disabled and every feature is free (development / pre-launch mode).
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'price_id' => env('STRIPE_PRICE_ID'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
     'tts' => [
         'bin' => env('EDGE_TTS_BIN', 'edge-tts'),
+        // Google Cloud TTS fallback for hosts that can't run edge-tts (cPanel).
+        // Needs a GCP API key with the Text-to-Speech API enabled — this is a
+        // different key than GEMINI_API_KEY (AI Studio). Google has no male
+        // Finnish voice, so we pitch the female WaveNet voice down by default.
+        'google_key' => env('GOOGLE_TTS_API_KEY'),
+        'google_voice' => env('GOOGLE_TTS_VOICE', 'fi-FI-Wavenet-A'),
+        'google_pitch' => env('GOOGLE_TTS_PITCH', -5.0),
     ],
 
     'slack' => [

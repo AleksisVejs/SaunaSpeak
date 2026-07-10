@@ -1,64 +1,40 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue'
+import { usePrefs } from '../composables/usePrefs'
 
 const props = defineProps({
   text: { type: String, required: true },
-  // Pre-generated native audio (sentences.audio_url); falls back to browser TTS.
-  audioUrl: { type: String, default: null },
-  showSpeed: { type: Boolean, default: true }
+  // Pre-generated native audio (sentences.audio_url). Native MP3 only —
+  // no browser-TTS fallback, so the voice is always the same male speaker.
+  audioUrl: { type: String, default: null }
 })
 
+// Speed follows the profile setting (0.5x–2x, default 1x).
+const { audioRate } = usePrefs()
+
 const speaking = ref(false)
-const rate = ref(0.8)
-const ttsSupported = 'speechSynthesis' in window
-const supported = ttsSupported || !!props.audioUrl
+const supported = !!props.audioUrl
 
 let player = null
-
-function finnishVoice() {
-  return speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('fi')) ?? null
-}
 
 function stop() {
   if (player) {
     player.pause()
     player = null
   }
-  if (ttsSupported) speechSynthesis.cancel()
   speaking.value = false
-}
-
-function playTts() {
-  if (!ttsSupported) return
-  const utterance = new SpeechSynthesisUtterance(props.text)
-  utterance.lang = 'fi-FI'
-  const voice = finnishVoice()
-  if (voice) utterance.voice = voice
-  utterance.rate = rate.value
-  utterance.onstart = () => (speaking.value = true)
-  utterance.onend = () => (speaking.value = false)
-  utterance.onerror = () => (speaking.value = false)
-  speechSynthesis.speak(utterance)
 }
 
 function play() {
   stop()
+  if (!props.audioUrl) return
 
-  if (props.audioUrl) {
-    player = new Audio(props.audioUrl)
-    player.playbackRate = rate.value
-    player.onplay = () => (speaking.value = true)
-    player.onended = () => (speaking.value = false)
-    // Missing/broken file → seamless TTS fallback.
-    player.onerror = () => {
-      speaking.value = false
-      playTts()
-    }
-    player.play().catch(() => playTts())
-    return
-  }
-
-  playTts()
+  player = new Audio(props.audioUrl)
+  player.playbackRate = audioRate()
+  player.onplay = () => (speaking.value = true)
+  player.onended = () => (speaking.value = false)
+  player.onerror = () => (speaking.value = false)
+  player.play().catch(() => (speaking.value = false))
 }
 
 onBeforeUnmount(stop)
@@ -73,19 +49,8 @@ defineExpose({ play })
       <span v-else>▶</span>
       {{ speaking ? 'Playing…' : 'Play audio' }}
     </button>
-    <div v-if="showSpeed" class="speed">
-      <button
-        v-for="s in [0.6, 0.8, 1.0]"
-        :key="s"
-        class="speed-chip"
-        :class="{ active: rate === s }"
-        @click="rate = s"
-      >
-        {{ s.toFixed(1) }}x
-      </button>
-    </div>
   </div>
-  <p v-if="!supported" class="muted">Audio is not supported in this browser.</p>
+  <p v-if="!supported" class="muted">No audio for this sentence yet.</p>
 </template>
 
 <style scoped>

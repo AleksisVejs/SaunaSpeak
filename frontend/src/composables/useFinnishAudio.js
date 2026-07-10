@@ -1,10 +1,13 @@
 // Central Finnish pronunciation helper used everywhere in the app.
 //
-// Strategy: play a pre-generated native-neural MP3 when one exists, and fall
-// back to the browser SpeechSynthesis voice otherwise. This keeps a single
-// consistent voice for sentences, tapped words, the recap and the word bank.
+// Native neural MP3s only (fi-FI-HarriNeural): pre-generated files for
+// sentences and words, on-demand server TTS for chat replies. The browser's
+// SpeechSynthesis is deliberately NOT used — its voice varies per device
+// (often female, clashing with the male lesson audio) and can double-fire
+// alongside MP3 playback. No audio file → silence, never a random voice.
 
 import api from '../api'
+import { usePrefs } from './usePrefs'
 
 let wordManifest = null // { "löylyä": "/audio/words/loylya-ab12cd.mp3", ... }
 let manifestPromise = null
@@ -17,7 +20,7 @@ function loadManifest() {
   manifestPromise = fetch('/audio/words.json')
     .then((res) => (res.ok ? res.json() : {}))
     .then((data) => (wordManifest = data || {}))
-    .catch(() => (wordManifest = {})) // no manifest yet → TTS everywhere
+    .catch(() => (wordManifest = {}))
   return manifestPromise
 }
 
@@ -35,10 +38,9 @@ function stopAll() {
     currentAudio.pause()
     currentAudio = null
   }
-  if ('speechSynthesis' in window) speechSynthesis.cancel()
 }
 
-// Emoji and pictographs must never reach a TTS engine — it reads them aloud.
+// Emoji and pictographs must never reach the TTS engine — it reads them aloud.
 function stripEmoji(text) {
   return text
     .replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '')
@@ -46,41 +48,22 @@ function stripEmoji(text) {
     .trim()
 }
 
-// Prefer a male Finnish voice (matches the fi-FI-HarriNeural lesson audio);
-// Edge exposes "Microsoft Harri Online (Natural)", other browsers vary.
-function pickFinnishVoice() {
-  const voices = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('fi'))
-  return voices.find((v) => /harri|onni|\bmale\b/i.test(v.name)) ?? voices[0] ?? null
-}
-
-function speakTts(text, rate) {
-  if (!('speechSynthesis' in window)) return
-  const utterance = new SpeechSynthesisUtterance(stripEmoji(text))
-  utterance.lang = 'fi-FI'
-  const voice = pickFinnishVoice()
-  if (voice) utterance.voice = voice
-  utterance.rate = rate
-  speechSynthesis.speak(utterance)
-}
-
-function playUrl(url, rate, fallbackText) {
+function playUrl(url, rate) {
   stopAll()
   const audio = new Audio(url)
   audio.playbackRate = rate
   currentAudio = audio
   audio.onerror = () => {
-    currentAudio = null
-    if (fallbackText) speakTts(fallbackText, rate)
+    if (currentAudio === audio) currentAudio = null
   }
   audio.play().catch(() => {
-    currentAudio = null
-    if (fallbackText) speakTts(fallbackText, rate)
+    if (currentAudio === audio) currentAudio = null
   })
 }
 
 // Promise-based playback for sequential listening (resolves when the clip
 // ends, errors, or is stopped externally via stopAll → 'pause').
-function playUrlAsync(url, rate, fallbackText) {
+function playUrlAsync(url, rate) {
   stopAll()
   return new Promise((resolve) => {
     const audio = new Audio(url)
@@ -95,55 +78,34 @@ function playUrlAsync(url, rate, fallbackText) {
     }
     audio.onended = done
     audio.onpause = done // external stopAll()
-    audio.onerror = async () => {
-      if (settled) return
-      if (fallbackText) await speakTtsAsync(fallbackText, rate)
-      done()
-    }
-    audio.play().catch(audio.onerror)
-  })
-}
-
-function speakTtsAsync(text, rate) {
-  return new Promise((resolve) => {
-    if (!('speechSynthesis' in window)) return resolve()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'fi-FI'
-    const voice = speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('fi'))
-    if (voice) utterance.voice = voice
-    utterance.rate = rate
-    utterance.onend = resolve
-    utterance.onerror = resolve
-    speechSynthesis.speak(utterance)
+    audio.onerror = done
+    audio.play().catch(done)
   })
 }
 
 export function useFinnishAudio() {
-  // Play an explicit audio_url (sentence MP3) with TTS fallback.
-  function playSentence(text, audioUrl, rate = 0.85) {
-    if (audioUrl) {
-      playUrl(audioUrl, rate, text)
-    } else {
-      stopAll()
-      speakTts(text, rate)
-    }
+  // Playback speed follows the profile setting (0.5x–2x, default 1x)
+  // unless a caller passes an explicit rate.
+  const { audioRate } = usePrefs()
+
+  // Play a sentence's pre-generated MP3. No file → silence.
+  function playSentence(text, audioUrl, rate = null) {
+    if (audioUrl) playUrl(audioUrl, rate ?? audioRate())
   }
 
   // Like playSentence, but resolves when playback finishes — for playing
   // a whole lesson back to back.
-  function playSentenceAsync(text, audioUrl, rate = 0.85) {
-    if (audioUrl) return playUrlAsync(audioUrl, rate, text)
-    stopAll()
-    return speakTtsAsync(text, rate)
+  function playSentenceAsync(text, audioUrl, rate = null) {
+    if (audioUrl) return playUrlAsync(audioUrl, rate ?? audioRate())
+    return Promise.resolve()
   }
 
-  // Dynamic text (chat replies): synthesize server-side with the same male
-  // neural voice as lesson audio, cached by content. Falls back to browser
-  // speech where the server can't run edge-tts (e.g. shared hosting) — and
-  // remembers that for the session so we don't keep asking.
+  // Dynamic text (chat replies): synthesized server-side with the same male
+  // neural voice as lesson audio, cached by content. If the server can't run
+  // edge-tts (e.g. shared hosting), the reply simply stays silent.
   const spokenCache = new Map() // clean text → url | null
   let serverTtsDown = false
-  async function playSpoken(text, rate = 0.95) {
+  async function playSpoken(text, rate = null) {
     const clean = stripEmoji(text)
     if (!clean) return
 
@@ -159,25 +121,15 @@ export function useFinnishAudio() {
     }
 
     const url = spokenCache.get(clean)
-    if (url) {
-      playUrl(url, rate, clean)
-    } else {
-      stopAll()
-      speakTts(clean, 0.85)
-    }
+    if (url) playUrl(url, rate ?? audioRate())
   }
 
-  // Play a single word: look it up in the manifest, else TTS.
-  async function playWord(word, rate = 0.85) {
+  // Play a single word's MP3 from the manifest. Not in it → silence.
+  async function playWord(word, rate = null) {
     const key = normalizeWord(word)
     const manifest = await loadManifest()
     const url = manifest[key]
-    if (url) {
-      playUrl(url, rate, word)
-    } else {
-      stopAll()
-      speakTts(word, rate)
-    }
+    if (url) playUrl(url, rate ?? audioRate())
   }
 
   return { playSentence, playSentenceAsync, playSpoken, playWord, stop: stopAll }

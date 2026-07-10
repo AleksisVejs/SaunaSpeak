@@ -3,11 +3,20 @@
 // Producing your own sentences — not recalling prompted ones — is what
 // exposes the gaps in your Finnish (the output hypothesis). Väinö replies in
 // real puhekieli at your level and only corrects real mistakes.
-import { nextTick, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import api from '../api'
+import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSpoken } = useFinnishAudio()
+const auth = useAuthStore()
+
+// Löyly+ gate: the backend enforces it (402); this just shows the pitch
+// instead of a chat box that would error on send.
+const premium = computed(() => auth.user?.is_premium !== false)
+onMounted(() => {
+  if (!auth.user) auth.fetchUser()
+})
 
 const OPENER = {
   role: 'assistant',
@@ -103,7 +112,20 @@ const full = () => messages.value.length >= MAX_TURNS
 </script>
 
 <template>
-  <div class="chat sauna-scene">
+  <!-- Löyly+ paywall: the backend enforces it (402); this shows the pitch
+       instead of a chat box that would error on send. -->
+  <div v-if="!premium" class="chat-locked">
+    <img class="locked-vaino" src="/vaino.png" alt="Väinö on the sauna bench" />
+    <h1>Väinö's bench is Löyly+</h1>
+    <p class="muted">
+      Free chatting with a patient Finn — real puhekieli, at your level, with
+      gentle corrections. Producing your own sentences is the practice drills can't give you.
+    </p>
+    <router-link to="/upgrade" class="btn btn-primary btn-block">♨️ See Löyly+</router-link>
+    <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to learning</router-link>
+  </div>
+
+  <div v-else class="chat sauna-scene">
     <!-- steam wisps + kiuas glow (decoration only) -->
     <div class="steam" aria-hidden="true">
       <span v-for="i in 5" :key="i" class="wisp" :style="{ left: `${i * 19 - 5}%`, animationDelay: `${i * 1.7}s` }"></span>
@@ -196,6 +218,18 @@ const full = () => messages.value.length >= MAX_TURNS
 
 <style scoped>
 .chat { display: flex; flex-direction: column; height: calc(100vh - 140px); min-height: 420px; }
+
+.chat-locked {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+.locked-vaino { width: 130px; height: 130px; margin: 0 auto; }
+.chat-locked h1 { font-size: 24px; }
+.chat-locked .muted { line-height: 1.55; margin-bottom: 8px; }
 
 /* ---- the sauna ---- */
 .sauna-scene {

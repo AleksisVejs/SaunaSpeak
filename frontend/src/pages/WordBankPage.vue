@@ -54,7 +54,7 @@ async function remove(word) {
       </router-link>
 
       <div v-if="!words.length" class="card empty">
-        <div class="empty-icon">👆</div>
+        <img class="empty-icon vaino" src="/vaino-point.png" alt="Väinö pointing" />
         <p>Nothing here yet.</p>
         <p class="muted">Tap any Finnish word in a lesson or session to hear it and save it automatically.</p>
       </div>
@@ -82,6 +82,7 @@ async function remove(word) {
 .review-cta { margin-bottom: 18px; font-size: 16px; }
 .empty { text-align: center; padding: 34px 22px; display: flex; flex-direction: column; gap: 8px; }
 .empty-icon { font-size: 40px; }
+.empty-icon.vaino { width: 120px; height: 120px; margin: 0 auto; }
 .word-list { display: flex; flex-direction: column; gap: 10px; }
 .word-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
 .play {

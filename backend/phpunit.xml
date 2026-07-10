@@ -29,5 +29,10 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <!-- Billing off by default, so the paywall never depends on whatever a
+             developer happens to have in .env. PremiumTest turns it on per test. -->
+        <env name="STRIPE_SECRET" value=""/>
+        <env name="STRIPE_PRICE_ID" value=""/>
+        <env name="STRIPE_WEBHOOK_SECRET" value=""/>
     </php>
 </phpunit>

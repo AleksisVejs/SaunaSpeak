@@ -1,27 +1,34 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckpointController;
+use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
 use Illuminate\Support\Facades\Route;
 
-// Public
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// Public — tightly throttled: these are the brute-force targets.
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Stripe calls this, not browsers; signature check happens in the controller.
+// Kept loose: Stripe redelivers bursts after an outage and a 429 there just
+// means retries pile up. The signature check is what actually guards this.
+Route::post('/billing/webhook', [BillingController::class, 'webhook'])->middleware('throttle:300,1');
 
 // Authenticated
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/preferences', [AuthController::class, 'updatePreferences']);
-
-    Route::post('/chat', [ChatController::class, 'chat']);
-    Route::post('/tts', [TtsController::class, 'speak']);
 
     Route::get('/lessons', [LessonController::class, 'index']);
     Route::get('/lessons/{lesson}', [LessonController::class, 'show']);
@@ -29,8 +36,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/today-session', [SessionController::class, 'today']);
     Route::post('/progress/complete', [SessionController::class, 'completeSentence']);
     Route::post('/session/complete', [SessionController::class, 'completeSession']);
-
-    Route::post('/ai/correct', [AiController::class, 'correct']);
 
     Route::get('/checkpoint/{level}', [CheckpointController::class, 'show']);
     Route::post('/checkpoint/{level}', [CheckpointController::class, 'complete']);
@@ -40,4 +45,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/words', [WordController::class, 'store']);
     Route::post('/words/{id}/grade', [WordController::class, 'grade']);
     Route::delete('/words/{id}', [WordController::class, 'destroy']);
+
+    Route::get('/billing', [BillingController::class, 'status']);
+    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:6,1');
+    Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:6,1');
+
+    // AI corrections: free tier gets the mock inside the controller;
+    // throttled tighter since premium requests cost real money.
+    Route::post('/ai/correct', [AiController::class, 'correct'])->middleware('throttle:30,1');
+
+    // Admin panel (promote via `php artisan user:promote <email>`).
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/stats', [AdminController::class, 'stats']);
+        Route::get('/users', [AdminController::class, 'users']);
+        Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
+    });
+
+    // Löyly+ features.
+    Route::middleware('premium')->group(function () {
+        Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1');
+        Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1');
+        Route::get('/insights/week', [InsightsController::class, 'week']);
+    });
 });

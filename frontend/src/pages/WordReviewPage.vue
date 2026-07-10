@@ -69,7 +69,8 @@ function onKey(e) {
 
     <!-- finish / empty -->
     <div v-else-if="finished" class="finish">
-      <div class="finish-icon">{{ reviewed ? '🎴' : '🧖' }}</div>
+      <img v-if="reviewed" class="finish-icon vaino" src="/vaino-cheer.png" alt="Väinö cheering with a raised fist" />
+      <img v-else class="finish-icon vaino" src="/vaino-relax.png" alt="Väinö relaxing on the sauna bench" />
       <h1>{{ reviewed ? 'Deck cleared!' : 'No cards due' }}</h1>
       <p class="muted">
         {{ reviewed
@@ -160,6 +161,7 @@ function onKey(e) {
 
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; }
 .finish-icon { font-size: 56px; }
+.finish-icon.vaino { width: 132px; height: 132px; margin: 0 auto; }
 .finish h1 { font-size: 26px; }
 .finish .muted { line-height: 1.55; margin-bottom: 8px; }
 </style>

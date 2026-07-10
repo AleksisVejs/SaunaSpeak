@@ -10,24 +10,28 @@ const slide = ref(0)
 const slides = [
   {
     image: '/vaino-wave.png',
+    alt: 'Väinö waving hello',
     title: 'Learn the Finnish Finns speak',
     text: 'You\'ll learn "Mä oon" — what people say in shops, buses and saunas — not just textbook "Minä olen". The book form stays visible as a 📖 reference.',
     why: 'Learners who study only written Finnish famously can\'t follow real conversations. Starting with speech fixes that from day one.'
   },
   {
-    icon: '🤔',
+    image: '/vaino-think.png',
+    alt: 'Väinö thinking, stroking his beard',
     title: 'Guess before you see',
     text: 'New sentences show the English first. Take a wild guess out loud, then see and hear the Finnish.',
     why: 'Trying to retrieve — even guessing wrong — primes your brain to remember the answer far better than just reading it.'
   },
   {
-    icon: '🎙️',
+    image: '/vaino-mic.png',
+    alt: 'Väinö singing into a microphone',
     title: 'Speak, record, compare',
     text: 'Say every sentence out loud. Record yourself and play your take next to the native audio.',
     why: 'This is shadowing — proven to improve pronunciation, rhythm and fluency, because you hear exactly where you differ.'
   },
   {
-    icon: '🔥',
+    image: '/vaino-loyly.png',
+    alt: 'Väinö throwing water on the sauna stones',
     title: 'A little löyly every day',
     text: 'Short daily sessions bring each sentence back right before you\'d forget it — as a gap-fill, then dictation, then pure recall.',
     why: 'Spaced repetition is the most replicated result in memory research. Minutes a day beat hours of cramming.'
@@ -45,7 +49,7 @@ function next() {
     <div class="card modal">
       <transition name="fade" mode="out-in">
         <div :key="slide" class="slide">
-          <img v-if="slides[slide].image" class="slide-vaino" :src="slides[slide].image" alt="Väinö waving hello" />
+          <img v-if="slides[slide].image" class="slide-vaino" :src="slides[slide].image" :alt="slides[slide].alt" />
           <div v-else class="slide-icon"><span>{{ slides[slide].icon }}</span></div>
           <h2>{{ slides[slide].title }}</h2>
           <p class="slide-text">{{ slides[slide].text }}</p>

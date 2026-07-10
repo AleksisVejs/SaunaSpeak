@@ -47,5 +47,8 @@ export function usePrefs() {
 
   const dailyGoal = () => prefs.value.dailyGoal ?? 6
 
-  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, dailyGoal }
+  // Global audio playback speed (0.5x–2x, default 1x), set in the profile.
+  const audioRate = () => Math.min(2, Math.max(0.5, prefs.value.audioRate ?? 1))
+
+  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, dailyGoal, audioRate }
 }

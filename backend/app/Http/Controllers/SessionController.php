@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ReviewLog;
 use App\Models\Sentence;
 use App\Models\UserProgress;
 use Illuminate\Http\JsonResponse;
@@ -139,6 +140,8 @@ class SessionController extends Controller
             'status' => $nextStatus,
             'next_review_at' => now()->addDays($intervalDays),
         ])->save();
+
+        ReviewLog::create(['user_id' => $user->id, 'kind' => 'sentence', 'grade' => $grade, 'created_at' => now()]);
 
         $xp = $grade === 'again' ? self::XP_AGAIN : self::XP_PER_SENTENCE;
         $user->increment('xp', $xp);
