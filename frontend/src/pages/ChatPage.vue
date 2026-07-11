@@ -118,14 +118,34 @@ const full = () => messages.value.length >= MAX_TURNS
   <!-- Löyly+ paywall: the backend enforces it (402); this shows the pitch
        instead of a chat box that would error on send. -->
   <div v-if="!premium" class="chat-locked">
-    <img class="locked-vaino" src="/vaino.png" alt="Väinö on the sauna bench" />
-    <h1>Väinö's bench is Löyly+</h1>
-    <p class="muted">
-      Free chatting with a patient Finn - real puhekieli, at your level, with
-      gentle corrections. Producing your own sentences is the practice drills can't give you.
-    </p>
-    <router-link to="/upgrade" class="btn btn-primary btn-block">♨️ See Löyly+</router-link>
-    <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to learning</router-link>
+    <div class="locked-card">
+      <div class="locked-vaino-wrap">
+        <span class="locked-glow" aria-hidden="true"></span>
+        <img class="locked-vaino" src="/vaino.png" alt="Väinö on the sauna bench" />
+      </div>
+
+      <div class="locked-body">
+        <span class="locked-badge">🔒 Löyly+</span>
+        <h1>Väinö's bench</h1>
+        <p class="muted locked-lead">
+          Free-form chatting with a patient old Finn - the fastest way to find the
+          gaps the drills can't reach.
+        </p>
+
+        <ul class="locked-perks">
+          <li><span class="lp-icon">💬</span><span>Real puhekieli, kept at your level</span></li>
+          <li><span class="lp-icon">🧠</span><span>Gentle corrections that explain the why</span></li>
+          <li><span class="lp-icon">🌿</span><span>Your own sentences, not just tap answers</span></li>
+        </ul>
+
+        <div class="locked-actions">
+          <router-link to="/upgrade" class="btn btn-primary">♨️ See Löyly+</router-link>
+          <router-link to="/dashboard" class="btn btn-ghost">Back to learning</router-link>
+        </div>
+
+        <p class="locked-free muted">The whole learning path stays free, forever.</p>
+      </div>
+    </div>
   </div>
 
   <div v-else class="chat sauna-scene">
@@ -247,14 +267,89 @@ const full = () => messages.value.length >= MAX_TURNS
 .chat-locked {
   min-height: 60vh;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  text-align: center;
-  gap: 12px;
+  padding: 20px 0;
 }
-.locked-vaino { width: 130px; height: 130px; margin: 0 auto; }
-.chat-locked h1 { font-size: 24px; }
-.chat-locked .muted { line-height: 1.55; margin-bottom: 8px; }
+.locked-card {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px 30px;
+  box-shadow: var(--shadow-md);
+}
+
+.locked-vaino-wrap { position: relative; flex-shrink: 0; width: 150px; height: 150px; }
+.locked-glow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(closest-side, var(--accent-soft), transparent 72%);
+  filter: blur(4px);
+}
+.locked-vaino { position: relative; width: 150px; height: 150px; }
+
+.locked-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+
+.locked-badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+.chat-locked h1 { font-size: 22px; }
+.locked-lead { font-size: 14px; line-height: 1.5; }
+
+.locked-perks {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0;
+}
+.locked-perks li {
+  flex: 1 1 30%;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.lp-icon { font-size: 17px; line-height: 1; flex-shrink: 0; }
+
+.locked-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.locked-free { font-size: 12px; margin-top: 2px; }
+
+/* stack Väinö above the pitch when the card gets narrow */
+@media (max-width: 560px) {
+  .locked-card { flex-direction: column; gap: 16px; padding: 24px 20px; text-align: center; }
+  .locked-body { align-items: center; text-align: center; }
+  .locked-actions { width: 100%; }
+  .locked-actions .btn { flex: 1; }
+}
 
 /* ---- the sauna room (the big box) ---- */
 .sauna-scene {

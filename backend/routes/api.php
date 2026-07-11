@@ -51,8 +51,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // so this needs headroom; sessions are free on Stripe's side. Per-user.
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:20,1');
     Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:10,1');
-    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->middleware('throttle:6,1');
-    Route::post('/billing/resume', [BillingController::class, 'resume'])->middleware('throttle:6,1');
+    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->middleware('throttle:15,1');
+    Route::post('/billing/resume', [BillingController::class, 'resume'])->middleware('throttle:15,1');
 
     // AI corrections: free tier gets the mock inside the controller;
     // throttled tighter since premium requests cost real money.

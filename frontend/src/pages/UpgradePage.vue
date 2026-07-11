@@ -58,8 +58,10 @@ async function cancelSubscription() {
     billing.value.cancel_at_period_end = data.cancel_at_period_end
     billing.value.premium_until = data.premium_until
     confirmingCancel.value = false
-  } catch {
-    error.value = 'Could not cancel. Please try again.'
+  } catch (e) {
+    error.value = e?.response?.status === 429
+      ? 'Too many changes in a row - wait a minute and try again.'
+      : 'Could not cancel. Please try again.'
   } finally {
     busyCancel.value = false
   }
@@ -72,8 +74,10 @@ async function resumeSubscription() {
     const { data } = await api.post('/billing/resume')
     billing.value.cancel_at_period_end = data.cancel_at_period_end
     billing.value.premium_until = data.premium_until
-  } catch {
-    error.value = 'Could not resume. Please try again.'
+  } catch (e) {
+    error.value = e?.response?.status === 429
+      ? 'Too many changes in a row - wait a minute and try again.'
+      : 'Could not resume. Please try again.'
   } finally {
     busyCancel.value = false
   }
@@ -95,7 +99,10 @@ async function managePortal() {
 <template>
   <div class="upgrade">
     <div class="hero">
-      <img class="hero-vaino" src="/vaino-loyly.png" alt="Väinö throwing löyly" />
+      <div class="hero-vaino-wrap">
+        <span class="hero-glow" aria-hidden="true"></span>
+        <img class="hero-vaino" src="/vaino-loyly.png" alt="Väinö throwing löyly" />
+      </div>
       <h1>Löyly+</h1>
       <p class="muted">More steam for your Finnish.</p>
     </div>
@@ -173,9 +180,16 @@ async function managePortal() {
         </template>
       </template>
 
-      <button v-else class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
-        {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+ - €4.99/month' }}
-      </button>
+      <div v-else class="buy">
+        <div class="price">
+          <span class="price-amount">€4.99</span>
+          <span class="price-per">/ month</span>
+        </div>
+        <button class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
+          {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+' }}
+        </button>
+        <p class="reassure muted">Cancel anytime - you keep access until the period ends.</p>
+      </div>
     </template>
 
     <router-link to="/dashboard" class="back-link muted">‹ Back to learning</router-link>
@@ -185,7 +199,14 @@ async function managePortal() {
 <style scoped>
 .upgrade { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
 .hero { text-align: center; }
-.hero-vaino { width: 130px; height: 130px; }
+.hero-vaino-wrap { position: relative; display: inline-block; }
+.hero-glow {
+  position: absolute;
+  inset: -18%;
+  background: radial-gradient(closest-side, var(--accent-soft), transparent 72%);
+  filter: blur(6px);
+}
+.hero-vaino { position: relative; width: 130px; height: 130px; }
 .hero h1 { font-size: 30px; margin-top: 4px; }
 
 .paid { background: var(--green-soft); border-color: var(--green); line-height: 1.5; }
@@ -210,8 +231,17 @@ async function managePortal() {
 .portal-link:hover { color: var(--text); }
 
 .perks { display: flex; flex-direction: column; gap: 16px; }
-.perk { display: flex; gap: 12px; align-items: flex-start; }
-.perk-icon { font-size: 24px; }
+.perk { display: flex; gap: 14px; align-items: flex-start; }
+.perk-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+}
 .perk-title { font-weight: 800; }
 .perk-text { font-size: 14px; line-height: 1.45; margin-top: 2px; }
 
@@ -220,6 +250,11 @@ async function managePortal() {
 .founder { text-align: center; line-height: 1.5; }
 .active-plan { text-align: center; background: var(--green-soft); border-color: var(--green); }
 
-.cta { font-size: 16px; padding: 16px; }
+.buy { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.price { display: flex; align-items: baseline; gap: 6px; }
+.price-amount { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+.price-per { font-size: 15px; color: var(--text-dim); font-weight: 600; }
+.cta { font-size: 16px; padding: 16px; width: 100%; }
+.reassure { font-size: 13px; text-align: center; }
 .back-link { text-align: center; font-size: 14px; }
 </style>
