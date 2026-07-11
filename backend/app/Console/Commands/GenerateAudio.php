@@ -30,14 +30,25 @@ class GenerateAudio extends Command
 
     protected $description = 'Generate MP3 audio for all sentences with a free Finnish neural voice (edge-tts)';
 
+    /** Resolved once: null when edge-tts isn't available on this machine. */
+    private ?string $bin = null;
+
     public function handle(): int
     {
-        $probe = Process::run('edge-tts --help');
-        if (! $probe->successful()) {
-            $this->error('edge-tts is not installed or not on PATH.');
-            $this->line('Install it with:  pip install edge-tts');
+        // edge-tts is only needed to SYNTHESIZE missing clips. Linking clips
+        // that already exist (e.g. shipped via git to a cPanel host) must
+        // work without it, so probe lazily instead of hard-failing here.
+        $candidate = config('services.tts.bin', 'edge-tts');
+        try {
+            $probe = Process::run([$candidate, '--help']);
+            $this->bin = $probe->successful() ? $candidate : null;
+        } catch (\Throwable) {
+            $this->bin = null;
+        }
 
-            return self::FAILURE;
+        if ($this->bin === null) {
+            $this->warn('edge-tts not found (set EDGE_TTS_BIN or `pip install edge-tts`).');
+            $this->line('Existing MP3s will still be linked; missing ones will be skipped.');
         }
 
         $dir = public_path('audio');
@@ -59,8 +70,15 @@ class GenerateAudio extends Command
                 continue;
             }
 
+            if ($this->bin === null) {
+                $failed++;
+                $this->warn("✗ {$sentence->finnish_text} - no edge-tts to synthesize with");
+
+                continue;
+            }
+
             $result = Process::run([
-                'edge-tts',
+                $this->bin,
                 '--voice', $voice,
                 '--rate', $rate,
                 '--text', $sentence->finnish_text,
@@ -112,8 +130,15 @@ class GenerateAudio extends Command
             $url = "/audio/words/{$name}";
 
             if (! File::exists($file) || $this->option('force')) {
+                if ($this->bin === null) {
+                    $failed++;
+                    $this->warn("✗ word '{$word}' - no edge-tts to synthesize with");
+
+                    continue;
+                }
+
                 $result = Process::run([
-                    'edge-tts',
+                    $this->bin,
                     '--voice', $voice,
                     '--rate', $rate,
                     '--text', $word,

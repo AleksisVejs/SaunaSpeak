@@ -76,6 +76,7 @@ composer install --no-dev --optimize-autoloader
 php artisan key:generate
 php artisan migrate --force
 php artisan db:seed --force
+php artisan audio:generate      # links the shipped MP3s to sentences (seeder leaves audio_url null)
 php artisan user:promote your@email.com
 
 cd ~/saunaspeak
