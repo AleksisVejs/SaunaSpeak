@@ -79,9 +79,11 @@ async function upgrade() {
       const { data } = await api.post('/billing/checkout')
       window.location.href = data.url
     }
-  } catch {
+  } catch (e) {
     closeEmbedded()
-    error.value = 'Could not start checkout. Please try again.'
+    error.value = e?.response?.status === 429
+      ? 'Slow down a little — too many checkout attempts. Wait a minute and try again.'
+      : 'Could not start checkout. Please try again.'
   } finally {
     starting.value = false
   }

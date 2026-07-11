@@ -47,8 +47,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::delete('/words/{id}', [WordController::class, 'destroy']);
 
     Route::get('/billing', [BillingController::class, 'status']);
-    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:6,1');
-    Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:6,1');
+    // Embedded checkout creates a session on every open/reopen of the form,
+    // so this needs headroom; sessions are free on Stripe's side. Per-user.
+    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:20,1');
+    Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:10,1');
 
     // AI corrections: free tier gets the mock inside the controller;
     // throttled tighter since premium requests cost real money.
