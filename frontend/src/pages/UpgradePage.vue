@@ -1,7 +1,9 @@
 <script setup>
-// Löyly+ upgrade page. Checkout happens on Stripe's hosted page; we just
-// redirect there and Stripe's webhook flips the account to premium.
-import { onMounted, ref } from 'vue'
+// Löyly+ upgrade page. With a publishable key configured, Stripe's Embedded
+// Checkout renders right here on the page (card data stays inside Stripe's
+// iframe — it never touches our server); otherwise we fall back to
+// redirecting to Stripe's hosted page. Either way the webhook flips premium.
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
@@ -13,6 +15,34 @@ const billing = ref(null)
 const starting = ref(false)
 const error = ref('')
 const justPaid = ref(route.query.status === 'success')
+
+// ---- embedded checkout ----
+const paying = ref(false) // embedded form is open
+const checkoutEl = ref(null)
+let embeddedCheckout = null
+
+// Stripe.js must come from js.stripe.com (PCI requirement); load it once.
+let stripeJsPromise = null
+function loadStripeJs() {
+  if (window.Stripe) return Promise.resolve()
+  if (stripeJsPromise) return stripeJsPromise
+  stripeJsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script')
+    s.src = 'https://js.stripe.com/v3'
+    s.onload = resolve
+    s.onerror = () => reject(new Error('stripe.js failed to load'))
+    document.head.appendChild(s)
+  })
+  return stripeJsPromise
+}
+
+function closeEmbedded() {
+  embeddedCheckout?.destroy()
+  embeddedCheckout = null
+  paying.value = false
+}
+
+onBeforeUnmount(closeEmbedded)
 
 const PERKS = [
   { icon: '💬', title: 'Sauna Chat with Väinö', text: 'Unlimited free-form conversation practice — the fastest way to find your gaps.' },
@@ -33,10 +63,26 @@ async function upgrade() {
   starting.value = true
   error.value = ''
   try {
-    const { data } = await api.post('/billing/checkout')
-    window.location.href = data.url
+    // On-site checkout when the backend advertises a publishable key.
+    if (billing.value?.publishable_key) {
+      await loadStripeJs()
+      const stripe = window.Stripe(billing.value.publishable_key)
+      paying.value = true
+      embeddedCheckout = await stripe.initEmbeddedCheckout({
+        fetchClientSecret: async () => {
+          const { data } = await api.post('/billing/checkout')
+          return data.client_secret
+        }
+      })
+      embeddedCheckout.mount(checkoutEl.value)
+    } else {
+      const { data } = await api.post('/billing/checkout')
+      window.location.href = data.url
+    }
   } catch {
+    closeEmbedded()
     error.value = 'Could not start checkout. Please try again.'
+  } finally {
     starting.value = false
   }
 }
@@ -95,9 +141,17 @@ async function managePortal() {
         </button>
       </template>
 
-      <button v-else class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
-        {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+ — €4.99/month' }}
-      </button>
+      <template v-else>
+        <!-- On-site payment: Stripe's Embedded Checkout mounts here -->
+        <div v-show="paying" class="checkout-panel">
+          <button class="checkout-back muted" @click="closeEmbedded">‹ Not now</button>
+          <div ref="checkoutEl" class="checkout-mount"></div>
+        </div>
+
+        <button v-show="!paying" class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
+          {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+ — €4.99/month' }}
+        </button>
+      </template>
     </template>
 
     <router-link to="/dashboard" class="back-link muted">‹ Back to learning</router-link>
@@ -111,6 +165,24 @@ async function managePortal() {
 .hero h1 { font-size: 30px; margin-top: 4px; }
 
 .paid { background: var(--green-soft); border-color: var(--green); line-height: 1.5; }
+
+.checkout-panel { display: flex; flex-direction: column; gap: 8px; }
+.checkout-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.checkout-back:hover { color: var(--text); }
+/* Stripe's iframe is white — give it a rounded, padded frame that fits both themes */
+.checkout-mount {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 8px;
+  min-height: 480px;
+}
 
 .perks { display: flex; flex-direction: column; gap: 16px; }
 .perk { display: flex; gap: 12px; align-items: flex-start; }

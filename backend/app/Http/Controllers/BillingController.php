@@ -40,6 +40,8 @@ class BillingController extends Controller
             'is_premium' => $user->isPremium(),
             'premium_until' => $user->premium_until,
             'has_subscription' => (bool) $user->stripe_subscription_id,
+            // Present → frontend renders checkout on-site (embedded mode).
+            'publishable_key' => config('services.stripe.publishable'),
         ]);
     }
 
@@ -54,6 +56,9 @@ class BillingController extends Controller
 
         $user = $request->user();
         $appUrl = rtrim(config('app.url'), '/');
+        // With a publishable key the form renders inside SaunaSpeak
+        // (ui_mode: embedded); without one we fall back to Stripe's hosted page.
+        $embedded = (bool) config('services.stripe.publishable');
 
         // No payment_method_types: Stripe picks the eligible methods from the
         // Dashboard settings, which converts better than hardcoding cards.
@@ -65,8 +70,15 @@ class BillingController extends Controller
             'customer_email' => $user->stripe_customer_id ? null : $user->email,
             'client_reference_id' => (string) $user->id,
             'subscription_data[metadata][user_id]' => (string) $user->id,
-            'success_url' => "{$appUrl}/upgrade?status=success",
-            'cancel_url' => "{$appUrl}/upgrade?status=cancelled",
+            ...($embedded
+                ? [
+                    'ui_mode' => 'embedded',
+                    'return_url' => "{$appUrl}/upgrade?status=success&session_id={CHECKOUT_SESSION_ID}",
+                ]
+                : [
+                    'success_url' => "{$appUrl}/upgrade?status=success",
+                    'cancel_url' => "{$appUrl}/upgrade?status=cancelled",
+                ]),
         ]);
 
         $response = $this->stripe()
@@ -85,7 +97,9 @@ class BillingController extends Controller
             return response()->json(['message' => 'Could not start checkout. Try again.'], 502);
         }
 
-        return response()->json(['url' => $response->json('url')]);
+        return $embedded
+            ? response()->json(['mode' => 'embedded', 'client_secret' => $response->json('client_secret')])
+            : response()->json(['mode' => 'redirect', 'url' => $response->json('url')]);
     }
 
     /** POST /api/billing/portal — Stripe's hosted portal (cancel, card, invoices). */

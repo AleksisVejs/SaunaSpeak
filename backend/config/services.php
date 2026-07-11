@@ -52,6 +52,9 @@ return [
         'secret' => env('STRIPE_SECRET'),
         'price_id' => env('STRIPE_PRICE_ID'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        // Publishable key enables embedded (on-site) checkout; without it
+        // the flow falls back to Stripe's hosted redirect page.
+        'publishable' => env('STRIPE_PUBLISHABLE_KEY'),
     ],
 
     'tts' => [
