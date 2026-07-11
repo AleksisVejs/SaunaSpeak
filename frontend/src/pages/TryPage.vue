@@ -1,5 +1,5 @@
 <script setup>
-// Guest "try it now" taste — no account needed. Runs three real sentences with
+// Guest "try it now" taste - no account needed. Runs three real sentences with
 // listen + reveal, then invites signup to save progress. Self-contained sample
 // content so it works without the backend/auth.
 import { ref, computed } from 'vue'
@@ -74,8 +74,8 @@ function next() {
         <img class="finish-icon" src="/vaino-wave.png" alt="Väinö waving hello" />
         <h1>That's spoken Finnish.</h1>
         <p class="finish-text">
-          SaunaSpeak brings each sentence back at the right moment — listen, fill the gap,
-          then say it from memory — so it actually sticks. Create a free account to keep your
+          SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
+          then say it from memory - so it actually sticks. Create a free account to keep your
           streak and unlock the full path.
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>

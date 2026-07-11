@@ -17,7 +17,7 @@ const { supported, recording, takeUrl, error, start, stop, discard } = useVoiceR
 const playingTake = ref(false)
 let takeAudio = null
 
-// New sentence — the old take no longer applies.
+// New sentence - the old take no longer applies.
 watch(
   () => props.text,
   () => {

@@ -51,7 +51,7 @@ export const useSessionStore = defineStore('session', {
         this.xpEarned += data.xp_gained
         this.progressRecorded = true
 
-        // A lapsed sentence comes back once more at the end of this session —
+        // A lapsed sentence comes back once more at the end of this session -
         // retrying within the session is where the learning happens.
         if (grade === 'again' && !this.requeuedIds.includes(sentence.id)) {
           this.requeuedIds.push(sentence.id)

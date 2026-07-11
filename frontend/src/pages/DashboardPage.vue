@@ -22,7 +22,7 @@ onMounted(async () => {
   }
 })
 
-// Sauna ranks — löyly levels earned with XP.
+// Sauna ranks - löyly levels earned with XP.
 const RANKS = [
   { xp: 0, title: 'Kylmä Kiuas', icon: '🪨' },
   { xp: 150, title: 'Ensilöyly', icon: '💧' },
@@ -87,7 +87,7 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
           <div class="rank-info">
             <p class="rank-title">{{ rank.title }}</p>
             <p class="muted rank-next">
-              {{ rank.next ? `${rank.next.xp - (auth.user?.xp ?? 0)} XP to ${rank.next.title} ${rank.next.icon}` : 'Highest rank reached — legenda!' }}
+              {{ rank.next ? `${rank.next.xp - (auth.user?.xp ?? 0)} XP to ${rank.next.title} ${rank.next.icon}` : 'Highest rank reached - legenda!' }}
             </p>
           </div>
         </div>
@@ -129,7 +129,7 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
           </div>
         </div>
         <p class="schedule-why muted">
-          Each sentence returns right before you'd forget it — that timing is what makes it stick.
+          Each sentence returns right before you'd forget it - that timing is what makes it stick.
         </p>
       </div>
 

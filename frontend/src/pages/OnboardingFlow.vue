@@ -17,7 +17,7 @@ const questions = [
     kind: 'intro',
     icon: '🧖',
     title: 'Tervetuloa!',
-    text: "Three quick questions and we'll tune SaunaSpeak to you. You'll learn real spoken Finnish — what people actually say in shops, buses and saunas."
+    text: "Three quick questions and we'll tune SaunaSpeak to you. You'll learn real spoken Finnish - what people actually say in shops, buses and saunas."
   },
   {
     key: 'goal',
@@ -37,7 +37,7 @@ const questions = [
     options: [
       { value: 'none', icon: '🐣', label: 'Absolute beginner' },
       { value: 'some', icon: '📖', label: 'A few words' },
-      { value: 'rusty', icon: '🔁', label: 'Rusty — brushing up' }
+      { value: 'rusty', icon: '🔁', label: 'Rusty - brushing up' }
     ]
   },
   {
@@ -45,9 +45,9 @@ const questions = [
     kind: 'choice',
     title: 'How much time per day?',
     options: [
-      { value: 2, icon: '☕', label: '2 min — a taste' },
-      { value: 5, icon: '🔥', label: '5 min — steady' },
-      { value: 15, icon: '💪', label: '15 min — serious' }
+      { value: 2, icon: '☕', label: '2 min - a taste' },
+      { value: 5, icon: '🔥', label: '5 min - steady' },
+      { value: 15, icon: '💪', label: '15 min - serious' }
     ]
   }
 ]
@@ -82,7 +82,7 @@ function finish() {
     level: answers.value.level,
     minutes: answers.value.minutes
   })
-  // Straight into the first session — earn value immediately.
+  // Straight into the first session - earn value immediately.
   router.push({ name: 'session' })
 }
 </script>

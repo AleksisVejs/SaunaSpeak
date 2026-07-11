@@ -46,7 +46,7 @@ if command -v zip >/dev/null 2>&1; then
   (cd "$RELEASE" && zip -rq "$ROOT/saunaspeak-release.zip" .)
   OUT=saunaspeak-release.zip
 elif command -v powershell.exe >/dev/null 2>&1; then
-  # Git Bash on Windows usually has no `zip` — borrow PowerShell's.
+  # Git Bash on Windows usually has no `zip` - borrow PowerShell's.
   powershell.exe -NoProfile -Command "Compress-Archive -Path '$(cygpath -w "$RELEASE")\\*' -DestinationPath '$(cygpath -w "$ROOT")\\saunaspeak-release.zip' -Force"
   OUT=saunaspeak-release.zip
 else
@@ -55,4 +55,4 @@ else
 fi
 
 echo "Done: $OUT ($(du -h "$ROOT/$OUT" | cut -f1))"
-echo "Next: upload + extract on cPanel — see DEPLOY.md"
+echo "Next: upload + extract on cPanel - see DEPLOY.md"

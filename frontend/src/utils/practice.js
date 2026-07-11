@@ -1,5 +1,5 @@
 // Scaffolding fade: as a sentence climbs the SRS ladder the exercise gets
-// harder — recognition → gap-fill → listening dictation → full recall.
+// harder - recognition → gap-fill → listening dictation → full recall.
 export function cardKind(status) {
   switch (status) {
     case 'learning':

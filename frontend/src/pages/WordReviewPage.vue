@@ -75,7 +75,7 @@ function onKey(e) {
       <p class="muted">
         {{ reviewed
           ? `You reviewed ${reviewed} ${reviewed === 1 ? 'card' : 'cards'}. They'll come back right before you'd forget them.`
-          : 'Tap words in lessons and sessions to fill your deck — they resurface here as flashcards.' }}
+          : 'Tap words in lessons and sessions to fill your deck - they resurface here as flashcards.' }}
       </p>
       <router-link to="/words" class="btn btn-primary btn-block">Back to word bank</router-link>
       <button class="btn btn-ghost btn-block" @click="router.push('/dashboard')">Home</button>

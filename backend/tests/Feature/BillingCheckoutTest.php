@@ -12,15 +12,18 @@ class BillingCheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
+    private User $user;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        Sanctum::actingAs(User::create([
+        $this->user = User::create([
             'name' => 'Testi',
             'email' => 'testi@example.com',
             'password' => bcrypt('password'),
-        ]));
+        ]);
+        Sanctum::actingAs($this->user);
 
         config([
             'services.stripe.secret' => 'sk_test_x',
@@ -29,43 +32,65 @@ class BillingCheckoutTest extends TestCase
         ]);
     }
 
-    public function test_embedded_checkout_when_publishable_key_is_configured(): void
+    public function test_checkout_redirects_to_stripes_hosted_page(): void
     {
-        config(['services.stripe.publishable' => 'pk_test_x']);
-
-        Http::fake(['api.stripe.com/v1/checkout/sessions' => Http::response([
-            'id' => 'cs_123', 'client_secret' => 'cs_123_secret_abc',
-        ])]);
-
-        $this->postJson('/api/billing/checkout')
-            ->assertOk()
-            ->assertJsonPath('mode', 'embedded')
-            ->assertJsonPath('client_secret', 'cs_123_secret_abc');
-
-        Http::assertSent(function ($request) {
-            $body = $request->body();
-
-            return str_contains($body, 'ui_mode=embedded')
-                && str_contains($body, urlencode('https://sauna.test/upgrade?status=success'))
-                && ! str_contains($body, 'cancel_url')
-                && ! str_contains($body, 'payment_method_types');
-        });
-    }
-
-    public function test_hosted_redirect_without_publishable_key(): void
-    {
-        config(['services.stripe.publishable' => null]);
-
         Http::fake(['api.stripe.com/v1/checkout/sessions' => Http::response([
             'id' => 'cs_123', 'url' => 'https://checkout.stripe.com/c/pay/cs_123',
         ])]);
 
         $this->postJson('/api/billing/checkout')
             ->assertOk()
-            ->assertJsonPath('mode', 'redirect')
             ->assertJsonPath('url', 'https://checkout.stripe.com/c/pay/cs_123');
 
         Http::assertSent(fn ($request) => str_contains($request->body(), 'success_url')
-            && ! str_contains($request->body(), 'ui_mode'));
+            && str_contains($request->body(), 'cancel_url')
+            && ! str_contains($request->body(), 'payment_method_types'));
+    }
+
+    public function test_cancel_sets_cancel_at_period_end_and_keeps_access(): void
+    {
+        $periodEnd = now()->addWeeks(3)->timestamp;
+        $this->user->update(['stripe_subscription_id' => 'sub_123']);
+
+        Http::fake(['api.stripe.com/v1/subscriptions/sub_123' => Http::response([
+            'id' => 'sub_123',
+            'status' => 'active',
+            'cancel_at_period_end' => true,
+            'items' => ['data' => [['current_period_end' => $periodEnd]]],
+        ])]);
+
+        $this->postJson('/api/billing/cancel')
+            ->assertOk()
+            ->assertJsonPath('cancel_at_period_end', true);
+
+        Http::assertSent(fn ($r) => str_contains($r->body(), 'cancel_at_period_end=true'));
+
+        // Access continues to the end of the paid period.
+        $this->user->refresh();
+        $this->assertTrue($this->user->isPremium());
+        $this->assertSame($periodEnd, $this->user->premium_until->timestamp);
+    }
+
+    public function test_resume_undoes_a_pending_cancellation(): void
+    {
+        $this->user->update(['stripe_subscription_id' => 'sub_123']);
+
+        Http::fake(['api.stripe.com/v1/subscriptions/sub_123' => Http::response([
+            'id' => 'sub_123',
+            'status' => 'active',
+            'cancel_at_period_end' => false,
+            'items' => ['data' => [['current_period_end' => now()->addMonth()->timestamp]]],
+        ])]);
+
+        $this->postJson('/api/billing/resume')
+            ->assertOk()
+            ->assertJsonPath('cancel_at_period_end', false);
+
+        Http::assertSent(fn ($r) => str_contains($r->body(), 'cancel_at_period_end=false'));
+    }
+
+    public function test_cancel_without_subscription_is_404(): void
+    {
+        $this->postJson('/api/billing/cancel')->assertNotFound();
     }
 }

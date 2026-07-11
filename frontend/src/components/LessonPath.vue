@@ -3,7 +3,7 @@
 //
 // Unlock rule: the first lesson is always open; each later lesson opens once
 // the previous one has been STARTED (any sentence in the SRS). This mirrors
-// the daily session engine, which feeds fresh sentences in lesson order —
+// the daily session engine, which feeds fresh sentences in lesson order -
 // the map should never show a lock on ground the session already covers.
 //
 // Level milestones (A0 → A1) are drawn as dividers so learners can see the
@@ -74,7 +74,7 @@ const endCheckpoint = computed(() => {
 })
 
 // Overall level progress, e.g. "A0 · 3/32 mastered". Number() guards against
-// APIs serving SQL aggregates as strings (host-dependent) — += would concat.
+// APIs serving SQL aggregates as strings (host-dependent) - += would concat.
 const levelSummary = computed(() => {
   const byLevel = {}
   props.lessons.forEach((l) => {
@@ -108,9 +108,9 @@ const levelSummary = computed(() => {
           class="checkpoint-chip"
           :class="{ passed: n.checkpoint.passed, locked: !n.checkpoint.available }"
         >
-          <template v-if="n.checkpoint.passed">🏅 {{ n.checkpoint.level }} checkpoint passed — retake any time</template>
+          <template v-if="n.checkpoint.passed">🏅 {{ n.checkpoint.level }} checkpoint passed - retake any time</template>
           <template v-else-if="n.checkpoint.available">🎯 Take the {{ n.checkpoint.level }} checkpoint</template>
-          <template v-else>🔒 {{ n.checkpoint.level }} checkpoint — opens after 5 studied sentences</template>
+          <template v-else>🔒 {{ n.checkpoint.level }} checkpoint - opens after 5 studied sentences</template>
         </component>
         <div class="level-divider">
           <span class="level-line"></span>
@@ -134,9 +134,9 @@ const levelSummary = computed(() => {
       class="checkpoint-chip end"
       :class="{ passed: endCheckpoint.passed, locked: !endCheckpoint.available }"
     >
-      <template v-if="endCheckpoint.passed">🏅 {{ endCheckpoint.level }} checkpoint passed — retake any time</template>
+      <template v-if="endCheckpoint.passed">🏅 {{ endCheckpoint.level }} checkpoint passed - retake any time</template>
       <template v-else-if="endCheckpoint.available">🎯 Take the {{ endCheckpoint.level }} checkpoint</template>
-      <template v-else>🔒 {{ endCheckpoint.level }} checkpoint — opens after 5 studied sentences</template>
+      <template v-else>🔒 {{ endCheckpoint.level }} checkpoint - opens after 5 studied sentences</template>
     </component>
   </div>
 </template>

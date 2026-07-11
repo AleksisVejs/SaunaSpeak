@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'SaunaSpeak — Learn Finnish',
+        name: 'SaunaSpeak - Learn Finnish',
         short_name: 'SaunaSpeak',
         description: 'Learn Finnish through short daily Sauna Sessions',
         theme_color: '#12141a',
@@ -27,7 +27,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/audio/],
-        // Sentence + word MP3s are immutable once generated — cache-first keeps them offline.
+        // Sentence + word MP3s are immutable once generated - cache-first keeps them offline.
         runtimeCaching: [
           {
             urlPattern: /\/audio\/.*\.mp3$/,

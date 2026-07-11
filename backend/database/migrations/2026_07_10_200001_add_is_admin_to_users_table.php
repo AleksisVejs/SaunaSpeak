@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Admin flag — promoted only via `php artisan user:promote <email>`.
+        // Admin flag - promoted only via `php artisan user:promote <email>`.
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('is_admin')->default(false)->after('premium_until');
         });

@@ -2,7 +2,7 @@
 //
 // Native neural MP3s only (fi-FI-HarriNeural): pre-generated files for
 // sentences and words, on-demand server TTS for chat replies. The browser's
-// SpeechSynthesis is deliberately NOT used — its voice varies per device
+// SpeechSynthesis is deliberately NOT used - its voice varies per device
 // (often female, clashing with the male lesson audio) and can double-fire
 // alongside MP3 playback. No audio file → silence, never a random voice.
 
@@ -40,7 +40,7 @@ function stopAll() {
   }
 }
 
-// Emoji and pictographs must never reach the TTS engine — it reads them aloud.
+// Emoji and pictographs must never reach the TTS engine - it reads them aloud.
 function stripEmoji(text) {
   return text
     .replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '')
@@ -93,7 +93,7 @@ export function useFinnishAudio() {
     if (audioUrl) playUrl(audioUrl, rate ?? audioRate())
   }
 
-  // Like playSentence, but resolves when playback finishes — for playing
+  // Like playSentence, but resolves when playback finishes - for playing
   // a whole lesson back to back.
   function playSentenceAsync(text, audioUrl, rate = null) {
     if (audioUrl) return playUrlAsync(audioUrl, rate ?? audioRate())

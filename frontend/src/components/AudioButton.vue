@@ -4,7 +4,7 @@ import { usePrefs } from '../composables/usePrefs'
 
 const props = defineProps({
   text: { type: String, required: true },
-  // Pre-generated native audio (sentences.audio_url). Native MP3 only —
+  // Pre-generated native audio (sentences.audio_url). Native MP3 only -
   // no browser-TTS fallback, so the voice is always the same male speaker.
   audioUrl: { type: String, default: null }
 })

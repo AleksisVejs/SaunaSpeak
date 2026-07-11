@@ -6,7 +6,7 @@ use App\Models\Lesson;
 use Illuminate\Database\Seeder;
 
 /**
- * All content is everyday SPOKEN Finnish (puhekieli) — the language people
+ * All content is everyday SPOKEN Finnish (puhekieli) - the language people
  * actually use in shops, buses and saunas. Each sentence carries:
  *
  *   fi       spoken form (what the learner says)
@@ -28,9 +28,9 @@ class LessonSeeder extends Seeder
                         'en' => "Hi! I'm Anna.",
                         'written' => 'Hei! Minä olen Anna.',
                         'glosses' => [
-                            'moi' => 'hi / hey — casual greeting',
-                            'mä' => "I — spoken form of 'minä'",
-                            'oon' => "am — spoken form of 'olen'",
+                            'moi' => 'hi / hey - casual greeting',
+                            'mä' => "I - spoken form of 'minä'",
+                            'oon' => "am - spoken form of 'olen'",
                             'anna' => 'Anna (a name)',
                         ],
                     ],
@@ -40,9 +40,9 @@ class LessonSeeder extends Seeder
                         'written' => 'Mikä sinun nimesi on?',
                         'glosses' => [
                             'mikä' => 'what / which',
-                            'sun' => "your — spoken form of 'sinun'",
+                            'sun' => "your - spoken form of 'sinun'",
                             'nimi' => 'name',
-                            'on' => "is — 3rd person of 'olla' (to be)",
+                            'on' => "is - 3rd person of 'olla' (to be)",
                         ],
                     ],
                     [
@@ -57,16 +57,16 @@ class LessonSeeder extends Seeder
                         'fi' => 'Mitä kuuluu?',
                         'en' => 'How are you?',
                         'glosses' => [
-                            'mitä' => "what — partitive of 'mikä'",
-                            'kuuluu' => "literally 'is heard' — Mitä kuuluu? = How are you?",
+                            'mitä' => "what - partitive of 'mikä'",
+                            'kuuluu' => "literally 'is heard' - Mitä kuuluu? = How are you?",
                         ],
                     ],
                     [
                         'fi' => 'Ihan hyvää, kiitos.',
                         'en' => 'Pretty good, thanks.',
                         'glosses' => [
-                            'ihan' => 'quite / pretty — very common softener',
-                            'hyvää' => "good — partitive of 'hyvä'",
+                            'ihan' => 'quite / pretty - very common softener',
+                            'hyvää' => "good - partitive of 'hyvä'",
                             'kiitos' => 'thanks',
                         ],
                     ],
@@ -75,10 +75,10 @@ class LessonSeeder extends Seeder
                         'en' => "Sorry, I don't understand.",
                         'written' => 'Anteeksi, minä en ymmärrä.',
                         'glosses' => [
-                            'anteeks' => "sorry — spoken form of 'anteeksi'",
-                            'mä' => "I — spoken form of 'minä'",
-                            'en' => "don't — the negative verb, 1st person",
-                            'ymmärrä' => "understand — negative form of 'ymmärtää'",
+                            'anteeks' => "sorry - spoken form of 'anteeksi'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'en' => "don't - the negative verb, 1st person",
+                            'ymmärrä' => "understand - negative form of 'ymmärtää'",
                         ],
                     ],
                     [
@@ -86,8 +86,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Do you speak English?',
                         'written' => 'Puhutko sinä englantia?',
                         'glosses' => [
-                            'puhuksä' => "do you speak? — spoken 'puhutko sinä' squeezed into one word",
-                            'englantia' => "English — partitive of 'englanti'",
+                            'puhuksä' => "do you speak? - spoken 'puhutko sinä' squeezed into one word",
+                            'englantia' => "English - partitive of 'englanti'",
                         ],
                     ],
                     [
@@ -95,8 +95,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Bye, see you!',
                         'written' => 'Näkemiin, nähdään!',
                         'glosses' => [
-                            'moikka' => 'bye — casual',
-                            'nähään' => "see you — spoken form of 'nähdään' (we'll see each other)",
+                            'moikka' => 'bye - casual',
+                            'nähään' => "see you - spoken form of 'nähdään' (we'll see each other)",
                         ],
                     ],
                 ],
@@ -109,9 +109,9 @@ class LessonSeeder extends Seeder
                         'fi' => 'No niin, mennään!',
                         'en' => "Alright, let's go!",
                         'glosses' => [
-                            'no' => 'well / alright — filler word Finns use constantly',
-                            'niin' => "so / like that — 'no niin' = alright, here we go",
-                            'mennään' => "let's go — the passive used as 'we' in spoken Finnish",
+                            'no' => 'well / alright - filler word Finns use constantly',
+                            'niin' => "so / like that - 'no niin' = alright, here we go",
+                            'mennään' => "let's go - the passive used as 'we' in spoken Finnish",
                         ],
                     ],
                     [
@@ -119,8 +119,8 @@ class LessonSeeder extends Seeder
                         'en' => "I don't know.",
                         'written' => 'En minä tiedä.',
                         'glosses' => [
-                            'emmä' => "I don't — 'en' + 'mä' fused into one word",
-                            'tiiä' => "know — spoken form of 'tiedä'",
+                            'emmä' => "I don't - 'en' + 'mä' fused into one word",
+                            'tiiä' => "know - spoken form of 'tiedä'",
                         ],
                     ],
                     [
@@ -128,18 +128,18 @@ class LessonSeeder extends Seeder
                         'en' => 'What are you doing?',
                         'written' => 'Mitä sinä teet?',
                         'glosses' => [
-                            'mitä' => "what — partitive of 'mikä'",
-                            'sä' => "you — spoken form of 'sinä'",
-                            'teet' => "do / are doing — 2nd person of 'tehdä'",
+                            'mitä' => "what - partitive of 'mikä'",
+                            'sä' => "you - spoken form of 'sinä'",
+                            'teet' => "do / are doing - 2nd person of 'tehdä'",
                         ],
                     ],
                     [
                         'fi' => 'Ei se mitään.',
                         'en' => "No worries, it's nothing.",
                         'glosses' => [
-                            'ei' => 'no / not — 3rd person negative',
-                            'se' => "it — also used for 'he/she' in spoken Finnish",
-                            'mitään' => "anything — 'ei se mitään' = it's nothing, no worries",
+                            'ei' => 'no / not - 3rd person negative',
+                            'se' => "it - also used for 'he/she' in spoken Finnish",
+                            'mitään' => "anything - 'ei se mitään' = it's nothing, no worries",
                         ],
                     ],
                     [
@@ -147,7 +147,7 @@ class LessonSeeder extends Seeder
                         'en' => "Whatever, I don't mind.",
                         'glosses' => [
                             'ihan' => 'quite / totally',
-                            'sama' => "same — 'ihan sama' = whatever, doesn't matter",
+                            'sama' => "same - 'ihan sama' = whatever, doesn't matter",
                         ],
                     ],
                     [
@@ -155,9 +155,9 @@ class LessonSeeder extends Seeder
                         'en' => 'Are you hungry?',
                         'written' => 'Onko sinulla nälkä?',
                         'glosses' => [
-                            'onks' => "is (there)? — spoken form of 'onko'",
-                            'sul' => "you ('at you') — spoken form of 'sinulla'",
-                            'nälkä' => "hunger — Finnish literally asks 'is there hunger at you?'",
+                            'onks' => "is (there)? - spoken form of 'onko'",
+                            'sul' => "you ('at you') - spoken form of 'sinulla'",
+                            'nälkä' => "hunger - Finnish literally asks 'is there hunger at you?'",
                         ],
                     ],
                     [
@@ -165,9 +165,9 @@ class LessonSeeder extends Seeder
                         'en' => 'Yeah, works for me.',
                         'written' => 'Kyllä, se sopii minulle.',
                         'glosses' => [
-                            'joo' => "yeah — the everyday spoken 'yes' ('kyllä' is formal)",
-                            'sopii' => "suits / works — 3rd person of 'sopia'",
-                            'mulle' => "for me — spoken form of 'minulle'",
+                            'joo' => "yeah - the everyday spoken 'yes' ('kyllä' is formal)",
+                            'sopii' => "suits / works - 3rd person of 'sopia'",
+                            'mulle' => "for me - spoken form of 'minulle'",
                         ],
                     ],
                     [
@@ -175,10 +175,10 @@ class LessonSeeder extends Seeder
                         'en' => "Look, that's my friend.",
                         'written' => 'Katso, tuo on minun kaverini.',
                         'glosses' => [
-                            'kato' => "look! — spoken form of 'katso'",
-                            'toi' => "that — spoken form of 'tuo'",
-                            'on' => "is — 3rd person of 'olla' (to be)",
-                            'mun' => "my — spoken form of 'minun'",
+                            'kato' => "look! - spoken form of 'katso'",
+                            'toi' => "that - spoken form of 'tuo'",
+                            'on' => "is - 3rd person of 'olla' (to be)",
+                            'mun' => "my - spoken form of 'minun'",
                             'kaveri' => 'friend, buddy',
                         ],
                     ],
@@ -193,9 +193,9 @@ class LessonSeeder extends Seeder
                         'en' => "I'll have a coffee, please.",
                         'written' => 'Minä otan kahvin, kiitos.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'otan' => "take / will have — 1st person of 'ottaa'",
-                            'kahvin' => "a coffee — object form of 'kahvi'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'otan' => "take / will have - 1st person of 'ottaa'",
+                            'kahvin' => "a coffee - object form of 'kahvi'",
                             'kiitos' => 'thanks / please',
                         ],
                     ],
@@ -204,10 +204,10 @@ class LessonSeeder extends Seeder
                         'en' => 'Could I get one pulla?',
                         'written' => 'Saisinko minä yhden pullan?',
                         'glosses' => [
-                            'saisinks' => "could I get? — spoken form of 'saisinko'",
-                            'mä' => "I — spoken form of 'minä'",
-                            'yhen' => "one — spoken form of 'yhden'",
-                            'pullan' => "a pulla (cardamom bun) — object form of 'pulla'",
+                            'saisinks' => "could I get? - spoken form of 'saisinko'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'yhen' => "one - spoken form of 'yhden'",
+                            'pullan' => "a pulla (cardamom bun) - object form of 'pulla'",
                         ],
                     ],
                     [
@@ -215,8 +215,8 @@ class LessonSeeder extends Seeder
                         'en' => 'How much does that cost?',
                         'written' => 'Paljonko tuo maksaa?',
                         'glosses' => [
-                            'paljonks' => "how much? — spoken form of 'paljonko'",
-                            'toi' => "that — spoken form of 'tuo'",
+                            'paljonks' => "how much? - spoken form of 'paljonko'",
+                            'toi' => "that - spoken form of 'tuo'",
                             'maksaa' => 'costs',
                         ],
                     ],
@@ -228,7 +228,7 @@ class LessonSeeder extends Seeder
                             'se' => 'it',
                             'maksaa' => 'costs',
                             'kolme' => 'three',
-                            'euroo' => "euros — spoken form of 'euroa'",
+                            'euroo' => "euros - spoken form of 'euroa'",
                         ],
                     ],
                     [
@@ -236,11 +236,11 @@ class LessonSeeder extends Seeder
                         'en' => 'Careful, the coffee is really hot.',
                         'written' => 'Varo, kahvi on todella kuumaa.',
                         'glosses' => [
-                            'varo' => "watch out — imperative of 'varoa'",
+                            'varo' => "watch out - imperative of 'varoa'",
                             'kahvi' => 'coffee',
                             'on' => 'is',
-                            'tosi' => "really — spoken intensifier (standard 'todella')",
-                            'kuumaa' => "hot — partitive of 'kuuma'",
+                            'tosi' => "really - spoken intensifier (standard 'todella')",
+                            'kuumaa' => "hot - partitive of 'kuuma'",
                         ],
                     ],
                     [
@@ -248,10 +248,10 @@ class LessonSeeder extends Seeder
                         'en' => 'This is really good!',
                         'written' => 'Tämä on todella hyvää!',
                         'glosses' => [
-                            'tää' => "this — spoken form of 'tämä'",
+                            'tää' => "this - spoken form of 'tämä'",
                             'on' => 'is',
-                            'tosi' => "really — spoken intensifier (standard 'todella')",
-                            'hyvää' => "good — partitive of 'hyvä'",
+                            'tosi' => "really - spoken intensifier (standard 'todella')",
+                            'hyvää' => "good - partitive of 'hyvä'",
                         ],
                     ],
                     [
@@ -259,18 +259,18 @@ class LessonSeeder extends Seeder
                         'en' => 'Can I pay by card?',
                         'written' => 'Voinko minä maksaa kortilla?',
                         'glosses' => [
-                            'voinks' => "can I? — spoken form of 'voinko'",
-                            'mä' => "I — spoken form of 'minä'",
+                            'voinks' => "can I? - spoken form of 'voinko'",
+                            'mä' => "I - spoken form of 'minä'",
                             'maksaa' => 'to pay',
-                            'kortilla' => "by card — kortti + -lla ('with')",
+                            'kortilla' => "by card - kortti + -lla ('with')",
                         ],
                     ],
                     [
                         'fi' => 'Ole hyvä.',
                         'en' => "Here you go. / You're welcome.",
                         'glosses' => [
-                            'ole' => "be — imperative of 'olla'",
-                            'hyvä' => "good — 'ole hyvä' = here you go / you're welcome",
+                            'ole' => "be - imperative of 'olla'",
+                            'hyvä' => "good - 'ole hyvä' = here you go / you're welcome",
                         ],
                     ],
                 ],
@@ -284,8 +284,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Where is the railway station?',
                         'written' => 'Missä rautatieasema on?',
                         'glosses' => [
-                            'mis' => "where — spoken form of 'missä'",
-                            'rautatieasema' => "railway station — rautatie 'railway' + asema 'station'",
+                            'mis' => "where - spoken form of 'missä'",
+                            'rautatieasema' => "railway station - rautatie 'railway' + asema 'station'",
                             'on' => 'is',
                         ],
                     ],
@@ -296,14 +296,14 @@ class LessonSeeder extends Seeder
                         'glosses' => [
                             'se' => 'it',
                             'on' => 'is',
-                            'tuol' => "over there — spoken form of 'tuolla'",
+                            'tuol' => "over there - spoken form of 'tuolla'",
                         ],
                     ],
                     [
                         'fi' => 'Käänny vasemmalle.',
                         'en' => 'Turn left.',
                         'glosses' => [
-                            'käänny' => "turn — imperative of 'kääntyä'",
+                            'käänny' => "turn - imperative of 'kääntyä'",
                             'vasemmalle' => 'to the left',
                         ],
                     ],
@@ -312,8 +312,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Turn right.',
                         'written' => 'Käänny oikealle.',
                         'glosses' => [
-                            'käänny' => "turn — imperative of 'kääntyä'",
-                            'oikeelle' => "to the right — spoken form of 'oikealle'",
+                            'käänny' => "turn - imperative of 'kääntyä'",
+                            'oikeelle' => "to the right - spoken form of 'oikealle'",
                         ],
                     ],
                     [
@@ -321,7 +321,7 @@ class LessonSeeder extends Seeder
                         'en' => 'Go straight ahead.',
                         'written' => 'Mene suoraan eteenpäin.',
                         'glosses' => [
-                            'mee' => "go — spoken form of 'mene'",
+                            'mee' => "go - spoken form of 'mene'",
                             'suoraan' => 'straight',
                             'eteenpäin' => 'forward / ahead',
                         ],
@@ -331,7 +331,7 @@ class LessonSeeder extends Seeder
                         'en' => 'Is it far?',
                         'written' => 'Onko se kaukana?',
                         'glosses' => [
-                            'onks' => "is? — spoken form of 'onko'",
+                            'onks' => "is? - spoken form of 'onko'",
                             'se' => 'it',
                             'kaukana' => 'far away',
                         ],
@@ -342,7 +342,7 @@ class LessonSeeder extends Seeder
                         'written' => 'Ei ole, se on aivan lähellä.',
                         'glosses' => [
                             'ei' => 'no / not',
-                            'oo' => "be — spoken form of 'ole'; 'ei oo' = isn't",
+                            'oo' => "be - spoken form of 'ole'; 'ei oo' = isn't",
                             'se' => 'it',
                             'on' => 'is',
                             'ihan' => 'quite / really',
@@ -354,8 +354,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Thanks for the help!',
                         'written' => 'Kiitos avusta!',
                         'glosses' => [
-                            'kiitti' => "thanks — casual spoken 'kiitos'",
-                            'avusta' => "for the help — apu 'help' + -sta",
+                            'kiitti' => "thanks - casual spoken 'kiitos'",
+                            'avusta' => "for the help - apu 'help' + -sta",
                         ],
                     ],
                 ],
@@ -369,9 +369,9 @@ class LessonSeeder extends Seeder
                         'en' => 'I live in Helsinki.',
                         'written' => 'Minä asun Helsingissä.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'asun' => "live — 1st person of 'asua'",
-                            'helsingissä' => "in Helsinki — Helsinki + -ssä ('in')",
+                            'mä' => "I - spoken form of 'minä'",
+                            'asun' => "live - 1st person of 'asua'",
+                            'helsingissä' => "in Helsinki - Helsinki + -ssä ('in')",
                         ],
                     ],
                     [
@@ -379,19 +379,19 @@ class LessonSeeder extends Seeder
                         'en' => 'We have a small apartment.',
                         'written' => 'Meillä on pieni asunto.',
                         'glosses' => [
-                            'meil' => "we ('at us') — spoken form of 'meillä'",
-                            'on' => "is — 'meil on' = we have",
+                            'meil' => "we ('at us') - spoken form of 'meillä'",
+                            'on' => "is - 'meil on' = we have",
                             'pieni' => 'small',
-                            'kämppä' => "apartment, pad — colloquial (standard 'asunto')",
+                            'kämppä' => "apartment, pad - colloquial (standard 'asunto')",
                         ],
                     ],
                     [
                         'fi' => 'Keittiössä on jääkaappi.',
                         'en' => 'There is a fridge in the kitchen.',
                         'glosses' => [
-                            'keittiössä' => "in the kitchen — keittiö + -ssä ('in')",
+                            'keittiössä' => "in the kitchen - keittiö + -ssä ('in')",
                             'on' => 'is / there is',
-                            'jääkaappi' => "fridge — jää 'ice' + kaappi 'cupboard'",
+                            'jääkaappi' => "fridge - jää 'ice' + kaappi 'cupboard'",
                         ],
                     ],
                     [
@@ -399,9 +399,9 @@ class LessonSeeder extends Seeder
                         'en' => 'I clean on Saturday.',
                         'written' => 'Minä siivoan lauantaina.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'siivoon' => "clean — spoken form of 'siivoan'",
-                            'lauantaina' => "on Saturday — lauantai + -na ('on')",
+                            'mä' => "I - spoken form of 'minä'",
+                            'siivoon' => "clean - spoken form of 'siivoan'",
+                            'lauantaina' => "on Saturday - lauantai + -na ('on')",
                         ],
                     ],
                     [
@@ -410,7 +410,7 @@ class LessonSeeder extends Seeder
                         'glosses' => [
                             'kissa' => 'cat',
                             'nukkuu' => 'sleeps / is sleeping',
-                            'sohvalla' => "on the sofa — sohva + -lla ('on')",
+                            'sohvalla' => "on the sofa - sohva + -lla ('on')",
                         ],
                     ],
                     [
@@ -418,16 +418,16 @@ class LessonSeeder extends Seeder
                         'en' => 'Can you open the window?',
                         'written' => 'Voitko sinä avata ikkunan?',
                         'glosses' => [
-                            'voitsä' => "can you? — spoken 'voitko sinä' in one word",
+                            'voitsä' => "can you? - spoken 'voitko sinä' in one word",
                             'avata' => 'to open',
-                            'ikkunan' => "the window — object form of 'ikkuna'",
+                            'ikkunan' => "the window - object form of 'ikkuna'",
                         ],
                     ],
                     [
                         'fi' => 'Sauna on valmis!',
                         'en' => 'The sauna is ready!',
                         'glosses' => [
-                            'sauna' => "sauna — Finland's gift to the world",
+                            'sauna' => "sauna - Finland's gift to the world",
                             'on' => 'is',
                             'valmis' => 'ready',
                         ],
@@ -437,8 +437,8 @@ class LessonSeeder extends Seeder
                         'en' => 'Shall we go to the sauna?',
                         'written' => 'Menemmekö saunaan?',
                         'glosses' => [
-                            'mennäänks' => "shall we go? — spoken form of 'mennäänkö'",
-                            'saunaan' => "into the sauna — sauna + -an ('into')",
+                            'mennäänks' => "shall we go? - spoken form of 'mennäänkö'",
+                            'saunaan' => "into the sauna - sauna + -an ('into')",
                         ],
                     ],
                 ],
@@ -453,7 +453,7 @@ class LessonSeeder extends Seeder
                         'glosses' => [
                             'tänään' => 'today',
                             'sataa' => 'rains / falls from the sky',
-                            'lunta' => "snow — partitive of 'lumi'",
+                            'lunta' => "snow - partitive of 'lumi'",
                         ],
                     ],
                     [
@@ -463,7 +463,7 @@ class LessonSeeder extends Seeder
                         'glosses' => [
                             'ulkona' => 'outside',
                             'on' => 'is',
-                            'tosi' => "really — spoken intensifier (standard 'todella')",
+                            'tosi' => "really - spoken intensifier (standard 'todella')",
                             'kylmä' => 'cold',
                         ],
                     ],
@@ -471,10 +471,10 @@ class LessonSeeder extends Seeder
                         'fi' => 'Kesällä aurinko paistaa yölläkin.',
                         'en' => 'In summer the sun shines even at night.',
                         'glosses' => [
-                            'kesällä' => "in summer — kesä + -llä ('in/at')",
+                            'kesällä' => "in summer - kesä + -llä ('in/at')",
                             'aurinko' => 'sun',
                             'paistaa' => 'shines',
-                            'yölläkin' => "even at night — yö 'night' + -llä 'at' + -kin 'even'",
+                            'yölläkin' => "even at night - yö 'night' + -llä 'at' + -kin 'even'",
                         ],
                     ],
                     [
@@ -486,7 +486,7 @@ class LessonSeeder extends Seeder
                             'on' => 'is',
                             'pitkä' => 'long',
                             'ja' => 'and',
-                            'pimee' => "dark — spoken form of 'pimeä'",
+                            'pimee' => "dark - spoken form of 'pimeä'",
                         ],
                     ],
                     [
@@ -494,9 +494,9 @@ class LessonSeeder extends Seeder
                         'en' => 'I like autumn.',
                         'written' => 'Minä pidän syksystä.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'tykkään' => "like — 'tykätä' is THE spoken verb for liking (standard 'pitää')",
-                            'syksystä' => "autumn — syksy + -stä ('tykätä' takes -sta/-stä)",
+                            'mä' => "I - spoken form of 'minä'",
+                            'tykkään' => "like - 'tykätä' is THE spoken verb for liking (standard 'pitää')",
+                            'syksystä' => "autumn - syksy + -stä ('tykätä' takes -sta/-stä)",
                         ],
                     ],
                     [
@@ -512,8 +512,8 @@ class LessonSeeder extends Seeder
                         'fi' => 'Ota sateenvarjo mukaan.',
                         'en' => 'Take an umbrella with you.',
                         'glosses' => [
-                            'ota' => "take — imperative of 'ottaa'",
-                            'sateenvarjo' => "umbrella — sade 'rain' + varjo 'shade'",
+                            'ota' => "take - imperative of 'ottaa'",
+                            'sateenvarjo' => "umbrella - sade 'rain' + varjo 'shade'",
                             'mukaan' => 'along / with you',
                         ],
                     ],
@@ -523,7 +523,7 @@ class LessonSeeder extends Seeder
                         'glosses' => [
                             'järvi' => 'lake',
                             'on' => 'is',
-                            'jäässä' => "frozen — literally 'in ice' (jää + -ssä)",
+                            'jäässä' => "frozen - literally 'in ice' (jää + -ssä)",
                         ],
                     ],
                 ],
@@ -537,9 +537,9 @@ class LessonSeeder extends Seeder
                         'en' => 'I wake up at seven.',
                         'written' => 'Minä herään kello seitsemän.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'herään' => "wake up — 1st person of 'herätä'",
-                            'seitsemältä' => "at seven — seitsemän + -ltä ('at' for clock times)",
+                            'mä' => "I - spoken form of 'minä'",
+                            'herään' => "wake up - 1st person of 'herätä'",
+                            'seitsemältä' => "at seven - seitsemän + -ltä ('at' for clock times)",
                         ],
                     ],
                     [
@@ -547,10 +547,10 @@ class LessonSeeder extends Seeder
                         'en' => 'I go to work by bus.',
                         'written' => 'Minä menen töihin bussilla.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'meen' => "go — spoken form of 'menen'",
-                            'töihin' => "to work — plural of 'työ' + -ihin ('to')",
-                            'bussilla' => "by bus — bussi + -lla ('by/with')",
+                            'mä' => "I - spoken form of 'minä'",
+                            'meen' => "go - spoken form of 'menen'",
+                            'töihin' => "to work - plural of 'työ' + -ihin ('to')",
+                            'bussilla' => "by bus - bussi + -lla ('by/with')",
                         ],
                     ],
                     [
@@ -558,10 +558,10 @@ class LessonSeeder extends Seeder
                         'en' => 'I eat lunch at twelve.',
                         'written' => 'Syön lounasta kello kaksitoista.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'syön' => "eat — 1st person of 'syödä'",
-                            'lounasta' => "lunch — partitive of 'lounas'",
-                            'kaheltatoista' => "at twelve — spoken form of 'kahdeltatoista'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'syön' => "eat - 1st person of 'syödä'",
+                            'lounasta' => "lunch - partitive of 'lounas'",
+                            'kaheltatoista' => "at twelve - spoken form of 'kahdeltatoista'",
                         ],
                     ],
                     [
@@ -569,9 +569,9 @@ class LessonSeeder extends Seeder
                         'en' => 'I study Finnish every day.',
                         'written' => 'Opiskelen suomea joka päivä.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'opiskelen' => "study — 1st person of 'opiskella'",
-                            'suomee' => "Finnish — spoken form of 'suomea'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'opiskelen' => "study - 1st person of 'opiskella'",
+                            'suomee' => "Finnish - spoken form of 'suomea'",
                             'joka' => 'every',
                             'päivä' => 'day',
                         ],
@@ -581,10 +581,10 @@ class LessonSeeder extends Seeder
                         'en' => 'In the evening I watch TV.',
                         'written' => 'Illalla katson televisiota.',
                         'glosses' => [
-                            'illalla' => "in the evening — ilta + -lla ('in/at')",
-                            'mä' => "I — spoken form of 'minä'",
-                            'katon' => "watch — spoken form of 'katson'",
-                            'telkkarii' => "TV — colloquial 'telkkari' (standard 'televisio')",
+                            'illalla' => "in the evening - ilta + -lla ('in/at')",
+                            'mä' => "I - spoken form of 'minä'",
+                            'katon' => "watch - spoken form of 'katson'",
+                            'telkkarii' => "TV - colloquial 'telkkari' (standard 'televisio')",
                         ],
                     ],
                     [
@@ -592,10 +592,10 @@ class LessonSeeder extends Seeder
                         'en' => 'I stop by the store after work.',
                         'written' => 'Käyn kaupassa työn jälkeen.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'käyn' => "visit / stop by — 1st person of 'käydä'",
-                            'kaupas' => "at the store — spoken form of 'kaupassa'",
-                            'töiden' => "of work — plural genitive of 'työ'",
+                            'mä' => "I - spoken form of 'minä'",
+                            'käyn' => "visit / stop by - 1st person of 'käydä'",
+                            'kaupas' => "at the store - spoken form of 'kaupassa'",
+                            'töiden' => "of work - plural genitive of 'työ'",
                             'jälkeen' => 'after',
                         ],
                     ],
@@ -604,10 +604,10 @@ class LessonSeeder extends Seeder
                         'en' => 'On the weekend I just rest.',
                         'written' => 'Viikonloppuna minä vain lepään.',
                         'glosses' => [
-                            'viikonloppuna' => "on the weekend — viikonloppu + -na ('on')",
-                            'mä' => "I — spoken form of 'minä'",
-                            'vaan' => "just — spoken form of 'vain'",
-                            'lepään' => "rest — 1st person of 'levätä'",
+                            'viikonloppuna' => "on the weekend - viikonloppu + -na ('on')",
+                            'mä' => "I - spoken form of 'minä'",
+                            'vaan' => "just - spoken form of 'vain'",
+                            'lepään' => "rest - 1st person of 'levätä'",
                         ],
                     ],
                     [
@@ -615,16 +615,16 @@ class LessonSeeder extends Seeder
                         'en' => 'I go to sleep at ten.',
                         'written' => 'Minä menen nukkumaan kello kymmenen.',
                         'glosses' => [
-                            'mä' => "I — spoken form of 'minä'",
-                            'meen' => "go — spoken form of 'menen'",
-                            'nukkuu' => "to sleep — spoken shortening of 'nukkumaan'",
-                            'kymmeneltä' => "at ten — kymmenen + -ltä ('at' for clock times)",
+                            'mä' => "I - spoken form of 'minä'",
+                            'meen' => "go - spoken form of 'menen'",
+                            'nukkuu' => "to sleep - spoken shortening of 'nukkumaan'",
+                            'kymmeneltä' => "at ten - kymmenen + -ltä ('at' for clock times)",
                         ],
                     ],
                 ],
             ],
             [
-                'title' => 'Sauna Small Talk — A Dialogue',
+                'title' => 'Sauna Small Talk - A Dialogue',
                 'level' => 'A1',
                 'sentences' => [
                     [
@@ -633,7 +633,7 @@ class LessonSeeder extends Seeder
                         'written' => 'Onko sauna jo lämmin?',
                         'speaker' => 'A',
                         'glosses' => [
-                            'onks' => "is? — spoken form of 'onko'",
+                            'onks' => "is? - spoken form of 'onko'",
                             'sauna' => 'sauna',
                             'jo' => 'already / yet',
                             'lämmin' => 'warm',
@@ -646,10 +646,10 @@ class LessonSeeder extends Seeder
                         'speaker' => 'B',
                         'context' => 'Onks sauna jo lämmin?',
                         'glosses' => [
-                            'joo' => "yeah — the everyday spoken 'yes'",
-                            'tosi' => "really — spoken intensifier (standard 'todella')",
+                            'joo' => "yeah - the everyday spoken 'yes'",
+                            'tosi' => "really - spoken intensifier (standard 'todella')",
                             'kuuma' => 'hot',
-                            'mennään' => "let's go — the passive used as 'we' in spoken Finnish",
+                            'mennään' => "let's go - the passive used as 'we' in spoken Finnish",
                         ],
                     ],
                     [
@@ -659,9 +659,9 @@ class LessonSeeder extends Seeder
                         'speaker' => 'A',
                         'context' => 'Joo, tosi kuuma. Mennään!',
                         'glosses' => [
-                            'heitätsä' => "will you throw? — spoken 'heitätkö sinä' in one word",
+                            'heitätsä' => "will you throw? - spoken 'heitätkö sinä' in one word",
                             'lisää' => 'more',
-                            'löylyä' => "steam — partitive of 'löyly', the sauna steam (untranslatable, sacred)",
+                            'löylyä' => "steam - partitive of 'löyly', the sauna steam (untranslatable, sacred)",
                         ],
                     ],
                     [
@@ -671,9 +671,9 @@ class LessonSeeder extends Seeder
                         'speaker' => 'B',
                         'context' => 'Heitätsä lisää löylyä?',
                         'glosses' => [
-                            'joo' => "yeah — the everyday spoken 'yes'",
-                            'mut' => "but — spoken form of 'mutta'",
-                            'sano' => "say — imperative of 'sanoa'",
+                            'joo' => "yeah - the everyday spoken 'yes'",
+                            'mut' => "but - spoken form of 'mutta'",
+                            'sano' => "say - imperative of 'sanoa'",
                             'jos' => 'if',
                             'on' => 'is',
                             'liikaa' => 'too much',
@@ -685,9 +685,9 @@ class LessonSeeder extends Seeder
                         'speaker' => 'A',
                         'context' => 'Joo, mut sano jos on liikaa.',
                         'glosses' => [
-                            'onpa' => "sure is! — on + -pa, the exclamation ending ('what a...')",
-                            'hyvät' => "good — plural of 'hyvä'",
-                            'löylyt' => "steam — 'löylyt' in the plural is how Finns praise it",
+                            'onpa' => "sure is! - on + -pa, the exclamation ending ('what a...')",
+                            'hyvät' => "good - plural of 'hyvä'",
+                            'löylyt' => "steam - 'löylyt' in the plural is how Finns praise it",
                         ],
                     ],
                     [
@@ -697,9 +697,9 @@ class LessonSeeder extends Seeder
                         'speaker' => 'B',
                         'context' => 'Onpa hyvät löylyt!',
                         'glosses' => [
-                            'mennäänks' => "shall we go? — spoken form of 'mennäänkö'",
+                            'mennäänks' => "shall we go? - spoken form of 'mennäänkö'",
                             'kohta' => 'soon / in a moment',
-                            'uimaan' => "swimming — 'to swim' in the going-to form (uida + -maan)",
+                            'uimaan' => "swimming - 'to swim' in the going-to form (uida + -maan)",
                         ],
                     ],
                     [
@@ -709,11 +709,11 @@ class LessonSeeder extends Seeder
                         'speaker' => 'A',
                         'context' => 'Mennäänks kohta uimaan?',
                         'glosses' => [
-                            'joo' => "yeah — the everyday spoken 'yes'",
+                            'joo' => "yeah - the everyday spoken 'yes'",
                             'järvi' => 'lake',
                             'on' => 'is',
                             'ihan' => 'right / quite',
-                            'vieressä' => "next to (us) — vieri + -ssä ('beside')",
+                            'vieressä' => "next to (us) - vieri + -ssä ('beside')",
                         ],
                     ],
                     [
@@ -723,7 +723,7 @@ class LessonSeeder extends Seeder
                         'speaker' => 'B',
                         'context' => 'Joo, järvi on ihan vieressä.',
                         'glosses' => [
-                            'tää' => "this — spoken form of 'tämä'",
+                            'tää' => "this - spoken form of 'tämä'",
                             'on' => 'is',
                             'paras' => 'best',
                             'päivä' => 'day',

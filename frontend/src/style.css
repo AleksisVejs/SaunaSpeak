@@ -18,7 +18,7 @@
   --text-dim: #9aa1b0;
   --text-faint: #6b7280;
 
-  /* brand — löyly amber */
+  /* brand - löyly amber */
   --accent: #f59e0b;
   --accent-soft: rgba(245, 158, 11, 0.14);
   --accent-2: #fb923c;
@@ -93,7 +93,7 @@
   --text-2xl: 26px;
   --text-3xl: 32px;
 
-  /* fonts (swappable — kept to system stacks so PWA works offline) */
+  /* fonts (swappable - kept to system stacks so PWA works offline) */
   --font-body: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
   --font-display: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
 

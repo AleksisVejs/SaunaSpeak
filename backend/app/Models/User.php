@@ -72,7 +72,7 @@ class User extends Authenticatable
 
     /**
      * Löyly+ access. While billing is unconfigured (no STRIPE_SECRET), every
-     * feature is open — flip the paywall on by adding the Stripe keys.
+     * feature is open - flip the paywall on by adding the Stripe keys.
      */
     public function isPremium(): bool
     {

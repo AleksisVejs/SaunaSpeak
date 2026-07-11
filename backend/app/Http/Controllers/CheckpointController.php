@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
  * Level checkpoints: a short, low-stakes cumulative recall quiz over
  * everything the learner has studied at a CEFR level. Passing awards a
  * badge on the journey path. Low-stakes cumulative testing (successive
- * relearning) is itself a learning event, not just a measurement — so
+ * relearning) is itself a learning event, not just a measurement - so
  * checkpoints can be retaken any time.
  */
 class CheckpointController extends Controller
@@ -21,7 +21,7 @@ class CheckpointController extends Controller
     private const PASS_RATIO = 0.8;
     private const XP_PASS_BONUS = 100;
 
-    /** GET /api/checkpoint/{level} — a random recall quiz over studied sentences. */
+    /** GET /api/checkpoint/{level} - a random recall quiz over studied sentences. */
     public function show(Request $request, string $level): JsonResponse
     {
         $level = $this->validLevel($level);
@@ -50,7 +50,7 @@ class CheckpointController extends Controller
         ]);
     }
 
-    /** POST /api/checkpoint/{level} — record the result; a pass earns the badge. */
+    /** POST /api/checkpoint/{level} - record the result; a pass earns the badge. */
     public function complete(Request $request, string $level): JsonResponse
     {
         $level = $this->validLevel($level);

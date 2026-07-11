@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sentences', function (Blueprint $table) {
-            // Per-word dictionary: { "oon": "am — spoken form of 'olen'", ... }
+            // Per-word dictionary: { "oon": "am - spoken form of 'olen'", ... }
             // Keys are lowercase words stripped of punctuation.
             $table->json('word_glosses')->nullable()->after('english_text');
         });

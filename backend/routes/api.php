@@ -13,7 +13,7 @@ use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
 use Illuminate\Support\Facades\Route;
 
-// Public — tightly throttled: these are the brute-force targets.
+// Public - tightly throttled: these are the brute-force targets.
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -51,6 +51,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // so this needs headroom; sessions are free on Stripe's side. Per-user.
     Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:20,1');
     Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:10,1');
+    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->middleware('throttle:6,1');
+    Route::post('/billing/resume', [BillingController::class, 'resume'])->middleware('throttle:6,1');
 
     // AI corrections: free tier gets the mock inside the controller;
     // throttled tighter since premium requests cost real money.

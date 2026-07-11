@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // One row per graded review (sentence or word flashcard) — the raw
+        // One row per graded review (sentence or word flashcard) - the raw
         // data behind weekly insights (volume, recall rate, active days).
         Schema::create('review_logs', function (Blueprint $table) {
             $table->id();

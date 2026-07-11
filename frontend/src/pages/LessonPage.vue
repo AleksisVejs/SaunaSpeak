@@ -13,7 +13,7 @@ const error = ref('')
 
 const { playSentenceAsync, stop } = useFinnishAudio()
 
-// Listening mode: the whole lesson back to back — input flooding for the ears.
+// Listening mode: the whole lesson back to back - input flooding for the ears.
 const playingId = ref(null)
 let playToken = 0 // bumping this cancels an in-flight play-all loop
 
@@ -52,7 +52,7 @@ onUnmounted(stopPlayAll)
 </script>
 
 <template>
-  <!-- single root element — required by the page transition in App.vue -->
+  <!-- single root element - required by the page transition in App.vue -->
   <div>
   <div v-if="loading" class="spinner"></div>
   <div v-else-if="error" class="error-msg">{{ error }}</div>

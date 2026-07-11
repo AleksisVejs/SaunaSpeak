@@ -1,6 +1,6 @@
 <script setup>
 // Sauna Chat: free conversation with Väinö, an old-school Finn on the bench.
-// Producing your own sentences — not recalling prompted ones — is what
+// Producing your own sentences - not recalling prompted ones - is what
 // exposes the gaps in your Finnish (the output hypothesis). Väinö replies in
 // real puhekieli at your level and only corrects real mistakes.
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -98,7 +98,7 @@ async function send() {
     messages.value.push({
       role: 'assistant',
       content: 'Hups, sauna meni pimeeks! 😅',
-      translation: 'Oops, the sauna went dark! (Connection problem — try again.)'
+      translation: 'Oops, the sauna went dark! (Connection problem - try again.)'
     })
   } finally {
     sending.value = false
@@ -121,7 +121,7 @@ const full = () => messages.value.length >= MAX_TURNS
     <img class="locked-vaino" src="/vaino.png" alt="Väinö on the sauna bench" />
     <h1>Väinö's bench is Löyly+</h1>
     <p class="muted">
-      Free chatting with a patient Finn — real puhekieli, at your level, with
+      Free chatting with a patient Finn - real puhekieli, at your level, with
       gentle corrections. Producing your own sentences is the practice drills can't give you.
     </p>
     <router-link to="/upgrade" class="btn btn-primary btn-block">♨️ See Löyly+</router-link>
@@ -212,7 +212,7 @@ const full = () => messages.value.length >= MAX_TURNS
     </div>
 
       <div v-if="full()" class="full-note">
-        <p class="muted">The löyly ran out — great chat! 🧖</p>
+        <p class="muted">The löyly ran out - great chat! 🧖</p>
         <button class="btn btn-ghost" @click="reset">Start a fresh chat</button>
       </div>
 

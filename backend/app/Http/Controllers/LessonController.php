@@ -19,7 +19,7 @@ class LessonController extends Controller
 
         // Sentences the learner has touched at all (any SRS status), per lesson.
         // The path uses this to unlock the next lesson as soon as the daily
-        // session starts serving it — locks must match what sessions do.
+        // session starts serving it - locks must match what sessions do.
         $startedByLesson = $user->progress()
             ->join('sentences', 'sentences.id', '=', 'user_progress.sentence_id')
             ->selectRaw('sentences.lesson_id, count(*) as started')
@@ -35,7 +35,7 @@ class LessonController extends Controller
                     ->count();
                 $lesson->started_count = (int) ($startedByLesson[$lesson->id] ?? 0);
                 // withCount aggregates arrive as strings on hosts without
-                // mysqlnd native types — the frontend does arithmetic on this.
+                // mysqlnd native types - the frontend does arithmetic on this.
                 $lesson->sentences_count = (int) $lesson->sentences_count;
 
                 return $lesson;

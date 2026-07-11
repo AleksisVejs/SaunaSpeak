@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 /**
  * Weekly insights: the learner's last 7 days in numbers. Recall rate is
- * good+easy over all grades — the honest measure of how much is sticking.
+ * good+easy over all grades - the honest measure of how much is sticking.
  */
 class InsightsController extends Controller
 {

@@ -1,5 +1,5 @@
 <script setup>
-// "Why this works" — a short, dismissible grammar rule shown in context.
+// "Why this works" - a short, dismissible grammar rule shown in context.
 // Collapsed state is remembered per pattern so it doesn't nag on every visit.
 import { ref } from 'vue'
 

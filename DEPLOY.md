@@ -6,7 +6,7 @@ Two parts: the Laravel API (`backend/`) and the built Vue SPA (`frontend/dist/`)
 
 ```env
 APP_ENV=production
-APP_DEBUG=false                  # NEVER true in production — leaks stack traces
+APP_DEBUG=false                  # NEVER true in production - leaks stack traces
 APP_KEY=                         # php artisan key:generate
 APP_URL=https://yourdomain.com   # used for Stripe redirect URLs
 
@@ -15,7 +15,7 @@ DB_DATABASE=...                  # from your host's MySQL panel
 DB_USERNAME=...
 DB_PASSWORD=...
 
-# --- AI (Sauna Chat + corrections) — one of these ---
+# --- AI (Sauna Chat + corrections) - one of these ---
 GEMINI_API_KEY=AIzaSy...         # free tier: aistudio.google.com/apikey
 # AI_API_KEY=sk-ant-...          # or Anthropic (takes priority if both set)
 
@@ -50,7 +50,7 @@ GEMINI_API_KEY=AIzaSy...         # free tier: aistudio.google.com/apikey
 
 ## 3. cPanel deploy via git (recommended)
 
-Everything ships through GitHub — the built SPA (`frontend/dist`), audio and
+Everything ships through GitHub - the built SPA (`frontend/dist`), audio and
 images are committed, so the server needs no Node and no manual uploads.
 `deploy.sh` in the repo root does the whole server side.
 

@@ -35,7 +35,7 @@ class AiController extends Controller
 
     private function correctWithAi(string $userSentence, string $expectedSentence): ?array
     {
-        $prompt = "You are a friendly Finnish teacher who teaches everyday SPOKEN Finnish (puhekieli). The student tried to say: \"{$expectedSentence}\" and wrote: \"{$userSentence}\". Colloquial spoken forms (mä oon, sä oot, onks, emmä, tää, toi...) are CORRECT — never \"fix\" puhekieli into formal written Finnish (kirjakieli). Only correct real mistakes in meaning, word choice or endings. Reply with ONLY a JSON object: {\"corrected\": \"<corrected spoken-Finnish sentence>\", \"explanation\": \"<one short, encouraging sentence in English>\"}";
+        $prompt = "You are a friendly Finnish teacher who teaches everyday SPOKEN Finnish (puhekieli). The student tried to say: \"{$expectedSentence}\" and wrote: \"{$userSentence}\". Colloquial spoken forms (mä oon, sä oot, onks, emmä, tää, toi...) are CORRECT - never \"fix\" puhekieli into formal written Finnish (kirjakieli). Only correct real mistakes in meaning, word choice or endings. Reply with ONLY a JSON object: {\"corrected\": \"<corrected spoken-Finnish sentence>\", \"explanation\": \"<one short, encouraging sentence in English>\"}";
 
         // Corrections use the precision-tuned model (bake-off winner for
         // error detection); chat keeps the register-tuned default.
@@ -69,9 +69,9 @@ class AiController extends Controller
         similar_text($user, $expected, $percent);
 
         $explanation = match (true) {
-            $user === $expected => 'Hienoa! Perfect — that\'s exactly how a Finn would say it.',
-            $percent >= 80 => 'Almost there! Compare the small differences — often just one word ending.',
-            default => 'Compare your version with the corrected sentence — word endings carry most of the meaning in Finnish.',
+            $user === $expected => 'Hienoa! Perfect - that\'s exactly how a Finn would say it.',
+            $percent >= 80 => 'Almost there! Compare the small differences - often just one word ending.',
+            default => 'Compare your version with the corrected sentence - word endings carry most of the meaning in Finnish.',
         };
 
         return [

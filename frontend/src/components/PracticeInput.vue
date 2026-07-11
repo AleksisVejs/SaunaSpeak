@@ -87,11 +87,11 @@ async function check() {
       accentsOnly: false
     }
   } else {
-    // Right words, wrong accents (ä/ö) — worth calling out kindly.
+    // Right words, wrong accents (ä/ö) - worth calling out kindly.
     const accentsOnly = stripDiacritics(attempt.value) === stripDiacritics(props.expected)
     let corrected = props.expected
     let explanation = accentsOnly
-      ? 'So close — same words, just the dots on ä/ö. They change the sound (and meaning), so they matter!'
+      ? 'So close - same words, just the dots on ä/ö. They change the sound (and meaning), so they matter!'
       : 'Compare your version with the expected sentence.'
 
     if (!accentsOnly) {

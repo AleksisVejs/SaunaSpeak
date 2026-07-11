@@ -44,11 +44,11 @@ class FetchImages extends Command
                     $this->info("✓ {$hex}.svg");
                 } else {
                     $failed++;
-                    $this->warn("✗ {$hex}.svg — HTTP {$res->status()}");
+                    $this->warn("✗ {$hex}.svg - HTTP {$res->status()}");
                 }
             } catch (\Throwable $e) {
                 $failed++;
-                $this->warn("✗ {$hex}.svg — {$e->getMessage()}");
+                $this->warn("✗ {$hex}.svg - {$e->getMessage()}");
             }
         }
 

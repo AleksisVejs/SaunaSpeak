@@ -134,7 +134,7 @@ class PremiumTest extends TestCase
             'data' => ['object' => [
                 'id' => 'sub_123',
                 'status' => 'active',
-                // No top-level current_period_end — exactly what Stripe sends today.
+                // No top-level current_period_end - exactly what Stripe sends today.
                 'items' => ['data' => [['current_period_end' => $periodEnd]]],
             ]],
         ])->assertOk();
@@ -216,7 +216,7 @@ class PremiumTest extends TestCase
             ReviewLog::create(['user_id' => $this->user->id, 'kind' => 'sentence', 'grade' => $grade, 'created_at' => now()->subDay()]);
         }
         ReviewLog::create(['user_id' => $this->user->id, 'kind' => 'word', 'grade' => 'good', 'created_at' => now()]);
-        // Outside the 7-day window — must not count.
+        // Outside the 7-day window - must not count.
         ReviewLog::create(['user_id' => $this->user->id, 'kind' => 'sentence', 'grade' => 'good', 'created_at' => now()->subDays(10)]);
 
         $this->getJson('/api/insights/week')

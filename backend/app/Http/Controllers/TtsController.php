@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Process;
  * On-demand TTS for dynamic text (Sauna Chat replies), cached by content hash
  * so each unique reply is synthesized once. Provider chain:
  *
- *   1. edge-tts (free, male fi-FI-HarriNeural — same voice as lesson audio);
+ *   1. edge-tts (free, male fi-FI-HarriNeural - same voice as lesson audio);
  *      needs Python, so it works locally and on a VPS but not shared hosting.
- *   2. Google Cloud TTS (GOOGLE_TTS_API_KEY) — cPanel-friendly HTTP API.
+ *   2. Google Cloud TTS (GOOGLE_TTS_API_KEY) - cPanel-friendly HTTP API.
  *      No male Finnish voice exists there, so the WaveNet voice is pitched
  *      down (services.tts.google_pitch) to sit closer to the lesson audio.
  *   3. Neither available → 503; the frontend stays silent by design (no
@@ -28,7 +28,7 @@ class TtsController extends Controller
             'text' => ['required', 'string', 'max:300'],
         ]);
 
-        // Strip emoji and pictographs — TTS engines read them aloud.
+        // Strip emoji and pictographs - TTS engines read them aloud.
         $text = trim(preg_replace(
             '/[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2190}-\x{21FF}\x{FE0F}\x{200D}]/u',
             '',

@@ -74,7 +74,7 @@ class SessionController extends Controller
 
     /**
      * Evenly weave due reviews among new sentences, keeping each list's own
-     * order. Starts with a review when one is due — a warm-up on familiar
+     * order. Starts with a review when one is due - a warm-up on familiar
      * material before the first new sentence.
      */
     private function interleave($reviews, $fresh)

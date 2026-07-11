@@ -73,7 +73,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /** POST /api/preferences — mirror the intake-quiz preferences server-side. */
+    /** POST /api/preferences - mirror the intake-quiz preferences server-side. */
     public function updatePreferences(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -86,7 +86,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Reviews coming due over the next 7 days — makes the invisible
+     * Reviews coming due over the next 7 days - makes the invisible
      * spaced-repetition schedule visible on the dashboard.
      */
     private function forecast(User $user): array

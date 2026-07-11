@@ -8,7 +8,7 @@ import { cardKind, clozeText } from '../utils/practice'
 const props = defineProps({
   sentence: { type: Object, required: true },
   status: { type: String, default: null },
-  // 'study' (session): exercise varies with SRS stage — see cardKind().
+  // 'study' (session): exercise varies with SRS stage - see cardKind().
   // 'browse' (lesson list): everything visible except the translation.
   mode: { type: String, default: 'browse' }
 })
@@ -24,15 +24,15 @@ const kind = computed(() => (props.mode === 'study' ? cardKind(props.status) : '
 const quiz = computed(() => ['cloze', 'dictation', 'recall'].includes(kind.value))
 
 // Pretesting: attempting to retrieve before studying strengthens the memory,
-// even when the guess is wrong — so new sentences show the English first.
+// even when the guess is wrong - so new sentences show the English first.
 const pretest = computed(() => kind.value === 'study' && !guessed.value)
 
 const kindLabels = {
-  study: '✨ New — listen & shadow',
-  pretest: '🤔 New — guess it first, even wildly',
-  cloze: '🧩 Fill the gap — catch the missing word',
-  dictation: '✍️ Dictation — what do you hear?',
-  recall: '🧠 Recall — say it in Finnish, out loud'
+  study: '✨ New - listen & shadow',
+  pretest: '🤔 New - guess it first, even wildly',
+  cloze: '🧩 Fill the gap - catch the missing word',
+  dictation: '✍️ Dictation - what do you hear?',
+  recall: '🧠 Recall - say it in Finnish, out loud'
 }
 
 const hintLabel = computed(() => kindLabels[pretest.value ? 'pretest' : kind.value])
@@ -45,7 +45,7 @@ watch(
     revealed.value = false
     guessed.value = false
     // Listen-first for ear-driven quizzes. New sentences stay silent until
-    // the guess — hearing the answer would defeat the pretest.
+    // the guess - hearing the answer would defeat the pretest.
     if (['cloze', 'dictation'].includes(kind.value)) {
       await nextTick()
       audio.value?.play()
@@ -55,7 +55,7 @@ watch(
 )
 
 async function reveal() {
-  // New sentence: the guess is over — show the Finnish and hear it.
+  // New sentence: the guess is over - show the Finnish and hear it.
   if (kind.value === 'study') {
     if (guessed.value) return
     guessed.value = true
@@ -101,7 +101,7 @@ const statusLabels = {
     <template v-if="pretest">
       <img v-if="sentence.image_url" :src="sentence.image_url" class="sentence-img" alt="" />
       <p class="finnish">{{ sentence.english_text }}</p>
-      <p class="pretest-nudge">A wrong guess still primes your memory — say something!</p>
+      <p class="pretest-nudge">A wrong guess still primes your memory - say something!</p>
       <button class="btn btn-ghost reveal-btn" @click="reveal">
         👁 Show the Finnish
       </button>
@@ -137,18 +137,18 @@ const statusLabels = {
         :sentence-id="sentence.id"
       />
 
-      <p v-if="sentence.written_text" class="written" title="Kirjakieli — how it's written in books and news">
+      <p v-if="sentence.written_text" class="written" title="Kirjakieli - how it's written in books and news">
         📖 {{ sentence.written_text }}
       </p>
 
       <AudioButton ref="audio" :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
 
       <template v-if="kind === 'study'">
-        <p class="hint">🗣 Listen, then say it out loud — twice</p>
+        <p class="hint">🗣 Listen, then say it out loud - twice</p>
         <ShadowCompare :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
       </template>
 
-      <!-- Quizzes and guessed pretests already showed the English — keep it visible. -->
+      <!-- Quizzes and guessed pretests already showed the English - keep it visible. -->
       <p v-if="quiz || kind === 'study'" class="english">{{ sentence.english_text }}</p>
 
       <div v-else class="translation-zone">

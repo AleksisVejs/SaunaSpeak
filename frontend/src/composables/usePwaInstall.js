@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-// Module scope so the listener is registered as soon as the app boots —
+// Module scope so the listener is registered as soon as the app boots -
 // `beforeinstallprompt` often fires before any page component mounts.
 const deferredPrompt = ref(null)
 

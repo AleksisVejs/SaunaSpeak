@@ -11,7 +11,7 @@ class WordController extends Controller
     /** How many cards to serve in one flashcard review. */
     private const REVIEW_SIZE = 20;
 
-    /** GET /api/words — the user's word bank, newest first. */
+    /** GET /api/words - the user's word bank, newest first. */
     public function index(Request $request): JsonResponse
     {
         return response()->json([
@@ -21,7 +21,7 @@ class WordController extends Controller
     }
 
     /**
-     * POST /api/words — save a tapped word. Idempotent per (user, word),
+     * POST /api/words - save a tapped word. Idempotent per (user, word),
      * so tapping the same word twice never duplicates it.
      */
     public function store(Request $request): JsonResponse
@@ -40,7 +40,7 @@ class WordController extends Controller
         return response()->json(['word' => $word], $word->wasRecentlyCreated ? 201 : 200);
     }
 
-    /** GET /api/words/review — a deck of due flashcards (new + due), oldest due first. */
+    /** GET /api/words/review - a deck of due flashcards (new + due), oldest due first. */
     public function review(Request $request): JsonResponse
     {
         $cards = $request->user()->words()
@@ -57,7 +57,7 @@ class WordController extends Controller
     }
 
     /**
-     * POST /api/words/{id}/grade — record a flashcard answer and reschedule it
+     * POST /api/words/{id}/grade - record a flashcard answer and reschedule it
      * with the same spaced-repetition ladder used for sentences.
      */
     public function grade(Request $request, int $id): JsonResponse
@@ -104,7 +104,7 @@ class WordController extends Controller
         ]);
     }
 
-    /** DELETE /api/words/{id} — remove a word from the bank. */
+    /** DELETE /api/words/{id} - remove a word from the bank. */
     public function destroy(Request $request, int $id): JsonResponse
     {
         $request->user()->words()->whereKey($id)->delete();

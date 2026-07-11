@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Löyly+ subscription billing via Stripe Checkout — deliberately dependency-
+ * Löyly+ subscription billing via Stripe Checkout - deliberately dependency-
  * free (plain HTTPS calls) so it runs anywhere PHP does, including cPanel.
  *
  * Flow: checkout() creates a Stripe Checkout session and the frontend
@@ -30,22 +30,28 @@ class BillingController extends Controller
      */
     private const API_VERSION = '2026-06-24.dahlia';
 
-    /** GET /api/billing — current plan state for the profile/upgrade pages. */
+    /** GET /api/billing - current plan state for the profile/upgrade pages. */
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();
+
+        // Live cancellation state comes from Stripe (we don't persist it).
+        $cancelAtPeriodEnd = false;
+        if ($user->stripe_subscription_id && config('services.stripe.secret')) {
+            $subscription = $this->fetchSubscription($user->stripe_subscription_id);
+            $cancelAtPeriodEnd = (bool) ($subscription['cancel_at_period_end'] ?? false);
+        }
 
         return response()->json([
             'billing_enabled' => (bool) config('services.stripe.secret'),
             'is_premium' => $user->isPremium(),
             'premium_until' => $user->premium_until,
             'has_subscription' => (bool) $user->stripe_subscription_id,
-            // Present → frontend renders checkout on-site (embedded mode).
-            'publishable_key' => config('services.stripe.publishable'),
+            'cancel_at_period_end' => $cancelAtPeriodEnd,
         ]);
     }
 
-    /** POST /api/billing/checkout — start a subscription purchase. */
+    /** POST /api/billing/checkout - start a subscription purchase. */
     public function checkout(Request $request): JsonResponse
     {
         $priceId = config('services.stripe.price_id');
@@ -56,9 +62,6 @@ class BillingController extends Controller
 
         $user = $request->user();
         $appUrl = rtrim(config('app.url'), '/');
-        // With a publishable key the form renders inside SaunaSpeak
-        // (ui_mode: embedded); without one we fall back to Stripe's hosted page.
-        $embedded = (bool) config('services.stripe.publishable');
 
         // No payment_method_types: Stripe picks the eligible methods from the
         // Dashboard settings, which converts better than hardcoding cards.
@@ -70,15 +73,8 @@ class BillingController extends Controller
             'customer_email' => $user->stripe_customer_id ? null : $user->email,
             'client_reference_id' => (string) $user->id,
             'subscription_data[metadata][user_id]' => (string) $user->id,
-            ...($embedded
-                ? [
-                    'ui_mode' => 'embedded',
-                    'return_url' => "{$appUrl}/upgrade?status=success&session_id={CHECKOUT_SESSION_ID}",
-                ]
-                : [
-                    'success_url' => "{$appUrl}/upgrade?status=success",
-                    'cancel_url' => "{$appUrl}/upgrade?status=cancelled",
-                ]),
+            'success_url' => "{$appUrl}/upgrade?status=success",
+            'cancel_url' => "{$appUrl}/upgrade?status=cancelled",
         ]);
 
         $response = $this->stripe()
@@ -87,7 +83,7 @@ class BillingController extends Controller
             ->post(self::API.'/checkout/sessions', $payload);
 
         if (! $response->successful()) {
-            // Never log the response wholesale — it can echo request params.
+            // Never log the response wholesale - it can echo request params.
             Log::warning('Stripe checkout failed', [
                 'user_id' => $user->id,
                 'status' => $response->status(),
@@ -97,12 +93,58 @@ class BillingController extends Controller
             return response()->json(['message' => 'Could not start checkout. Try again.'], 502);
         }
 
-        return $embedded
-            ? response()->json(['mode' => 'embedded', 'client_secret' => $response->json('client_secret')])
-            : response()->json(['mode' => 'redirect', 'url' => $response->json('url')]);
+        return response()->json(['url' => $response->json('url')]);
     }
 
-    /** POST /api/billing/portal — Stripe's hosted portal (cancel, card, invoices). */
+    /**
+     * POST /api/billing/cancel - cancel at period end: access runs until the
+     * date already paid for, then lapses. Reversible via resume() until then.
+     */
+    public function cancel(Request $request): JsonResponse
+    {
+        return $this->setCancelAtPeriodEnd($request, true);
+    }
+
+    /** POST /api/billing/resume - undo a pending cancellation. */
+    public function resume(Request $request): JsonResponse
+    {
+        return $this->setCancelAtPeriodEnd($request, false);
+    }
+
+    private function setCancelAtPeriodEnd(Request $request, bool $cancel): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! config('services.stripe.secret') || ! $user->stripe_subscription_id) {
+            return response()->json(['message' => 'No subscription to change.'], 404);
+        }
+
+        $response = $this->stripe()->asForm()->post(
+            self::API.'/subscriptions/'.$user->stripe_subscription_id,
+            ['cancel_at_period_end' => $cancel ? 'true' : 'false'],
+        );
+
+        if (! $response->successful()) {
+            Log::warning('Stripe cancel/resume failed', [
+                'user_id' => $user->id,
+                'status' => $response->status(),
+                'error' => $response->json('error.message'),
+            ]);
+
+            return response()->json(['message' => 'Could not update the subscription. Try again.'], 502);
+        }
+
+        // Mirror the fresh state immediately; the webhook will confirm it too.
+        $subscription = $response->json();
+        $this->syncSubscription($subscription);
+
+        return response()->json([
+            'cancel_at_period_end' => (bool) ($subscription['cancel_at_period_end'] ?? $cancel),
+            'premium_until' => $user->fresh()->premium_until,
+        ]);
+    }
+
+    /** POST /api/billing/portal - Stripe's hosted portal (cancel, card, invoices). */
     public function portal(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -121,14 +163,14 @@ class BillingController extends Controller
             : response()->json(['message' => 'Could not open the billing portal.'], 502);
     }
 
-    /** POST /api/billing/webhook — Stripe events keep premium state in sync. */
+    /** POST /api/billing/webhook - Stripe events keep premium state in sync. */
     public function webhook(Request $request): JsonResponse
     {
         if (! $this->verifySignature($request)) {
             return response()->json(['message' => 'Invalid signature.'], 400);
         }
 
-        // json()->get() rejects non-scalar values — use the full array instead.
+        // json()->get() rejects non-scalar values - use the full array instead.
         $event = $request->json()->all();
         $object = $event['data']['object'] ?? [];
 
@@ -248,7 +290,7 @@ class BillingController extends Controller
         $timestamp = null;
         $signatures = [];
 
-        // "t=1699,v1=abc,v1=def" — a v1 per active signing secret, so during a
+        // "t=1699,v1=abc,v1=def" - a v1 per active signing secret, so during a
         // secret rotation more than one is present and any may be the match.
         foreach (explode(',', $request->header('Stripe-Signature', '')) as $part) {
             [$key, $value] = array_pad(explode('=', $part, 2), 2, '');

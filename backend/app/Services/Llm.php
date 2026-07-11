@@ -62,7 +62,7 @@ class Llm
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
                     'model' => $model ?? config('services.ai.openrouter_model', 'google/gemini-2.5-flash'),
                     // Reasoning models spend invisible thinking tokens inside
-                    // max_tokens — disable it and keep headroom, or long
+                    // max_tokens - disable it and keep headroom, or long
                     // prompts come back as truncated (unparseable) JSON.
                     'reasoning' => ['enabled' => false],
                     'max_tokens' => max(2048, $maxTokens),
@@ -121,7 +121,7 @@ class Llm
         $model = config('services.ai.gemini_model', 'gemini-2.5-flash');
 
         // Gemini 2.5 spends output tokens on internal "thinking" before the
-        // visible reply — disable it and keep a generous cap, or long replies
+        // visible reply - disable it and keep a generous cap, or long replies
         // come back truncated mid-JSON.
         $payload = [
             'system_instruction' => ['parts' => [['text' => $system]]],

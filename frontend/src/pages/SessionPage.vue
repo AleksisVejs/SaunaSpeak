@@ -24,10 +24,10 @@ watch(
   () => (revealed.value = false)
 )
 
-// study | cloze | dictation | recall — the exercise gets harder as the SRS stage rises.
+// study | cloze | dictation | recall - the exercise gets harder as the SRS stage rises.
 const kind = computed(() => cardKind(session.current?.status))
 
-// Every card — including a new sentence's guess-first step — must be
+// Every card - including a new sentence's guess-first step - must be
 // attempted (or given up on) before self-grading. Cards emit 'revealed'.
 const canGrade = computed(() => revealed.value)
 
@@ -37,7 +37,7 @@ const practiceExpected = computed(() =>
 )
 
 const practiceHints = {
-  study: 'Your guess — say or type it in Finnish',
+  study: 'Your guess - say or type it in Finnish',
   cloze: 'The missing word',
   dictation: 'What did you hear?',
   recall: 'Say or type it in Finnish'
@@ -101,7 +101,7 @@ function confettiStyle(i) {
     <div class="streak-note">🔥 {{ auth.user?.streak }} day streak</div>
 
     <div v-if="studied.length" class="recap">
-      <p class="recap-title">📚 Quick recap — say each one out loud one more time</p>
+      <p class="recap-title">📚 Quick recap - say each one out loud one more time</p>
       <div v-for="s in studied" :key="s.id" class="recap-row">
         <button class="recap-play" :title="'Play ' + s.finnish_text" @click="playSentence(s.finnish_text, s.audio_url)">🔊</button>
         <div class="recap-texts">
@@ -153,7 +153,7 @@ function confettiStyle(i) {
     <div v-if="error" class="error-msg">{{ error }}</div>
 
     <div class="grade-zone">
-      <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check — or reveal the answer to grade yourself.</p>
+      <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
       <div v-else class="grade-row">
         <button class="btn btn-ghost grade-btn again" :disabled="submitting" @click="grade('again')">
           🔁 Again
@@ -171,7 +171,7 @@ function confettiStyle(i) {
 </template>
 
 <style scoped>
-/* single root element — required by the page transition in App.vue */
+/* single root element - required by the page transition in App.vue */
 .session-page { display: flex; flex-direction: column; flex: 1; }
 .session { display: flex; flex-direction: column; gap: 18px; flex: 1; }
 .session-top { display: flex; align-items: center; gap: 14px; }

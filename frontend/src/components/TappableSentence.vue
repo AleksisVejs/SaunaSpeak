@@ -21,7 +21,7 @@ watch(
   () => (selected.value = null)
 )
 
-// "Moi!" → { pre: '', word: 'Moi', post: '!' } — punctuation stays outside the tap target.
+// "Moi!" → { pre: '', word: 'Moi', post: '!' } - punctuation stays outside the tap target.
 const tokens = computed(() =>
   props.text.split(/\s+/).map((chunk, index) => {
     const m = chunk.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}'-]+)?([^\p{L}\p{N}]*)$/u)
@@ -51,7 +51,7 @@ function tap(token) {
   if (gloss) collect(key, gloss)
 }
 
-// Tapped words are the hard ones — collect them into the personal word bank.
+// Tapped words are the hard ones - collect them into the personal word bank.
 async function collect(word, gloss) {
   if (sentWords.has(word)) return
   sentWords.add(word)
@@ -70,7 +70,7 @@ async function collect(word, gloss) {
       <template v-for="token in tokens" :key="token.index">{{ token.pre }}<button
         class="word"
         :class="{ active: selected?.index === token.index }"
-        :aria-label="`${token.word} — hear it and see its meaning`"
+        :aria-label="`${token.word} - hear it and see its meaning`"
         @click="tap(token)"
       >{{ token.word }}</button>{{ token.post }}{{ ' ' }}</template>
     </p>

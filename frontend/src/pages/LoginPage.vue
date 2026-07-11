@@ -51,7 +51,7 @@ async function submit() {
     <p class="muted switch">
       New here? <router-link to="/register">Create an account</router-link>
     </p>
-    <router-link to="/try" class="btn btn-ghost btn-block try-link">👀 Try a sentence first — no signup</router-link>
+    <router-link to="/try" class="btn btn-ghost btn-block try-link">👀 Try a sentence first - no signup</router-link>
   </div>
 </template>
 

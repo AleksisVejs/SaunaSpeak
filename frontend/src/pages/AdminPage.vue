@@ -51,7 +51,7 @@ async function togglePremium(u) {
   }
 }
 
-const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '—')
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 </script>
 
 <template>

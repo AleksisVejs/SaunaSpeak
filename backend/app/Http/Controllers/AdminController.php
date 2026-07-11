@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 /**
  * Admin panel API. Read-heavy: platform stats and the user list, plus one
- * write action — comping/revoking Löyly+ manually (support cases, friends).
+ * write action - comping/revoking Löyly+ manually (support cases, friends).
  * Admins are promoted only via `php artisan user:promote <email>`.
  */
 class AdminController extends Controller

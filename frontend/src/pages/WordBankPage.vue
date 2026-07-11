@@ -33,7 +33,7 @@ async function remove(word) {
 </script>
 
 <template>
-  <!-- single root element — required by the page transition in App.vue -->
+  <!-- single root element - required by the page transition in App.vue -->
   <div>
     <div v-if="loading" class="spinner"></div>
     <div v-else-if="error" class="error-msg">{{ error }}</div>
@@ -44,7 +44,7 @@ async function remove(word) {
       <div class="head">
         <h2>⭐ My Word Bank</h2>
         <p class="muted">
-          Every word you tap gets collected here — they're the ones your memory flagged as hard.
+          Every word you tap gets collected here - they're the ones your memory flagged as hard.
           Read them aloud now and then; deleting one you've truly learned feels great.
         </p>
       </div>

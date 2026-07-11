@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Dual coding: pairs every sentence with a simple OpenMoji illustration
- * (CC BY-SA 4.0 — https://openmoji.org). SVGs live in public/images/{hex}.svg;
+ * (CC BY-SA 4.0 - https://openmoji.org). SVGs live in public/images/{hex}.svg;
  * download them with:
  *
  *   php artisan images:fetch
@@ -81,7 +81,7 @@ class ImageSeeder extends Seeder
         'Mä käyn kaupas töiden jälkeen.' => '1F6D2',
         'Viikonloppuna mä vaan lepään.' => '1F6CC',
         'Mä meen nukkuu kymmeneltä.' => '1F634',
-        // Sauna Small Talk — A Dialogue
+        // Sauna Small Talk - A Dialogue
         'Onks sauna jo lämmin?' => '1F321',
         'Joo, tosi kuuma. Mennään!' => '1F525',
         'Heitätsä lisää löylyä?' => '1F4A6',

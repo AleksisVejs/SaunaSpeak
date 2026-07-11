@@ -73,7 +73,7 @@ class GenerateAudio extends Command
                 $this->info("✓ {$sentence->finnish_text}");
             } else {
                 $failed++;
-                $this->warn("✗ {$sentence->finnish_text} — {$result->errorOutput()}");
+                $this->warn("✗ {$sentence->finnish_text} - {$result->errorOutput()}");
             }
         }
 
@@ -124,7 +124,7 @@ class GenerateAudio extends Command
                     $generated++;
                 } else {
                     $failed++;
-                    $this->warn("✗ word '{$word}' — {$result->errorOutput()}");
+                    $this->warn("✗ word '{$word}' - {$result->errorOutput()}");
                     continue;
                 }
             }

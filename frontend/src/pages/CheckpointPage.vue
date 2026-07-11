@@ -1,6 +1,6 @@
 <script setup>
 // Level checkpoint: a short, low-stakes cumulative recall quiz. The framing
-// matters — taking the test IS practice (testing effect), so failing is
+// matters - taking the test IS practice (testing effect), so failing is
 // explicitly fine and retakes are always open.
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -105,7 +105,7 @@ function onKey(e) {
       <img class="big-icon vaino" src="/vaino-oops.png" alt="Väinö shrugging" />
       <h1>Not quite yet</h1>
       <p class="muted">
-        The {{ level }} checkpoint opens after you've studied {{ needed }} sentences —
+        The {{ level }} checkpoint opens after you've studied {{ needed }} sentences -
         you're at {{ studied }}. A Sauna Session or two will get you there.
       </p>
       <router-link to="/session" class="btn btn-primary btn-block">🧖 Start a session</router-link>
@@ -124,8 +124,8 @@ function onKey(e) {
       <p v-if="passed && xpGained" class="xp-note">+{{ xpGained }} XP badge bonus</p>
       <p class="muted">
         {{ passed
-          ? 'Your badge is on the journey path. Retake it any time — recalling is rehearsing.'
-          : 'No pressure — every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.' }}
+          ? 'Your badge is on the journey path. Retake it any time - recalling is rehearsing.'
+          : 'No pressure - every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.' }}
       </p>
       <router-link to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
     </div>
@@ -141,7 +141,7 @@ function onKey(e) {
       <p class="stakes-note">🧘 Low stakes: taking this quiz is itself practice. Say each one out loud.</p>
 
       <div class="card quiz-card">
-        <p class="hint">🧠 {{ level }} checkpoint — say it in Finnish</p>
+        <p class="hint">🧠 {{ level }} checkpoint - say it in Finnish</p>
         <p class="prompt">{{ current.english_text }}</p>
 
         <template v-if="revealed">

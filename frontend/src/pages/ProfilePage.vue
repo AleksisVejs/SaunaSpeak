@@ -123,7 +123,7 @@ async function logout() {
             <span class="wb-label">{{ b.label }}</span>
           </div>
         </div>
-        <p v-if="insights.reviews === 0" class="muted week-empty">No reviews yet this week — a Sauna Session fixes that. 🧖</p>
+        <p v-if="insights.reviews === 0" class="muted week-empty">No reviews yet this week - a Sauna Session fixes that. 🧖</p>
       </div>
       <router-link v-else to="/upgrade" class="card row-link">
         <span>📈 Weekly insights</span>
