@@ -80,7 +80,9 @@ class User extends Authenticatable
             return true;
         }
 
-        return $this->premium_until !== null && $this->premium_until->isFuture();
+        // +2 days grace so access never flickers while a renewal settles;
+        // premium_until itself stays the honest period-end date for display.
+        return $this->premium_until !== null && $this->premium_until->copy()->addDays(2)->isFuture();
     }
 
     /**

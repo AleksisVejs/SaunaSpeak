@@ -88,7 +88,7 @@ async function managePortal() {
 
       <template v-else-if="billing.is_premium">
         <div class="card active-plan">
-          ✅ You're on <b>Löyly+</b><span v-if="billing.premium_until"> until {{ new Date(billing.premium_until).toLocaleDateString() }}</span>.
+          ✅ You're on <b>Löyly+</b><span v-if="billing.premium_until"> until {{ new Date(billing.premium_until).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) }}</span>.
         </div>
         <button v-if="billing.has_subscription" class="btn btn-ghost btn-block" @click="managePortal">
           Manage subscription

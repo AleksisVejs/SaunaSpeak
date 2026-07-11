@@ -53,8 +53,8 @@ class PremiumTest extends TestCase
         $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']]])
             ->assertOk();
 
-        // An expired one closes it again.
-        $this->user->update(['premium_until' => now()->subDay()]);
+        // An expired one closes it again (past the 2-day renewal grace).
+        $this->user->update(['premium_until' => now()->subDays(3)]);
         $this->getJson('/api/insights/week')->assertStatus(402);
     }
 
@@ -96,8 +96,8 @@ class PremiumTest extends TestCase
         $this->user->refresh();
         $this->assertTrue($this->user->isPremium());
         $this->assertSame('cus_123', $this->user->stripe_customer_id);
-        // The real billing period is used, not a 35-day guess.
-        $this->assertSame($periodEnd, $this->user->premium_until->copy()->subDays(2)->timestamp);
+        // The real billing period is stored as-is (grace lives in isPremium).
+        $this->assertSame($periodEnd, $this->user->premium_until->timestamp);
     }
 
     public function test_webhook_ignores_a_completed_but_unpaid_session(): void
@@ -139,7 +139,7 @@ class PremiumTest extends TestCase
             ]],
         ])->assertOk();
 
-        $this->assertSame($periodEnd, $this->user->fresh()->premium_until->copy()->subDays(2)->timestamp);
+        $this->assertSame($periodEnd, $this->user->fresh()->premium_until->timestamp);
     }
 
     public function test_cancellation_keeps_access_until_the_period_ends(): void

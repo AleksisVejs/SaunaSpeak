@@ -168,8 +168,9 @@ class BillingController extends Controller
         $status = $subscription['status'] ?? '';
 
         if (in_array($status, ['active', 'trialing'], true) && $periodEnd) {
-            // Small grace window over the period end for renewal processing.
-            $user->update(['premium_until' => now()->setTimestamp($periodEnd)->addDays(2)]);
+            // Store the true period end; the renewal-processing grace window
+            // lives in User::isPremium() so displayed dates stay honest.
+            $user->update(['premium_until' => now()->setTimestamp($periodEnd)]);
         } elseif (in_array($status, ['canceled', 'unpaid', 'incomplete_expired'], true)) {
             $user->update([
                 'premium_until' => $periodEnd ? now()->setTimestamp($periodEnd) : now(),
