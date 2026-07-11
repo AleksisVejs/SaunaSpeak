@@ -52,6 +52,10 @@ return [
         'secret' => env('STRIPE_SECRET'),
         'price_id' => env('STRIPE_PRICE_ID'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        // Where Stripe sends the browser back after checkout/portal. Only
+        // needed in local dev where the SPA (:5173) and API (:8000) differ;
+        // production serves both from one domain, so APP_URL is used.
+        'frontend_url' => env('FRONTEND_URL'),
     ],
 
     'tts' => [

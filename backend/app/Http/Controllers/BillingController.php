@@ -61,7 +61,7 @@ class BillingController extends Controller
         }
 
         $user = $request->user();
-        $appUrl = rtrim(config('app.url'), '/');
+        $appUrl = $this->frontendUrl();
 
         // No payment_method_types: Stripe picks the eligible methods from the
         // Dashboard settings, which converts better than hardcoding cards.
@@ -155,12 +155,18 @@ class BillingController extends Controller
 
         $response = $this->stripe()->asForm()->post(self::API.'/billing_portal/sessions', [
             'customer' => $user->stripe_customer_id,
-            'return_url' => rtrim(config('app.url'), '/').'/profile',
+            'return_url' => $this->frontendUrl().'/profile',
         ]);
 
         return $response->successful()
             ? response()->json(['url' => $response->json('url')])
             : response()->json(['message' => 'Could not open the billing portal.'], 502);
+    }
+
+    /** Browser-facing base URL: differs from APP_URL only in local dev. */
+    private function frontendUrl(): string
+    {
+        return rtrim(config('services.stripe.frontend_url') ?: config('app.url'), '/');
     }
 
     /** POST /api/billing/webhook - Stripe events keep premium state in sync. */
