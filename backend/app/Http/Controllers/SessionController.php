@@ -136,8 +136,22 @@ class SessionController extends Controller
             },
         };
 
+        // SM-2-lite: each sentence carries its own ease (2.5 = neutral).
+        // Lapses shrink it, "easy" grows it, and long intervals scale by it -
+        // so leeches come back sooner and solid items stretch further.
+        $ease = $progress->ease ?? 2.5;
+        $ease = match ($grade) {
+            'again' => max(1.3, $ease - 0.2),
+            'easy' => min(3.0, $ease + 0.15),
+            default => $ease,
+        };
+        if ($intervalDays >= 3) {
+            $intervalDays = max(2, (int) round($intervalDays * $ease / 2.5));
+        }
+
         $progress->fill([
             'status' => $nextStatus,
+            'ease' => $ease,
             'next_review_at' => now()->addDays($intervalDays),
         ])->save();
 
@@ -171,8 +185,18 @@ class SessionController extends Controller
             $continuesStreak = $user->last_active_date !== null
                 && $user->last_active_date->isSameDay($today->copy()->subDay());
 
+            $newStreak = $continuesStreak ? $user->streak + 1 : 1;
+
+            // Every full week of streak earns a freeze (max 3 banked) -
+            // insurance against the one bad day that would erase it all.
+            $freezes = $user->streak_freezes;
+            if ($newStreak > 0 && $newStreak % 7 === 0) {
+                $freezes = min(3, $freezes + 1);
+            }
+
             $user->update([
-                'streak' => $continuesStreak ? $user->streak + 1 : 1,
+                'streak' => $newStreak,
+                'streak_freezes' => $freezes,
                 'last_active_date' => $today,
             ]);
 

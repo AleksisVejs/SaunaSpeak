@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Llm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Sauna Chat: free conversation practice with Väinö, an old-school Finn on
@@ -19,6 +20,13 @@ class ChatController extends Controller
 {
     private const MAX_TURNS = 30;
 
+    /** Only the recent context goes to the LLM - Väinö doesn't need turn 1
+     *  to answer turn 29, and resending everything scales cost quadratically. */
+    private const CONTEXT_WINDOW = 12;
+
+    /** Per-user daily message budget: bounds worst-case spend per learner. */
+    private const DAILY_LIMIT = 200;
+
     public function chat(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -28,6 +36,17 @@ class ChatController extends Controller
         ]);
 
         $user = $request->user();
+
+        $budgetKey = 'chat-budget:'.$user->id.':'.today()->toDateString();
+        Cache::add($budgetKey, 0, now()->endOfDay());
+        if (Cache::increment($budgetKey) > self::DAILY_LIMIT) {
+            return response()->json([
+                'reply' => 'No nyt riittää löylyt tälle päivälle! Väinö menee järveen. Nähdään huomenna. 🌊',
+                'translation' => 'That\'s enough steam for one day! Väinö is off to the lake. See you tomorrow. (Daily chat limit reached - it resets at midnight.)',
+                'correction' => null,
+                'source' => 'daily_cap',
+            ]);
+        }
         $mastered = $user->progress()->where('status', 'mastered')->count();
         $level = $mastered >= 40 ? 'A2' : ($mastered >= 15 ? 'A1' : 'A0');
 
@@ -60,6 +79,13 @@ class ChatController extends Controller
         // what the prompt says, so Väinö answered "123" with "I'm fine,
         // thanks". Tag letter-less input server-side (per-request only; the
         // client keeps its own history) so the non-language rule fires.
+        // Trim to the recent window (keep the tail - that's the live thread).
+        // Anthropic requires a user-first history, so shed a leading assistant turn.
+        $messages = array_slice($messages, -self::CONTEXT_WINDOW);
+        if ($messages !== [] && $messages[0]['role'] === 'assistant') {
+            array_shift($messages);
+        }
+
         $last = count($messages) - 1;
         if ($messages[$last]['role'] === 'user' && ! preg_match('/\p{L}/u', $messages[$last]['content'])) {
             $messages[$last]['content'] .= "\n[note: this message is not real language - apply your non-language rule]";

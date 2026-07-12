@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'xp',
         'streak',
+        'streak_freezes',
         'last_active_date',
         'checkpoints',
         'preferences',
@@ -86,13 +87,35 @@ class User extends Authenticatable
     }
 
     /**
-     * Reset the streak if the user skipped a whole day.
+     * Reset the streak if the user skipped a whole day - unless a streak
+     * freeze covers exactly one missed day, in which case it's consumed
+     * silently and the streak survives.
      */
     public function syncStreak(): void
     {
-        if ($this->streak > 0
-            && ($this->last_active_date === null || $this->last_active_date->lt(today()->subDay()))) {
-            $this->update(['streak' => 0]);
+        if ($this->streak === 0 || $this->last_active_date === null) {
+            if ($this->streak > 0) {
+                $this->update(['streak' => 0]);
+            }
+
+            return;
         }
+
+        if ($this->last_active_date->gte(today()->subDay())) {
+            return; // active today or yesterday - streak intact
+        }
+
+        // Missed exactly one day with a freeze in the bank: spend it. Bumping
+        // last_active_date to yesterday lets today's session continue the streak.
+        if ($this->streak_freezes > 0 && $this->last_active_date->isSameDay(today()->subDays(2))) {
+            $this->update([
+                'streak_freezes' => $this->streak_freezes - 1,
+                'last_active_date' => today()->subDay(),
+            ]);
+
+            return;
+        }
+
+        $this->update(['streak' => 0]);
     }
 }

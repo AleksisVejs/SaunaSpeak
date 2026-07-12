@@ -18,13 +18,19 @@ onMounted(() => {
   if (!auth.user) auth.fetchUser()
 })
 
-const OPENER = {
-  role: 'assistant',
-  content: 'No moi! 🧖 Istu alas vaan. Mitä sulle kuuluu?',
-  translation: 'Well hi! Have a seat. How are you doing?'
-}
+// Rotating openers so every visit to the bench starts differently -
+// and each one hands the learner a different first move to practice.
+const OPENERS = [
+  { content: 'No moi! 🧖 Istu alas vaan. Mitä sulle kuuluu?', translation: 'Well hi! Have a seat. How are you doing?' },
+  { content: 'Moro! Heitin just löylyä. Millanen päivä sulla on ollu?', translation: "Hey! I just threw some steam. What kind of day have you had?" },
+  { content: 'No terve! Pitkästä aikaa. Mitä sä oot puuhaillu?', translation: "Well hello! Long time no see. What have you been up to?" },
+  { content: 'Moi moi, istu siihen. Onks sulla ollu kiire viikko?', translation: 'Hi hi, sit down. Have you had a busy week?' },
+  { content: 'No moi! Sopivan kuuma, eiks vaan? Mitä sulle kuuluu?', translation: "Well hi! Nicely hot, isn't it? How are you doing?" }
+]
 
-const messages = ref([{ ...OPENER }])
+const randomOpener = () => ({ role: 'assistant', ...OPENERS[Math.floor(Math.random() * OPENERS.length)] })
+
+const messages = ref([randomOpener()])
 const draft = ref('')
 const sending = ref(false)
 // Re-keyed on every Väinö reply → one steam burst per reply (löyly!).
@@ -107,7 +113,7 @@ async function send() {
 }
 
 function reset() {
-  messages.value = [{ ...OPENER }]
+  messages.value = [randomOpener()]
   showTranslation.value = {}
 }
 

@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  { path: '/', redirect: '/dashboard' },
+  // Guests get the marketing front door; logged-in users skip to the app.
+  { path: '/', name: 'home', component: () => import('../pages/LandingPage.vue'), meta: { full: true } },
   { path: '/login', name: 'login', component: () => import('../pages/LoginPage.vue'), meta: { guest: true } },
   { path: '/register', name: 'register', component: () => import('../pages/RegisterPage.vue'), meta: { guest: true } },
   { path: '/try', name: 'try', component: () => import('../pages/TryPage.vue') },
@@ -26,6 +27,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const loggedIn = !!localStorage.getItem('token')
   const onboarded = !!localStorage.getItem('ss_onboarded')
+  if (to.name === 'home' && loggedIn) return { name: 'dashboard' }
   if (to.meta.auth && !loggedIn) return { name: 'login' }
   if (to.meta.guest && loggedIn) return { name: 'dashboard' }
   // Send logged-in users who haven't done the intake through it first.

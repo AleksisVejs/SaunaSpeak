@@ -14,7 +14,7 @@ class UserProgress extends Model
 
     protected $table = 'user_progress';
 
-    protected $fillable = ['user_id', 'sentence_id', 'status', 'next_review_at'];
+    protected $fillable = ['user_id', 'sentence_id', 'status', 'ease', 'next_review_at'];
 
     protected function casts(): array
     {

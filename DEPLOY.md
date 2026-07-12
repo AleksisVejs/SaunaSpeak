@@ -121,3 +121,26 @@ git add -A && git commit -m "new lessons" && git push
 - Chat reply plays audio (edge-tts or Google TTS configured).
 - With Stripe test keys: upgrade → pay with 4242… → chat unlocks; webhook
   deliveries show 200 in the Stripe dashboard.
+
+## 6. Scheduler (review-reminder emails)
+
+`reminders:send` emails learners with due reviews daily at 17:00. It needs two
+things on the server:
+
+1. The Laravel scheduler cron (cPanel → Cron Jobs, every minute):
+   ```
+   * * * * * cd ~/saunaspeak/backend && php artisan schedule:run >> /dev/null 2>&1
+   ```
+2. A mail transport in `backend/.env` (`MAIL_MAILER=smtp` + your host's SMTP
+   credentials). With the default `log` driver the command runs but only logs.
+
+Preview who would get mail without sending: `php artisan reminders:send --dry-run`
+
+## 7. Adding lessons with the AI pipeline
+
+```bash
+php artisan lesson:draft "Topic name" --level=A1   # drafts JSON to storage/app/lesson-drafts/
+# REVIEW the draft by hand - puhekieli quality is the product - then:
+php artisan lesson:import storage/app/lesson-drafts/<file>.json
+php artisan audio:generate
+```

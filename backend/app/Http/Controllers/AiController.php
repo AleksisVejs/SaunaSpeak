@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AiCorrection;
 use App\Services\Llm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AiController extends Controller
 {
+    /** Per-user daily LLM budget; past it, corrections degrade to the free mock. */
+    private const DAILY_AI_LIMIT = 300;
+
     /**
      * POST /api/ai/correct
      * Compares the user's attempt against the expected sentence.
@@ -23,14 +28,42 @@ class AiController extends Controller
             'expected_translation' => ['nullable', 'string', 'max:500'],
         ]);
 
-        // AI explanations are Löyly+; free users get the similarity mock below.
-        if (Llm::available() && $request->user()->isPremium()) {
+        // Identical mistakes on the same sentence are common across learners -
+        // serve those from the cache: instant, free, and consistent.
+        $hash = AiCorrection::keyFor($data['expected_sentence'], $data['user_sentence']);
+        $cached = AiCorrection::where('hash', $hash)->first();
+        if ($cached !== null) {
+            $cached->increment('hits');
+
+            return response()->json([
+                'corrected' => $cached->corrected,
+                'explanation' => $cached->explanation,
+                'source' => 'cache',
+            ]);
+        }
+
+        // AI explanations are Löyly+; free users get the similarity mock below,
+        // as does anyone past their daily LLM budget (bounds worst-case spend).
+        $user = $request->user();
+        $budgetKey = 'ai-budget:'.$user->id.':'.today()->toDateString();
+        Cache::add($budgetKey, 0, now()->endOfDay());
+        $withinBudget = Cache::increment($budgetKey) <= self::DAILY_AI_LIMIT;
+
+        if (Llm::available() && $user->isPremium() && $withinBudget) {
             $response = $this->correctWithAi(
                 $data['user_sentence'],
                 $data['expected_sentence'],
                 $data['expected_translation'] ?? null
             );
             if ($response !== null) {
+                AiCorrection::create([
+                    'hash' => $hash,
+                    'expected_sentence' => $data['expected_sentence'],
+                    'user_sentence' => $data['user_sentence'],
+                    'corrected' => $response['corrected'],
+                    'explanation' => $response['explanation'],
+                ]);
+
                 return response()->json($response);
             }
         }
