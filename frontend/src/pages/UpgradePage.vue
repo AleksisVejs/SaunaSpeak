@@ -41,6 +41,7 @@ async function upgrade() {
   error.value = ''
   try {
     const { data } = await api.post('/billing/checkout')
+    window.umami?.track('checkout_start')
     window.location.href = data.url
   } catch (e) {
     error.value = e?.response?.status === 429

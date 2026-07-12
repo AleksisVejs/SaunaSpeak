@@ -63,6 +63,8 @@ export const useSessionStore = defineStore('session', {
         const res = await api.post('/session/complete')
         this.bonusXp = res.data.xp_gained
         this.finished = true
+        // The retention event that matters: a full session, start to finish.
+        window.umami?.track('session_complete')
       } else {
         this.index++
       }

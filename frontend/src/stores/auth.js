@@ -23,6 +23,8 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.post('/register', payload)
       this.setToken(data.token)
       this.user = data.user
+      // Funnel landmark for Umami (no-op in dev - script is domain-locked).
+      window.umami?.track('register')
     },
 
     async login(payload) {
