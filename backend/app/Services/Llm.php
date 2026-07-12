@@ -29,29 +29,45 @@ class Llm
      * Returns the raw text reply, or null on any failure.
      * $model overrides the configured model (honored by the OpenRouter provider).
      */
-    public static function generate(string $system, array $messages, int $maxTokens = 400, ?string $model = null): ?string
+    public static function generate(string $system, array $messages, int $maxTokens = 400, ?string $model = null, ?float $temperature = null): ?string
     {
         self::$lastStatus = null;
 
         if ($key = config('services.ai.key')) {
-            return self::anthropic($key, $system, $messages, $maxTokens);
+            return self::anthropic($key, $system, $messages, $maxTokens, $temperature);
         }
 
         if ($key = config('services.ai.openrouter_key')) {
-            return self::openrouter($key, $system, $messages, $maxTokens, $model);
+            return self::openrouter($key, $system, $messages, $maxTokens, $model, $temperature);
         }
 
         if ($key = config('services.ai.gemini_key')) {
-            return self::gemini($key, $system, $messages, $maxTokens);
+            return self::gemini($key, $system, $messages, $maxTokens, $temperature);
         }
 
         return null;
     }
 
     /** OpenRouter: OpenAI-compatible API over prepaid credits. */
-    private static function openrouter(string $key, string $system, array $messages, int $maxTokens, ?string $model = null): ?string
+    private static function openrouter(string $key, string $system, array $messages, int $maxTokens, ?string $model = null, ?float $temperature = null): ?string
     {
         try {
+            $payload = [
+                'model' => $model ?? config('services.ai.openrouter_model', 'google/gemini-2.5-flash'),
+                // Reasoning models spend invisible thinking tokens inside
+                // max_tokens - disable it and keep headroom, or long
+                // prompts come back as truncated (unparseable) JSON.
+                'reasoning' => ['enabled' => false],
+                'max_tokens' => max(2048, $maxTokens),
+                'messages' => [
+                    ['role' => 'system', 'content' => $system],
+                    ...$messages,
+                ],
+            ];
+            if ($temperature !== null) {
+                $payload['temperature'] = $temperature;
+            }
+
             $response = Http::withToken($key)
                 ->withHeaders([
                     // Shown in OpenRouter's usage dashboard.
@@ -59,18 +75,7 @@ class Llm
                     'X-Title' => 'SaunaSpeak',
                 ])
                 ->timeout(25)
-                ->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model ?? config('services.ai.openrouter_model', 'google/gemini-2.5-flash'),
-                    // Reasoning models spend invisible thinking tokens inside
-                    // max_tokens - disable it and keep headroom, or long
-                    // prompts come back as truncated (unparseable) JSON.
-                    'reasoning' => ['enabled' => false],
-                    'max_tokens' => max(2048, $maxTokens),
-                    'messages' => [
-                        ['role' => 'system', 'content' => $system],
-                        ...$messages,
-                    ],
-                ]);
+                ->post('https://openrouter.ai/api/v1/chat/completions', $payload);
 
             if (! $response->successful()) {
                 // 402 = credits exhausted, 429 = rate limited.
@@ -85,18 +90,23 @@ class Llm
         }
     }
 
-    private static function anthropic(string $key, string $system, array $messages, int $maxTokens): ?string
+    private static function anthropic(string $key, string $system, array $messages, int $maxTokens, ?float $temperature = null): ?string
     {
         try {
-            $response = Http::withHeaders([
-                'x-api-key' => $key,
-                'anthropic-version' => '2023-06-01',
-            ])->timeout(20)->post('https://api.anthropic.com/v1/messages', [
+            $payload = [
                 'model' => config('services.ai.model', 'claude-haiku-4-5-20251001'),
                 'max_tokens' => $maxTokens,
                 'system' => $system,
                 'messages' => $messages,
-            ]);
+            ];
+            if ($temperature !== null) {
+                $payload['temperature'] = $temperature;
+            }
+
+            $response = Http::withHeaders([
+                'x-api-key' => $key,
+                'anthropic-version' => '2023-06-01',
+            ])->timeout(20)->post('https://api.anthropic.com/v1/messages', $payload);
 
             if (! $response->successful()) {
                 self::$lastStatus = $response->status();
@@ -110,7 +120,7 @@ class Llm
         }
     }
 
-    private static function gemini(string $key, string $system, array $messages, int $maxTokens): ?string
+    private static function gemini(string $key, string $system, array $messages, int $maxTokens, ?float $temperature = null): ?string
     {
         // Gemini uses role "model" for the assistant and a parts[] wrapper.
         $contents = array_map(fn ($m) => [
@@ -131,6 +141,9 @@ class Llm
                 'thinkingConfig' => ['thinkingBudget' => 0],
             ],
         ];
+        if ($temperature !== null) {
+            $payload['generationConfig']['temperature'] = $temperature;
+        }
 
         try {
             $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}";

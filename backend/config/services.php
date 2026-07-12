@@ -29,10 +29,11 @@ return [
         'key' => env('AI_API_KEY'),
         'model' => env('AI_MODEL', 'claude-haiku-4-5-20251001'),
         // OpenRouter (prepaid credits, no free-tier quota walls) - second priority.
-        // gemini-2.5-flash: strong puhekieli, ~€4 ≈ thousands of chat turns.
         'openrouter_key' => env('OPENROUTER_API_KEY'),
-        // Chat: gemini-2.5-flash won the register bake-off (authentic puhekieli).
-        'openrouter_model' => env('OPENROUTER_MODEL', 'google/gemini-2.5-flash'),
+        // Chat: gemini-3-flash-preview won the July 2026 bake-off (most natural
+        // puhekieli; ~$1 per 1,000 chat turns). Preview ID - swap to the stable
+        // gemini-3-flash when Google publishes it.
+        'openrouter_model' => env('OPENROUTER_MODEL', 'google/gemini-3-flash-preview'),
         // Corrections: deepseek-v4-flash caught every planted error in testing
         // and costs ~1/15th on output - right tool for the high-volume endpoint.
         'openrouter_model_correct' => env('OPENROUTER_MODEL_CORRECT', 'deepseek/deepseek-v4-flash'),

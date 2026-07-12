@@ -262,14 +262,28 @@ const full = () => messages.value.length >= MAX_TURNS
 </template>
 
 <style scoped>
-.chat { display: flex; flex-direction: column; height: calc(100vh - 140px); min-height: 420px; }
+.chat {
+  display: flex;
+  flex-direction: column;
+  /* The shell goes full-bleed on this route (app-shell--full), so the sauna
+     is the whole viewport. dvh tracks the real visible viewport on mobile
+     (vh includes the URL bar). */
+  height: 100vh;
+  height: 100dvh;
+  min-height: 360px;
+}
 
 .chat-locked {
-  min-height: 60vh;
+  /* The shell has no padding on this route, so pad here. */
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
+  padding: 20px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 900px) {
+  .chat-locked { padding: 40px; }
 }
 .locked-card {
   width: 100%;
@@ -351,11 +365,10 @@ const full = () => messages.value.length >= MAX_TURNS
   .locked-actions .btn { flex: 1; }
 }
 
-/* ---- the sauna room (the big box) ---- */
+/* ---- the sauna room (fills the viewport, edge to edge) ---- */
 .sauna-scene {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-lg, 20px);
   padding: 14px;
   /* dim cedar interior: warm dark planks */
   background:
@@ -365,7 +378,6 @@ const full = () => messages.value.length >= MAX_TURNS
       rgba(0, 0, 0, 0.22) 46px 49px
     ),
     linear-gradient(180deg, #241812 0%, #2d1c12 55%, #38200f 100%);
-  border: 1px solid rgba(245, 158, 11, 0.18);
 }
 
 /* ---- Väinö on his bench (left side, desktop only) ---- */
@@ -401,6 +413,10 @@ const full = () => messages.value.length >= MAX_TURNS
   position: relative;
   flex: 1;
   min-width: 0;
+  /* Without this the panel refuses to shrink below its content in the
+     mobile column layout, so .bubbles never scrolls and the composer
+     gets clipped by the scene's overflow: hidden. */
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: rgba(18, 10, 5, 0.55);
@@ -414,6 +430,16 @@ const full = () => messages.value.length >= MAX_TURNS
   .sauna-scene { flex-direction: row; gap: 10px; padding: 18px; }
   .vaino-side { display: flex; }
   .chat-panel .scene-head { display: none; }
+}
+
+/* Below 900px the fixed tab bar overlays the bottom edge: pad the scene so
+   the composer clears it (the sauna glow still shows through the bar's blur).
+   The scene now starts at the very top, so clear the notch too. */
+@media (max-width: 899px) {
+  .sauna-scene {
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* embers glowing at the bottom, like the kiuas */
@@ -537,6 +563,7 @@ const full = () => messages.value.length >= MAX_TURNS
 /* ---- Väinö ---- */
 .scene-head {
   position: relative;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -566,6 +593,7 @@ const full = () => messages.value.length >= MAX_TURNS
 .bubbles {
   position: relative;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -696,7 +724,7 @@ const full = () => messages.value.length >= MAX_TURNS
 .full-note .muted { color: rgba(243, 231, 211, 0.7); }
 
 /* ---- composer ---- */
-.composer { position: relative; display: flex; gap: 8px; padding-top: 10px; }
+.composer { position: relative; display: flex; gap: 8px; padding-top: 10px; flex-shrink: 0; }
 .mic { padding: 12px 14px; font-size: 17px; flex-shrink: 0; }
 .mic.listening {
   border-color: var(--accent);

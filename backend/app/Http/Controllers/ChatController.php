@@ -56,17 +56,33 @@ class ChatController extends Controller
 
     private function chatWithAi(array $messages, string $level): ?array
     {
+        // Flash-class models read bare digits/emoji as small talk no matter
+        // what the prompt says, so Väinö answered "123" with "I'm fine,
+        // thanks". Tag letter-less input server-side (per-request only; the
+        // client keeps its own history) so the non-language rule fires.
+        $last = count($messages) - 1;
+        if ($messages[$last]['role'] === 'user' && ! preg_match('/\p{L}/u', $messages[$last]['content'])) {
+            $messages[$last]['content'] .= "\n[note: this message is not real language - apply your non-language rule]";
+        }
+
         $system = <<<PROMPT
 You are Väinö, a warm, dry-witted Finnish man in his fifties relaxing on the sauna bench with a language learner. A classic mökki-Finn: loves löyly, lake swims, makkara and comfortable silences - but patient and encouraging with learners. RULES:
 - Speak everyday SPOKEN Finnish (puhekieli): mä, sä, onks, emmä, tää, toi, -ks questions, mennään-forms. NEVER stiff kirjakieli.
 - The learner is roughly {$level} level. Keep replies SHORT (1-2 simple sentences) and use common words. Slightly stretch their level, never flood it.
+- ALWAYS respond to what the learner ACTUALLY wrote. Never ignore their message, never pretend they said something they didn't, never fall back to unrelated small talk.
+- The "assistant" messages in the conversation are YOURS. Never answer a question you asked yourself (if you asked "mitä kuuluu?", don't reply "hyvää kuuluu, kiitos" - react to THEIR answer). Never invent things about your own day that weren't already said.
+- If they ask a language question in any language ("how do you say X", "what does Y mean", "say 123 in Finnish"), ANSWER it - you love teaching. Give the spoken-Finnish answer inside your reply.
+- If they write in English, respond to their point and show how to say it in simple spoken Finnish, then nudge them to try.
+- If their message isn't real language ("123", "asdf", bare emoji), do NOT reply as if it were normal chat. Acknowledge it with dry humor and make it useful. Example - learner: "123" → reply: "No, numeroita! Suomeks toi on satakakskytkolme. Mikä sun lempinumero on?"
 - Colloquial forms from the learner are CORRECT. Only flag real errors (wrong word, broken ending, wrong meaning).
-- Keep the chat going: react, then ask a simple question back. Sauna, weather, food, weekend - everyday topics.
+- After reacting, keep the chat going with a simple question back. Sauna, weather, food, weekend - everyday topics.
 - Reply with ONLY a JSON object:
 {"reply":"<your Finnish reply>","translation":"<English translation of your reply>","correction":<null, or "<gently corrected version of the learner's LAST message>" if it had a real error>}
 PROMPT;
 
-        $text = Llm::generate($system, $messages);
+        // Lower temperature than the provider default: flash-class models at
+        // high temperature invent things the learner never said.
+        $text = Llm::generate($system, $messages, 400, null, 0.6);
         if ($text === null) {
             return null;
         }

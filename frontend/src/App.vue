@@ -28,7 +28,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="app-shell" :class="{ 'app-shell--chrome': showShell }">
+  <div class="app-shell" :class="{ 'app-shell--chrome': showShell, 'app-shell--full': route.meta.full }">
     <!-- Desktop sidebar (hidden on mobile) -->
     <aside v-if="showShell" class="sidebar">
       <router-link to="/dashboard" class="brand">
@@ -103,6 +103,14 @@ async function logout() {
 /* When the mobile tab bar is present, keep content clear of it. */
 .app-shell--chrome .content {
   padding-bottom: calc(84px + env(safe-area-inset-bottom));
+}
+
+/* Fullscreen scene routes (chat): the page fills the shell edge-to-edge and
+   handles its own safe areas / tab-bar clearance. */
+.app-shell--full .content,
+.app-shell--chrome.app-shell--full .content {
+  max-width: none;
+  padding: 0;
 }
 
 /* ---------- sidebar (desktop) ---------- */
@@ -211,6 +219,15 @@ async function logout() {
   }
   /* scene pages (chat) get room to breathe */
   .app-shell--chrome .content--wide { max-width: 980px; }
+  /* fullscreen routes: the scene runs to the viewport edges beside the sidebar */
+  .app-shell--chrome.app-shell--full {
+    max-width: none;
+    padding-right: 0;
+  }
+  .app-shell--chrome.app-shell--full .content {
+    max-width: none;
+    padding: 0;
+  }
   .app-shell--chrome .tabbar { display: none; }
 }
 </style>

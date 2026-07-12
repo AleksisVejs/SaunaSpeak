@@ -36,6 +36,12 @@ const practiceExpected = computed(() =>
   kind.value === 'cloze' ? clozeWord(session.current.finnish_text) : session.current.finnish_text
 )
 
+// Cloze expects a single word, so the full-sentence translation would mislead
+// the AI corrector there; the other kinds get the English meaning as an anchor.
+const practiceTranslation = computed(() =>
+  kind.value === 'cloze' ? '' : session.current.english_text || ''
+)
+
 const practiceHints = {
   study: 'Your guess - say or type it in Finnish',
   cloze: 'The missing word',
@@ -146,6 +152,7 @@ function confettiStyle(i) {
     <PracticeInput
       :key="`practice-${session.index}`"
       :expected="practiceExpected"
+      :translation="practiceTranslation"
       :placeholder="practiceHints[kind]"
       @checked="onChecked"
     />

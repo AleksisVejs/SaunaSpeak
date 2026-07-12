@@ -4,6 +4,9 @@ import api from '../api'
 
 const props = defineProps({
   expected: { type: String, required: true },
+  // English meaning of the expected sentence - anchors the AI correction
+  // to the exercise instead of whatever the attempt happened to resemble.
+  translation: { type: String, default: '' },
   placeholder: { type: String, default: '' }
 })
 
@@ -98,7 +101,8 @@ async function check() {
       try {
         const { data } = await api.post('/ai/correct', {
           user_sentence: attempt.value,
-          expected_sentence: props.expected
+          expected_sentence: props.expected,
+          expected_translation: props.translation || undefined
         })
         corrected = data.corrected
         explanation = data.explanation
