@@ -138,9 +138,24 @@ Preview who would get mail without sending: `php artisan reminders:send --dry-ru
 
 ## 7. Adding lessons with the AI pipeline
 
+Locally:
+
 ```bash
 php artisan lesson:draft "Topic name" --level=A1   # drafts JSON to storage/app/lesson-drafts/
 # REVIEW the draft by hand - puhekieli quality is the product - then:
 php artisan lesson:import storage/app/lesson-drafts/<file>.json
 php artisan audio:generate
+cd ../frontend && npm run build
+git add -A && git commit -m "lesson: <topic>" && git push
+```
+
+`lesson:import` inserts the lesson at the end of its CEFR level block (so the
+path shows one divider per level) and copies the reviewed JSON into
+`database/lessons/` (tracked) for production.
+
+On the server after `./deploy.sh`:
+
+```bash
+php artisan db:seed --class=JsonLessonSeeder   # imports new database/lessons/*.json (idempotent)
+php artisan audio:generate                     # links the MP3s that came in via git
 ```

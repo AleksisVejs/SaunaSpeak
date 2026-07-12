@@ -1,0 +1,93 @@
+{
+    "title": "Buses and Trains",
+    "level": "A1",
+    "pattern": {
+        "title": "Shortened Verbs and -ks Questions",
+        "summary": "In spoken Finnish, verbs like 'mennä' and 'tulla' are shortened (mä meen, sä tuut). Questions ending in '-ko' or '-kö' change to '-ks' for a faster flow.",
+        "examples": [
+            "Mä meen bussilla. = I'm going by bus.",
+            "Onks tää juna? = Is this the train?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Onks tää bussi?",
+            "en": "Is this the bus?",
+            "written": "Onko tämä bussi?",
+            "glosses": {
+                "onks": "is",
+                "tää": "this",
+                "bussi": "bus"
+            }
+        },
+        {
+            "fi": "Onks toi juna?",
+            "en": "Is that the train?",
+            "written": "Onko tuo juna?",
+            "glosses": {
+                "onks": "is",
+                "toi": "that",
+                "juna": "train"
+            }
+        },
+        {
+            "fi": "Mä meen junalla.",
+            "en": "I'm going by train.",
+            "written": "Minä menen junalla.",
+            "glosses": {
+                "mä": "I",
+                "meen": "go",
+                "junalla": "by train"
+            }
+        },
+        {
+            "fi": "Me mennään nyt.",
+            "en": "We are going now.",
+            "written": "Me menemme nyt.",
+            "glosses": {
+                "me": "we",
+                "mennään": "go (passive style)",
+                "nyt": "now"
+            }
+        },
+        {
+            "fi": "Millon se tulee?",
+            "en": "When does it come?",
+            "written": "Milloin se tulee?",
+            "glosses": {
+                "millon": "when",
+                "se": "it",
+                "tulee": "comes"
+            }
+        },
+        {
+            "fi": "Se tulee viideltä.",
+            "en": "It comes at five.",
+            "written": null,
+            "glosses": {
+                "se": "it",
+                "tulee": "comes",
+                "viideltä": "at five"
+            }
+        },
+        {
+            "fi": "Tuuks sä mukaan?",
+            "en": "Are you coming along?",
+            "written": "Tuletko sinä mukaan?",
+            "glosses": {
+                "tuuks": "come (question)",
+                "sä": "you",
+                "mukaan": "along"
+            }
+        },
+        {
+            "fi": "Mennään jo!",
+            "en": "Let's go already!",
+            "written": null,
+            "glosses": {
+                "mennään": "let's go",
+                "jo": "already"
+            }
+        }
+    ]
+}

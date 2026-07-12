@@ -1,0 +1,96 @@
+{
+    "title": "Eating at a Restaurant",
+    "level": "A1",
+    "pattern": {
+        "title": "Spoken Questions and Pronouns",
+        "summary": "In spoken Finnish, questions are often formed by adding -ks instead of -ko (e.g., 'onks' instead of 'onko'). We also use the short forms 'mä' (I) and 'sä' (you).",
+        "examples": [
+            "Onks tässä vapaata? = Is this seat free?",
+            "Saaks täält kahvii? = Can I get coffee here?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Moi, onks tääl tilaa?",
+            "en": "Hi, is there space here?",
+            "written": "Moi, onko täällä tilaa?",
+            "glosses": {
+                "moi": "hi",
+                "onks": "is",
+                "tääl": "here",
+                "tilaa": "space"
+            }
+        },
+        {
+            "fi": "Mä otan kahvin.",
+            "en": "I'll take a coffee.",
+            "written": "Minä otan kahvin.",
+            "glosses": {
+                "mä": "I",
+                "otan": "take",
+                "kahvin": "coffee"
+            }
+        },
+        {
+            "fi": "Mitä sä otat?",
+            "en": "What will you take?",
+            "written": "Mitä sinä otat?",
+            "glosses": {
+                "mitä": "what",
+                "sä": "you",
+                "otat": "take"
+            }
+        },
+        {
+            "fi": "Saaks täält pitsaa?",
+            "en": "Can you get pizza here?",
+            "written": "Saako täältä pitsaa?",
+            "glosses": {
+                "saaks": "can you get",
+                "täält": "from here",
+                "pitsaa": "pizza"
+            }
+        },
+        {
+            "fi": "Yks iso limu, kiitos.",
+            "en": "One large soda, please.",
+            "written": "Yksi iso limonadi, kiitos.",
+            "glosses": {
+                "yks": "one",
+                "iso": "large",
+                "limu": "soda",
+                "kiitos": "thanks"
+            }
+        },
+        {
+            "fi": "Se tekee kymmenen euroo.",
+            "en": "That makes ten euros.",
+            "written": "Se tekee kymmenen euroa.",
+            "glosses": {
+                "se": "it",
+                "tekee": "makes",
+                "kymmenen": "ten",
+                "euroo": "euros"
+            }
+        },
+        {
+            "fi": "Mä maksan kortilla.",
+            "en": "I'll pay by card.",
+            "written": "Minä maksan kortilla.",
+            "glosses": {
+                "mä": "I",
+                "maksan": "pay",
+                "kortilla": "with card"
+            }
+        },
+        {
+            "fi": "Mennäänks syömään?",
+            "en": "Shall we go eat?",
+            "written": "Mennäänkö syömään?",
+            "glosses": {
+                "mennäänks": "shall we go",
+                "syömään": "to eat"
+            }
+        }
+    ]
+}
