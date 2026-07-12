@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Tts;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -38,6 +39,9 @@ class TtsController extends Controller
         if ($text === '') {
             return response()->json(['url' => null]);
         }
+
+        // Respell before hashing so fixed pronunciations get fresh cache slots.
+        $text = Tts::respell($text);
 
         $hash = md5($text);
         $file = public_path("audio/tts/{$hash}.mp3");

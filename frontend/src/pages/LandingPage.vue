@@ -6,11 +6,13 @@ import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSentence } = useFinnishAudio()
 
-// Spoken-vs-textbook contrast is the product in one glance.
+// Spoken-vs-textbook contrast is the product in one glance. These are real
+// course sentences, so their pre-generated MP3s exist (this app never falls
+// back to browser TTS - without a URL the buttons would be silent).
 const SAMPLES = [
-  { fi: 'Mä oon vähän väsyny.', book: 'Minä olen vähän väsynyt.', en: "I'm a bit tired." },
-  { fi: 'Onks sulla nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?' },
-  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know." }
+  { fi: 'Puhuksä englantia?', book: 'Puhutko sinä englantia?', en: 'Do you speak English?', audio: '/audio/sentence-7.mp3' },
+  { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', audio: '/audio/sentence-14.mp3' },
+  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", audio: '/audio/sentence-10.mp3' }
 ]
 
 const METHOD = [
@@ -56,7 +58,7 @@ const METHOD = [
           :key="s.fi"
           class="sample"
           :title="'Play ' + s.fi"
-          @click="playSentence(s.fi)"
+          @click="playSentence(s.fi, s.audio)"
         >
           <span class="sample-fi">🔊 {{ s.fi }}</span>
           <span class="sample-book">📖 {{ s.book }}</span>

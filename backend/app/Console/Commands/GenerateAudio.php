@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Sentence;
+use App\Support\Tts;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -81,7 +82,7 @@ class GenerateAudio extends Command
                 $this->bin,
                 '--voice', $voice,
                 '--rate', $rate,
-                '--text', $sentence->finnish_text,
+                '--text', Tts::respell($sentence->finnish_text),
                 '--write-media', $file,
             ]);
 
@@ -141,7 +142,7 @@ class GenerateAudio extends Command
                     $this->bin,
                     '--voice', $voice,
                     '--rate', $rate,
-                    '--text', $word,
+                    '--text', Tts::respell($word),
                     '--write-media', $file,
                 ]);
 
