@@ -12,6 +12,7 @@ import { useRoute } from 'vue-router'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
+import { SCENE_ART } from '../utils/sceneArt'
 
 const { playSpoken } = useFinnishAudio()
 const auth = useAuthStore()
@@ -27,6 +28,7 @@ const premium = computed(() => auth.user?.is_premium !== false)
 async function enterScene() {
   missionDone.value = false
   showTranslation.value = {}
+  charOk.value = true
 
   const id = route.query.scenario
   if (!id) {
@@ -74,8 +76,32 @@ const scenario = ref(null)
 const missionDone = ref(false)
 
 const personaName = computed(() => scenario.value?.persona ?? 'Väinö')
-// Scenario characters have no portrait; their scene emoji stands in.
+// Emoji stands in wherever a portrait image is missing or fails to load.
 const personaEmoji = computed(() => scenario.value?.emoji ?? '🧔')
+
+// Scenario art: character portrait + scene backdrop (see utils/sceneArt.js).
+const art = computed(() => (scenario.value ? SCENE_ART[scenario.value.id] : null))
+const charOk = ref(true)
+
+// The portrait shown in avatars/side panel, with per-mode load-failure flags.
+const portraitSrc = computed(() => (scenario.value ? art.value?.character : AVATAR_URL))
+const portraitOk = computed(() => (scenario.value ? charOk.value && !!art.value : avatarOk.value))
+function portraitFailed() {
+  if (scenario.value) charOk.value = false
+  else avatarOk.value = false
+}
+
+// Scenario backdrop replaces the sauna planks; the dark gradient keeps the
+// bubbles readable on top of any artwork.
+const sceneStyle = computed(() =>
+  art.value
+    ? {
+        backgroundImage: `linear-gradient(rgba(20, 12, 6, 0.45), rgba(20, 12, 6, 0.72)), url('${art.value.background}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }
+    : null
+)
 
 const messages = ref([])
 const draft = ref('')
@@ -209,7 +235,7 @@ const full = () => messages.value.length >= MAX_TURNS
     </div>
   </div>
 
-  <div v-else class="chat sauna-scene">
+  <div v-else class="chat sauna-scene" :style="sceneStyle">
     <!-- steam wisps + fog + kiuas glow (decoration only) -->
     <div class="steam" aria-hidden="true">
       <span v-for="i in 5" :key="i" class="wisp" :style="{ left: `${i * 19 - 5}%`, animationDelay: `${i * 1.7}s` }"></span>
@@ -228,8 +254,14 @@ const full = () => messages.value.length >= MAX_TURNS
     <!-- The character beside the chat (desktop): Väinö on his bench, or the
          scenario persona as their scene emoji -->
     <aside class="vaino-side">
-      <span v-if="scenario" class="scene-big">{{ scenario.emoji }}</span>
-      <img v-else class="vaino-big" :src="AVATAR_URL" alt="Väinö sitting on the sauna bench with a ladle" @error="avatarOk = false" />
+      <img
+        v-if="portraitOk"
+        class="vaino-big"
+        :src="portraitSrc"
+        :alt="scenario ? personaName : 'Väinö sitting on the sauna bench with a ladle'"
+        @error="portraitFailed"
+      />
+      <span v-else class="scene-big">{{ personaEmoji }}</span>
       <p class="who">{{ personaName }}</p>
       <p class="who-sub">{{ scenario ? scenario.title : 'speaks puhekieli · tap his bubbles for English' }}</p>
     </aside>
@@ -239,10 +271,10 @@ const full = () => messages.value.length >= MAX_TURNS
       <header class="scene-head">
         <span class="avatar">
           <img
-            v-if="!scenario && avatarOk"
-            :src="AVATAR_URL"
-            alt="Väinö"
-            @error="avatarOk = false"
+            v-if="portraitOk"
+            :src="portraitSrc"
+            :alt="personaName"
+            @error="portraitFailed"
           />
           <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
@@ -267,7 +299,7 @@ const full = () => messages.value.length >= MAX_TURNS
         :class="m.role"
       >
         <span v-if="m.role === 'assistant'" class="avatar small">
-          <img v-if="!scenario && avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
+          <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
           <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
         <div
@@ -291,7 +323,7 @@ const full = () => messages.value.length >= MAX_TURNS
 
       <div v-if="sending" class="row assistant">
         <span class="avatar small">
-          <img v-if="!scenario && avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
+          <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
           <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
         <div class="bubble assistant typing">

@@ -24,7 +24,10 @@ export default defineConfig({
       },
       workbox: {
         // Cache the UI shell (JS/CSS/HTML/icons); never cache API calls.
+        // Scenario art (scenes/) stays out of the precache - ~2MB that only
+        // Löyly+ users in a scenario need; it's runtime-cached below instead.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globIgnores: ['scenes/**'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/audio/],
         // Sentence + word MP3s are immutable once generated - cache-first keeps them offline.
@@ -35,6 +38,14 @@ export default defineConfig({
             options: {
               cacheName: 'finnish-audio',
               expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 90 }
+            }
+          },
+          {
+            urlPattern: /\/scenes\/.*\.(png|jpg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'scene-art',
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 90 }
             }
           }
         ]

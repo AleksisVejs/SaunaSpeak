@@ -6,6 +6,10 @@
 import { computed, onMounted, ref } from 'vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
+import { SCENE_ART } from '../utils/sceneArt'
+
+// Per-card image failure → emoji fallback (art is optional by design).
+const artFailed = ref({})
 
 const auth = useAuthStore()
 const scenarios = ref(null)
@@ -62,7 +66,15 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
             class="scene-card"
             :class="{ locked: !premium }"
           >
-            <span class="scene-emoji">{{ s.emoji }}</span>
+            <img
+              v-if="SCENE_ART[s.id] && !artFailed[s.id]"
+              class="scene-face"
+              :src="SCENE_ART[s.id].character"
+              :alt="s.persona"
+              loading="lazy"
+              @error="artFailed[s.id] = true"
+            />
+            <span v-else class="scene-emoji">{{ s.emoji }}</span>
             <div class="scene-body">
               <p class="scene-title">{{ s.title }}</p>
               <p class="scene-tagline muted">{{ s.tagline }}</p>
@@ -87,7 +99,15 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
             class="scene-card"
             :class="{ locked: !premium }"
           >
-            <span class="scene-emoji">{{ s.emoji }}</span>
+            <img
+              v-if="SCENE_ART[s.id] && !artFailed[s.id]"
+              class="scene-face"
+              :src="SCENE_ART[s.id].character"
+              :alt="s.persona"
+              loading="lazy"
+              @error="artFailed[s.id] = true"
+            />
+            <span v-else class="scene-emoji">{{ s.emoji }}</span>
             <div class="scene-body">
               <p class="scene-title">{{ s.title }}</p>
               <p class="scene-tagline muted">{{ s.tagline }}</p>
@@ -147,6 +167,7 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
 .scene-card.locked { opacity: 0.75; }
 
 .scene-emoji { font-size: 26px; line-height: 1; margin-top: 2px; }
+.scene-face { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
 .scene-body { flex: 1; min-width: 0; }
 .scene-title { font-weight: 800; font-size: 15px; }
 .scene-tagline { font-size: 13px; line-height: 1.4; margin-top: 2px; }
