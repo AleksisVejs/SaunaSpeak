@@ -91,17 +91,15 @@ function portraitFailed() {
   else avatarOk.value = false
 }
 
-// Scenario backdrop replaces the sauna planks; the dark gradient keeps the
-// bubbles readable on top of any artwork.
-const sceneStyle = computed(() =>
-  art.value
-    ? {
-        backgroundImage: `linear-gradient(rgba(20, 12, 6, 0.45), rgba(20, 12, 6, 0.72)), url('${art.value.background}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }
-    : null
-)
+// The scene backdrop: each scenario brings its own artwork, and Väinö's
+// free-form bench gets the sauna interior. The dark gradient keeps the
+// bubbles readable on top of any artwork; if the image ever fails to load,
+// the CSS plank gradient underneath still gives a sauna-dark room.
+const sceneStyle = computed(() => ({
+  backgroundImage: `linear-gradient(rgba(20, 12, 6, 0.45), rgba(20, 12, 6, 0.72)), url('${art.value?.background ?? '/scenes/sauna.jpg'}')`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center'
+}))
 
 const messages = ref([])
 const draft = ref('')
