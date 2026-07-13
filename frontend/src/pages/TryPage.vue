@@ -43,10 +43,11 @@ function next() {
   <div class="try">
     <template v-if="!done">
       <div class="try-top">
-        <router-link to="/login" class="skip">Skip</router-link>
+        <router-link to="/" class="skip">‹ Home</router-link>
         <div class="dots">
           <span v-for="(s, i) in samples" :key="i" class="dot" :class="{ active: i <= index }"></span>
         </div>
+        <router-link to="/login" class="skip">Skip</router-link>
       </div>
 
       <p class="kicker">Try a real sentence 🔥</p>

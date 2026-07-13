@@ -33,8 +33,10 @@ async function submit() {
 <template>
   <div class="auth-page">
     <div class="hero">
-      <img class="hero-vaino" src="/vaino-wave.png" alt="Väinö waving hello" />
-      <h1>Join SaunaSpeak</h1>
+      <router-link to="/" class="hero-home" title="Back to the home page">
+        <img class="hero-vaino" src="/vaino-wave.png" alt="Väinö waving hello" />
+        <h1>Join SaunaSpeak</h1>
+      </router-link>
       <p class="muted">Väinö's saving you a seat on the bench. Short daily sessions, real spoken Finnish.</p>
     </div>
 
@@ -66,6 +68,7 @@ async function submit() {
 <style scoped>
 .auth-page { margin-top: 8vh; }
 .hero { text-align: center; margin-bottom: 28px; }
+.hero-home { display: block; color: var(--text); }
 .hero-vaino { width: 110px; height: 110px; margin-bottom: 6px; }
 .hero h1 { font-size: 30px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }

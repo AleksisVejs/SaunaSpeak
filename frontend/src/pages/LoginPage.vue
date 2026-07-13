@@ -28,8 +28,10 @@ async function submit() {
 <template>
   <div class="auth-page">
     <div class="hero">
-      <img class="hero-logo" src="/logo-sm.png" alt="SaunaSpeak logo" />
-      <h1>SaunaSpeak</h1>
+      <router-link to="/" class="hero-home" title="Back to the home page">
+        <img class="hero-logo" src="/logo-sm.png" alt="SaunaSpeak logo" />
+        <h1>SaunaSpeak</h1>
+      </router-link>
       <p class="muted">Learn Finnish, one sauna session at a time.</p>
     </div>
 
@@ -58,6 +60,7 @@ async function submit() {
 <style scoped>
 .auth-page { margin-top: 8vh; }
 .hero { text-align: center; margin-bottom: 28px; }
+.hero-home { display: block; color: var(--text); }
 .hero-logo { width: 76px; height: 76px; border-radius: 18px; margin-bottom: 10px; }
 .hero h1 { font-size: 30px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }

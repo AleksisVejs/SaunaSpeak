@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# App-internal routes: auth-gated, nothing to index (saves crawl budget)
+Disallow: /dashboard
+Disallow: /session
+Disallow: /lesson/
+Disallow: /words
+Disallow: /profile
+Disallow: /checkpoint/
+Disallow: /chat
+Disallow: /scenarios
+Disallow: /upgrade
+Disallow: /onboarding
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://saunaspeak.com/sitemap.xml
