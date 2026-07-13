@@ -27,7 +27,7 @@ export default defineConfig({
         // Scenario art (scenes/) stays out of the precache - ~2MB that only
         // Löyly+ users in a scenario need; it's runtime-cached below instead.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        globIgnores: ['scenes/**'],
+        globIgnores: ['scenes/**', 'sw-kill.js'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/audio/],
         // Sentence + word MP3s are immutable once generated - cache-first keeps them offline.

@@ -7,6 +7,14 @@
 
     # Legacy domain: the app moved to saunaspeak.com (2026-07). Old PWA
     # installs and shared links still point here - keep this permanently.
+    #
+    # Browsers that installed the PWA here are held on the cached shell by
+    # the old service worker, and a worker script may not update through a
+    # cross-origin redirect - so on this host /sw.js serves a self-destructing
+    # worker (unregister + cache wipe + reload) instead of redirecting.
+    RewriteCond %{HTTP_HOST} ^saunaspeak\.fraksis\.com$ [NC]
+    RewriteRule ^sw\.js$ sw-kill.js [L]
+
     RewriteCond %{HTTP_HOST} ^saunaspeak\.fraksis\.com$ [NC]
     RewriteRule ^(.*)$ https://saunaspeak.com/$1 [L,R=301]
 
