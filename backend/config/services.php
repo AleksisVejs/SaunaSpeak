@@ -52,6 +52,9 @@ return [
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
         'price_id' => env('STRIPE_PRICE_ID'),
+        // Optional yearly price for the same Löyly+ tier. Unset → the upgrade
+        // page shows monthly only, so this can ship before the price exists.
+        'price_id_yearly' => env('STRIPE_PRICE_ID_YEARLY'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         // Where Stripe sends the browser back after checkout/portal. Only
         // needed in local dev where the SPA (:5173) and API (:8000) differ;

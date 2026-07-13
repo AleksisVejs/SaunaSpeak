@@ -47,6 +47,37 @@ class BillingCheckoutTest extends TestCase
             && ! str_contains($request->body(), 'payment_method_types'));
     }
 
+    public function test_checkout_uses_the_yearly_price_when_asked(): void
+    {
+        config(['services.stripe.price_id_yearly' => 'price_yr']);
+
+        Http::fake(['api.stripe.com/v1/checkout/sessions' => Http::response([
+            'id' => 'cs_123', 'url' => 'https://checkout.stripe.com/c/pay/cs_123',
+        ])]);
+
+        $this->postJson('/api/billing/checkout', ['plan' => 'yearly'])->assertOk();
+
+        Http::assertSent(fn ($r) => str_contains($r->body(), 'price_yr'));
+    }
+
+    public function test_yearly_checkout_without_a_yearly_price_is_unavailable(): void
+    {
+        config(['services.stripe.price_id_yearly' => null]);
+
+        $this->postJson('/api/billing/checkout', ['plan' => 'yearly'])
+            ->assertStatus(503);
+    }
+
+    public function test_billing_status_reports_available_plans(): void
+    {
+        config(['services.stripe.price_id_yearly' => 'price_yr']);
+
+        $this->getJson('/api/billing')
+            ->assertOk()
+            ->assertJsonPath('plans.monthly', true)
+            ->assertJsonPath('plans.yearly', true);
+    }
+
     public function test_cancel_sets_cancel_at_period_end_and_keeps_access(): void
     {
         $periodEnd = now()->addWeeks(3)->timestamp;

@@ -58,6 +58,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // throttled tighter since premium requests cost real money.
     Route::post('/ai/correct', [AiController::class, 'correct'])->middleware('throttle:30,1');
 
+    // The Tilanteet catalog is browsable by everyone (free users see the
+    // cards + paywall); actually chatting goes through the premium /chat.
+    Route::get('/scenarios', [ChatController::class, 'scenarios']);
+
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);

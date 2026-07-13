@@ -3,19 +3,56 @@
 // Producing your own sentences - not recalling prompted ones - is what
 // exposes the gaps in your Finnish (the output hypothesis). Väinö replies in
 // real puhekieli at your level and only corrects real mistakes.
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+//
+// Scenario mode (?scenario=kauppa): the same chat engine playing a character
+// from the Tilanteet catalog, with a mission banner and a completion moment
+// when the backend reports goal_reached.
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSpoken } = useFinnishAudio()
 const auth = useAuthStore()
+const route = useRoute()
 
 // Löyly+ gate: the backend enforces it (402); this just shows the pitch
 // instead of a chat box that would error on send.
 const premium = computed(() => auth.user?.is_premium !== false)
+
+// (Re)enter the scene: pick the character and their first line. Runs on
+// mount and whenever the ?scenario= query changes (e.g. tapping the Chat tab
+// while inside a situation returns to Väinö).
+async function enterScene() {
+  missionDone.value = false
+  showTranslation.value = {}
+
+  const id = route.query.scenario
+  if (!id) {
+    scenario.value = null
+    messages.value = [randomOpener()]
+    return
+  }
+
+  try {
+    const { data } = await api.get('/scenarios')
+    scenario.value = data.scenarios.find((s) => s.id === id) ?? null
+  } catch {
+    scenario.value = null
+  }
+
+  messages.value = scenario.value
+    ? [{ role: 'assistant', content: scenario.value.opener, translation: scenario.value.opener_translation }]
+    : [randomOpener()]
+}
+
 onMounted(() => {
   if (!auth.user) auth.fetchUser()
+  enterScene()
+})
+watch(() => route.query.scenario, () => {
+  if (route.name === 'chat') enterScene()
 })
 
 // Rotating openers so every visit to the bench starts differently -
@@ -30,7 +67,17 @@ const OPENERS = [
 
 const randomOpener = () => ({ role: 'assistant', ...OPENERS[Math.floor(Math.random() * OPENERS.length)] })
 
-const messages = ref([randomOpener()])
+// Scenario mode: metadata for the situation named in ?scenario=, or null for
+// Väinö's free-form bench. Fetched from the catalog so prompts and openers
+// have one source of truth (the backend).
+const scenario = ref(null)
+const missionDone = ref(false)
+
+const personaName = computed(() => scenario.value?.persona ?? 'Väinö')
+// Scenario characters have no portrait; their scene emoji stands in.
+const personaEmoji = computed(() => scenario.value?.emoji ?? '🧔')
+
+const messages = ref([])
 const draft = ref('')
 const sending = ref(false)
 // Re-keyed on every Väinö reply → one steam burst per reply (löyly!).
@@ -90,14 +137,19 @@ async function send() {
   try {
     const { data } = await api.post('/chat', {
       // The API sees only role+content; local metadata stays local.
-      messages: messages.value.map(({ role, content }) => ({ role, content }))
+      messages: messages.value.map(({ role, content }) => ({ role, content })),
+      scenario: scenario.value?.id ?? null
     })
 
-    // Attach Väinö's gentle correction to the message it corrects.
+    // Attach the character's gentle correction to the message it corrects.
     if (data.correction) {
       messages.value[messages.value.length - 1].correction = data.correction
     }
     messages.value.push({ role: 'assistant', content: data.reply, translation: data.translation })
+    if (scenario.value && data.goal_reached && !missionDone.value) {
+      missionDone.value = true
+      window.umami?.track('scenario_complete', { scenario: scenario.value.id })
+    }
     burst.value = Date.now()
     playSpoken(data.reply)
   } catch {
@@ -113,8 +165,11 @@ async function send() {
 }
 
 function reset() {
-  messages.value = [randomOpener()]
+  missionDone.value = false
   showTranslation.value = {}
+  messages.value = scenario.value
+    ? [{ role: 'assistant', content: scenario.value.opener, translation: scenario.value.opener_translation }]
+    : [randomOpener()]
 }
 
 const full = () => messages.value.length >= MAX_TURNS
@@ -141,7 +196,7 @@ const full = () => messages.value.length >= MAX_TURNS
         <ul class="locked-perks">
           <li><span class="lp-icon">💬</span><span>Real puhekieli, kept at your level</span></li>
           <li><span class="lp-icon">🧠</span><span>Gentle corrections that explain the why</span></li>
-          <li><span class="lp-icon">🌿</span><span>Your own sentences, not just tap answers</span></li>
+          <li><span class="lp-icon">🎭</span><span>Situations: real-life missions like buying groceries</span></li>
         </ul>
 
         <div class="locked-actions">
@@ -170,11 +225,13 @@ const full = () => messages.value.length >= MAX_TURNS
       <i class="puff" style="--dx: -10px; --d: 0.52s; --s: 1.15"></i>
     </div>
 
-    <!-- Väinö himself, on his bench in the sauna (desktop) -->
+    <!-- The character beside the chat (desktop): Väinö on his bench, or the
+         scenario persona as their scene emoji -->
     <aside class="vaino-side">
-      <img class="vaino-big" :src="AVATAR_URL" alt="Väinö sitting on the sauna bench with a ladle" @error="avatarOk = false" />
-      <p class="who">Väinö</p>
-      <p class="who-sub">speaks puhekieli · tap his bubbles for English</p>
+      <span v-if="scenario" class="scene-big">{{ scenario.emoji }}</span>
+      <img v-else class="vaino-big" :src="AVATAR_URL" alt="Väinö sitting on the sauna bench with a ladle" @error="avatarOk = false" />
+      <p class="who">{{ personaName }}</p>
+      <p class="who-sub">{{ scenario ? scenario.title : 'speaks puhekieli · tap his bubbles for English' }}</p>
     </aside>
 
     <!-- the chat, a panel beside him -->
@@ -182,18 +239,25 @@ const full = () => messages.value.length >= MAX_TURNS
       <header class="scene-head">
         <span class="avatar">
           <img
-            v-if="avatarOk"
+            v-if="!scenario && avatarOk"
             :src="AVATAR_URL"
             alt="Väinö"
             @error="avatarOk = false"
           />
-          <span v-else class="avatar-fallback">🧔</span>
+          <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
         <div>
-          <p class="who">Väinö</p>
-          <p class="who-sub">on the bench · speaks puhekieli · tap his bubbles for English</p>
+          <p class="who">{{ personaName }}</p>
+          <p class="who-sub">{{ scenario ? scenario.title : 'on the bench · speaks puhekieli · tap his bubbles for English' }}</p>
         </div>
       </header>
+
+      <!-- The mission strip: what to accomplish, flipping to done. -->
+      <div v-if="scenario" class="mission" :class="{ done: missionDone }">
+        <span class="mission-icon">{{ missionDone ? '✅' : '🎯' }}</span>
+        <p class="mission-text">{{ missionDone ? 'Mission accomplished!' : scenario.mission }}</p>
+        <router-link v-if="missionDone" to="/scenarios" class="mission-next">Next situation ›</router-link>
+      </div>
 
       <div ref="listRef" class="bubbles">
       <div
@@ -203,8 +267,8 @@ const full = () => messages.value.length >= MAX_TURNS
         :class="m.role"
       >
         <span v-if="m.role === 'assistant'" class="avatar small">
-          <img v-if="avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
-          <span v-else class="avatar-fallback">🧔</span>
+          <img v-if="!scenario && avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
+          <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
         <div
           class="bubble"
@@ -227,11 +291,11 @@ const full = () => messages.value.length >= MAX_TURNS
 
       <div v-if="sending" class="row assistant">
         <span class="avatar small">
-          <img v-if="avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
-          <span v-else class="avatar-fallback">🧔</span>
+          <img v-if="!scenario && avatarOk" :src="AVATAR_URL" alt="" @error="avatarOk = false" />
+          <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
         <div class="bubble assistant typing">
-          Väinö miettii
+          {{ personaName }} miettii
           <span class="tdots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span>
         </div>
       </div>
@@ -594,6 +658,44 @@ const full = () => messages.value.length >= MAX_TURNS
 .avatar.small .avatar-fallback { font-size: 15px; }
 .who { font-weight: 800; font-size: 16px; color: #f3e7d3; }
 .who-sub { font-size: 12px; color: rgba(243, 231, 211, 0.55); }
+
+/* scenario persona on the desktop side panel: the scene emoji, big */
+.scene-big {
+  font-size: 120px;
+  line-height: 1;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
+  animation: breathe 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-big { animation: none; }
+}
+
+/* ---- the mission strip ---- */
+.mission {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+.mission.done {
+  background: rgba(52, 211, 153, 0.16);
+  border-color: rgba(52, 211, 153, 0.45);
+}
+.mission-icon { font-size: 15px; flex-shrink: 0; }
+.mission-text { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: #f3e7d3; line-height: 1.35; }
+.mission-next {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #7ce6b8;
+  white-space: nowrap;
+}
 
 /* ---- bubbles ---- */
 .bubbles {

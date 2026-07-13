@@ -17,6 +17,7 @@ const showShell = computed(() => auth.isLoggedIn && !FOCUS_ROUTES.includes(route
 const navItems = [
   { name: 'dashboard', to: '/dashboard', icon: '🧭', label: 'Learn' },
   { name: 'chat', to: '/chat', icon: '💬', label: 'Chat' },
+  { name: 'scenarios', to: '/scenarios', icon: '🎭', label: 'Situations' },
   { name: 'words', to: '/words', icon: '⭐', label: 'Words' },
   { name: 'profile', to: '/profile', icon: '🧖', label: 'Profile' }
 ]

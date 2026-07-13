@@ -48,13 +48,24 @@ class BillingController extends Controller
             'premium_until' => $user->premium_until,
             'has_subscription' => (bool) $user->stripe_subscription_id,
             'cancel_at_period_end' => $cancelAtPeriodEnd,
+            // Which billing intervals the upgrade page can offer.
+            'plans' => [
+                'monthly' => (bool) config('services.stripe.price_id'),
+                'yearly' => (bool) config('services.stripe.price_id_yearly'),
+            ],
         ]);
     }
 
     /** POST /api/billing/checkout - start a subscription purchase. */
     public function checkout(Request $request): JsonResponse
     {
-        $priceId = config('services.stripe.price_id');
+        $plan = $request->validate([
+            'plan' => ['sometimes', 'in:monthly,yearly'],
+        ])['plan'] ?? 'monthly';
+
+        $priceId = $plan === 'yearly'
+            ? config('services.stripe.price_id_yearly')
+            : config('services.stripe.price_id');
 
         if (! config('services.stripe.secret') || ! $priceId) {
             return response()->json(['message' => 'Billing is not configured.'], 503);

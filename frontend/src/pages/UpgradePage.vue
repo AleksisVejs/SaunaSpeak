@@ -3,7 +3,7 @@
 // the webhook flips the account to premium. Cancelling happens right here -
 // confirmed in-page, access runs until the paid period ends, reversible
 // until then via Resume.
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
@@ -22,26 +22,43 @@ const confirmingCancel = ref(false)
 const busyCancel = ref(false)
 
 const PERKS = [
-  { icon: '💬', title: 'Sauna Chat with Väinö', text: 'Unlimited free-form conversation practice - the fastest way to find your gaps.' },
+  { icon: '💬', title: 'Sauna Chat with Väinö', text: 'Free-form conversation that knows you: your name, your goal, and the words you keep forgetting.' },
+  { icon: '🎭', title: 'Situations', text: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish.' },
   { icon: '🧠', title: 'AI feedback on every attempt', text: 'Not just right/wrong: what went wrong and why, in plain English.' },
   { icon: '📈', title: 'Weekly insights', text: 'Your reviews, recall rate and momentum, week by week.' }
 ]
+
+// Billing intervals for the same Löyly+ tier. Display prices are set here;
+// the amounts Stripe actually charges live on the price objects behind
+// STRIPE_PRICE_ID / STRIPE_PRICE_ID_YEARLY - keep them in sync.
+const PLANS = [
+  { id: 'monthly', label: 'Monthly', price: '€4.99', per: '/ month', note: null },
+  { id: 'yearly', label: 'Yearly', price: '€39.99', per: '/ year', note: '2 months free' }
+]
+const plan = ref('monthly')
 
 onMounted(async () => {
   try {
     const [billingRes] = await Promise.all([api.get('/billing'), auth.fetchUser()])
     billing.value = billingRes.data
+    // Yearly is the better deal - preselect it when it's on offer.
+    if (billing.value.plans?.yearly) plan.value = 'yearly'
   } catch {
     error.value = 'Could not load subscription status.'
   }
 })
 
+// Only offer intervals the backend has a Stripe price for.
+const availablePlans = computed(() =>
+  PLANS.filter((p) => billing.value?.plans?.[p.id])
+)
+
 async function upgrade() {
   starting.value = true
   error.value = ''
   try {
-    const { data } = await api.post('/billing/checkout')
-    window.umami?.track('checkout_start')
+    const { data } = await api.post('/billing/checkout', { plan: plan.value })
+    window.umami?.track('checkout_start', { plan: plan.value })
     window.location.href = data.url
   } catch (e) {
     error.value = e?.response?.status === 429
@@ -182,10 +199,26 @@ async function managePortal() {
       </template>
 
       <div v-else class="buy">
-        <div class="price">
+        <!-- interval picker: shown when more than one Stripe price exists -->
+        <div v-if="availablePlans.length > 1" class="plan-row">
+          <button
+            v-for="p in availablePlans"
+            :key="p.id"
+            class="plan-card"
+            :class="{ selected: plan === p.id }"
+            @click="plan = p.id"
+          >
+            <span v-if="p.note" class="plan-note">{{ p.note }}</span>
+            <span class="plan-label">{{ p.label }}</span>
+            <span class="plan-price">{{ p.price }}<small>{{ p.per }}</small></span>
+          </button>
+        </div>
+
+        <div v-else class="price">
           <span class="price-amount">€4.99</span>
           <span class="price-per">/ month</span>
         </div>
+
         <button class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
           {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+' }}
         </button>
@@ -252,6 +285,41 @@ async function managePortal() {
 .active-plan { text-align: center; background: var(--green-soft); border-color: var(--green); }
 
 .buy { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.plan-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px 14px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.plan-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+.plan-label { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+.plan-card.selected .plan-label { color: var(--accent); }
+.plan-price { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.plan-price small { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-left: 2px; }
+.plan-note {
+  position: absolute;
+  top: -9px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--green);
+  border-radius: var(--radius-pill);
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+
 .price { display: flex; align-items: baseline; gap: 6px; }
 .price-amount { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
 .price-per { font-size: 15px; color: var(--text-dim); font-weight: 600; }
