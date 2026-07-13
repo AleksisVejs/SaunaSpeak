@@ -61,6 +61,16 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Use our branded verification mail. Deliberately NOT implementing the
+     * MustVerifyEmail interface: verification is encouraged, never blocking
+     * (a broken mail transport must not lock learners out of the app).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\VerifyEmail);
+    }
+
     public function progress(): HasMany
     {
         return $this->hasMany(UserProgress::class);

@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import api from './api'
 import { useAuthStore } from './stores/auth'
 import { useTheme } from './composables/useTheme'
 
@@ -8,6 +9,39 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const { theme, toggleTheme } = useTheme()
+
+// Email verification nudge: encouraged, never blocking. Hidden on the
+// full-bleed scenes (chat) where a banner would break the illusion.
+const resendState = ref('idle') // idle | sending | sent | error
+const needsVerification = computed(() =>
+  auth.user && !auth.user.email_verified_at && !route.meta.full
+)
+
+async function resendVerification() {
+  resendState.value = 'sending'
+  try {
+    await api.post('/email/resend')
+    resendState.value = 'sent'
+  } catch {
+    resendState.value = 'error'
+  }
+}
+
+// Landing back from the mail link (?verified=1): refresh the user so the
+// nudge disappears, and celebrate briefly.
+const justVerified = ref(false)
+watch(
+  () => route.query.verified,
+  (v) => {
+    if (v === '1') {
+      justVerified.value = true
+      auth.fetchUser()
+      router.replace({ query: {} })
+      setTimeout(() => (justVerified.value = false), 6000)
+    }
+  },
+  { immediate: true }
+)
 
 // Full-focus routes hide the shell chrome so learners aren't distracted.
 const FOCUS_ROUTES = ['session', 'onboarding', 'try', 'words-review', 'checkpoint']
@@ -63,6 +97,16 @@ async function logout() {
     </aside>
 
     <main class="content" :class="{ 'content--wide': route.meta.wide }">
+      <div v-if="justVerified" class="verify-banner verified">
+        ✅ Email confirmed - kiitos!
+      </div>
+      <div v-else-if="showShell && needsVerification" class="verify-banner">
+        <span class="vb-text">📧 Confirm your email - we sent a link to <b>{{ auth.user.email }}</b></span>
+        <button class="vb-btn" :disabled="resendState === 'sending' || resendState === 'sent'" @click="resendVerification">
+          {{ resendState === 'sent' ? 'Sent!' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend' }}
+        </button>
+      </div>
+
       <router-view v-slot="{ Component }">
         <component :is="Component" />
       </router-view>
@@ -92,6 +136,35 @@ async function logout() {
 .app-shell {
   min-height: 100vh;
 }
+
+.verify-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  background: var(--accent-soft);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.verify-banner.verified { background: var(--green-soft); border-color: var(--green); font-weight: 700; }
+.vb-text { min-width: 0; overflow-wrap: anywhere; }
+.vb-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.vb-btn:disabled { opacity: 0.7; cursor: default; }
 
 .content {
   width: 100%;

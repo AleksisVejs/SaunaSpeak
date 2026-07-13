@@ -8,6 +8,7 @@ use App\Models\Sentence;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -23,7 +24,56 @@ class AuthController extends Controller
         $user = User::create($data);
         $token = $user->createToken('saunaspeak')->plainTextToken;
 
+        // Fire-and-forget: a broken mail transport must never break signup.
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::warning('Verification mail failed on register', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+        }
+
         return response()->json(['user' => $user, 'token' => $token], 201);
+    }
+
+    /**
+     * GET /api/email/verify/{id}/{hash} - the link from the verification
+     * mail. Protected by the 'signed' middleware (tamper-proof, 60-min
+     * expiry); lands in the app with a confirmation flag.
+     */
+    public function verifyEmail(Request $request, int $id, string $hash)
+    {
+        $user = User::findOrFail($id);
+
+        if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+            abort(403, 'Invalid verification link.');
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        $appUrl = rtrim(config('services.stripe.frontend_url') ?: config('app.url'), '/');
+
+        return redirect()->away($appUrl.'/dashboard?verified=1');
+    }
+
+    /** POST /api/email/resend - re-send the verification mail. */
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Already verified.', 'verified' => true]);
+        }
+
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::warning('Verification mail failed on resend', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+
+            return response()->json(['message' => 'Could not send the email right now. Try again later.'], 503);
+        }
+
+        return response()->json(['message' => 'Verification email sent.', 'verified' => false]);
     }
 
     public function login(Request $request): JsonResponse

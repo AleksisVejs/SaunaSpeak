@@ -1,3 +1,14 @@
+<IfModule mod_headers.c>
+    # Baseline browser hardening. HSTS is 180 days (no preload) so a cert
+    # mishap can't lock the domain out for long. Mic stays allowed same-origin
+    # - the chat's speech input needs it; everything else is off.
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(self), geolocation=(), payment=()"
+    Header always set Strict-Transport-Security "max-age=15552000" env=HTTPS
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

@@ -19,16 +19,28 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// The link inside the verification mail. 'signed' rejects any tampering with
+// id/hash/expiry; the throttle just caps drive-by probing on top of that.
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+    ->middleware(['signed', 'throttle:10,1'])
+    ->name('verification.verify');
+
 // Stripe calls this, not browsers; signature check happens in the controller.
 // Kept loose: Stripe redelivers bursts after an outage and a 429 there just
 // means retries pile up. The signature check is what actually guards this.
 Route::post('/billing/webhook', [BillingController::class, 'webhook'])->middleware('throttle:300,1');
 
 // Authenticated
+//
+// Route-level throttles below carry a third parameter (a key prefix).
+// Without it they'd share their hit counter with this group's throttle:120,1
+// - every request would count against both limits at once, silently halving
+// the route-specific ones.
 Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/preferences', [AuthController::class, 'updatePreferences']);
+    Route::post('/email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:3,1,resend');
 
     Route::get('/lessons', [LessonController::class, 'index']);
     Route::get('/lessons/{lesson}', [LessonController::class, 'show']);
@@ -49,14 +61,14 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/billing', [BillingController::class, 'status']);
     // Embedded checkout creates a session on every open/reopen of the form,
     // so this needs headroom; sessions are free on Stripe's side. Per-user.
-    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:20,1');
-    Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:10,1');
-    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->middleware('throttle:15,1');
-    Route::post('/billing/resume', [BillingController::class, 'resume'])->middleware('throttle:15,1');
+    Route::post('/billing/checkout', [BillingController::class, 'checkout'])->middleware('throttle:20,1,checkout');
+    Route::post('/billing/portal', [BillingController::class, 'portal'])->middleware('throttle:10,1,portal');
+    Route::post('/billing/cancel', [BillingController::class, 'cancel'])->middleware('throttle:15,1,subchange');
+    Route::post('/billing/resume', [BillingController::class, 'resume'])->middleware('throttle:15,1,subchange');
 
     // AI corrections: free tier gets the mock inside the controller;
     // throttled tighter since premium requests cost real money.
-    Route::post('/ai/correct', [AiController::class, 'correct'])->middleware('throttle:30,1');
+    Route::post('/ai/correct', [AiController::class, 'correct'])->middleware('throttle:30,1,correct');
 
     // The Tilanteet catalog is browsable by everyone (free users see the
     // cards + paywall); actually chatting goes through the premium /chat.
@@ -71,8 +83,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
 
     // Löyly+ features.
     Route::middleware('premium')->group(function () {
-        Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1');
-        Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1');
+        Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1,chat');
+        Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1,tts');
         Route::get('/insights/week', [InsightsController::class, 'week']);
     });
 });
