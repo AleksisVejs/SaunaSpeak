@@ -8,7 +8,7 @@ Two parts: the Laravel API (`backend/`) and the built Vue SPA (`frontend/dist/`)
 APP_ENV=production
 APP_DEBUG=false                  # NEVER true in production - leaks stack traces
 APP_KEY=                         # php artisan key:generate
-APP_URL=https://yourdomain.com   # used for Stripe redirect URLs
+APP_URL=https://saunaspeak.com   # used for Stripe redirect URLs
 
 DB_CONNECTION=mysql
 DB_DATABASE=...                  # from your host's MySQL panel
@@ -37,7 +37,7 @@ GEMINI_API_KEY=AIzaSy...         # free tier: aistudio.google.com/apikey
    (e.g. €4.99). Copy the `price_...` id → `STRIPE_PRICE_ID`.
 2. Developers → API keys → copy the secret key → `STRIPE_SECRET`.
 3. Developers → Webhooks → Add endpoint:
-   - URL: `https://yourdomain.com/api/billing/webhook`
+   - URL: `https://saunaspeak.com/api/billing/webhook`
    - Events: `checkout.session.completed`, `customer.subscription.updated`,
      `customer.subscription.deleted`
    - Copy the signing secret → `STRIPE_WEBHOOK_SECRET`.

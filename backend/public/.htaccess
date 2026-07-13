@@ -5,6 +5,11 @@
 
     RewriteEngine On
 
+    # Legacy domain: the app moved to saunaspeak.com (2026-07). Old PWA
+    # installs and shared links still point here - keep this permanently.
+    RewriteCond %{HTTP_HOST} ^saunaspeak\.fraksis\.com$ [NC]
+    RewriteRule ^(.*)$ https://saunaspeak.com/$1 [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
