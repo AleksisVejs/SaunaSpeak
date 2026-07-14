@@ -1,14 +1,17 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import GoogleAuthButton from '../components/GoogleAuthButton.vue'
 
+const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 
 const email = ref('')
 const password = ref('')
-const error = ref('')
+// The Google callback bounces failures back here with ?oauth=failed.
+const error = ref(route.query.oauth === 'failed' ? 'Google sign-in didn\'t complete. Try again, or log in with your email.' : '')
 const loading = ref(false)
 
 async function submit() {
@@ -55,6 +58,7 @@ async function submit() {
       <button class="btn btn-primary btn-block" type="submit" :disabled="loading">
         {{ loading ? 'Logging in…' : 'Log in' }}
       </button>
+      <GoogleAuthButton />
     </form>
 
     <p class="muted switch">

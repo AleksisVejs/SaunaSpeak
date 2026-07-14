@@ -13,9 +13,16 @@ const routes = [
   { path: '/', name: 'home', component: () => import('../pages/LandingPage.vue'), meta: { full: true, title: 'SaunaSpeak - Learn Spoken Finnish (Puhekieli), the Finnish Finns Actually Speak', description: DEFAULT_DESCRIPTION } },
   { path: '/login', name: 'login', component: () => import('../pages/LoginPage.vue'), meta: { guest: true, title: 'Log in - SaunaSpeak', description: 'Log in to SaunaSpeak and continue your spoken-Finnish streak.' } },
   { path: '/register', name: 'register', component: () => import('../pages/RegisterPage.vue'), meta: { guest: true, title: 'Create a free account - SaunaSpeak', description: 'Create a free SaunaSpeak account: daily 5-minute spoken-Finnish sessions with audio and spaced repetition, free forever.' } },
+  // OAuth landing: no guest/auth meta - it flips from logged-out to logged-in
+  // mid-visit and must not be bounced by either guard while doing so.
+  { path: '/auth/google', name: 'auth-google', component: () => import('../pages/AuthGooglePage.vue'), meta: { title: 'Signing in - SaunaSpeak' } },
   { path: '/forgot-password', name: 'forgot-password', component: () => import('../pages/ForgotPasswordPage.vue'), meta: { guest: true, title: 'Reset your password - SaunaSpeak', description: 'Request a password-reset link for your SaunaSpeak account.' } },
   { path: '/reset-password', name: 'reset-password', component: () => import('../pages/ResetPasswordPage.vue'), meta: { guest: true, title: 'Choose a new password - SaunaSpeak', description: 'Choose a new password for your SaunaSpeak account.' } },
   { path: '/try', name: 'try', component: () => import('../pages/TryPage.vue'), meta: { title: 'Try spoken Finnish - no account needed - SaunaSpeak', description: 'Hear and learn six real spoken-Finnish sentences right now - no account, no signup. This is the Finnish Finns actually speak.' } },
+  { path: '/lessons', name: 'lessons-index', component: () => import('../pages/LessonsIndexPage.vue'), meta: { title: 'Spoken Finnish lessons, free to read - SaunaSpeak', description: 'Browse every SaunaSpeak lesson: real spoken Finnish (puhekieli) with the written form, word-by-word explanations and audio - A0 to B1, free to read.' } },
+  // Title/description are placeholders here - the page overwrites them with
+  // the fetched lesson's own SEO text (see usePageHead).
+  { path: '/lessons/:slug', name: 'lesson-preview', component: () => import('../pages/LessonPreviewPage.vue'), meta: { title: 'Spoken Finnish lesson - SaunaSpeak', description: DEFAULT_DESCRIPTION } },
   { path: '/pricing', name: 'pricing', component: () => import('../pages/PricingPage.vue'), meta: { title: 'Pricing - the learning path is free forever - SaunaSpeak', description: 'SaunaSpeak pricing: the full spoken-Finnish learning path is free forever. Löyly+ (€4.99/month) adds AI conversation practice and real-life roleplay.' } },
   { path: '/privacy', name: 'privacy', component: () => import('../pages/PrivacyPage.vue'), meta: { title: 'Privacy policy - SaunaSpeak', description: 'What SaunaSpeak stores, why, and your rights over your data.' } },
   { path: '/terms', name: 'terms', component: () => import('../pages/TermsPage.vue'), meta: { title: 'Terms of service - SaunaSpeak', description: 'The terms for using SaunaSpeak, the spoken-Finnish learning app.' } },

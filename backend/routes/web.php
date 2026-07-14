@@ -1,6 +1,12 @@
 <?php
 
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
+
+// DB-generated sitemap (includes every /lessons/{slug} page). Registered
+// before the SPA catch-all; a stale static sitemap.xml in public/ would
+// shadow this route, so the deploy must not ship one.
+Route::get('/sitemap.xml', SitemapController::class);
 
 /*
  * Production serves the built Vue SPA from public/ (frontend/dist is copied

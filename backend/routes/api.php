@@ -9,6 +9,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\PublicLessonController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
@@ -23,6 +24,18 @@ Route::middleware('throttle:10,1')->group(function () {
 
 // Reset mails are costlier than logins (SMTP send per hit) - throttle harder.
 Route::post('/password/forgot', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+
+// "Continue with Google" - browser round-trips through Google, lands back on
+// the callback, which redirects into the SPA with a token in the fragment.
+Route::get('/auth/google/redirect', [AuthController::class, 'googleRedirect'])->middleware('throttle:10,1,oauth');
+Route::get('/auth/google/callback', [AuthController::class, 'googleCallback'])->middleware('throttle:10,1,oauth');
+
+// Public lesson previews - the /lessons SEO pages read these without auth.
+// Generous throttle: crawlers and logged-out browsers share per-IP buckets.
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/public/lessons', [PublicLessonController::class, 'index']);
+    Route::get('/public/lessons/{slug}', [PublicLessonController::class, 'show']);
+});
 
 // The link inside the verification mail. 'signed' rejects any tampering with
 // id/hash/expiry; the throttle just caps drive-by probing on top of that.

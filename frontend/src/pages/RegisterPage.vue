@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import GoogleAuthButton from '../components/GoogleAuthButton.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -61,6 +62,7 @@ async function submit() {
       <button class="btn btn-primary btn-block" type="submit" :disabled="loading">
         {{ loading ? 'Creating account…' : 'Create account' }}
       </button>
+      <GoogleAuthButton />
       <p class="muted consent">
         By creating an account you agree to the
         <router-link to="/terms">terms</router-link> and

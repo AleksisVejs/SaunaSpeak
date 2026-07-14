@@ -222,6 +222,7 @@ onBeforeUnmount(() => faqLd?.remove())
     <footer class="site-footer">
       <nav class="foot-links">
         <router-link to="/try">Try it</router-link>
+        <router-link to="/lessons">Lessons</router-link>
         <router-link to="/pricing">Pricing</router-link>
         <router-link to="/privacy">Privacy</router-link>
         <router-link to="/terms">Terms</router-link>

@@ -73,6 +73,14 @@ return [
         'google_pitch' => env('GOOGLE_TTS_PITCH', -5.0),
     ],
 
+    // Google OAuth ("Continue with Google" on login/register). All three env
+    // vars set → the buttons appear; unset → email/password only.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

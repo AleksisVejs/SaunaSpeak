@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -194,6 +196,96 @@ class AuthController extends Controller
                 'interval_days' => $due,
                 'next_review_at' => now()->addDays($due),
             ]);
+        }
+    }
+
+    /**
+     * GET /api/auth/google/redirect - start the "Continue with Google" flow.
+     * Stateless (the API has no session), so the browser timezone rides
+     * along in the OAuth state param and comes back in the callback.
+     */
+    public function googleRedirect(Request $request)
+    {
+        abort_unless(config('services.google.client_id'), 404);
+
+        $state = base64_encode(json_encode([
+            'tz' => (string) $request->query('tz', ''),
+        ]));
+
+        return Socialite::driver('google')
+            ->stateless()
+            ->with(['state' => $state])
+            ->redirect();
+    }
+
+    /**
+     * GET /api/auth/google/callback - Google sends the browser here. Ends in
+     * a redirect to the SPA with the Sanctum token in the URL *fragment*
+     * (never sent to servers, never logged) - /auth/google picks it up.
+     */
+    public function googleCallback(Request $request)
+    {
+        abort_unless(config('services.google.client_id'), 404);
+
+        $appUrl = rtrim(config('services.stripe.frontend_url') ?: config('app.url'), '/');
+
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        } catch (\Throwable $e) {
+            Log::warning('Google OAuth callback failed', ['error' => $e->getMessage()]);
+
+            return redirect()->away($appUrl.'/login?oauth=failed');
+        }
+
+        $user = User::where('google_id', $googleUser->getId())->first();
+        $isNew = false;
+
+        if (! $user) {
+            // Same email already registered with a password: link the Google
+            // account to it. Safe because Google only hands out verified
+            // emails - the visitor has proven they own the mailbox.
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                $user->update(['google_id' => $googleUser->getId()]);
+            } else {
+                $isNew = true;
+                $user = User::create([
+                    'name' => $googleUser->getName() ?: 'Learner',
+                    'email' => $googleUser->getEmail(),
+                    // Unusable-but-valid password: login stays possible via
+                    // Google or a password reset, never via a blank field.
+                    'password' => Str::random(40),
+                    'google_id' => $googleUser->getId(),
+                ]);
+            }
+
+            // Either way the mailbox is Google-verified - no verification
+            // mail needed.
+            if (! $user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+            }
+        }
+
+        $this->applyTimezoneFromState($user, $request->query('state'));
+        $user->syncStreak();
+        $token = $user->createToken('saunaspeak')->plainTextToken;
+
+        return redirect()->away($appUrl.'/auth/google#token='.$token.'&new='.($isNew ? 1 : 0));
+    }
+
+    /** The browser timezone smuggled through the OAuth state param. */
+    private function applyTimezoneFromState(User $user, ?string $state): void
+    {
+        try {
+            $tz = json_decode(base64_decode($state ?? '', true) ?: '', true)['tz'] ?? '';
+            new \DateTimeZone($tz); // throws on junk
+        } catch (\Throwable) {
+            return;
+        }
+
+        if ($tz && $tz !== $user->timezone) {
+            $user->update(['timezone' => $tz]);
         }
     }
 
