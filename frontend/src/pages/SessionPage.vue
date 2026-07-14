@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/auth'
 import SentenceCard from '../components/SentenceCard.vue'
 import PracticeInput from '../components/PracticeInput.vue'
 import { cardKind, clozeWord } from '../utils/practice'
+import { rankFor } from '../utils/ranks'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const session = useSessionStore()
@@ -60,12 +61,53 @@ async function grade(g) {
   error.value = ''
   try {
     await session.completeCurrent(g)
-    if (session.finished) await auth.fetchUser()
+    if (session.finished) {
+      await auth.fetchUser()
+      startCelebration()
+    }
   } catch {
-    error.value = 'Something went wrong saving your progress. Try again.'
+    if (session.finished) {
+      // Session saved but the user refetch failed - show final numbers unanimated.
+      shownXp.value = totalXp.value
+      rankPct.value = rank.value.pct
+    } else {
+      error.value = 'Something went wrong saving your progress. Try again.'
+    }
   } finally {
     submitting.value = false
   }
+}
+
+// --- end-of-session celebration: count the XP up, sweep the rank bar ---
+const totalXp = computed(() => session.xpEarned + session.bonusXp)
+const shownXp = ref(0)
+const rankPct = ref(0)
+
+const rank = computed(() => rankFor(auth.user?.xp ?? 0))
+// Where the learner stood before this session's XP landed.
+const prevRank = computed(() => rankFor(Math.max(0, (auth.user?.xp ?? 0) - totalXp.value)))
+const rankedUp = computed(() => rank.value.index > prevRank.value.index)
+
+// A freeze lands on every completed streak week (see SessionController).
+const freezeEarned = computed(() => {
+  const u = auth.user
+  return session.bonusXp > 0 && u?.streak > 0 && u.streak % 7 === 0 && u.streak_freezes > 0
+})
+
+function startCelebration() {
+  const total = totalXp.value
+  const start = performance.now()
+  const step = (t) => {
+    const p = Math.min(1, (t - start) / 900)
+    shownXp.value = Math.round(total * (1 - (1 - p) ** 3))
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+
+  // Sweep the bar from the pre-session position (from 0 after a rank-up,
+  // so the fill visibly enters the new rank) once it has rendered.
+  rankPct.value = rankedUp.value ? 0 : prevRank.value.pct
+  setTimeout(() => (rankPct.value = rank.value.pct), 400)
 }
 
 // End-of-session consolidation: everything studied today, once more with audio.
@@ -102,9 +144,21 @@ function confettiStyle(i) {
     <div class="xp-summary">
       <div class="xp-line"><span>Sentences</span><b>+{{ session.xpEarned }} XP</b></div>
       <div class="xp-line"><span>Daily bonus</span><b>+{{ session.bonusXp }} XP</b></div>
-      <div class="xp-line total"><span>Total</span><b>+{{ session.xpEarned + session.bonusXp }} XP</b></div>
+      <div class="xp-line total"><span>Total</span><b>+{{ shownXp }} XP</b></div>
     </div>
+
+    <div class="rank-progress">
+      <p v-if="rankedUp" class="rankup">🎉 Rank up: {{ rank.icon }} <b>{{ rank.title }}</b></p>
+      <p v-else class="rank-line">
+        <span>{{ rank.icon }} {{ rank.title }}</span>
+        <span v-if="rank.next" class="muted rank-to-next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</span>
+      </p>
+      <div class="progress-track"><div class="progress-fill rank-sweep" :style="{ width: rankPct + '%' }"></div></div>
+    </div>
+
     <div class="streak-note">🔥 {{ auth.user?.streak }} day streak</div>
+    <p v-if="freezeEarned" class="freeze-note">❄️ Week complete — you earned a streak freeze! It auto-saves one missed day.</p>
+    <p v-else-if="auth.user?.streak_freezes" class="freeze-note muted">❄️ {{ auth.user.streak_freezes }} freeze{{ auth.user.streak_freezes > 1 ? 's' : '' }} banked — each auto-saves one missed day</p>
 
     <div v-if="studied.length" class="recap">
       <p class="recap-title">📚 Quick recap - say each one out loud one more time</p>
@@ -210,6 +264,18 @@ function confettiStyle(i) {
 .xp-line { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-dim); }
 .xp-line b { color: var(--accent); }
 .xp-line.total { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 10px; color: var(--text); }
+.rank-progress { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.rank-line { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 14px; }
+.rank-to-next { font-size: 12px; font-weight: 500; }
+.rankup {
+  font-weight: 800;
+  font-size: 16px;
+  text-align: center;
+  animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.rank-sweep { transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
+.freeze-note { font-size: 13px; font-weight: 600; }
+
 .streak-note { font-weight: 700; color: var(--accent-2); animation: flame-pulse 1.6s ease-in-out infinite; }
 @keyframes flame-pulse {
   0%, 100% { transform: scale(1); }

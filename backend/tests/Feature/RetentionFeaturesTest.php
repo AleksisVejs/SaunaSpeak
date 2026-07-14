@@ -75,6 +75,64 @@ class RetentionFeaturesTest extends TestCase
         $this->assertSame(1, $this->user->streak_freezes);
     }
 
+    public function test_breaking_a_streak_records_it_for_repair(): void
+    {
+        $this->user->update(['streak' => 12, 'streak_freezes' => 0, 'last_active_date' => today()->subDays(3)]);
+
+        $this->user->syncStreak();
+        $this->user->refresh();
+
+        $this->assertSame(0, $this->user->streak);
+        $this->assertSame(12, $this->user->broken_streak);
+        $this->assertTrue($this->user->streak_repairable);
+    }
+
+    public function test_repair_restores_the_streak_costs_xp_and_reconnects_the_chain(): void
+    {
+        $this->user->update(['xp' => 500, 'streak' => 12, 'streak_freezes' => 0, 'last_active_date' => today()->subDays(3)]);
+        $this->user->syncStreak();
+
+        $this->postJson('/api/streak/repair')->assertOk();
+        $this->user->refresh();
+
+        $this->assertSame(12, $this->user->streak);
+        $this->assertSame(300, $this->user->xp);
+        $this->assertSame(0, $this->user->broken_streak);
+        $this->assertFalse($this->user->streak_repairable);
+
+        // The bumped last_active_date lets today's session continue the streak.
+        $this->postJson('/api/session/complete')->assertOk();
+        $this->assertSame(13, $this->user->fresh()->streak);
+    }
+
+    public function test_repair_stacks_on_days_already_practiced_since_the_break(): void
+    {
+        $this->user->update(['xp' => 200, 'streak' => 12, 'streak_freezes' => 0, 'last_active_date' => today()->subDays(3)]);
+        $this->user->syncStreak();
+
+        // Came back and did a session first (streak restarts at 1), then repaired.
+        $this->postJson('/api/session/complete')->assertOk();
+        $this->postJson('/api/streak/repair')->assertOk();
+
+        $this->assertSame(13, $this->user->fresh()->streak);
+    }
+
+    public function test_repair_requires_xp_and_a_recent_break(): void
+    {
+        $this->user->update(['xp' => 100, 'streak' => 12, 'streak_freezes' => 0, 'last_active_date' => today()->subDays(3)]);
+        $this->user->syncStreak();
+
+        // Too poor.
+        $this->postJson('/api/streak/repair')->assertStatus(422);
+
+        // Rich, but the break is too old.
+        $this->user->update(['xp' => 500, 'streak_broken_date' => today()->subDays(4)]);
+        $this->postJson('/api/streak/repair')->assertStatus(422);
+
+        $this->assertSame(0, $this->user->fresh()->streak);
+        $this->assertSame(500, $this->user->fresh()->xp);
+    }
+
     public function test_lapses_shrink_ease_and_shorten_the_next_long_interval(): void
     {
         // Three lapses from review status pull ease down from 2.5.

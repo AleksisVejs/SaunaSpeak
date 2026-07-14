@@ -19,6 +19,9 @@ class SessionController extends Controller
     private const XP_AGAIN = 2;
     private const XP_SESSION_BONUS = 50;
 
+    /** Mirrored in the frontend (DashboardPage REPAIR_COST). */
+    private const STREAK_REPAIR_COST = 200;
+
     /**
      * GET /api/today-session?size=N
      * Due reviews (oldest first) interleaved among brand-new sentences.
@@ -227,5 +230,43 @@ class SessionController extends Controller
             'streak' => $user->fresh()->streak,
             'user' => $user->fresh(),
         ]);
+    }
+
+    /**
+     * POST /api/streak/repair
+     * Relight a recently broken streak for XP. Days practiced since the break
+     * stack on top of the restored count, so repairing never loses progress.
+     */
+    public function repairStreak(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user->streak_repairable) {
+            return response()->json(['message' => 'No streak to repair.'], 422);
+        }
+
+        if ($user->xp < self::STREAK_REPAIR_COST) {
+            return response()->json(['message' => 'Not enough XP - you need '.self::STREAK_REPAIR_COST.'.'], 422);
+        }
+
+        $today = $user->localToday();
+
+        $updates = [
+            'xp' => $user->xp - self::STREAK_REPAIR_COST,
+            'streak' => $user->broken_streak + $user->streak,
+            'broken_streak' => 0,
+            'streak_broken_date' => null,
+        ];
+
+        // Not practiced since the break: reconnect the chain so today's
+        // session continues the restored streak instead of restarting at 1.
+        if ($user->last_active_date === null
+            || $user->last_active_date->format('Y-m-d') < $today->copy()->subDay()->format('Y-m-d')) {
+            $updates['last_active_date'] = $today->copy()->subDay();
+        }
+
+        $user->update($updates);
+
+        return response()->json(['user' => $user->fresh()]);
     }
 }

@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/today-session', [SessionController::class, 'today']);
     Route::post('/progress/complete', [SessionController::class, 'completeSentence']);
     Route::post('/session/complete', [SessionController::class, 'completeSession']);
+    Route::post('/streak/repair', [SessionController::class, 'repairStreak'])->middleware('throttle:10,1,repair');
 
     Route::get('/checkpoint/{level}', [CheckpointController::class, 'show']);
     Route::post('/checkpoint/{level}', [CheckpointController::class, 'complete']);

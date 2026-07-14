@@ -109,12 +109,20 @@ async function check() {
   } else {
     // Right words, wrong accents (ä/ö) - worth calling out kindly.
     const accentsOnly = stripDiacritics(attempt.value) === stripDiacritics(props.expected)
+    // Accent slip plus a tiny typo in one attempt ("Mita kuulu?" for "Mitä
+    // kuuluu?"): still recognisably the target sentence, so explain it
+    // locally instead of spending an AI call.
+    const nearMiss =
+      !accentsOnly &&
+      typoDistance(stripDiacritics(attempt.value), stripDiacritics(props.expected)) !== null
     let corrected = props.expected
     let explanation = accentsOnly
       ? 'So close - same words, just the dots on ä/ö. They change the sound (and meaning), so they matter!'
-      : 'Compare your version with the expected sentence.'
+      : nearMiss
+        ? 'So close! Watch the ä/ö dots and double letters - the marked words show exactly where.'
+        : 'Compare your version with the expected sentence.'
 
-    if (!accentsOnly) {
+    if (!accentsOnly && !nearMiss) {
       try {
         const { data } = await api.post('/ai/correct', {
           user_sentence: attempt.value,
@@ -133,7 +141,8 @@ async function check() {
       corrected,
       explanation,
       tokens: diffTokens(corrected, attempt.value),
-      accentsOnly
+      // Near-misses share the kinder blue "almost" styling with accent slips.
+      accentsOnly: accentsOnly || nearMiss
     }
   }
 

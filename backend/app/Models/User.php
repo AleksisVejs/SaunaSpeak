@@ -25,6 +25,8 @@ class User extends Authenticatable
         'xp',
         'streak',
         'streak_freezes',
+        'broken_streak',
+        'streak_broken_date',
         'last_active_date',
         'checkpoints',
         'preferences',
@@ -47,6 +49,9 @@ class User extends Authenticatable
         'google_id',
     ];
 
+    /** The dashboard's repair offer keys off this. */
+    protected $appends = ['streak_repairable'];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -58,6 +63,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_active_date' => 'date:Y-m-d',
+            'streak_broken_date' => 'date:Y-m-d',
             'checkpoints' => 'array',
             'preferences' => 'array',
             'premium_until' => 'datetime',
@@ -156,6 +162,22 @@ class User extends Authenticatable
             return;
         }
 
-        $this->update(['streak' => 0]);
+        // Remember what broke so it can be relit for XP - but only a streak
+        // worth mourning; nobody pays 200 XP to restore a single day.
+        $this->update($this->streak >= 2
+            ? ['streak' => 0, 'broken_streak' => $this->streak, 'streak_broken_date' => $today]
+            : ['streak' => 0]);
+    }
+
+    /**
+     * A cold streak can be relit (for XP) within 3 days of breaking - long
+     * enough to come back from a weekend away, short enough that the repair
+     * is a comeback, not an archaeology dig.
+     */
+    public function getStreakRepairableAttribute(): bool
+    {
+        return $this->broken_streak > 0
+            && $this->streak_broken_date !== null
+            && $this->streak_broken_date->format('Y-m-d') >= $this->localToday()->copy()->subDays(3)->format('Y-m-d');
     }
 }

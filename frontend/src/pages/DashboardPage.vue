@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/auth'
 import { usePwaInstall } from '../composables/usePwaInstall'
 import { usePrefs } from '../composables/usePrefs'
 import LessonPath from '../components/LessonPath.vue'
+import { rankFor } from '../utils/ranks'
 import api from '../api'
 
 const auth = useAuthStore()
@@ -22,26 +23,32 @@ onMounted(async () => {
   }
 })
 
-// Sauna ranks - löyly levels earned with XP.
-const RANKS = [
-  { xp: 0, title: 'Kylmä Kiuas', icon: '🪨' },
-  { xp: 150, title: 'Ensilöyly', icon: '💧' },
-  { xp: 400, title: 'Löylynheittäjä', icon: '♨️' },
-  { xp: 800, title: 'Lauteiden Vakio', icon: '🧖' },
-  { xp: 1400, title: 'Löylymestari', icon: '🔥' },
-  { xp: 2200, title: 'Saunalegenda', icon: '👑' }
-]
+const rank = computed(() => rankFor(auth.user?.xp ?? 0))
 
-const rank = computed(() => {
-  const xp = auth.user?.xp ?? 0
-  let idx = 0
-  RANKS.forEach((r, i) => {
-    if (xp >= r.xp) idx = i
-  })
-  const current = RANKS[idx]
-  const next = RANKS[idx + 1] ?? null
-  const pct = next ? Math.round(((xp - current.xp) / (next.xp - current.xp)) * 100) : 100
-  return { ...current, next, pct }
+// Streak repair: relight a recently broken streak for XP.
+// Mirrors SessionController::STREAK_REPAIR_COST.
+const REPAIR_COST = 200
+const repairing = ref(false)
+const repairError = ref('')
+
+async function repairStreak() {
+  if (repairing.value) return
+  repairing.value = true
+  repairError.value = ''
+  try {
+    const { data } = await api.post('/streak/repair')
+    auth.user = data.user
+  } catch (e) {
+    repairError.value = e.response?.data?.message ?? 'Repair failed. Try again.'
+  } finally {
+    repairing.value = false
+  }
+}
+
+const streakTitle = computed(() => {
+  const base = "Streak — days in a row you've practiced"
+  const n = auth.user?.streak_freezes ?? 0
+  return n ? `${base} · ${n} freeze${n > 1 ? 's' : ''} banked (a freeze auto-saves one missed day)` : base
 })
 
 const dueCount = computed(() => auth.stats?.due_count ?? 0)
@@ -79,12 +86,29 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
             <span class="chip-icon">⚡</span>{{ auth.user?.xp ?? 0 }}
             <span class="chip-label">XP</span>
           </span>
-          <span class="chip" title="Streak — days in a row you've practiced" aria-label="Day streak">
+          <span class="chip" :title="streakTitle" aria-label="Day streak">
             <span class="chip-icon">🔥</span>{{ auth.user?.streak ?? 0 }}
             <span class="chip-label">day streak</span>
+            <span v-if="auth.user?.streak_freezes" class="chip-freeze">❄️{{ auth.user.streak_freezes }}</span>
           </span>
         </div>
       </header>
+
+      <!-- a recently broken streak can be relit for XP -->
+      <div v-if="auth.user?.streak_repairable" class="card repair-card">
+        <div class="repair-info">
+          <p class="repair-title">🥶 Your {{ auth.user.broken_streak }}-day streak went cold</p>
+          <p class="repair-sub muted">Relight it within 3 days and the chain continues like you never missed.</p>
+          <p v-if="repairError" class="repair-error">{{ repairError }}</p>
+        </div>
+        <button
+          class="btn btn-primary repair-btn"
+          :disabled="repairing || (auth.user?.xp ?? 0) < REPAIR_COST"
+          @click="repairStreak"
+        >
+          {{ (auth.user?.xp ?? 0) < REPAIR_COST ? `Need ${REPAIR_COST} XP` : `🔥 Relight — ${REPAIR_COST} XP` }}
+        </button>
+      </div>
 
       <!-- rank progress -->
       <div class="card rank-card">
@@ -184,6 +208,28 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
   letter-spacing: 0.05em;
   margin-left: 1px;
 }
+.chip-freeze {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding-left: 7px;
+  margin-left: 3px;
+  border-left: 1px solid var(--border);
+}
+
+.repair-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  border-color: var(--accent-2);
+}
+.repair-title { font-weight: 800; font-size: 15px; }
+.repair-sub { font-size: 13px; margin-top: 2px; }
+.repair-error { font-size: 13px; color: var(--red); margin-top: 4px; }
+.repair-btn { flex-shrink: 0; white-space: nowrap; }
 
 .rank-card { margin-bottom: 16px; }
 .rank-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
