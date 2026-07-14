@@ -1,6 +1,6 @@
 # Marketing Assets — Reddit launch post + video scripts + tools
 
-Companion to [marketing-plan.md](marketing-plan.md).
+Companion to [marketing-plan.md](marketing-plan.md). On-camera shooting scripts for the native-speaker clips live in [filming-scripts.md](filming-scripts.md).
 
 ---
 
@@ -123,3 +123,81 @@ Suggested workflow per clip (~20 min once practiced):
 
 Skip for now: HeyGen (watermark on free), InVideo free (watermark), anything
 avatar-based — Väinö IS the avatar and the art is already made.
+
+---
+
+## 4. Batch 2: ten more scripts (mined from the expansion lessons)
+
+Same HOOK → CONTRAST → PUNCH format. All sentences are verbatim from the lesson DB,
+so the TTS audio already exists.
+
+11. **The maybe ladder** *(from "Maybe, Probably, I Guess")*
+    - Hook: "Finns never just say 'maybe'"
+    - Show: ladder of commitment with audio — *ehkä* → *kai* → *varmaan* → *tais* → "Nii kai sit." (each with EN caption)
+    - Punch: "Fluency isn't vocabulary. It's hedging."
+
+12. **Grandma is "it"**
+    - Hook: "In spoken Finnish, your grandma is 'it'"
+    - Show: "Mun mummo soittaa mulle joka päivä." → "**Se** on ihana." — *hän* ❌ *se* ✅
+    - Punch: "Not rude. Just Finnish. Textbooks refuse to tell you."
+
+13. **Number nicknames**
+    - Hook: "Finns have nicknames for numbers"
+    - Show: seitsemän→**seiska**, kahdeksan→**kasi**, yhdeksän→**ysi**; then "Mä herään seiskalta."
+    - Punch: "You learned the legal name. Finns use the nickname."
+
+14. **Sticker shock**
+    - Hook: "The first Finnish phrase you'll actually need"
+    - Show: receipt/price reveal → "**Sata euroo?! Ei oo totta.**" (audio, dramatic zoom)
+    - Punch: "Helsinki prices. At least complain like a local."
+
+15. **One-word questions**
+    - Hook: "Finns squeeze entire questions into one word"
+    - Show: rapid melt — "Puhutko sinä?"→**Puhuksä?**, "Tuletko sinä?"→**Tuuksä?**, "Haluatko sinä?"→**Haluutsä?**, "Lähdetkö sinä?"→**Lähetsä?**
+    - Punch: "Four words in. One word out. Learn the squeeze."
+
+16. **Mökki mode** *(July/summer timing — post NOW)*
+    - Hook: "Finland shuts down in July. Here's where everyone went."
+    - Show: lake b-roll (Veo/Seedance) + "Mökil ei oo nettii." → "Tääl on niin rauhallista."
+    - Punch: "Learn cottage Finnish before you get invited. You will get invited."
+
+17. **The one-drink lie**
+    - Hook: "The most dangerous sentence in Finnish"
+    - Show: "**Otetaanks yhet?**" — caption: literally "shall we take *ones*?" … it's PLURAL
+    - Punch: "It's grammatically never one drink. You've been warned."
+
+18. **Hima**
+    - Hook: "The word for 'home' your textbook hides from you"
+    - Show: koti (textbook) → **hima** (Helsinki) → "Mun pitää mennä himaan."
+    - Punch: "Say this at 1am and locals assume you live there."
+
+19. **Sick day Finnish**
+    - Hook: "How to be sick in Finland"
+    - Show: "Mä oon kipee" (vs "Minä olen kipeä" struck through) → "Onks teil mitään flunssaan?" (pharmacy Situation screen-record)
+    - Punch: "Practice the pharmacy before you need the pharmacy."
+
+20. **Kämppä hunting**
+    - Hook: "Apartment hunting in Helsinki, in the Finnish they actually use"
+    - Show: "Mä etin uut kämppää." (*asunto*? no — **kämppä**) → "Sopiiks, et mul on kissa?" 🐱
+    - Punch: "The rental market is brutal. The vocabulary doesn't have to be."
+
+---
+
+## 5. Recurring series (beyond one-off clips)
+
+A recognizable series retains followers better than isolated bangers. Pick 2:
+
+- **"Could you survive?"** — play one real sentence at street speed ("Onks sul kuitti mukana?"), show 3 caption options, hold 3 seconds, reveal. Ends with "score in the comments." Highest comment-bait format available; the DB is an endless question bank.
+- **"Väinö replies"** — pick one real comment per week ("how do Finns say X?"), answer as a 15s clip with Väinö art + TTS. Turns the comment section into a content pipeline and makes followers feel heard.
+- **Street-speed challenge** — same sentence at 100% → 75% → captioned. "Day N of Finnish at real speed." Numbered days create return visits.
+- **Build-in-public founder clips** (greenscreen over the app): "I built a Finnish app because Duolingo taught me a language nobody speaks" — origin story, milestone updates ("first 100 users"), feature votes. TikTok's algorithm loves founder arcs, and it compounds with the Reddit transparency strategy.
+
+## 6. Paid amplification (only after organic proves a hook)
+
+The plan is zero-budget and should stay that way until a clip demonstrably converts. Then:
+
+- **TikTok Spark Ads** on the single best organic performer (€50–100 test). Spark boosts the real post, keeping comments/social proof. Target: EN-language users in Finland + "moving to Finland"/language-learning interests in EU.
+- **Meta (IG/FB) €5/day** on the same creative — FB expat groups mean the exact audience is unusually targetable there. Land on **/try** (no signup required), measure try_start → register in Umami.
+- **Reddit promoted post** in r/Finland (r/LearnFinnish is too small to target) — reuse the honest launch-post voice; ads that read like disclosure posts outperform ads that read like ads on Reddit.
+- **Google Search** exact-match only: "learn spoken finnish", "puhekieli app", "finnish slang app". Tiny volume, near-zero competition, likely <€0.30 CPC — set €2/day and forget it.
+- Unit-economics guardrail: at €4.99/mo, a paying user is worth maybe €30–40 lifetime. Registration→paid was targeted at ~10%, so a *registration* is worth ~€3. If a channel can't deliver registrations under ~€2, kill it and go back to organic.
