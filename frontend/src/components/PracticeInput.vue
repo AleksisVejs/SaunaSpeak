@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeUnmount, ref, watch } from 'vue'
 import api from '../api'
+import { typoDistance } from '../utils/practice'
 
 const props = defineProps({
   expected: { type: String, required: true },
@@ -86,6 +87,22 @@ async function check() {
       correct: true,
       corrected: props.expected,
       explanation: 'Täydellistä! Exactly how a Finn says it. 🔥',
+      tokens: null,
+      accentsOnly: false
+    }
+  } else if (
+    // Missing ä/ö dots are meaningful in Finnish, never "just a typo" - so the
+    // accent check runs first and gets its own kinder callout below.
+    stripDiacritics(attempt.value) !== stripDiacritics(props.expected) &&
+    typoDistance(normalize(attempt.value), normalize(props.expected)) !== null
+  ) {
+    // A letter missing, doubled or swapped: that's a slip of the finger, not
+    // a language mistake - count it as correct locally instead of spending
+    // an AI call on it. Show the exact form so the typo still gets seen.
+    feedback.value = {
+      correct: true,
+      corrected: props.expected,
+      explanation: 'Right! Just a tiny typo - the exact spelling is above. 👌',
       tokens: null,
       accentsOnly: false
     }

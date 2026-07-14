@@ -52,7 +52,31 @@ class ProgressGradingTest extends TestCase
         $this->complete('good')->assertOk()->assertJsonPath('status', UserProgress::STATUS_MASTERED);
 
         $progress = $this->user->progress()->first();
-        $this->assertTrue($progress->next_review_at->greaterThan(now()->addDays(13)));
+        // Base interval is 14 days; the +-15% anti-pileup fuzz makes the
+        // scheduled gap land anywhere in 12-16 days.
+        $this->assertTrue($progress->next_review_at->greaterThan(now()->addDays(11)));
+        $this->assertTrue($progress->next_review_at->lessThan(now()->addDays(17)));
+        $this->assertSame('mastered', $progress->status);
+    }
+
+    public function test_mastered_intervals_compound_instead_of_capping(): void
+    {
+        // A mastered item with a 100-day history graded "good" again must
+        // stretch further than the old fixed 30-day ceiling (100 x ease 2.5,
+        // capped at 365).
+        $this->user->progress()->create([
+            'sentence_id' => $this->sentence->id,
+            'status' => UserProgress::STATUS_MASTERED,
+            'ease' => 2.5,
+            'interval_days' => 100,
+            'next_review_at' => now(),
+        ]);
+
+        $this->complete('good')->assertOk()->assertJsonPath('status', UserProgress::STATUS_MASTERED);
+
+        $progress = $this->user->progress()->first();
+        $this->assertGreaterThan(100, $progress->interval_days);
+        $this->assertLessThanOrEqual(365, $progress->interval_days);
     }
 
     public function test_again_lapses_back_to_learning_and_is_due_immediately(): void

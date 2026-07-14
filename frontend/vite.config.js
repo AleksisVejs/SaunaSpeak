@@ -26,8 +26,9 @@ export default defineConfig({
         // Cache the UI shell (JS/CSS/HTML/icons); never cache API calls.
         // Scenario art (scenes/) stays out of the precache - ~2MB that only
         // Löyly+ users in a scenario need; it's runtime-cached below instead.
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        globIgnores: ['scenes/**', 'sw-kill.js'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        // og-image is for link-unfurl crawlers only - no user ever loads it.
+        globIgnores: ['scenes/**', 'sw-kill.js', 'og-image.png'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/audio/],
         // Sentence + word MP3s are immutable once generated - cache-first keeps them offline.

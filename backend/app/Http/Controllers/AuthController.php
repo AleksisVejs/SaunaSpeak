@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lesson;
 use App\Models\User;
 use App\Models\UserProgress;
 use App\Models\Sentence;
@@ -9,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -19,6 +21,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
         ]);
 
         $user = User::create($data);
@@ -81,15 +84,20 @@ class AuthController extends Controller
         $data = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
         ]);
 
-        if (! Auth::attempt($data)) {
+        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
             throw ValidationException::withMessages([
                 'email' => ['These credentials do not match our records.'],
             ]);
         }
 
         $user = User::where('email', $data['email'])->firstOrFail();
+        // Keep the stored zone fresh - people move, laptops travel.
+        if (! empty($data['timezone']) && $data['timezone'] !== $user->timezone) {
+            $user->update(['timezone' => $data['timezone']]);
+        }
         $user->syncStreak();
         $token = $user->createToken('saunaspeak')->plainTextToken;
 
@@ -128,11 +136,109 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'preferences' => ['required', 'array'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
         ]);
 
-        $request->user()->update(['preferences' => $data['preferences']]);
+        $user = $request->user();
 
-        return response()->json(['preferences' => $request->user()->fresh()->preferences]);
+        $updates = ['preferences' => $data['preferences']];
+        if (! empty($data['timezone'])) {
+            $updates['timezone'] = $data['timezone'];
+        }
+        // The reminder opt-out lives in a real column (the mail command
+        // filters on it), mirrored from the same preferences payload.
+        if (array_key_exists('review_emails', $data['preferences'])) {
+            $updates['review_emails'] = (bool) $data['preferences']['review_emails'];
+        }
+
+        $user->update($updates);
+        $this->applyPlacement($user, $data['preferences']['level'] ?? null);
+
+        return response()->json(['preferences' => $user->fresh()->preferences]);
+    }
+
+    /**
+     * Intake placement: a learner who says they already know "a few words"
+     * (or is brushing up) shouldn't grind through "Moi! Mä oon Anna" one card
+     * at a time. Skip 1-2 starter lessons by seeding them as light reviews -
+     * due within days, so the skipped material still gets checked, just not
+     * taught from scratch. Only ever runs on a blank account: placement must
+     * never overwrite real progress.
+     */
+    private function applyPlacement(User $user, ?string $level): void
+    {
+        $skipLessons = match ($level) {
+            'some' => 1,
+            'rusty' => 2,
+            default => 0,
+        };
+
+        if ($skipLessons === 0 || $user->progress()->exists()) {
+            return;
+        }
+
+        $sentences = Sentence::join('lessons', 'lessons.id', '=', 'sentences.lesson_id')
+            ->whereIn('lessons.id', Lesson::orderBy('order_index')->limit($skipLessons)->pluck('id'))
+            ->orderBy('lessons.order_index')
+            ->orderBy('sentences.id')
+            ->get(['sentences.id']);
+
+        foreach ($sentences->values() as $i => $sentence) {
+            // Stagger due dates over days 2-5 so the skipped block doesn't
+            // land as one review lump on top of the first new lessons.
+            $due = 2 + ($i % 4);
+            $user->progress()->create([
+                'sentence_id' => $sentence->id,
+                'status' => UserProgress::STATUS_REVIEW,
+                'ease' => 2.5,
+                'interval_days' => $due,
+                'next_review_at' => now()->addDays($due),
+            ]);
+        }
+    }
+
+    /**
+     * POST /api/password/forgot - send the reset mail. Always answers with
+     * the same message so the endpoint can't be used to probe which emails
+     * have accounts.
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => ['required', 'string', 'email']]);
+
+        try {
+            Password::sendResetLink($request->only('email'));
+        } catch (\Throwable $e) {
+            Log::warning('Password reset mail failed', ['error' => $e->getMessage()]);
+        }
+
+        return response()->json([
+            'message' => 'If that email has an account, a reset link is on its way. Check your inbox.',
+        ]);
+    }
+
+    /** POST /api/password/reset - token from the mail + the new password. */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $status = Password::reset($data, function (User $user, string $password) {
+            $user->update(['password' => $password]);
+            // Every stolen or forgotten session dies with the old password.
+            $user->tokens()->delete();
+        });
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
+        }
+
+        return response()->json(['message' => 'Password updated - log in with the new one.']);
     }
 
     /**

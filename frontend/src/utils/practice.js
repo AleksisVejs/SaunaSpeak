@@ -31,3 +31,37 @@ export function clozeText(text) {
   const word = clozeWord(text)
   return word ? text.replace(word, '_____') : text
 }
+
+// Edit distance with early exit: we only ever care about tiny distances, so
+// bail as soon as a whole row exceeds the cap (keeps long inputs cheap).
+export function editDistance(a, b, cap = 3) {
+  if (a === b) return 0
+  if (Math.abs(a.length - b.length) > cap) return cap + 1
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    const curr = [i]
+    let rowMin = i
+    for (let j = 1; j <= b.length; j++) {
+      curr[j] = Math.min(
+        prev[j] + 1, // deletion
+        curr[j - 1] + 1, // insertion
+        prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      )
+      rowMin = Math.min(rowMin, curr[j])
+    }
+    if (rowMin > cap) return cap + 1
+    prev = curr
+  }
+  return prev[b.length]
+}
+
+/**
+ * Is the attempt the expected sentence give or take a slip of the finger?
+ * One missing/extra/wrong letter (two on longer sentences) counts as a typo,
+ * not a mistake worth an AI round-trip. Both inputs should be pre-normalized.
+ */
+export function typoDistance(attempt, expected) {
+  const allowed = expected.length >= 12 ? 2 : 1
+  const d = editDistance(attempt, expected, allowed)
+  return d <= allowed ? d : null
+}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
@@ -17,7 +18,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 });
+
+// Reset mails are costlier than logins (SMTP send per hit) - throttle harder.
+Route::post('/password/forgot', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
 
 // The link inside the verification mail. 'signed' rejects any tampering with
 // id/hash/expiry; the throttle just caps drive-by probing on top of that.
@@ -41,6 +46,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/preferences', [AuthController::class, 'updatePreferences']);
     Route::post('/email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:3,1,resend');
+
+    // The learner's data, both directions: export (GDPR portability) and
+    // password-confirmed deletion (GDPR erasure).
+    Route::get('/account/export', [AccountController::class, 'export'])->middleware('throttle:5,1,export');
+    Route::delete('/account', [AccountController::class, 'destroy'])->middleware('throttle:5,1,delacct');
 
     Route::get('/lessons', [LessonController::class, 'index']);
     Route::get('/lessons/{lesson}', [LessonController::class, 'show']);

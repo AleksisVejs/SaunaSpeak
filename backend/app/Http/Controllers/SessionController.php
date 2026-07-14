@@ -145,13 +145,29 @@ class SessionController extends Controller
             'easy' => min(3.0, $ease + 0.15),
             default => $ease,
         };
-        if ($intervalDays >= 3) {
+
+        // Mastered items compound (last interval x ease) instead of being
+        // pinned to a fixed ceiling - otherwise every sentence ever learned
+        // returns every ~30 days forever and the review load only grows.
+        // A year is the honest maximum for a language you're still learning.
+        if ($current === UserProgress::STATUS_MASTERED && $grade !== 'again') {
+            $previous = $progress->interval_days ?? $intervalDays;
+            $intervalDays = max($intervalDays, (int) round($previous * $ease));
+        } elseif ($intervalDays >= 3) {
             $intervalDays = max(2, (int) round($intervalDays * $ease / 2.5));
         }
+
+        // +-15% fuzz so items studied together don't stay due together -
+        // spreads review load across days instead of lumping it.
+        if ($intervalDays >= 3) {
+            $intervalDays = max(2, (int) round($intervalDays * (mt_rand(85, 115) / 100)));
+        }
+        $intervalDays = min(365, $intervalDays);
 
         $progress->fill([
             'status' => $nextStatus,
             'ease' => $ease,
+            'interval_days' => $intervalDays,
             'next_review_at' => now()->addDays($intervalDays),
         ])->save();
 
@@ -175,7 +191,9 @@ class SessionController extends Controller
     public function completeSession(Request $request): JsonResponse
     {
         $user = $request->user();
-        $today = today();
+        // The learner's calendar day, not the server's - a 23:30 session in
+        // Helsinki must not count as tomorrow on a UTC box.
+        $today = $user->localToday();
 
         $alreadyToday = $user->last_active_date !== null && $user->last_active_date->isSameDay($today);
 

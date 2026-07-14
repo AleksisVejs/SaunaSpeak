@@ -32,6 +32,10 @@ async function submit() {
 
 <template>
   <div class="auth-page">
+    <div class="page-top">
+      <router-link to="/" class="home-link">‹ Home</router-link>
+    </div>
+
     <div class="hero">
       <router-link to="/" class="hero-home" title="Back to the home page">
         <img class="hero-vaino" src="/vaino-wave.png" alt="Väinö waving hello" />
@@ -57,6 +61,11 @@ async function submit() {
       <button class="btn btn-primary btn-block" type="submit" :disabled="loading">
         {{ loading ? 'Creating account…' : 'Create account' }}
       </button>
+      <p class="muted consent">
+        By creating an account you agree to the
+        <router-link to="/terms">terms</router-link> and
+        <router-link to="/privacy">privacy policy</router-link>.
+      </p>
     </form>
 
     <p class="muted switch">
@@ -66,7 +75,11 @@ async function submit() {
 </template>
 
 <style scoped>
-.auth-page { margin-top: 8vh; }
+.auth-page { margin-top: 5vh; }
+.page-top { margin-bottom: 8px; }
+.home-link { color: var(--text-dim); font-size: 14px; font-weight: 600; }
+.consent { font-size: 12.5px; text-align: center; margin-top: 12px; line-height: 1.5; }
+.consent a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 .hero { text-align: center; margin-bottom: 28px; }
 .hero-home { display: block; color: var(--text); }
 .hero-vaino { width: 110px; height: 110px; margin-bottom: 6px; }

@@ -42,10 +42,10 @@ const DEMO_CHAT = [
 ]
 
 const FEATURES = [
-  { icon: '🎧', title: 'Native-audio sentences', body: 'Every sentence and word has audio - listen, shadow, speak.' },
+  { icon: '🎧', title: 'Audio on every sentence', body: 'One consistent Finnish voice across the whole app - listen, shadow, speak.' },
   { icon: '🔁', title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
   { icon: '⭐', title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
-  { icon: '🏁', title: 'Checkpoints', body: 'Prove each level before the next one opens.' },
+  { icon: '🏁', title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
   { icon: '💬', title: 'Sauna Chat with Väinö', body: 'Free-form AI conversation with a patient old Finn who knows your level - and your weak words. Löyly+' },
   { icon: '🎭', title: 'Situations', body: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish. Löyly+' }
 ]
@@ -67,7 +67,7 @@ const FAQ = [
   },
   {
     q: 'I\'m a complete beginner - is this for me?',
-    a: 'Absolutely. The path starts at zero with listen-and-repeat, and exercises grow with you: fill-the-gap, dictation, then full recall from English. You can try three real sentences right now without an account.'
+    a: 'Absolutely. The path starts at zero with listen-and-repeat, and exercises grow with you: fill-the-gap, dictation, then full recall from English. Already know a few words? The intake quiz skips you past the very first lessons. You can try six real sentences right now without an account.'
   },
   {
     q: 'How much time does it take per day?',
@@ -112,7 +112,11 @@ onBeforeUnmount(() => faqLd?.remove())
     <section class="hero">
       <div class="hero-vaino-wrap">
         <span class="hero-glow" aria-hidden="true"></span>
-        <img class="hero-vaino" src="/vaino.png" alt="Väinö, your Finnish sauna companion" />
+        <!-- LCP element: WebP (~40% lighter) with PNG fallback; preloaded in index.html -->
+        <picture>
+          <source srcset="/vaino.webp" type="image/webp" />
+          <img class="hero-vaino" src="/vaino.png" alt="Väinö, your Finnish sauna companion" width="160" height="160" fetchpriority="high" />
+        </picture>
       </div>
       <h1>Learn the Finnish <em>Finns actually speak</em></h1>
       <p class="lede">
@@ -123,7 +127,10 @@ onBeforeUnmount(() => faqLd?.remove())
         <router-link to="/try" class="btn btn-primary cta">🔥 Try it - no account</router-link>
         <router-link to="/register" class="btn btn-ghost cta">Create free account</router-link>
       </div>
-      <p class="muted tiny">Free forever for the whole learning path.</p>
+      <p class="muted tiny">
+        The learning path is free forever - AI conversation (Sauna Chat &amp; Situations) is
+        <router-link to="/pricing" class="tiny-link">Löyly+</router-link>.
+      </p>
     </section>
 
     <section class="contrast">
@@ -211,6 +218,20 @@ onBeforeUnmount(() => faqLd?.remove())
       <router-link to="/try" class="btn btn-primary cta">Start your first session</router-link>
       <p class="muted tiny">Already learning? <router-link to="/login">Log in</router-link></p>
     </section>
+
+    <footer class="site-footer">
+      <nav class="foot-links">
+        <router-link to="/try">Try it</router-link>
+        <router-link to="/pricing">Pricing</router-link>
+        <router-link to="/privacy">Privacy</router-link>
+        <router-link to="/terms">Terms</router-link>
+        <a href="mailto:mail@saunaspeak.com">Contact</a>
+      </nav>
+      <p class="muted foot-note">
+        SaunaSpeak - spoken Finnish, five minutes a day.
+        Illustrations from <a href="https://openmoji.org" target="_blank" rel="noopener">OpenMoji</a> (CC BY-SA 4.0).
+      </p>
+    </footer>
   </div>
 </template>
 
@@ -403,5 +424,15 @@ onBeforeUnmount(() => faqLd?.remove())
 .faq-item p { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); margin-top: 10px; }
 
 .bottom-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.bottom-cta a:not(.btn) { color: var(--accent); }
+/* Underline, not color alone - links must survive color-blindness (WCAG 1.4.1). */
+.bottom-cta a:not(.btn) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.tiny-link { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---- footer ---- */
+.site-footer { border-top: 1px solid var(--border); padding-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+.foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; }
+.foot-links a { color: var(--text-dim); font-size: 13.5px; font-weight: 600; }
+.foot-links a:hover { color: var(--accent); }
+.foot-note { font-size: 12px; line-height: 1.6; }
+.foot-note a { color: var(--text-dim); text-decoration: underline; }
 </style>

@@ -1,16 +1,21 @@
 <script setup>
-// Guest "try it now" taste - no account needed. Runs three real sentences with
-// listen + reveal, then invites signup to save progress. Self-contained sample
-// content so it works without the backend/auth.
+// Guest "try it now" taste - no account needed. Runs six real sentences with
+// listen + reveal (plus the textbook form for contrast), then invites signup.
+// Self-contained sample content so it works without the backend/auth.
 import { ref, computed } from 'vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSentence } = useFinnishAudio()
 
+// The audio files are the committed course MP3s (sentence ids from the seed
+// order), so the demo voice is exactly the voice inside the app.
 const samples = [
-  { fi: 'Moi! Mä oon Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
-  { fi: 'Onks sul nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
-  { fi: 'Otetaanks kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.', audio: '/audio/try-3.mp3' }
+  { fi: 'Moi! Mä oon Anna.', book: 'Hei! Minä olen Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
+  { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
+  { fi: 'Otetaanks kahvit?', book: 'Otetaanko kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.', audio: '/audio/try-3.mp3' },
+  { fi: 'Mitä kuuluu?', book: null, en: 'How are you?', note: 'Literally “what is heard?” - the everyday how-are-you.', audio: '/audio/sentence-4.mp3' },
+  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.', audio: '/audio/sentence-10.mp3' },
+  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' }
 ]
 
 const index = ref(0)
@@ -20,8 +25,8 @@ const current = computed(() => samples[index.value])
 const isLast = computed(() => index.value === samples.length - 1)
 const done = ref(false)
 
-function play() {
-  playSentence(current.value.fi, current.value.audio)
+function play(rate = null) {
+  playSentence(current.value.fi, current.value.audio, rate)
 }
 
 function reveal() {
@@ -47,18 +52,26 @@ function next() {
         <div class="dots">
           <span v-for="(s, i) in samples" :key="i" class="dot" :class="{ active: i <= index }"></span>
         </div>
-        <router-link to="/login" class="skip">Skip</router-link>
+        <!-- Skipping the taste = ready to start: that's the register page. -->
+        <router-link to="/register" class="skip">Skip</router-link>
       </div>
 
       <p class="kicker">Try a real sentence 🔥</p>
 
       <div class="card sample-card">
-        <button class="audio" @click="play" aria-label="Play audio">🔊 Listen</button>
+        <div class="audio-row">
+          <button class="audio" @click="play()" aria-label="Play audio">🔊 Listen</button>
+          <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly">🐢 Slow</button>
+        </div>
         <p class="fi">{{ current.fi }}</p>
 
-        <transition name="fade">
+        <!-- :duration guarantees the leave element is removed even if the tab
+             is throttled and transition events never fire (stale text would
+             otherwise linger for screen readers). -->
+        <transition name="fade" :duration="200">
           <div v-if="revealed" class="reveal">
             <p class="en">{{ current.en }}</p>
+            <p v-if="current.book" class="book">📖 The textbook would've taught you: <s>{{ current.book }}</s></p>
             <p class="note">💡 {{ current.note }}</p>
           </div>
         </transition>
@@ -81,6 +94,7 @@ function next() {
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>
         <router-link to="/login" class="btn btn-ghost btn-block login-link">I already have an account</router-link>
+        <router-link to="/" class="home-below">‹ Back to the home page</router-link>
       </div>
     </template>
   </div>
@@ -102,6 +116,7 @@ function next() {
 .kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
 
 .sample-card { text-align: center; margin-bottom: 16px; }
+.audio-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
 .audio {
   background: var(--accent-soft);
   color: var(--accent);
@@ -112,11 +127,13 @@ function next() {
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
-  margin-bottom: 16px;
 }
+.audio.slow { background: var(--bg-soft); color: var(--text-dim); }
 .fi { font-size: 26px; font-weight: 700; line-height: 1.35; }
 .reveal { margin-top: 16px; }
 .en { font-size: 17px; color: var(--text-dim); }
+.book { font-size: 13.5px; color: var(--text-dim); margin-top: 10px; }
+.book s { text-decoration-color: rgba(245, 158, 11, 0.5); }
 .note { font-size: 14px; color: var(--text); background: var(--bg-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; line-height: 1.5; }
 
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; }
@@ -124,4 +141,5 @@ function next() {
 .finish h1 { font-size: 28px; }
 .finish-text { color: var(--text-dim); font-size: 16px; line-height: 1.6; margin-bottom: 8px; }
 .login-link { margin-top: 4px; }
+.home-below { color: var(--text-dim); font-size: 13.5px; font-weight: 600; margin-top: 6px; }
 </style>

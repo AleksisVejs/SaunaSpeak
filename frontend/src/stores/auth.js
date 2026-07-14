@@ -2,6 +2,15 @@ import { defineStore } from 'pinia'
 import api from '../api'
 import { usePrefs } from '../composables/usePrefs'
 
+// The learner's clock: streaks and daily bonuses follow this, not server time.
+function browserTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null
+  } catch {
+    return null
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
@@ -20,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async register(payload) {
-      const { data } = await api.post('/register', payload)
+      const { data } = await api.post('/register', { ...payload, timezone: browserTimezone() })
       this.setToken(data.token)
       this.user = data.user
       // Funnel landmark for Umami (no-op in dev - script is domain-locked).
@@ -28,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(payload) {
-      const { data } = await api.post('/login', payload)
+      const { data } = await api.post('/login', { ...payload, timezone: browserTimezone() })
       this.setToken(data.token)
       this.user = data.user
     },

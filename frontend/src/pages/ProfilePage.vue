@@ -19,6 +19,7 @@ const premium = computed(() => auth.user?.is_premium !== false)
 onMounted(async () => {
   try {
     if (!auth.user) await auth.fetchUser()
+    syncReviewEmailsFromUser()
     // Weekly insights are Löyly+; a 402 just means we show the upsell row.
     try {
       const { data } = await api.get('/insights/week')
@@ -74,6 +75,56 @@ function setMinutes(m) {
 async function logout() {
   await auth.logout()
   router.push({ name: 'login' })
+}
+
+// --- Review-reminder emails (opt-out; the server column drives the sender) ---
+const reviewEmails = ref(true)
+function syncReviewEmailsFromUser() {
+  reviewEmails.value = auth.user?.review_emails !== false
+}
+async function toggleReviewEmails() {
+  reviewEmails.value = !reviewEmails.value
+  savePrefs({ review_emails: reviewEmails.value })
+}
+
+// --- Data export (GDPR portability): stream the JSON straight to a download ---
+const exporting = ref(false)
+async function downloadData() {
+  exporting.value = true
+  try {
+    const { data } = await api.get('/account/export')
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'saunaspeak-export.json'
+    a.click()
+    URL.revokeObjectURL(a.href)
+  } catch {
+    // transient - the button stays available
+  } finally {
+    exporting.value = false
+  }
+}
+
+// --- Account deletion: two-step + password confirmation, irreversible ---
+const confirmingDelete = ref(false)
+const deletePassword = ref('')
+const deleting = ref(false)
+const deleteError = ref('')
+async function deleteAccount() {
+  if (!deletePassword.value) return
+  deleting.value = true
+  deleteError.value = ''
+  try {
+    await api.delete('/account', { data: { password: deletePassword.value } })
+    localStorage.clear()
+    window.location.href = '/'
+  } catch (e) {
+    deleteError.value = e.response?.data?.errors?.password?.[0]
+      ?? e.response?.data?.message
+      ?? 'Could not delete the account. Try again.'
+    deleting.value = false
+  }
 }
 </script>
 
@@ -180,6 +231,53 @@ async function logout() {
         </div>
       </div>
 
+      <h3 class="section">Emails</h3>
+      <div class="card toggle-row">
+        <div class="toggle-text">
+          <p class="toggle-title">Review reminders</p>
+          <p class="muted toggle-sub">One email when sentences come due and you haven't practiced.</p>
+        </div>
+        <button
+          class="switch-btn"
+          :class="{ on: reviewEmails }"
+          role="switch"
+          :aria-checked="reviewEmails"
+          aria-label="Review reminder emails"
+          @click="toggleReviewEmails"
+        ><span class="knob"></span></button>
+      </div>
+
+      <h3 class="section">Your data</h3>
+      <button class="card row-link data-btn" :disabled="exporting" @click="downloadData">
+        <span>📦 Download my data</span>
+        <span class="chev">{{ exporting ? '…' : 'JSON ›' }}</span>
+      </button>
+
+      <div v-if="confirmingDelete" class="card danger-confirm">
+        <p class="danger-q">Delete your account?</p>
+        <p class="muted danger-note">
+          This permanently removes your account, progress, word bank and streak,
+          and cancels any subscription. There is no undo.
+        </p>
+        <div v-if="deleteError" class="error-msg">{{ deleteError }}</div>
+        <div class="field">
+          <label for="delete-password">Confirm with your password</label>
+          <input id="delete-password" v-model="deletePassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <div class="danger-row">
+          <button class="btn btn-ghost danger-yes" :disabled="deleting || !deletePassword" @click="deleteAccount">
+            {{ deleting ? 'Deleting…' : 'Delete forever' }}
+          </button>
+          <button class="btn btn-primary" :disabled="deleting" @click="confirmingDelete = false; deletePassword = ''">
+            Keep my account
+          </button>
+        </div>
+      </div>
+      <button v-else class="card row-link danger-btn" @click="confirmingDelete = true">
+        <span>🗑 Delete account</span>
+        <span class="chev danger-chev">›</span>
+      </button>
+
       <button class="btn btn-ghost btn-block logout" @click="logout">Log out</button>
 
       <p class="credits">
@@ -256,6 +354,33 @@ async function logout() {
 
 .row-link { display: flex; align-items: center; justify-content: space-between; color: var(--text); font-weight: 600; }
 .row-link .chev { color: var(--accent); font-size: 14px; font-weight: 700; }
+
+.toggle-row { display: flex; align-items: center; gap: 14px; }
+.toggle-text { flex: 1; min-width: 0; }
+.toggle-title { font-weight: 700; font-size: 14.5px; }
+.toggle-sub { font-size: 12.5px; margin-top: 2px; line-height: 1.4; }
+.switch-btn {
+  flex-shrink: 0; width: 46px; height: 26px; border-radius: 13px;
+  background: var(--bg-soft); border: 1px solid var(--border);
+  position: relative; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+}
+.switch-btn .knob {
+  position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--text-dim); transition: transform 0.18s ease, background 0.15s ease;
+}
+.switch-btn.on { background: var(--accent-soft); border-color: var(--accent); }
+.switch-btn.on .knob { transform: translateX(20px); background: var(--accent); }
+
+.data-btn { width: 100%; font-family: inherit; font-size: inherit; cursor: pointer; border: 1px solid var(--border); }
+.danger-btn { width: 100%; font-family: inherit; font-size: inherit; cursor: pointer; border: 1px solid var(--border); margin-top: 10px; }
+.danger-btn span:first-child { color: var(--red, #f87171); }
+.danger-chev { color: var(--text-dim); }
+.danger-confirm { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.danger-q { font-weight: 800; font-size: 15.5px; }
+.danger-note { font-size: 13px; line-height: 1.5; }
+.danger-row { display: flex; gap: 10px; }
+.danger-row .btn { flex: 1; }
+.danger-yes { border-color: var(--red, #f87171); color: var(--red, #f87171); }
 
 .logout { margin-top: 24px; }
 .credits { text-align: center; font-size: 12px; color: var(--text-faint); margin-top: 18px; }

@@ -93,15 +93,22 @@ Rules:
 - Colloquial spoken forms (mä oon, sä oot, onks, emmä, tää, toi...) are CORRECT - never "fix" puhekieli into formal written Finnish (kirjakieli).
 - If the attempt was close, point out the small difference (a word ending, a missing word).
 - If the attempt means something different from the target, briefly say what the student's sentence actually meant (if anything) and steer them back to the target.
+- The "explanation" MUST be written in ENGLISH. Never write the explanation in Finnish - the student is a beginner who cannot read a Finnish explanation yet. Finnish words may only appear inside quotes as examples.
 
 Reply with ONLY a JSON object: {"corrected": "<spoken-Finnish target sentence>", "explanation": "<one short, encouraging sentence in English>"}
 PROMPT;
 
         // Corrections use the precision-tuned model (bake-off winner for
-        // error detection); chat keeps the register-tuned default.
-        $text = Llm::generate('You are a concise Finnish teacher. Reply with only the requested JSON.', [
-            ['role' => 'user', 'content' => $prompt],
-        ], 300, config('services.ai.openrouter_model_correct'));
+        // error detection); chat keeps the register-tuned default. Low
+        // temperature: at provider defaults the model drifts into Finnish
+        // explanations and invented "corrections".
+        $text = Llm::generate(
+            'You are a concise Finnish teacher. Reply with only the requested JSON. Explanations are always in English.',
+            [['role' => 'user', 'content' => $prompt]],
+            300,
+            config('services.ai.openrouter_model_correct'),
+            0.3,
+        );
 
         if ($text !== null) {
             // Tolerate models that wrap JSON in markdown fences.

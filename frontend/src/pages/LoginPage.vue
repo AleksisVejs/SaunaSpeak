@@ -27,6 +27,10 @@ async function submit() {
 
 <template>
   <div class="auth-page">
+    <div class="page-top">
+      <router-link to="/" class="home-link">‹ Home</router-link>
+    </div>
+
     <div class="hero">
       <router-link to="/" class="hero-home" title="Back to the home page">
         <img class="hero-logo" src="/logo-sm.png" alt="SaunaSpeak logo" />
@@ -42,7 +46,10 @@ async function submit() {
         <input id="email" v-model="email" type="email" required autocomplete="email" placeholder="you@example.com" />
       </div>
       <div class="field">
-        <label for="password">Password</label>
+        <div class="label-row">
+          <label for="password">Password</label>
+          <router-link to="/forgot-password" class="forgot">Forgot it?</router-link>
+        </div>
         <input id="password" v-model="password" type="password" required autocomplete="current-password" placeholder="••••••••" />
       </div>
       <button class="btn btn-primary btn-block" type="submit" :disabled="loading">
@@ -58,7 +65,11 @@ async function submit() {
 </template>
 
 <style scoped>
-.auth-page { margin-top: 8vh; }
+.auth-page { margin-top: 5vh; }
+.page-top { margin-bottom: 8px; }
+.home-link { color: var(--text-dim); font-size: 14px; font-weight: 600; }
+.label-row { display: flex; align-items: baseline; justify-content: space-between; }
+.forgot { font-size: 12.5px; font-weight: 600; color: var(--accent); }
 .hero { text-align: center; margin-bottom: 28px; }
 .hero-home { display: block; color: var(--text); }
 .hero-logo { width: 76px; height: 76px; border-radius: 18px; margin-bottom: 10px; }

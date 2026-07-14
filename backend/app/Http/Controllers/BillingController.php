@@ -28,7 +28,7 @@ class BillingController extends Controller
      * version set on the webhook endpoint in the Stripe Dashboard, otherwise
      * webhook payloads arrive in a different shape than the ones we fetch.
      */
-    private const API_VERSION = '2026-06-24.dahlia';
+    public const API_VERSION = '2026-06-24.dahlia'; // public: account deletion cancels subscriptions too
 
     /** GET /api/billing - current plan state for the profile/upgrade pages. */
     public function status(Request $request): JsonResponse

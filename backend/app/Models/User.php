@@ -27,6 +27,8 @@ class User extends Authenticatable
         'last_active_date',
         'checkpoints',
         'preferences',
+        'timezone',
+        'review_emails',
         'stripe_customer_id',
         'stripe_subscription_id',
         'premium_until',
@@ -58,7 +60,22 @@ class User extends Authenticatable
             'preferences' => 'array',
             'premium_until' => 'datetime',
             'is_admin' => 'boolean',
+            'review_emails' => 'boolean',
         ];
+    }
+
+    /**
+     * "Today" on the learner's own clock (IANA zone captured from the browser;
+     * falls back to the app timezone). Streaks and daily bonuses key off this,
+     * so a session at 23:30 in Helsinki isn't "tomorrow" on a UTC server.
+     */
+    public function localToday(): \Illuminate\Support\Carbon
+    {
+        try {
+            return now($this->timezone ?: config('app.timezone'))->startOfDay();
+        } catch (\Throwable) {
+            return today(); // junk timezone string from a client - ignore it
+        }
     }
 
     /**
@@ -69,6 +86,12 @@ class User extends Authenticatable
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new \App\Notifications\VerifyEmail);
+    }
+
+    /** Branded password-reset mail (link lands on the SPA's reset page). */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPassword($token));
     }
 
     public function progress(): HasMany
@@ -111,16 +134,21 @@ class User extends Authenticatable
             return;
         }
 
-        if ($this->last_active_date->gte(today()->subDay())) {
+        $today = $this->localToday();
+
+        // Calendar-date comparison (not instants): last_active_date is a bare
+        // date while $today carries the user's zone, so comparing timestamps
+        // would drift by the UTC offset.
+        if ($this->last_active_date->format('Y-m-d') >= $today->copy()->subDay()->format('Y-m-d')) {
             return; // active today or yesterday - streak intact
         }
 
         // Missed exactly one day with a freeze in the bank: spend it. Bumping
         // last_active_date to yesterday lets today's session continue the streak.
-        if ($this->streak_freezes > 0 && $this->last_active_date->isSameDay(today()->subDays(2))) {
+        if ($this->streak_freezes > 0 && $this->last_active_date->isSameDay($today->copy()->subDays(2))) {
             $this->update([
                 'streak_freezes' => $this->streak_freezes - 1,
-                'last_active_date' => today()->subDay(),
+                'last_active_date' => $today->copy()->subDay(),
             ]);
 
             return;

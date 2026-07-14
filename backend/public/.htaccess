@@ -9,6 +9,33 @@
     Header always set Strict-Transport-Security "max-age=15552000" env=HTTPS
 </IfModule>
 
+<IfModule mod_expires.c>
+    # Cache policy by URL shape:
+    #  - /assets/* carry a content hash in the filename -> immutable, 1 year
+    #  - audio MP3s and images are regenerated under the same name only when
+    #    content changes rarely -> 30 days is a safe middle
+    #  - HTML (the SPA shell) must revalidate so deploys show up immediately;
+    #    the service worker adds its own offline layer on top
+    ExpiresActive On
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType audio/mpeg "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+    ExpiresByType application/json "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|woff2)$">
+        # Vite fingerprints these - safe to cache forever.
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "^(sw\.js|sw-kill\.js|registerSW\.js|manifest\.webmanifest)$">
+        # The worker itself must always be revalidated or updates never land.
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

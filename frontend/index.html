@@ -10,6 +10,9 @@
     <meta name="description" content="Learn spoken Finnish (puhekieli) - 'mä oon', not 'minä olen'. Daily 5-minute sessions with audio, spaced repetition, AI conversation practice and real-life roleplay. The learning path is free, forever." />
     <link rel="canonical" href="https://saunaspeak.com/" />
 
+    <!-- LCP: the hero Väinö - fetch it before the JS bundle asks for it -->
+    <link rel="preload" as="image" href="/vaino.webp" type="image/webp" fetchpriority="high" />
+
     <!-- Structured data: tells Google this is a free language-learning web app -->
     <script type="application/ld+json">
     {
@@ -30,7 +33,7 @@
           "url": "https://saunaspeak.com/",
           "applicationCategory": "EducationalApplication",
           "operatingSystem": "Any (web, installable PWA)",
-          "description": "A web app for learning spoken Finnish (puhekieli): daily speaking sessions, spaced repetition, native-audio sentences, AI chat with Väinö and real-life roleplay Situations.",
+          "description": "A web app for learning spoken Finnish (puhekieli): daily speaking sessions, spaced repetition, audio on every sentence, AI chat with Väinö and real-life roleplay Situations.",
           "image": "https://saunaspeak.com/pwa-512x512.png",
           "offers": [
             {
@@ -66,11 +69,14 @@
     <meta property="og:title" content="SaunaSpeak - Learn Spoken Finnish" />
     <meta property="og:description" content="Learn the Finnish Finns actually speak: 'mä oon', not 'minä olen'. Five spoken minutes a day, scheduled by spaced repetition." />
     <meta property="og:url" content="https://saunaspeak.com/" />
-    <meta property="og:image" content="https://saunaspeak.com/pwa-512x512.png" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://saunaspeak.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SaunaSpeak - learn the Finnish Finns actually speak. 'Mä oon', not 'minä olen'." />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="SaunaSpeak - Learn Spoken Finnish" />
     <meta name="twitter:description" content="Learn the Finnish Finns actually speak. Short daily speaking sessions, spaced repetition, puhekieli first." />
-    <meta name="twitter:image" content="https://saunaspeak.com/pwa-512x512.png" />
+    <meta name="twitter:image" content="https://saunaspeak.com/og-image.png" />
 
     <!-- Umami analytics: cookieless + GDPR-friendly (no consent banner needed).
          data-domains keeps localhost/dev traffic out of the stats; SPA route
