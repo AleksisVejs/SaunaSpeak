@@ -1,0 +1,86 @@
+{
+    "title": "When Something Breaks",
+    "level": "A2",
+    "pattern": {
+        "title": "Pointing at things: tää, toi, se",
+        "summary": "Spoken Finnish points with short words: tää (this, 'tämä'), toi (that, 'tuo'), se (it / that one). Their object forms shrink too: tämän → tän, sen stays sen.",
+        "examples": [
+            "Tää on rikki. = This is broken.",
+            "Voinks mä palauttaa tän? = Can I return this?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Tää puhelin on rikki.",
+            "en": "This phone is broken.",
+            "written": "Tämä puhelin on rikki.",
+            "glosses": {
+                "puhelin": "phone",
+                "rikki": "broken"
+            }
+        },
+        {
+            "fi": "Se lakkas toimimasta eilen.",
+            "en": "It stopped working yesterday.",
+            "written": "Se lakkasi toimimasta eilen.",
+            "glosses": {
+                "lakkas": "stopped - spoken 'lakkasi'",
+                "toimimasta": "working - 'from working'"
+            }
+        },
+        {
+            "fi": "Voinks mä palauttaa tän?",
+            "en": "Can I return this?",
+            "written": "Voinko minä palauttaa tämän?",
+            "glosses": {
+                "voinks": "can I - spoken 'voinko'",
+                "palauttaa": "to return / bring back",
+                "tän": "this - spoken object form of 'tämän'"
+            }
+        },
+        {
+            "fi": "Onks sul kuitti mukana?",
+            "en": "Do you have the receipt with you?",
+            "written": "Onko sinulla kuitti mukana?",
+            "glosses": {
+                "kuitti": "receipt",
+                "mukana": "with you / along"
+            }
+        },
+        {
+            "fi": "Joo, se on tässä.",
+            "en": "Yeah, here it is.",
+            "written": "Kyllä, se on tässä.",
+            "glosses": {
+                "joo": "yeah - the everyday yes",
+                "tässä": "here / right here"
+            }
+        },
+        {
+            "fi": "Saanks mä rahat takas?",
+            "en": "Can I get my money back?",
+            "written": "Saanko minä rahat takaisin?",
+            "glosses": {
+                "saanks": "can I get - spoken 'saanko'",
+                "rahat": "the money - plural of 'raha'",
+                "takas": "back - spoken 'takaisin'"
+            }
+        },
+        {
+            "fi": "Me vaihetaan se uuteen.",
+            "en": "We'll exchange it for a new one.",
+            "written": "Me vaihdamme sen uuteen.",
+            "glosses": {
+                "vaihetaan": "we exchange - spoken 'vaihdetaan', the d drops",
+                "uuteen": "for a new one - 'uusi' + -een"
+            }
+        },
+        {
+            "fi": "Hyvää päivänjatkoa!",
+            "en": "Have a nice rest of the day!",
+            "glosses": {
+                "päivänjatkoa": "rest of the day - the standard shop goodbye, 'continuation of the day'"
+            }
+        }
+    ]
+}

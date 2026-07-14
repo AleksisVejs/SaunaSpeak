@@ -1,0 +1,89 @@
+{
+    "title": "Renting a Place",
+    "level": "B1",
+    "pattern": {
+        "title": "Softening with -is: oisko, voisitsä",
+        "summary": "The conditional (-isi-) is how Finns ask politely, and it shrinks in speech: olisiko → oisko, voisiko → voisko, voisitko sinä → voisitsä. Sprinkle it on any request to sound less like an order.",
+        "examples": [
+            "Oisko teil vapaita asuntoja? = Would you have any free apartments?",
+            "Voisitsä näyttää sen? = Could you show it?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä etin uut kämppää.",
+            "en": "I'm looking for a new apartment.",
+            "written": "Minä etsin uutta asuntoa.",
+            "glosses": {
+                "etin": "I'm looking for - spoken 'etsin'",
+                "uut": "new - spoken 'uutta'",
+                "kämppää": "apartment / pad - 'kämppä' is the everyday word for 'asunto'"
+            }
+        },
+        {
+            "fi": "Paljon vuokra on kuussa?",
+            "en": "How much is the rent per month?",
+            "written": "Paljonko vuokra on kuukaudessa?",
+            "glosses": {
+                "vuokra": "rent",
+                "kuussa": "per month - spoken 'kuukaudessa' (yes, it also means 'in the moon')"
+            }
+        },
+        {
+            "fi": "Millon sen vois tulla kattomaan?",
+            "en": "When could I come see it?",
+            "written": "Milloin sen voisi tulla katsomaan?",
+            "glosses": {
+                "millon": "when - spoken 'milloin'",
+                "vois": "could - spoken conditional 'voisi'",
+                "kattomaan": "to look at - spoken 'katsomaan'"
+            }
+        },
+        {
+            "fi": "Vesi kuuluu vuokraan.",
+            "en": "Water is included in the rent.",
+            "glosses": {
+                "vesi": "water",
+                "kuuluu": "is included - literally 'belongs'",
+                "vuokraan": "in the rent - 'vuokra' + -an"
+            }
+        },
+        {
+            "fi": "Onks se kalustettu?",
+            "en": "Is it furnished?",
+            "written": "Onko se kalustettu?",
+            "glosses": {
+                "kalustettu": "furnished - from 'kalustaa', 'kaluste' = a piece of furniture"
+            }
+        },
+        {
+            "fi": "Sopiiks, et mul on kissa?",
+            "en": "Is it okay that I have a cat?",
+            "written": "Sopiiko, että minulla on kissa?",
+            "glosses": {
+                "sopiiks": "is it okay / does it suit - spoken 'sopiiko'",
+                "et": "that - spoken 'että'",
+                "kissa": "cat"
+            }
+        },
+        {
+            "fi": "Mä otan sen.",
+            "en": "I'll take it.",
+            "written": "Minä otan sen.",
+            "glosses": {
+                "otan": "I take - from 'ottaa'",
+                "sen": "it - object form of 'se'"
+            }
+        },
+        {
+            "fi": "Vuokrasopimus allekirjotetaan huomenna.",
+            "en": "The lease gets signed tomorrow.",
+            "written": "Vuokrasopimus allekirjoitetaan huomenna.",
+            "glosses": {
+                "vuokrasopimus": "lease - 'vuokra' (rent) + 'sopimus' (contract)",
+                "allekirjotetaan": "gets signed - spoken 'allekirjoitetaan', literally 'under-written'",
+                "huomenna": "tomorrow"
+            }
+        }
+    ]
+}

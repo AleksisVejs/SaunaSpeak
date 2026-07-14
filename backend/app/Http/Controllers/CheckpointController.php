@@ -82,7 +82,7 @@ class CheckpointController extends Controller
 
     private function validLevel(string $level): string
     {
-        validator(['level' => $level], ['level' => ['required', Rule::in(['A0', 'A1', 'A2'])]])->validate();
+        validator(['level' => $level], ['level' => ['required', Rule::in(['A0', 'A1', 'A2', 'B1'])]])->validate();
 
         return $level;
     }

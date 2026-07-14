@@ -1,0 +1,91 @@
+{
+    "title": "Maybe, Probably, I Guess",
+    "level": "B1",
+    "pattern": {
+        "title": "Hedging: varmaan, kai, tais",
+        "summary": "Finns rarely commit fully to a claim. 'Varmaan' (probably), 'kai' (I guess), 'ehkä' (maybe) soften statements, and 'tais' (spoken 'taisi', from 'taitaa') means 'I think that happened': Bussi tais mennä = I think the bus left.",
+        "examples": [
+            "Se on varmaan kotona. = They're probably home.",
+            "Bussi tais just mennä. = I think the bus just left.",
+            "Nii kai sit. = I suppose so, then."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Se on varmaan jo kotona.",
+            "en": "They're probably home already.",
+            "written": "Hän on varmaan jo kotona.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "varmaan": "probably - hedge #1 in Finnish",
+                "jo": "already"
+            }
+        },
+        {
+            "fi": "Emmä kyl usko.",
+            "en": "I don't really think so.",
+            "written": "En minä kyllä usko.",
+            "glosses": {
+                "emmä": "I don't - 'en' + 'mä' fused",
+                "kyl": "really / for sure - spoken 'kyllä'",
+                "usko": "believe - from 'uskoa'"
+            }
+        },
+        {
+            "fi": "Kai se onnistuu.",
+            "en": "I guess it'll work out.",
+            "glosses": {
+                "kai": "I guess / presumably",
+                "onnistuu": "succeeds / works out - from 'onnistua'"
+            }
+        },
+        {
+            "fi": "Bussi tais just mennä.",
+            "en": "I think the bus just left.",
+            "written": "Bussi taisi juuri mennä.",
+            "glosses": {
+                "tais": "I think / apparently (past) - spoken 'taisi', from 'taitaa'",
+                "just": "just - spoken 'juuri'"
+            }
+        },
+        {
+            "fi": "Ehkä me tullaan myöhemmin.",
+            "en": "Maybe we'll come later.",
+            "written": "Ehkä me tulemme myöhemmin.",
+            "glosses": {
+                "ehkä": "maybe",
+                "tullaan": "we come - the spoken we-form",
+                "myöhemmin": "later"
+            }
+        },
+        {
+            "fi": "Mä luulin, et se on tänään.",
+            "en": "I thought it was today.",
+            "written": "Minä luulin, että se on tänään.",
+            "glosses": {
+                "luulin": "I thought - 'luulla' implies the belief turned out wrong",
+                "et": "that - spoken 'että'",
+                "tänään": "today"
+            }
+        },
+        {
+            "fi": "Nii kai sit.",
+            "en": "I suppose so, then.",
+            "written": "Niin kai sitten.",
+            "glosses": {
+                "nii": "so / yeah - spoken 'niin'",
+                "sit": "then - spoken 'sitten'"
+            }
+        },
+        {
+            "fi": "Kattotaan nyt eka, miten käy.",
+            "en": "Let's first see how it goes.",
+            "written": "Katsotaan nyt ensin, miten käy.",
+            "glosses": {
+                "kattotaan": "let's see - spoken 'katsotaan'",
+                "eka": "first - spoken 'ensin'",
+                "käy": "goes / happens - from 'käydä'"
+            }
+        }
+    ]
+}

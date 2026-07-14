@@ -168,10 +168,86 @@ class ImageSeeder extends Seeder
         'Pitkä juttu, mä kerron saunassa.' => '2668',
     ];
 
-    /** Every sentence → hex mapping, original and expansion combined. */
+    /** JSON lessons 03-10 (database/lessons/), same finnish_text keying. */
+    public const JSON_LESSON_MAP = [
+        // Numbers, Prices and Time
+        'Paljon tää maksaa?' => '1F3F7',
+        'Se on viis euroo.' => '1F4B6',
+        'Mä herään seiskalta.' => '23F0',
+        'Kello on puol viis.' => '1F55F',
+        'Nähään vartin päästä.' => '23F3',
+        'Bussi lähtee kahelta.' => '1F68C',
+        'Mä tuun kotiin kuudelta.' => '1F3E1',
+        'Sata euroo?! Ei oo totta.' => '1F632',
+        // Family and Friends
+        'Tää on mun äiti.' => '1F469',
+        'Mun isä on viel töissä.' => '1F468',
+        'Onks sul sisaruksia?' => '1F46A',
+        'Mul on kaks veljee.' => '1F46C',
+        'Toi on mun paras kaveri.' => '1F917',
+        'Mun mummo soittaa mulle joka päivä.' => '1F475',
+        'Me ollaan serkkuja.' => '1F46B',
+        'Tuutsä meille kylään?' => '1F6AA',
+        // At the Pharmacy
+        'Mä oon kipee.' => '1F912',
+        'Mun kurkku on tosi kipee.' => '1F637',
+        'Tarviinks mä reseptin?' => '1F4C4',
+        'Onks teil mitään flunssaan?' => '1F48A',
+        'Ota näitä kaks kertaa päivässä.' => '1F4C5',
+        'Mul on kuumetta.' => '1F321',
+        'Mä varaan ajan lääkärille.' => '1FA7A',
+        'Mee kotiin lepäämään.' => '1F634',
+        // A Night Out
+        'Lähetsä illalla ulos?' => '1F303',
+        'Otetaanks yhet?' => '1F37B',
+        'Mä tuun sinne ysiltä.' => '1F558',
+        'Tää biisi on ihan sika hyvä!' => '1F3B6',
+        'Haluutsä jotain juotavaa?' => '1F379',
+        'Mennään tanssimaan!' => '1F57A',
+        'Mun pitää mennä himaan.' => '1F6B6',
+        'Eilen meni vähän myöhään.' => '1F971',
+        // Weekend at the Mökki
+        'Lähetään viikonloppuna mökille.' => '1F697',
+        'Mökil ei oo nettii.' => '1F4F5',
+        'Lämmitetäänks sauna?' => '1F525',
+        'Heitä lisää löylyä!' => '1F4A6',
+        'Mä käyn uimassa.' => '1F3CA',
+        'Grillataanks makkaraa?' => '1F32D',
+        'Järvi on viel tosi kylmä.' => '1F976',
+        'Tääl on niin rauhallista.' => '1F332',
+        // When Something Breaks
+        'Tää puhelin on rikki.' => '1F4F1',
+        'Se lakkas toimimasta eilen.' => '26A0',
+        'Voinks mä palauttaa tän?' => '1F4E6',
+        'Onks sul kuitti mukana?' => '1F9FE',
+        'Joo, se on tässä.' => '1F44D',
+        'Saanks mä rahat takas?' => '1F4B8',
+        'Me vaihetaan se uuteen.' => '1F504',
+        'Hyvää päivänjatkoa!' => '1F31E',
+        // Renting a Place
+        'Mä etin uut kämppää.' => '1F50D',
+        'Paljon vuokra on kuussa?' => '1F4B0',
+        'Millon sen vois tulla kattomaan?' => '1F440',
+        'Vesi kuuluu vuokraan.' => '1F6BF',
+        'Onks se kalustettu?' => '1F6CB',
+        'Sopiiks, et mul on kissa?' => '1F431',
+        'Mä otan sen.' => '1F511',
+        'Vuokrasopimus allekirjotetaan huomenna.' => '1F4DD',
+        // Maybe, Probably, I Guess
+        'Se on varmaan jo kotona.' => '1F914',
+        'Emmä kyl usko.' => '1F928',
+        'Kai se onnistuu.' => '1F91E',
+        'Bussi tais just mennä.' => '1F4A8',
+        'Ehkä me tullaan myöhemmin.' => '1F937',
+        'Mä luulin, et se on tänään.' => '1F605',
+        'Nii kai sit.' => '1F644',
+        'Kattotaan nyt eka, miten käy.' => '1F52E',
+    ];
+
+    /** Every sentence → hex mapping, original, expansion and JSON lessons combined. */
     public static function all(): array
     {
-        return self::MAP + self::EXPANSION_MAP;
+        return self::MAP + self::EXPANSION_MAP + self::JSON_LESSON_MAP;
     }
 
     public function run(): void

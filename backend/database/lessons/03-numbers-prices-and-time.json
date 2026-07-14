@@ -1,0 +1,92 @@
+{
+    "title": "Numbers, Prices and Time",
+    "level": "A1",
+    "pattern": {
+        "title": "Spoken numbers: yks, kaks, viis",
+        "summary": "Numbers shrink in speech: yksi → yks, kaksi → kaks, viisi → viis, seitsemän → seiska. And watch the clock: 'puol viis' counts TOWARD five, so it means half past FOUR.",
+        "examples": [
+            "Se maksaa kaks euroo. = It costs two euros.",
+            "Kello on puol viis. = It's half past four (4:30!).",
+            "Mä herään seiskalta. = I wake up at seven."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Paljon tää maksaa?",
+            "en": "How much does this cost?",
+            "written": "Paljonko tämä maksaa?",
+            "glosses": {
+                "paljon": "how much - spoken speech even drops the -ko: 'paljonko' → 'paljon'",
+                "tää": "this - spoken 'tämä'",
+                "maksaa": "costs - from 'maksaa' (to cost, to pay)"
+            }
+        },
+        {
+            "fi": "Se on viis euroo.",
+            "en": "It's five euros.",
+            "written": "Se on viisi euroa.",
+            "glosses": {
+                "viis": "five - spoken 'viisi'",
+                "euroo": "euros - spoken partitive of 'euro'"
+            }
+        },
+        {
+            "fi": "Mä herään seiskalta.",
+            "en": "I wake up at seven.",
+            "written": "Minä herään seitsemältä.",
+            "glosses": {
+                "herään": "I wake up - from 'herätä'",
+                "seiskalta": "at seven - 'seiska' is the spoken numeral seven"
+            }
+        },
+        {
+            "fi": "Kello on puol viis.",
+            "en": "It's half past four.",
+            "written": "Kello on puoli viisi.",
+            "glosses": {
+                "kello": "clock / the time",
+                "puol": "half - spoken 'puoli'",
+                "viis": "five - 'puol viis' counts toward five, so it's 4:30"
+            }
+        },
+        {
+            "fi": "Nähään vartin päästä.",
+            "en": "See you in fifteen minutes.",
+            "written": "Nähdään vartin päästä.",
+            "glosses": {
+                "nähään": "see you - spoken 'nähdään'",
+                "vartin": "a quarter hour (15 min) - from 'vartti'",
+                "päästä": "in / after (an amount of time)"
+            }
+        },
+        {
+            "fi": "Bussi lähtee kahelta.",
+            "en": "The bus leaves at two.",
+            "written": "Bussi lähtee kahdelta.",
+            "glosses": {
+                "lähtee": "leaves - from 'lähteä'",
+                "kahelta": "at two - spoken 'kahdelta', the d drops"
+            }
+        },
+        {
+            "fi": "Mä tuun kotiin kuudelta.",
+            "en": "I'll come home at six.",
+            "written": "Minä tulen kotiin kuudelta.",
+            "glosses": {
+                "tuun": "I come - spoken 'tulen'",
+                "kotiin": "home - 'to home'",
+                "kuudelta": "at six - 'kuusi' + -lta"
+            }
+        },
+        {
+            "fi": "Sata euroo?! Ei oo totta.",
+            "en": "A hundred euros?! No way.",
+            "written": "Sata euroa?! Ei ole totta.",
+            "glosses": {
+                "sata": "hundred",
+                "ei oo": "isn't - spoken 'ei ole'",
+                "totta": "true - 'ei oo totta' = you're kidding / no way"
+            }
+        }
+    ]
+}

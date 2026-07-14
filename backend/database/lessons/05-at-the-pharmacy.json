@@ -1,0 +1,89 @@
+{
+    "title": "At the Pharmacy",
+    "level": "A2",
+    "pattern": {
+        "title": "Being sick: kipee, särkee, kuumetta",
+        "summary": "Sore things are 'kipee' (spoken 'kipeä'), and aches do the acting in Finnish: 'mun päätä särkee' - literally 'it aches my head'. States you 'have' take the mul on form: 'mul on kuumetta'.",
+        "examples": [
+            "Mun kurkku on kipee. = My throat is sore.",
+            "Mun päätä särkee. = I have a headache.",
+            "Mul on kuumetta. = I have a fever."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä oon kipee.",
+            "en": "I'm sick.",
+            "written": "Minä olen kipeä.",
+            "glosses": {
+                "kipee": "sick / sore - spoken 'kipeä'"
+            }
+        },
+        {
+            "fi": "Mun kurkku on tosi kipee.",
+            "en": "My throat is really sore.",
+            "written": "Minun kurkkuni on todella kipeä.",
+            "glosses": {
+                "kurkku": "throat (also: cucumber - context saves you)",
+                "tosi": "really - spoken intensifier"
+            }
+        },
+        {
+            "fi": "Tarviinks mä reseptin?",
+            "en": "Do I need a prescription?",
+            "written": "Tarvitsenko minä reseptin?",
+            "glosses": {
+                "tarviinks": "do I need - spoken 'tarvitsenko'",
+                "reseptin": "a prescription - object form of 'resepti'"
+            }
+        },
+        {
+            "fi": "Onks teil mitään flunssaan?",
+            "en": "Do you have anything for the flu?",
+            "written": "Onko teillä mitään flunssaan?",
+            "glosses": {
+                "teil": "you (plural / polite) have - spoken 'teillä'",
+                "mitään": "anything",
+                "flunssaan": "for the flu - 'flunssa' + -an (into)"
+            }
+        },
+        {
+            "fi": "Ota näitä kaks kertaa päivässä.",
+            "en": "Take these twice a day.",
+            "written": "Ota näitä kaksi kertaa päivässä.",
+            "glosses": {
+                "ota": "take - command of 'ottaa'",
+                "näitä": "these - partitive of 'nämä'",
+                "kertaa": "times - 'kaks kertaa' = twice",
+                "päivässä": "per day - 'in a day'"
+            }
+        },
+        {
+            "fi": "Mul on kuumetta.",
+            "en": "I have a fever.",
+            "written": "Minulla on kuumetta.",
+            "glosses": {
+                "kuumetta": "fever - partitive of 'kuume'"
+            }
+        },
+        {
+            "fi": "Mä varaan ajan lääkärille.",
+            "en": "I'll book a doctor's appointment.",
+            "written": "Minä varaan ajan lääkärille.",
+            "glosses": {
+                "varaan": "I book / reserve - from 'varata'",
+                "ajan": "an appointment - literally 'a time'",
+                "lääkärille": "to the doctor - 'lääkäri' + -lle"
+            }
+        },
+        {
+            "fi": "Mee kotiin lepäämään.",
+            "en": "Go home and rest.",
+            "written": "Mene kotiin lepäämään.",
+            "glosses": {
+                "mee": "go - spoken 'mene'",
+                "lepäämään": "to rest - 'go to be resting'"
+            }
+        }
+    ]
+}

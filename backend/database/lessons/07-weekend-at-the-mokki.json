@@ -1,0 +1,91 @@
+{
+    "title": "Weekend at the Mökki",
+    "level": "A2",
+    "pattern": {
+        "title": "Going places: mökille, saunaan, uimaan",
+        "summary": "Where you're headed decides the ending: open places take -lle (mökille - to the cottage), enclosed ones take -Vn (saunaan - into the sauna), and activities take -maan (uimaan - to swim).",
+        "examples": [
+            "Lähetään mökille! = Let's head to the cottage!",
+            "Mä meen saunaan. = I'm going into the sauna.",
+            "Mennään uimaan. = Let's go swimming."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Lähetään viikonloppuna mökille.",
+            "en": "Let's head to the cottage for the weekend.",
+            "written": "Lähdetään viikonloppuna mökille.",
+            "glosses": {
+                "lähetään": "let's head out - spoken 'lähdetään'",
+                "viikonloppuna": "on the weekend",
+                "mökille": "to the cottage - 'mökki' is a Finnish institution"
+            }
+        },
+        {
+            "fi": "Mökil ei oo nettii.",
+            "en": "There's no internet at the cottage.",
+            "written": "Mökillä ei ole nettiä.",
+            "glosses": {
+                "mökil": "at the cottage - spoken 'mökillä'",
+                "ei oo": "there isn't - spoken 'ei ole'",
+                "nettii": "internet - spoken partitive of 'netti'"
+            }
+        },
+        {
+            "fi": "Lämmitetäänks sauna?",
+            "en": "Shall we heat up the sauna?",
+            "written": "Lämmitetäänkö sauna?",
+            "glosses": {
+                "lämmitetäänks": "shall we heat - spoken 'lämmitetäänkö'",
+                "sauna": "sauna - Finland's gift to the world"
+            }
+        },
+        {
+            "fi": "Heitä lisää löylyä!",
+            "en": "Throw more steam!",
+            "glosses": {
+                "heitä": "throw - command of 'heittää'",
+                "lisää": "more",
+                "löylyä": "löyly - the steam that rises off the stones; partitive of 'löyly'"
+            }
+        },
+        {
+            "fi": "Mä käyn uimassa.",
+            "en": "I'll go for a swim.",
+            "written": "Minä käyn uimassa.",
+            "glosses": {
+                "käyn": "I go (and come back) - from 'käydä'",
+                "uimassa": "swimming - 'at swimming'"
+            }
+        },
+        {
+            "fi": "Grillataanks makkaraa?",
+            "en": "Shall we grill some sausage?",
+            "written": "Grillataanko makkaraa?",
+            "glosses": {
+                "grillataanks": "shall we grill - spoken 'grillataanko'",
+                "makkaraa": "sausage - partitive of 'makkara', the sacred sauna snack"
+            }
+        },
+        {
+            "fi": "Järvi on viel tosi kylmä.",
+            "en": "The lake is still really cold.",
+            "written": "Järvi on vielä todella kylmä.",
+            "glosses": {
+                "järvi": "lake - Finland has 188 000 of them",
+                "viel": "still - spoken 'vielä'",
+                "kylmä": "cold"
+            }
+        },
+        {
+            "fi": "Tääl on niin rauhallista.",
+            "en": "It's so peaceful here.",
+            "written": "Täällä on niin rauhallista.",
+            "glosses": {
+                "tääl": "here - spoken 'täällä'",
+                "niin": "so",
+                "rauhallista": "peaceful - partitive of 'rauhallinen'"
+            }
+        }
+    ]
+}

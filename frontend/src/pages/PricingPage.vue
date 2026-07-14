@@ -2,7 +2,7 @@
 // Public pricing: the answer to "what's the catch?" before anyone signs up.
 // Free column is the product; Löyly+ is the AI layer on top.
 const FREE = [
-  'The full lesson path (A0 → A2, growing)',
+  'The full lesson path (A0 → B1, growing)',
   'Daily Sauna Sessions with spaced repetition',
   'Audio on every sentence and word',
   'Word bank + flashcard reviews',

@@ -45,10 +45,18 @@ export function usePrefs() {
     return !!localStorage.getItem('ss_onboarded')
   }
 
+  // Deliberate logout: drop the local mirror so the next account on this
+  // device doesn't inherit these prefs or skip its own intake.
+  function clearPrefs() {
+    prefs.value = {}
+    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem('ss_onboarded')
+  }
+
   const dailyGoal = () => prefs.value.dailyGoal ?? 6
 
   // Global audio playback speed (0.5x–2x, default 1x), set in the profile.
   const audioRate = () => Math.min(2, Math.max(0.5, prefs.value.audioRate ?? 1))
 
-  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, dailyGoal, audioRate }
+  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, clearPrefs, dailyGoal, audioRate }
 }

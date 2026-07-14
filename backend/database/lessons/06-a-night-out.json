@@ -1,0 +1,89 @@
+{
+    "title": "A Night Out",
+    "level": "A2",
+    "pattern": {
+        "title": "Inviting: lähetsä, haluutsä, otetaanks",
+        "summary": "Invitations squeeze the verb and 'sä' into one word: lähdetkö sinä → lähetsä, haluatko sinä → haluutsä. For 'shall we', the passive + -ks does the job: otetaanks, mennäänks.",
+        "examples": [
+            "Lähetsä illalla ulos? = Are you going out tonight?",
+            "Otetaanks yhet? = Shall we grab a drink?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Lähetsä illalla ulos?",
+            "en": "Are you going out tonight?",
+            "written": "Lähdetkö sinä illalla ulos?",
+            "glosses": {
+                "lähetsä": "are you going - spoken 'lähdetkö sinä' in one word",
+                "illalla": "in the evening / tonight",
+                "ulos": "out"
+            }
+        },
+        {
+            "fi": "Otetaanks yhet?",
+            "en": "Shall we grab a drink?",
+            "written": "Otetaanko yhdet?",
+            "glosses": {
+                "otetaanks": "shall we take - spoken 'otetaanko'",
+                "yhet": "one round - literally 'ones', THE classic Finnish invitation"
+            }
+        },
+        {
+            "fi": "Mä tuun sinne ysiltä.",
+            "en": "I'll come there at nine.",
+            "written": "Minä tulen sinne yhdeksältä.",
+            "glosses": {
+                "tuun": "I come - spoken 'tulen'",
+                "sinne": "there - 'to there'",
+                "ysiltä": "at nine - 'ysi' is the spoken numeral nine"
+            }
+        },
+        {
+            "fi": "Tää biisi on ihan sika hyvä!",
+            "en": "This song is so damn good!",
+            "written": "Tämä kappale on todella hyvä!",
+            "glosses": {
+                "biisi": "song - everyday slang, written Finnish says 'kappale'",
+                "sika": "super / damn - literally 'pig', a very common intensifier"
+            }
+        },
+        {
+            "fi": "Haluutsä jotain juotavaa?",
+            "en": "Do you want something to drink?",
+            "written": "Haluatko sinä jotain juotavaa?",
+            "glosses": {
+                "haluutsä": "do you want - spoken 'haluatko sinä'",
+                "jotain": "something",
+                "juotavaa": "to drink - 'something drinkable'"
+            }
+        },
+        {
+            "fi": "Mennään tanssimaan!",
+            "en": "Let's go dance!",
+            "glosses": {
+                "mennään": "let's go - the spoken we-form",
+                "tanssimaan": "to dance - 'into dancing'"
+            }
+        },
+        {
+            "fi": "Mun pitää mennä himaan.",
+            "en": "I have to go home.",
+            "written": "Minun pitää mennä kotiin.",
+            "glosses": {
+                "pitää": "have to / must",
+                "himaan": "home - 'hima' is slang for 'koti'"
+            }
+        },
+        {
+            "fi": "Eilen meni vähän myöhään.",
+            "en": "Last night went a bit late.",
+            "glosses": {
+                "eilen": "yesterday",
+                "meni": "went - past of 'mennä'",
+                "vähän": "a bit",
+                "myöhään": "late / until late"
+            }
+        }
+    ]
+}

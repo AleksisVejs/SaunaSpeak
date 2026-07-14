@@ -40,6 +40,10 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await api.post('/login', { ...payload, timezone: browserTimezone() })
       this.setToken(data.token)
       this.user = data.user
+      // Adopt server prefs before the post-login redirect: the router guard
+      // reads the onboarded flag, and without this a second device would be
+      // bounced into the intake quiz again.
+      usePrefs().adoptServerPrefs(data.user?.preferences)
     },
 
     async fetchUser() {
@@ -60,6 +64,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.stats = null
       localStorage.removeItem('token')
+      usePrefs().clearPrefs()
     }
   }
 })

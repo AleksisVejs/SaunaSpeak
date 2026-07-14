@@ -1,0 +1,93 @@
+{
+    "title": "Family and Friends",
+    "level": "A1",
+    "pattern": {
+        "title": "My people: mun äiti, sun kaveri",
+        "summary": "Written Finnish doubles up possession: 'minun äitini' (my mother-my). Spoken Finnish keeps just the short pronoun: 'mun äiti', 'sun kaveri' - the -ni/-si endings disappear.",
+        "examples": [
+            "Mun äiti asuu Turussa. = My mom lives in Turku.",
+            "Onks toi sun veli? = Is that your brother?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Tää on mun äiti.",
+            "en": "This is my mom.",
+            "written": "Tämä on minun äitini.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "mun": "my - spoken 'minun', and no -ni ending on the noun",
+                "äiti": "mom / mother"
+            }
+        },
+        {
+            "fi": "Mun isä on viel töissä.",
+            "en": "My dad is still at work.",
+            "written": "Minun isäni on vielä töissä.",
+            "glosses": {
+                "isä": "dad / father",
+                "viel": "still - spoken 'vielä'",
+                "töissä": "at work - literally 'in works'"
+            }
+        },
+        {
+            "fi": "Onks sul sisaruksia?",
+            "en": "Do you have siblings?",
+            "written": "Onko sinulla sisaruksia?",
+            "glosses": {
+                "onks": "is/are? - spoken 'onko'",
+                "sul": "you have - spoken 'sinulla'",
+                "sisaruksia": "siblings - partitive plural of 'sisarus'"
+            }
+        },
+        {
+            "fi": "Mul on kaks veljee.",
+            "en": "I have two brothers.",
+            "written": "Minulla on kaksi veljeä.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "kaks": "two - spoken 'kaksi'",
+                "veljee": "brothers - spoken partitive of 'veli'"
+            }
+        },
+        {
+            "fi": "Toi on mun paras kaveri.",
+            "en": "That's my best friend.",
+            "written": "Tuo on minun paras kaverini.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "paras": "best",
+                "kaveri": "friend / buddy - the everyday word; 'ystävä' is deeper"
+            }
+        },
+        {
+            "fi": "Mun mummo soittaa mulle joka päivä.",
+            "en": "My grandma calls me every day.",
+            "written": "Minun isoäitini soittaa minulle joka päivä.",
+            "glosses": {
+                "mummo": "grandma - the warm everyday word for 'isoäiti'",
+                "soittaa": "calls - from 'soittaa' (to call, to play an instrument)",
+                "joka": "every - 'joka päivä' = every day"
+            }
+        },
+        {
+            "fi": "Me ollaan serkkuja.",
+            "en": "We're cousins.",
+            "written": "Me olemme serkkuja.",
+            "glosses": {
+                "ollaan": "we are - the spoken we-form (passive as 'we')",
+                "serkkuja": "cousins - partitive plural of 'serkku'"
+            }
+        },
+        {
+            "fi": "Tuutsä meille kylään?",
+            "en": "Are you coming over to our place?",
+            "written": "Tuletko sinä meille kylään?",
+            "glosses": {
+                "tuutsä": "are you coming - spoken 'tuletko sinä' squeezed into one word",
+                "meille": "to our place - 'to us'",
+                "kylään": "for a visit - 'käydä kylässä' = to visit someone"
+            }
+        }
+    ]
+}
