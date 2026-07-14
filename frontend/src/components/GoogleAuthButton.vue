@@ -2,6 +2,12 @@
 // "Continue with Google" - a full-page hop to the backend's OAuth redirect
 // (not an XHR: Google must own the whole window for the consent screen).
 // The browser timezone rides along so streaks are right from day one.
+// Rendered Google-first on the auth pages; the divider below hands off to
+// the email form.
+defineProps({
+  dividerText: { type: String, default: 'or' }
+})
+
 function go() {
   let tz = ''
   try {
@@ -15,7 +21,6 @@ function go() {
 
 <template>
   <div class="google-auth">
-    <div class="divider" aria-hidden="true"><span>or</span></div>
     <button type="button" class="btn btn-ghost btn-block google-btn" @click="go">
       <svg class="g-logo" viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -25,14 +30,15 @@ function go() {
       </svg>
       Continue with Google
     </button>
+    <div class="divider" aria-hidden="true"><span>{{ dividerText }}</span></div>
   </div>
 </template>
 
 <style scoped>
-.google-auth { margin-top: 14px; }
+.google-auth { margin-bottom: 4px; }
 .divider {
   display: flex; align-items: center; gap: 12px;
-  color: var(--text-dim); font-size: 12.5px; margin-bottom: 14px;
+  color: var(--text-dim); font-size: 12.5px; margin: 14px 0;
 }
 .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid var(--border, rgba(255, 255, 255, 0.12)); }
 .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; }
