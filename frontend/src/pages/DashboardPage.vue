@@ -75,8 +75,14 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
       <header class="top">
         <h2 class="greeting">Hei, {{ auth.user?.name }}! 👋</h2>
         <div class="chips">
-          <span class="chip"><span class="chip-icon">⚡</span>{{ auth.user?.xp ?? 0 }}</span>
-          <span class="chip"><span class="chip-icon">🔥</span>{{ auth.user?.streak ?? 0 }}</span>
+          <span class="chip" title="XP — points earned from every completed exercise" aria-label="Experience points">
+            <span class="chip-icon">⚡</span>{{ auth.user?.xp ?? 0 }}
+            <span class="chip-label">XP</span>
+          </span>
+          <span class="chip" title="Streak — days in a row you've practiced" aria-label="Day streak">
+            <span class="chip-icon">🔥</span>{{ auth.user?.streak ?? 0 }}
+            <span class="chip-label">day streak</span>
+          </span>
         </div>
       </header>
 
@@ -150,6 +156,7 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
 <style scoped>
 .top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -169,6 +176,14 @@ const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
   font-size: 15px;
 }
 .chip-icon { font-size: 15px; }
+.chip-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 1px;
+}
 
 .rank-card { margin-bottom: 16px; }
 .rank-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
