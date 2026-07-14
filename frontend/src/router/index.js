@@ -24,6 +24,7 @@ const routes = [
   // the fetched lesson's own SEO text (see usePageHead).
   { path: '/lessons/:slug', name: 'lesson-preview', component: () => import('../pages/LessonPreviewPage.vue'), meta: { title: 'Spoken Finnish lesson - SaunaSpeak', description: DEFAULT_DESCRIPTION } },
   { path: '/pricing', name: 'pricing', component: () => import('../pages/PricingPage.vue'), meta: { title: 'Pricing - the learning path is free forever - SaunaSpeak', description: 'SaunaSpeak pricing: the full spoken-Finnish learning path is free forever. Löyly+ (€4.99/month) adds AI conversation practice and real-life roleplay.' } },
+  { path: '/compare', name: 'compare', component: () => import('../pages/ComparePage.vue'), meta: { title: 'Best apps to learn Finnish, compared honestly (2026) - SaunaSpeak', description: 'SaunaSpeak vs Duolingo vs Pimsleur vs SuomiSpeak - an honest comparison of Finnish learning apps: spoken Finnish (puhekieli), free tiers, AI practice, grammar depth and price.' } },
   { path: '/privacy', name: 'privacy', component: () => import('../pages/PrivacyPage.vue'), meta: { title: 'Privacy policy - SaunaSpeak', description: 'What SaunaSpeak stores, why, and your rights over your data.' } },
   { path: '/terms', name: 'terms', component: () => import('../pages/TermsPage.vue'), meta: { title: 'Terms of service - SaunaSpeak', description: 'The terms for using SaunaSpeak, the spoken-Finnish learning app.' } },
   { path: '/onboarding', name: 'onboarding', component: () => import('../pages/OnboardingFlow.vue'), meta: { auth: true } },

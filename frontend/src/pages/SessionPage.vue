@@ -329,6 +329,7 @@ function confettiStyle(i) {
 }
 @keyframes confetti-fall {
   0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-  100% { opacity: 0.15; transform: translateY(420px) rotate(540deg); }
+  80% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(420px) rotate(540deg); }
 }
 </style>

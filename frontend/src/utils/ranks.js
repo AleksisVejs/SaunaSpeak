@@ -1,12 +1,15 @@
 // Sauna ranks - löyly levels earned with XP. Shared by the dashboard rank
 // card and the session-end celebration.
+// The curve targets ~3-4 months of consistent play to the top (reviews pay
+// 10 XP forever, ~130-170 XP on a normal day) - a ladder finished in two
+// weeks stops motivating exactly when retention gets hard.
 export const RANKS = [
   { xp: 0, title: 'Kylmä Kiuas', icon: '🪨' },
-  { xp: 150, title: 'Ensilöyly', icon: '💧' },
-  { xp: 400, title: 'Löylynheittäjä', icon: '♨️' },
-  { xp: 800, title: 'Lauteiden Vakio', icon: '🧖' },
-  { xp: 1400, title: 'Löylymestari', icon: '🔥' },
-  { xp: 2200, title: 'Saunalegenda', icon: '👑' }
+  { xp: 500, title: 'Ensilöyly', icon: '💧' },
+  { xp: 1500, title: 'Löylynheittäjä', icon: '♨️' },
+  { xp: 4000, title: 'Lauteiden Vakio', icon: '🧖' },
+  { xp: 8000, title: 'Löylymestari', icon: '🔥' },
+  { xp: 15000, title: 'Saunalegenda', icon: '👑' }
 ]
 
 export function rankFor(xp) {

@@ -224,6 +224,7 @@ onBeforeUnmount(() => faqLd?.remove())
         <router-link to="/try">Try it</router-link>
         <router-link to="/lessons">Lessons</router-link>
         <router-link to="/pricing">Pricing</router-link>
+        <router-link to="/compare">Compare</router-link>
         <router-link to="/privacy">Privacy</router-link>
         <router-link to="/terms">Terms</router-link>
         <a href="mailto:mail@saunaspeak.com">Contact</a>
