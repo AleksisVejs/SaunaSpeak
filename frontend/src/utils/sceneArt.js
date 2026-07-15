@@ -10,5 +10,6 @@ export const SCENE_ART = {
   ravintola: { character: '/scenes/Ravintola.png', background: '/scenes/restaurant.jpg' },
   naapuri: { character: '/scenes/Naapuri.png', background: '/scenes/suburb.jpg' },
   tori: { character: '/scenes/Tori.png', background: '/scenes/market.jpg' },
-  saunailta: { character: '/scenes/Saunailta.png', background: '/scenes/sauna.jpg' }
+  saunailta: { character: '/scenes/Saunailta.png', background: '/scenes/sauna.jpg' },
+  puhelin: { character: '/scenes/Puhelin.png', background: '/scenes/healthcenter.jpg' }
 }

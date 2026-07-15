@@ -136,6 +136,20 @@ class Scenarios
             'difficulty' => 'easy',
             'goals' => ['family', 'casual'],
         ],
+        'puhelin' => [
+            'emoji' => '📞',
+            'title' => 'Phone call to the health center',
+            'tagline' => 'No faces, no pointing - just your Finnish on the line.',
+            'persona' => 'Sirpa',
+            'role' => 'a brisk but professional receptionist at a Finnish health center (terveysasema), answering the phone',
+            'scene' => 'The learner is calling your health center to book a doctor\'s appointment. This is a PHONE CALL: they cannot see you or point at anything, so everything must be said in words. Ask their name, what the problem is (flunssa, selkä kipeä, korvakipu...) and how long it has lasted, then offer a concrete time (e.g. torstaina kello 10.40) and confirm the booking. You are friendly but efficient - other calls are waiting - and you use real reception phrases like "hetkinen" and "katsotaanpa".',
+            'mission' => 'Book a doctor\'s appointment by phone: give your name, describe the problem, and agree on a time.',
+            'goal_check' => 'the learner has described their problem AND accepted a specific appointment time',
+            'opener_fi' => 'Terveysasema, Sirpa puhelimessa. Miten voin auttaa?',
+            'opener_en' => 'Health center, Sirpa speaking. How can I help?',
+            'difficulty' => 'hard',
+            'goals' => ['move'],
+        ],
     ];
 
     /** The whole catalog, ids included. */
