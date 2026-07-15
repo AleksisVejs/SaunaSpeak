@@ -1,0 +1,114 @@
+{
+    "title": "Would Have, Should Have",
+    "level": "B2",
+    "pattern": {
+        "title": "Regrets: oisin tullu, ois pitäny",
+        "summary": "Would-have is the conditional of olla + a participle: mä oisin tullu = I would have come. 'Ois pitäny' = should have - the go-to phrase for regrets. Spoken Finnish shortens everything: olisin → oisin, olisi pitänyt → ois pitäny.",
+        "examples": [
+            "Sun ois pitäny sanoo jotain. = You should have said something.",
+            "Mä oisin tullu, jos mä oisin tienny. = I would have come if I had known.",
+            "Kaikki ois voinu mennä huonommin. = It all could have gone worse."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Sun ois pitäny sanoo jotain.",
+            "en": "You should have said something.",
+            "written": "Sinun olisi pitänyt sanoa jotakin.",
+            "glosses": {
+                "sun": "you - spoken 'sinun'",
+                "ois": "would have - spoken 'olisi'",
+                "pitäny": "had to - spoken 'pitänyt'; 'ois pitäny' = should have",
+                "sanoo": "to say - spoken 'sanoa'",
+                "jotain": "something - spoken 'jotakin'"
+            }
+        },
+        {
+            "fi": "Ois pitäny lähtee aikasemmin.",
+            "en": "We should have left earlier.",
+            "written": "Olisi pitänyt lähteä aikaisemmin.",
+            "glosses": {
+                "ois": "would have - spoken 'olisi'",
+                "pitäny": "had to - spoken 'pitänyt'",
+                "lähtee": "to leave - spoken 'lähteä'",
+                "aikasemmin": "earlier - spoken 'aikaisemmin'"
+            }
+        },
+        {
+            "fi": "Mä oisin tullu, jos mä oisin tienny.",
+            "en": "I would have come if I had known.",
+            "written": "Minä olisin tullut, jos minä olisin tiennyt.",
+            "glosses": {
+                "mä": "I",
+                "oisin": "would have - spoken 'olisin'",
+                "tullu": "come - spoken 'tullut'",
+                "jos": "if",
+                "tienny": "known - spoken 'tiennyt'"
+            }
+        },
+        {
+            "fi": "Ei ois kannattanu ostaa tota.",
+            "en": "It wouldn't have been worth buying that.",
+            "written": "Ei olisi kannattanut ostaa tuota.",
+            "glosses": {
+                "ei": "not",
+                "ois": "would have - spoken 'olisi'",
+                "kannattanu": "been worth it - spoken 'kannattanut'",
+                "ostaa": "to buy",
+                "tota": "that - spoken 'tuota'"
+            }
+        },
+        {
+            "fi": "Mä en ois ikinä uskonu tätä.",
+            "en": "I would never have believed this.",
+            "written": "Minä en olisi ikinä uskonut tätä.",
+            "glosses": {
+                "mä": "I",
+                "en": "wouldn't - the I-form of 'ei'",
+                "ois": "have - spoken 'olisi'",
+                "ikinä": "ever / never",
+                "uskonu": "believed - spoken 'uskonut'",
+                "tätä": "this"
+            }
+        },
+        {
+            "fi": "Mitä sä oisit tehny mun tilanteessa?",
+            "en": "What would you have done in my situation?",
+            "written": "Mitä sinä olisit tehnyt minun tilanteessani?",
+            "glosses": {
+                "mitä": "what",
+                "sä": "you",
+                "oisit": "would have - spoken 'olisit'",
+                "tehny": "done - spoken 'tehnyt'",
+                "mun": "my - spoken 'minun'",
+                "tilanteessa": "in the situation"
+            }
+        },
+        {
+            "fi": "Ilman sua tää ei ois onnistunu.",
+            "en": "Without you this wouldn't have worked out.",
+            "written": "Ilman sinua tämä ei olisi onnistunut.",
+            "glosses": {
+                "ilman": "without",
+                "sua": "you - spoken 'sinua'",
+                "tää": "this - spoken 'tämä'",
+                "ei": "not",
+                "ois": "would have - spoken 'olisi'",
+                "onnistunu": "succeeded / worked out - spoken 'onnistunut'"
+            }
+        },
+        {
+            "fi": "Kaikki ois voinu mennä paljon huonommin.",
+            "en": "Everything could have gone much worse.",
+            "written": "Kaikki olisi voinut mennä paljon huonommin.",
+            "glosses": {
+                "kaikki": "everything",
+                "ois": "would have - spoken 'olisi'",
+                "voinu": "been able to - spoken 'voinut'; 'ois voinu' = could have",
+                "mennä": "to go",
+                "paljon": "much",
+                "huonommin": "worse - comparative of 'huonosti'"
+            }
+        }
+    ]
+}

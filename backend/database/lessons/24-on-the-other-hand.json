@@ -1,0 +1,126 @@
+{
+    "title": "On the Other Hand",
+    "level": "B2",
+    "pattern": {
+        "title": "Weighing it: toisaalta, silti, sitä paitsi",
+        "summary": "For opinions with more than one side: 'must tuntuu et' = I feel like, 'toisaalta' = on the other hand, 'silti' = still / even so, 'sitä paitsi' = besides. These connectors turn short claims into real arguments - the difference between A2 and B2 talk.",
+        "examples": [
+            "Must tuntuu, et tää on hyvä idea. = I feel like this is a good idea.",
+            "Toisaalta sä oot kyl oikeessa. = On the other hand, you are right.",
+            "Sitä paitsi meil ei oo ees aikaa. = Besides, we don't even have time."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Must tuntuu, et tää on hyvä idea.",
+            "en": "I feel like this is a good idea.",
+            "written": "Minusta tuntuu, että tämä on hyvä idea.",
+            "glosses": {
+                "must": "to me - spoken 'minusta'",
+                "tuntuu": "feels - 'must tuntuu' = I feel like",
+                "et": "that - spoken 'että'",
+                "tää": "this - spoken 'tämä'",
+                "on": "is",
+                "hyvä": "good",
+                "idea": "idea"
+            }
+        },
+        {
+            "fi": "Riippuu ihan siitä, mitä sä haluut.",
+            "en": "It depends entirely on what you want.",
+            "written": "Riippuu ihan siitä, mitä sinä haluat.",
+            "glosses": {
+                "riippuu": "depends - from 'riippua'",
+                "ihan": "entirely / quite",
+                "siitä": "on that - pairs with 'riippuu'",
+                "mitä": "what",
+                "sä": "you",
+                "haluut": "want - spoken 'haluat'"
+            }
+        },
+        {
+            "fi": "Se on kallis, mut mä ostan sen silti.",
+            "en": "It's expensive, but I'll still buy it.",
+            "written": "Se on kallis, mutta minä ostan sen silti.",
+            "glosses": {
+                "se": "it",
+                "on": "is",
+                "kallis": "expensive",
+                "mut": "but - spoken 'mutta'",
+                "mä": "I",
+                "ostan": "buy - from 'ostaa'",
+                "sen": "it",
+                "silti": "still / even so"
+            }
+        },
+        {
+            "fi": "Toisaalta sä oot kyl oikeessa.",
+            "en": "On the other hand, you are right.",
+            "written": "Toisaalta sinä olet kyllä oikeassa.",
+            "glosses": {
+                "toisaalta": "on the other hand",
+                "sä": "you",
+                "oot": "are - spoken 'olet'",
+                "kyl": "for sure - spoken 'kyllä'",
+                "oikeessa": "right - spoken 'oikeassa'"
+            }
+        },
+        {
+            "fi": "Sitä paitsi meil ei oo ees aikaa.",
+            "en": "Besides, we don't even have time.",
+            "written": "Sitä paitsi meillä ei ole edes aikaa.",
+            "glosses": {
+                "sitä": "that - part of 'sitä paitsi'",
+                "paitsi": "besides - 'sitä paitsi' = besides",
+                "meil": "we have - spoken 'meillä'",
+                "ei": "not",
+                "oo": "have - spoken 'ole'",
+                "ees": "even - spoken 'edes'",
+                "aikaa": "time"
+            }
+        },
+        {
+            "fi": "Ymmärrän kyl sun pointin, mut mä nään tän eri tavalla.",
+            "en": "I get your point, but I see this differently.",
+            "written": "Ymmärrän kyllä sinun pointtisi, mutta minä näen tämän eri tavalla.",
+            "glosses": {
+                "ymmärrän": "I understand - from 'ymmärtää'",
+                "kyl": "for sure - spoken 'kyllä'",
+                "sun": "your - spoken 'sinun'",
+                "pointin": "point - loanword 'pointti'",
+                "mut": "but - spoken 'mutta'",
+                "mä": "I",
+                "nään": "see - spoken 'näen'",
+                "tän": "this - spoken 'tämän'",
+                "eri": "different",
+                "tavalla": "in a way - 'eri tavalla' = differently"
+            }
+        },
+        {
+            "fi": "Joka tapaukses kannattaa miettii viel hetki.",
+            "en": "In any case, it's worth thinking it over a moment longer.",
+            "written": "Joka tapauksessa kannattaa miettiä vielä hetki.",
+            "glosses": {
+                "joka": "every - 'joka tapaukses' = in any case",
+                "tapaukses": "case - spoken 'tapauksessa'",
+                "kannattaa": "it's worth it",
+                "miettii": "to think over - spoken 'miettiä'",
+                "viel": "still / a bit more - spoken 'vielä'",
+                "hetki": "a moment"
+            }
+        },
+        {
+            "fi": "Loppujen lopuks se on sun päätös.",
+            "en": "In the end, it's your decision.",
+            "written": "Loppujen lopuksi se on sinun päätöksesi.",
+            "glosses": {
+                "loppujen": "of the ends - part of the idiom",
+                "lopuks": "in the end - spoken 'lopuksi'",
+                "se": "it",
+                "on": "is",
+                "sun": "your - spoken 'sinun'",
+                "päätös": "decision"
+            }
+        }
+    ]
+}

@@ -1,0 +1,101 @@
+{
+    "title": "Good News, Bad News",
+    "level": "B2",
+    "pattern": {
+        "title": "Reacting: voi ei, harmi, kyl se siitä",
+        "summary": "How Finns react to news: 'voi ei' = oh no, 'harmi' = what a shame, 'onneks' = luckily. And when things go wrong, the national motto: 'kyl se siitä' = it'll be alright, and 'ei voi mitään' = nothing to be done. Say these right and you'll sound like you grew up here.",
+        "examples": [
+            "Voi ei, mitä tapahtu? = Oh no, what happened?",
+            "Kyl se siitä. = It'll be alright.",
+            "Hienoo, onnee vaan! = Great, congrats!"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Voi ei, mitä tapahtu?",
+            "en": "Oh no, what happened?",
+            "written": "Voi ei, mitä tapahtui?",
+            "glosses": {
+                "voi": "oh - 'voi ei' = oh no",
+                "ei": "no",
+                "mitä": "what",
+                "tapahtu": "happened - spoken 'tapahtui'"
+            }
+        },
+        {
+            "fi": "Harmi, ettet päässy mukaan.",
+            "en": "Shame you couldn't come along.",
+            "written": "Harmi, ettet päässyt mukaan.",
+            "glosses": {
+                "harmi": "a shame / a pity",
+                "ettet": "that you didn't - 'että' + 'et' fused",
+                "päässy": "made it - spoken 'päässyt'",
+                "mukaan": "along"
+            }
+        },
+        {
+            "fi": "Onneks kaikki meni hyvin.",
+            "en": "Luckily everything went well.",
+            "written": "Onneksi kaikki meni hyvin.",
+            "glosses": {
+                "onneks": "luckily - spoken 'onneksi'",
+                "kaikki": "everything",
+                "meni": "went - from 'mennä'",
+                "hyvin": "well"
+            }
+        },
+        {
+            "fi": "Kyl se siitä.",
+            "en": "It'll be alright.",
+            "written": "Kyllä se siitä.",
+            "glosses": {
+                "kyl": "surely - spoken 'kyllä'",
+                "se": "it",
+                "siitä": "from that - the whole idiom means 'it'll sort itself out'"
+            }
+        },
+        {
+            "fi": "Ei voi mitään.",
+            "en": "Nothing to be done.",
+            "written": null,
+            "glosses": {
+                "ei": "not",
+                "voi": "can",
+                "mitään": "anything - the shrug that ends a complaint"
+            }
+        },
+        {
+            "fi": "No, semmosta sattuu.",
+            "en": "Well, stuff like that happens.",
+            "written": "No, sellaista sattuu.",
+            "glosses": {
+                "no": "well",
+                "semmosta": "that kind of thing - spoken 'sellaista'",
+                "sattuu": "happens - from 'sattua'"
+            }
+        },
+        {
+            "fi": "Mä oon tosi pahoillani sun puolesta.",
+            "en": "I'm really sorry for you.",
+            "written": "Minä olen tosi pahoillani sinun puolestasi.",
+            "glosses": {
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "tosi": "really",
+                "pahoillani": "sorry - 'olla pahoillaan' = to be sorry",
+                "sun": "your - spoken 'sinun'",
+                "puolesta": "on behalf of - 'sun puolesta' = for you"
+            }
+        },
+        {
+            "fi": "Hienoo, onnee vaan!",
+            "en": "Great, congrats!",
+            "written": "Hienoa, onnea vain!",
+            "glosses": {
+                "hienoo": "great - spoken 'hienoa'",
+                "onnee": "congratulations - spoken 'onnea'",
+                "vaan": "just / simply - spoken 'vain', softens the wish"
+            }
+        }
+    ]
+}

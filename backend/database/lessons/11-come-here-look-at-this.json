@@ -1,0 +1,95 @@
+{
+    "title": "Come Here, Look at This",
+    "level": "A1",
+    "pattern": {
+        "title": "Commands: tuu, mee, ota, älä",
+        "summary": "The most common verbs have short spoken commands: tule → tuu (come!), mene → mee (go!), odota → oota (wait!), katso → kato (look!). For don't-commands, put 'älä' before the verb: Älä unohda! = Don't forget!",
+        "examples": [
+            "Tuu tänne! = Come here!",
+            "Oota vähän. = Wait a sec.",
+            "Älä unohda! = Don't forget!"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Tuu tänne!",
+            "en": "Come here!",
+            "written": "Tule tänne!",
+            "glosses": {
+                "tuu": "come! - spoken 'tule'",
+                "tänne": "to here"
+            }
+        },
+        {
+            "fi": "Oota vähän.",
+            "en": "Wait a sec.",
+            "written": "Odota vähän.",
+            "glosses": {
+                "oota": "wait! - spoken 'odota', the d drops out",
+                "vähän": "a little / a bit"
+            }
+        },
+        {
+            "fi": "Kato tota!",
+            "en": "Look at that!",
+            "written": "Katso tuota!",
+            "glosses": {
+                "kato": "look! - spoken 'katso'",
+                "tota": "that - spoken 'tuota'"
+            }
+        },
+        {
+            "fi": "Ota toi kassi.",
+            "en": "Take that bag.",
+            "written": "Ota tuo kassi.",
+            "glosses": {
+                "ota": "take! - from 'ottaa'",
+                "toi": "that - spoken 'tuo'",
+                "kassi": "bag"
+            }
+        },
+        {
+            "fi": "Älä unohda avaimii.",
+            "en": "Don't forget the keys.",
+            "written": "Älä unohda avaimia.",
+            "glosses": {
+                "älä": "don't - negative command word",
+                "unohda": "forget - from 'unohtaa'",
+                "avaimii": "keys - spoken 'avaimia'"
+            }
+        },
+        {
+            "fi": "Tuu käymään joskus.",
+            "en": "Come visit sometime.",
+            "written": "Tule käymään joskus.",
+            "glosses": {
+                "tuu": "come! - spoken 'tule'",
+                "käymään": "to visit - from 'käydä'",
+                "joskus": "sometime"
+            }
+        },
+        {
+            "fi": "Mee vaan, mä tuun perässä.",
+            "en": "Go ahead, I'll come after you.",
+            "written": "Mene vain, minä tulen perässä.",
+            "glosses": {
+                "mee": "go! - spoken 'mene'",
+                "vaan": "just / go ahead - spoken 'vain'",
+                "mä": "I",
+                "tuun": "come - spoken 'tulen'",
+                "perässä": "behind / right after"
+            }
+        },
+        {
+            "fi": "Sano, jos tarviit apua.",
+            "en": "Say so if you need help.",
+            "written": "Sano, jos tarvitset apua.",
+            "glosses": {
+                "sano": "say / tell - from 'sanoa'",
+                "jos": "if",
+                "tarviit": "you need - spoken 'tarvitset'",
+                "apua": "help"
+            }
+        }
+    ]
+}

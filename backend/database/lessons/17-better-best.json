@@ -1,0 +1,113 @@
+{
+    "title": "Better, Best",
+    "level": "B1",
+    "pattern": {
+        "title": "Comparing: parempi, kivempi, paras",
+        "summary": "Comparatives end in -mpi: parempi (better), halvempi (cheaper), kivempi (nicer). In speech 'kuin' (than) shrinks to 'ku', and vowels shift: nopeampi → nopeempi. Superlatives: paras (best), suosituin (most popular).",
+        "examples": [
+            "Tää on parempi ku toi. = This is better than that.",
+            "Kumpi on halvempi? = Which one is cheaper?",
+            "Mitä nopeempi, sen parempi. = The faster the better."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Tää on parempi ku toi.",
+            "en": "This is better than that.",
+            "written": "Tämä on parempi kuin tuo.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "on": "is",
+                "parempi": "better - the comparative of 'hyvä'",
+                "ku": "than - spoken 'kuin'",
+                "toi": "that - spoken 'tuo'"
+            }
+        },
+        {
+            "fi": "Kumpi on halvempi?",
+            "en": "Which one is cheaper?",
+            "written": null,
+            "glosses": {
+                "kumpi": "which of the two",
+                "on": "is",
+                "halvempi": "cheaper - from 'halpa'"
+            }
+        },
+        {
+            "fi": "Kesä on kivempi ku talvi.",
+            "en": "Summer is nicer than winter.",
+            "written": "Kesä on kivempi kuin talvi.",
+            "glosses": {
+                "kesä": "summer",
+                "on": "is",
+                "kivempi": "nicer - from 'kiva'",
+                "ku": "than - spoken 'kuin'",
+                "talvi": "winter"
+            }
+        },
+        {
+            "fi": "Se oli paljon isompi ku mä luulin.",
+            "en": "It was much bigger than I thought.",
+            "written": "Se oli paljon isompi kuin minä luulin.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "paljon": "much / a lot",
+                "isompi": "bigger - from 'iso'",
+                "ku": "than - spoken 'kuin'",
+                "mä": "I",
+                "luulin": "thought - from 'luulla'"
+            }
+        },
+        {
+            "fi": "Sun suomi on paljon parempaa ku mun.",
+            "en": "Your Finnish is much better than mine.",
+            "written": "Sinun suomesi on paljon parempaa kuin minun.",
+            "glosses": {
+                "sun": "your - spoken 'sinun'",
+                "suomi": "Finnish - the language",
+                "on": "is",
+                "paljon": "much",
+                "parempaa": "better - partitive of 'parempi'",
+                "ku": "than - spoken 'kuin'",
+                "mun": "mine - spoken 'minun'"
+            }
+        },
+        {
+            "fi": "Tää oli mun elämän paras reissu.",
+            "en": "This was the best trip of my life.",
+            "written": "Tämä oli minun elämäni paras reissu.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "oli": "was",
+                "mun": "my - spoken 'minun'",
+                "elämän": "life's - genitive of 'elämä'",
+                "paras": "best - the superlative of 'hyvä'",
+                "reissu": "trip - casual word for 'matka'"
+            }
+        },
+        {
+            "fi": "Toi on Suomen suosituin sauna.",
+            "en": "That's the most popular sauna in Finland.",
+            "written": "Tuo on Suomen suosituin sauna.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "on": "is",
+                "suomen": "Finland's",
+                "suosituin": "most popular - superlative -in ending",
+                "sauna": "sauna"
+            }
+        },
+        {
+            "fi": "Mitä nopeempi, sen parempi.",
+            "en": "The faster the better.",
+            "written": "Mitä nopeampi, sen parempi.",
+            "glosses": {
+                "mitä": "the (more) - pairs with 'sen'",
+                "nopeempi": "faster - spoken 'nopeampi'",
+                "sen": "the (better) - pairs with 'mitä'",
+                "parempi": "better"
+            }
+        }
+    ]
+}

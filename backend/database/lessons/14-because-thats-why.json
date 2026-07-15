@@ -1,0 +1,122 @@
+{
+    "title": "Because, That's Why",
+    "level": "B1",
+    "pattern": {
+        "title": "Reasons: ku, koska, sen takia",
+        "summary": "In speech the everyday 'because' is 'ku' (from 'kun'); 'koska' works too. 'Sen takia' means that's why / because of that, and 'siks et' means for the reason that. 'No ku...' is the classic way to start an excuse: Well, because...",
+        "examples": [
+            "No ku mul oli kiire. = Well, 'cause I was busy.",
+            "Sen takia mä en ehtiny. = That's why I didn't make it.",
+            "Minkä takia sä kysyt? = Why do you ask?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Miks sä et tullu?",
+            "en": "Why didn't you come?",
+            "written": "Miksi sinä et tullut?",
+            "glosses": {
+                "miks": "why - spoken 'miksi'",
+                "sä": "you",
+                "et": "didn't - the you-form of 'ei'",
+                "tullu": "come - spoken 'tullut'"
+            }
+        },
+        {
+            "fi": "No ku mul oli niin kiire.",
+            "en": "Well, 'cause I was so busy.",
+            "written": "No kun minulla oli niin kiire.",
+            "glosses": {
+                "no": "well - the excuse-starter",
+                "ku": "because - spoken 'kun'",
+                "mul": "I had - spoken 'minulla'",
+                "oli": "was",
+                "niin": "so",
+                "kiire": "hurry / a lot to do"
+            }
+        },
+        {
+            "fi": "Mä jäin himaan, ku mua väsytti.",
+            "en": "I stayed home because I was tired.",
+            "written": "Minä jäin kotiin, koska minua väsytti.",
+            "glosses": {
+                "mä": "I",
+                "jäin": "stayed - from 'jäädä'",
+                "himaan": "home - slang 'hima'",
+                "ku": "because - spoken 'kun'",
+                "mua": "me - spoken 'minua'",
+                "väsytti": "was making tired - from 'väsyttää'"
+            }
+        },
+        {
+            "fi": "Minkä takia sä kysyt?",
+            "en": "Why do you ask?",
+            "written": "Minkä takia sinä kysyt?",
+            "glosses": {
+                "minkä": "of what - pairs with 'takia'",
+                "takia": "because of",
+                "sä": "you",
+                "kysyt": "ask - from 'kysyä'"
+            }
+        },
+        {
+            "fi": "Junat oli myöhäs, sen takia mä en ehtiny.",
+            "en": "The trains were late, that's why I didn't make it.",
+            "written": "Junat olivat myöhässä, sen takia minä en ehtinyt.",
+            "glosses": {
+                "junat": "trains",
+                "oli": "were - spoken Finnish uses 'oli' for plurals too",
+                "myöhäs": "late - spoken 'myöhässä'",
+                "sen": "that - pairs with 'takia'",
+                "takia": "because of - 'sen takia' = that's why",
+                "mä": "I",
+                "en": "didn't - the I-form of 'ei'",
+                "ehtiny": "made it in time - spoken 'ehtinyt'"
+            }
+        },
+        {
+            "fi": "Mä otin taksin, ku busseja ei enää menny.",
+            "en": "I took a taxi because there were no more buses.",
+            "written": "Minä otin taksin, koska busseja ei enää mennyt.",
+            "glosses": {
+                "mä": "I",
+                "otin": "took - from 'ottaa'",
+                "taksin": "a taxi",
+                "ku": "because - spoken 'kun'",
+                "busseja": "buses",
+                "ei": "not",
+                "enää": "anymore",
+                "menny": "went / were running - spoken 'mennyt'"
+            }
+        },
+        {
+            "fi": "Se ei vastannu, koska sen puhelin oli kii.",
+            "en": "They didn't answer because their phone was off.",
+            "written": "Hän ei vastannut, koska hänen puhelimensa oli kiinni.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "ei": "didn't",
+                "vastannu": "answer - spoken 'vastannut'",
+                "koska": "because",
+                "sen": "their - spoken 'hänen'",
+                "puhelin": "phone",
+                "oli": "was",
+                "kii": "off / closed - spoken 'kiinni'"
+            }
+        },
+        {
+            "fi": "Mä opettelen suomee siks, et mä asun tääl.",
+            "en": "I'm learning Finnish because I live here.",
+            "written": "Minä opettelen suomea siksi, että minä asun täällä.",
+            "glosses": {
+                "mä": "I",
+                "opettelen": "am learning - from 'opetella'",
+                "suomee": "Finnish - spoken 'suomea'",
+                "siks": "for the reason - spoken 'siksi'",
+                "et": "that - spoken 'että'",
+                "asun": "live - from 'asua'",
+                "tääl": "here - spoken 'täällä'"
+            }
+        }
+    ]
+}

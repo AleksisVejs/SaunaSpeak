@@ -1,0 +1,110 @@
+{
+    "title": "Um, Like, I Mean",
+    "level": "B1",
+    "pattern": {
+        "title": "Fillers: tota, niinku, siis",
+        "summary": "Real speech runs on small words that buy thinking time and add tone: 'tota' (um), 'niinku' (like), 'siis' (I mean / seriously), 'no' (well). They disappear in writing, but you won't sound - or understand - natural Finnish without them.",
+        "examples": [
+            "Tota... mä en oo ihan varma. = Um... I'm not quite sure.",
+            "Siis oikeesti? = Wait, seriously?",
+            "Se oli niinku tosi outoo. = It was like really weird."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Siis oikeesti?",
+            "en": "Wait, seriously?",
+            "written": "Siis oikeasti?",
+            "glosses": {
+                "siis": "I mean / so - here it signals disbelief",
+                "oikeesti": "really / seriously - spoken 'oikeasti'"
+            }
+        },
+        {
+            "fi": "Tota... mä en oo ihan varma.",
+            "en": "Um... I'm not quite sure.",
+            "written": "Tuota... minä en ole ihan varma.",
+            "glosses": {
+                "tota": "um / uh - spoken 'tuota', buys thinking time",
+                "mä": "I",
+                "en": "am not - the I-form of 'ei'",
+                "oo": "be - spoken 'ole'",
+                "ihan": "quite",
+                "varma": "sure"
+            }
+        },
+        {
+            "fi": "Se oli niinku tosi outoo.",
+            "en": "It was like really weird.",
+            "written": "Se oli tosi outoa.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "niinku": "like - filler from 'niin kuin', dropped in writing",
+                "tosi": "really",
+                "outoo": "weird - spoken 'outoa'"
+            }
+        },
+        {
+            "fi": "No, mitäs sit tehään?",
+            "en": "Well, what do we do then?",
+            "written": "No, mitä sitten tehdään?",
+            "glosses": {
+                "no": "well - starts a reply or a decision",
+                "mitäs": "what - the -s makes it casual and friendly",
+                "sit": "then - spoken 'sitten'",
+                "tehään": "do we do - spoken 'tehdään'"
+            }
+        },
+        {
+            "fi": "Tota, voisitsä auttaa mua vähän?",
+            "en": "Um, could you help me a bit?",
+            "written": "Tuota, voisitko sinä auttaa minua vähän?",
+            "glosses": {
+                "tota": "um / uh - softens the request",
+                "voisitsä": "could you - spoken 'voisitko sinä'",
+                "auttaa": "help",
+                "mua": "me - spoken 'minua'",
+                "vähän": "a bit"
+            }
+        },
+        {
+            "fi": "Se on niinku paras kahvila ikinä.",
+            "en": "It's like the best café ever.",
+            "written": "Se on paras kahvila ikinä.",
+            "glosses": {
+                "se": "it",
+                "on": "is",
+                "niinku": "like - filler from 'niin kuin', dropped in writing",
+                "paras": "best",
+                "kahvila": "café",
+                "ikinä": "ever"
+            }
+        },
+        {
+            "fi": "Mä siis rakastan tätä paikkaa.",
+            "en": "I mean, I love this place.",
+            "written": "Minä siis rakastan tätä paikkaa.",
+            "glosses": {
+                "mä": "I",
+                "siis": "I mean - mid-sentence it adds emphasis",
+                "rakastan": "love - from 'rakastaa'",
+                "tätä": "this",
+                "paikkaa": "place"
+            }
+        },
+        {
+            "fi": "Se oli vaan jotenki hassu juttu.",
+            "en": "It was just kind of a funny thing.",
+            "written": "Se oli vain jotenkin hassu juttu.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "vaan": "just - spoken 'vain'",
+                "jotenki": "somehow / kind of - spoken 'jotenkin'",
+                "hassu": "funny / odd",
+                "juttu": "thing / story"
+            }
+        }
+    ]
+}

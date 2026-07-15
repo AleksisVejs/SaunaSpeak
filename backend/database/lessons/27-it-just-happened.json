@@ -1,0 +1,114 @@
+{
+    "title": "It Just Happened",
+    "level": "C1",
+    "pattern": {
+        "title": "Ended up: tuli tehtyy, tuli sanottuu",
+        "summary": "'Tuli' + a passive participle means you ended up doing something - often unplanned, often slightly regretted: tuli valvottuu = ended up staying up. No one is blamed; it just happened. Spoken Finnish stretches the ending: sanottua → sanottuu.",
+        "examples": [
+            "Tuli taas valvottuu liian myöhään. = Ended up staying up too late again.",
+            "Tuli sanottuu vähän liikaa eilen. = I ended up saying a bit too much yesterday.",
+            "Ei tullu käytyy salilla koko viikolla. = Didn't end up going to the gym all week."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mul tuli just mieleen yks juttu.",
+            "en": "I just remembered a thing.",
+            "written": "Minulla tuli juuri mieleen yksi juttu.",
+            "glosses": {
+                "mul": "to me - spoken 'minulla'",
+                "tuli": "came",
+                "just": "just - spoken 'juuri'",
+                "mieleen": "to mind - 'tulla mieleen' = to occur to you",
+                "yks": "one - spoken 'yksi'",
+                "juttu": "thing"
+            }
+        },
+        {
+            "fi": "Tuli taas valvottuu liian myöhään.",
+            "en": "Ended up staying up too late again.",
+            "written": "Tuli taas valvottua liian myöhään.",
+            "glosses": {
+                "tuli": "it came to be - the ended-up verb",
+                "taas": "again",
+                "valvottuu": "stayed up - spoken 'valvottua'",
+                "liian": "too",
+                "myöhään": "late"
+            }
+        },
+        {
+            "fi": "Tuli sanottuu vähän liikaa eilen.",
+            "en": "I ended up saying a bit too much yesterday.",
+            "written": "Tuli sanottua vähän liikaa eilen.",
+            "glosses": {
+                "tuli": "it came to be - the ended-up verb",
+                "sanottuu": "said - spoken 'sanottua'",
+                "vähän": "a bit",
+                "liikaa": "too much",
+                "eilen": "yesterday"
+            }
+        },
+        {
+            "fi": "Mulle tuli ostettuu ihan liikaa safkaa.",
+            "en": "I ended up buying way too much food.",
+            "written": "Minulle tuli ostettua aivan liikaa ruokaa.",
+            "glosses": {
+                "mulle": "to me - spoken 'minulle'",
+                "tuli": "it came to be - the ended-up verb",
+                "ostettuu": "bought - spoken 'ostettua'",
+                "ihan": "way / quite",
+                "liikaa": "too much",
+                "safkaa": "food - slang 'safka'"
+            }
+        },
+        {
+            "fi": "Tuliks sul jo luettuu se viesti?",
+            "en": "Did you end up reading that message yet?",
+            "written": "Tuliko sinulla jo luettua se viesti?",
+            "glosses": {
+                "tuliks": "did it come to be - spoken 'tuliko'",
+                "sul": "for you - spoken 'sinulla'",
+                "jo": "yet / already",
+                "luettuu": "read - spoken 'luettua'",
+                "se": "that",
+                "viesti": "message"
+            }
+        },
+        {
+            "fi": "Ei tullu käytyy salilla koko viikolla.",
+            "en": "Didn't end up going to the gym all week.",
+            "written": "Ei tullut käytyä salilla koko viikolla.",
+            "glosses": {
+                "ei": "not",
+                "tullu": "came to be - spoken 'tullut'",
+                "käytyy": "gone / visited - spoken 'käytyä'",
+                "salilla": "at the gym - 'sali' = gym",
+                "koko": "whole",
+                "viikolla": "during the week"
+            }
+        },
+        {
+            "fi": "Mä join sun kahvin vahingos.",
+            "en": "I drank your coffee by accident.",
+            "written": "Minä join sinun kahvisi vahingossa.",
+            "glosses": {
+                "mä": "I",
+                "join": "drank - from 'juoda'",
+                "sun": "your - spoken 'sinun'",
+                "kahvin": "coffee",
+                "vahingos": "by accident - spoken 'vahingossa'"
+            }
+        },
+        {
+            "fi": "Tuli tehtyy pitkä päivä.",
+            "en": "Ended up being a long day.",
+            "written": "Tuli tehtyä pitkä päivä.",
+            "glosses": {
+                "tuli": "it came to be - the ended-up verb",
+                "tehtyy": "done - spoken 'tehtyä'",
+                "pitkä": "long",
+                "päivä": "day"
+            }
+        }
+    ]
+}

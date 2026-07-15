@@ -1,0 +1,101 @@
+{
+    "title": "When Things Go Sideways",
+    "level": "C1",
+    "pattern": {
+        "title": "Idioms: meni överiks, hermot menee",
+        "summary": "The idiom layer of everyday trouble: mennä överiks = to go too far, hermot menee = to lose one's patience, lähtee käsistä = gets out of hand - and the recovery kit: otetaan iisisti = take it easy, meni putkeen = went smoothly, pidetään peukkuja = fingers crossed.",
+        "examples": [
+            "Nyt meni kyl överiks. = Now that went too far.",
+            "Pidetään peukkuja! = Fingers crossed!",
+            "Kaikki meni putkeen. = Everything went smoothly."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Nyt meni kyl överiks.",
+            "en": "Now that went too far.",
+            "written": "Nyt se meni kyllä liian pitkälle.",
+            "glosses": {
+                "nyt": "now",
+                "meni": "went",
+                "kyl": "for sure - spoken 'kyllä'",
+                "överiks": "overboard - slang from Swedish 'över'"
+            }
+        },
+        {
+            "fi": "Multa menee kohta hermot.",
+            "en": "I'm about to lose my patience.",
+            "written": "Minulta menee kohta hermot.",
+            "glosses": {
+                "multa": "from me - spoken 'minulta'",
+                "menee": "goes - 'hermot menee' = patience snaps",
+                "kohta": "soon",
+                "hermot": "nerves"
+            }
+        },
+        {
+            "fi": "Ei tästä tuu yhtään mitään.",
+            "en": "This is going nowhere.",
+            "written": "Ei tästä tule yhtään mitään.",
+            "glosses": {
+                "ei": "not",
+                "tästä": "out of this",
+                "tuu": "comes - spoken 'tule'",
+                "yhtään": "at all",
+                "mitään": "anything"
+            }
+        },
+        {
+            "fi": "Homma lähti vähän käsistä.",
+            "en": "Things got a bit out of hand.",
+            "written": "Tilanne lähti vähän käsistä.",
+            "glosses": {
+                "homma": "the thing / operation - casual word",
+                "lähti": "left - from 'lähteä'",
+                "vähän": "a bit",
+                "käsistä": "out of the hands - the idiom for losing control"
+            }
+        },
+        {
+            "fi": "Otetaan ihan iisisti.",
+            "en": "Let's just take it easy.",
+            "written": "Otetaan ihan rauhallisesti.",
+            "glosses": {
+                "otetaan": "let's take - the spoken we-form",
+                "ihan": "quite / just",
+                "iisisti": "easy - slang from English 'easy'"
+            }
+        },
+        {
+            "fi": "Pidetään peukkuja!",
+            "en": "Fingers crossed!",
+            "written": null,
+            "glosses": {
+                "pidetään": "let's hold - the spoken we-form",
+                "peukkuja": "thumbs - Finns hold thumbs, not cross fingers"
+            }
+        },
+        {
+            "fi": "Kaikki meni putkeen.",
+            "en": "Everything went smoothly.",
+            "written": null,
+            "glosses": {
+                "kaikki": "everything",
+                "meni": "went",
+                "putkeen": "into the pipe - the idiom for 'without a hitch'"
+            }
+        },
+        {
+            "fi": "Ei se niin justiinsa oo.",
+            "en": "It doesn't have to be that exact.",
+            "written": "Ei se niin tarkkaa ole.",
+            "glosses": {
+                "ei": "not",
+                "se": "it",
+                "niin": "so",
+                "justiinsa": "precisely - casual, from 'juuri'",
+                "oo": "be - spoken 'ole'"
+            }
+        }
+    ]
+}

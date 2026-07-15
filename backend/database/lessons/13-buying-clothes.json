@@ -1,0 +1,102 @@
+{
+    "title": "Buying Clothes",
+    "level": "A2",
+    "pattern": {
+        "title": "Does it fit? sopii, istuu, liian",
+        "summary": "Trying clothes on is 'sovittaa': Voinks mä sovittaa tätä? Clothes that fit 'istuu' (sit well) or 'sopii' (suit you). 'Liian' + adjective means too: liian pieni = too small, liian kallis = too expensive.",
+        "examples": [
+            "Voinks mä sovittaa tätä? = Can I try this on?",
+            "Tää on liian pieni. = This is too small.",
+            "Toi istuu sulle tosi hyvin. = That fits you really well."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Voinks mä sovittaa tätä?",
+            "en": "Can I try this on?",
+            "written": "Voinko minä sovittaa tätä?",
+            "glosses": {
+                "voinks": "can I - spoken 'voinko'",
+                "mä": "I",
+                "sovittaa": "try on",
+                "tätä": "this"
+            }
+        },
+        {
+            "fi": "Mis sovituskopit on?",
+            "en": "Where are the fitting rooms?",
+            "written": "Missä sovituskopit ovat?",
+            "glosses": {
+                "mis": "where - spoken 'missä'",
+                "sovituskopit": "fitting rooms",
+                "on": "are - spoken Finnish uses 'on' for plurals too"
+            }
+        },
+        {
+            "fi": "Tää on mulle liian pieni.",
+            "en": "This is too small for me.",
+            "written": "Tämä on minulle liian pieni.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "on": "is",
+                "mulle": "for me - spoken 'minulle'",
+                "liian": "too",
+                "pieni": "small"
+            }
+        },
+        {
+            "fi": "Onks teil tätä M-koossa?",
+            "en": "Do you have this in size M?",
+            "written": "Onko teillä tätä M-koossa?",
+            "glosses": {
+                "onks": "is there / do you have - spoken 'onko'",
+                "teil": "you (the shop) have - spoken 'teillä'",
+                "tätä": "this",
+                "m-koossa": "in size M - 'koko' = size"
+            }
+        },
+        {
+            "fi": "Miltä tää näyttää?",
+            "en": "How does this look?",
+            "written": "Miltä tämä näyttää?",
+            "glosses": {
+                "miltä": "how / like what",
+                "tää": "this - spoken 'tämä'",
+                "näyttää": "looks - from 'näyttää'"
+            }
+        },
+        {
+            "fi": "Toi istuu sulle tosi hyvin.",
+            "en": "That fits you really well.",
+            "written": "Tuo istuu sinulle tosi hyvin.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "istuu": "fits - clothes 'sit' on you in Finnish",
+                "sulle": "on you / for you - spoken 'sinulle'",
+                "tosi": "really",
+                "hyvin": "well"
+            }
+        },
+        {
+            "fi": "Onks tää alennukses?",
+            "en": "Is this on sale?",
+            "written": "Onko tämä alennuksessa?",
+            "glosses": {
+                "onks": "is - spoken 'onko'",
+                "tää": "this - spoken 'tämä'",
+                "alennukses": "on sale / discounted - spoken 'alennuksessa'"
+            }
+        },
+        {
+            "fi": "Mä otan nää molemmat.",
+            "en": "I'll take both of these.",
+            "written": "Minä otan nämä molemmat.",
+            "glosses": {
+                "mä": "I",
+                "otan": "take - from 'ottaa'",
+                "nää": "these - spoken 'nämä'",
+                "molemmat": "both"
+            }
+        }
+    ]
+}

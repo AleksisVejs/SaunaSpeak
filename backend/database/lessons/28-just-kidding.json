@@ -1,0 +1,97 @@
+{
+    "title": "Just Kidding",
+    "level": "C1",
+    "pattern": {
+        "title": "Joking: läppä, tosissaan, sepä",
+        "summary": "'Läppä' is slang for a joke: se oli pelkkä läppä = it was just a joke, heittää läppää = to joke around. To check if someone means it: ooksä tosissas? And Finnish sarcasm loves -pä: 'No sepä kiva' means how nice - and rarely means it.",
+        "examples": [
+            "Se oli pelkkä läppä. = It was just a joke.",
+            "Ooksä ihan tosissas? = Are you for real?",
+            "No sepä kiva. = Well, how nice. (usually sarcastic)"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Se oli pelkkä läppä.",
+            "en": "It was just a joke.",
+            "written": "Se oli pelkkä vitsi.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "pelkkä": "mere / nothing but",
+                "läppä": "joke - slang; the standard word is 'vitsi'"
+            }
+        },
+        {
+            "fi": "Mä vaan heitin läppää.",
+            "en": "I was just joking around.",
+            "written": "Minä vain vitsailin.",
+            "glosses": {
+                "mä": "I",
+                "vaan": "just - spoken 'vain'",
+                "heitin": "threw - 'heittää läppää' = to joke around",
+                "läppää": "joke - slang 'läppä'"
+            }
+        },
+        {
+            "fi": "Ooksä ihan tosissas?",
+            "en": "Are you for real?",
+            "written": "Oletko sinä ihan tosissasi?",
+            "glosses": {
+                "ooksä": "are you - spoken 'oletko sinä'",
+                "ihan": "quite / really",
+                "tosissas": "serious - spoken 'tosissasi'"
+            }
+        },
+        {
+            "fi": "Emmä ollu tosissani.",
+            "en": "I wasn't serious.",
+            "written": "En minä ollut tosissani.",
+            "glosses": {
+                "emmä": "I wasn't - 'en' + 'mä' fused",
+                "ollu": "been - spoken 'ollut'",
+                "tosissani": "serious - 'olla tosissaan' = to mean it"
+            }
+        },
+        {
+            "fi": "Älä viitti!",
+            "en": "Oh come on, stop it!",
+            "written": "Älä viitsi!",
+            "glosses": {
+                "älä": "don't",
+                "viitti": "bother - spoken 'viitsi'; the phrase means 'cut it out'"
+            }
+        },
+        {
+            "fi": "Mä vaan kiusaan sua.",
+            "en": "I'm just teasing you.",
+            "written": "Minä vain kiusaan sinua.",
+            "glosses": {
+                "mä": "I",
+                "vaan": "just - spoken 'vain'",
+                "kiusaan": "tease - from 'kiusata'",
+                "sua": "you - spoken 'sinua'"
+            }
+        },
+        {
+            "fi": "Vedätsä mua höplästä?",
+            "en": "Are you pulling my leg?",
+            "written": "Vedätkö sinä minua höplästä?",
+            "glosses": {
+                "vedätsä": "are you pulling - spoken 'vedätkö sinä'",
+                "mua": "me - spoken 'minua'",
+                "höplästä": "by the nose - the idiom means 'fooling me'"
+            }
+        },
+        {
+            "fi": "No sepä kiva.",
+            "en": "Well, how nice.",
+            "written": null,
+            "glosses": {
+                "no": "well",
+                "sepä": "that sure is - 'se' + -pä; flat tone makes it sarcastic",
+                "kiva": "nice"
+            }
+        }
+    ]
+}

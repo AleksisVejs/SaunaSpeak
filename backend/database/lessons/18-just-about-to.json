@@ -1,0 +1,110 @@
+{
+    "title": "Just About To",
+    "level": "B1",
+    "pattern": {
+        "title": "In the middle of it: menossa, tulossa, -mässä",
+        "summary": "To say something is underway or about to happen, use olla + -massa/-mässä: oon lähdössä = I'm about to leave, se on tulossa = they're on their way. For plans, 'mä aion' = I'm going to. Add 'just' for right now / just about.",
+        "examples": [
+            "Mä oon just lähdössä. = I'm just about to leave.",
+            "Se on tulossa ihan kohta. = They'll be here any minute.",
+            "Mä aion hakee uutta duunii. = I'm going to apply for a new job."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä oon just lähdössä.",
+            "en": "I'm just about to leave.",
+            "written": "Minä olen juuri lähdössä.",
+            "glosses": {
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "just": "just / right now - spoken 'juuri'",
+                "lähdössä": "about to leave - literally 'in leaving'"
+            }
+        },
+        {
+            "fi": "Me ollaan menossa leffaan.",
+            "en": "We're on our way to the movies.",
+            "written": "Me olemme menossa elokuviin.",
+            "glosses": {
+                "me": "we",
+                "ollaan": "are - the spoken we-form",
+                "menossa": "on the way / going - literally 'in going'",
+                "leffaan": "to the movies - slang 'leffa'"
+            }
+        },
+        {
+            "fi": "Se on tulossa ihan kohta.",
+            "en": "They'll be here any minute.",
+            "written": "Hän on tulossa ihan kohta.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "on": "is",
+                "tulossa": "coming / on the way",
+                "ihan": "quite / really",
+                "kohta": "soon / in a moment"
+            }
+        },
+        {
+            "fi": "Mitä sä oot tekemässä?",
+            "en": "What are you in the middle of doing?",
+            "written": "Mitä sinä olet tekemässä?",
+            "glosses": {
+                "mitä": "what",
+                "sä": "you",
+                "oot": "are - spoken 'olet'",
+                "tekemässä": "in the middle of doing - from 'tehdä'"
+            }
+        },
+        {
+            "fi": "Kahvi on just loppumassa.",
+            "en": "The coffee is just about to run out.",
+            "written": "Kahvi on juuri loppumassa.",
+            "glosses": {
+                "kahvi": "coffee",
+                "on": "is",
+                "just": "just - spoken 'juuri'",
+                "loppumassa": "about to run out - from 'loppua'"
+            }
+        },
+        {
+            "fi": "Mä aion hakee uutta duunii.",
+            "en": "I'm going to apply for a new job.",
+            "written": "Minä aion hakea uutta työtä.",
+            "glosses": {
+                "mä": "I",
+                "aion": "am going to / intend to - from 'aikoa'",
+                "hakee": "to apply for - spoken 'hakea'",
+                "uutta": "new",
+                "duunii": "job - slang 'duuni'"
+            }
+        },
+        {
+            "fi": "Mä olin just nukahtamassa, ku sä soitit.",
+            "en": "I was just falling asleep when you called.",
+            "written": "Minä olin juuri nukahtamassa, kun sinä soitit.",
+            "glosses": {
+                "mä": "I",
+                "olin": "was",
+                "just": "just - spoken 'juuri'",
+                "nukahtamassa": "falling asleep - from 'nukahtaa'",
+                "ku": "when - spoken 'kun'",
+                "sä": "you",
+                "soitit": "called - from 'soittaa'"
+            }
+        },
+        {
+            "fi": "Oltiin just lähtemässä, ku alko sataa.",
+            "en": "We were just leaving when it started to rain.",
+            "written": "Olimme juuri lähtemässä, kun alkoi sataa.",
+            "glosses": {
+                "oltiin": "we were - the spoken we-form",
+                "just": "just - spoken 'juuri'",
+                "lähtemässä": "in the middle of leaving - from 'lähteä'",
+                "ku": "when - spoken 'kun'",
+                "alko": "started - spoken 'alkoi'",
+                "sataa": "to rain"
+            }
+        }
+    ]
+}

@@ -1,0 +1,118 @@
+{
+    "title": "They Said That...",
+    "level": "B1",
+    "pattern": {
+        "title": "Passing it on: se sano et",
+        "summary": "To report what someone said, use a saying verb + 'et': Se sano, et se tulee = They said they're coming. Spoken past forms shorten (sanoi → sano, lupasi → lupas) and 'että' becomes 'et'. The same frame works with kuulla (hear), kysyä (ask), luvata (promise) and väittää (claim).",
+        "examples": [
+            "Mitä se sano sulle? = What did they say to you?",
+            "Se sano, et se tulee vähän myöhäs. = They said they'll be a bit late.",
+            "Mä kuulin, et te muutatte. = I heard you're moving."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mitä se sano sulle?",
+            "en": "What did they say to you?",
+            "written": "Mitä hän sanoi sinulle?",
+            "glosses": {
+                "mitä": "what",
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "sano": "said - spoken 'sanoi'",
+                "sulle": "to you - spoken 'sinulle'"
+            }
+        },
+        {
+            "fi": "Se sano, et se tulee vähän myöhäs.",
+            "en": "They said they'll be a bit late.",
+            "written": "Hän sanoi, että hän tulee vähän myöhässä.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "sano": "said - spoken 'sanoi'",
+                "et": "that - spoken 'että'",
+                "tulee": "comes / will come",
+                "vähän": "a bit",
+                "myöhäs": "late - spoken 'myöhässä'"
+            }
+        },
+        {
+            "fi": "Mä kuulin, et te muutatte.",
+            "en": "I heard you're moving.",
+            "written": "Minä kuulin, että te muutatte.",
+            "glosses": {
+                "mä": "I",
+                "kuulin": "heard - from 'kuulla'",
+                "et": "that - spoken 'että'",
+                "te": "you all",
+                "muutatte": "are moving - from 'muuttaa'"
+            }
+        },
+        {
+            "fi": "Kerro sille, et mä tuun kohta.",
+            "en": "Tell them I'll be there soon.",
+            "written": "Kerro hänelle, että minä tulen kohta.",
+            "glosses": {
+                "kerro": "tell - from 'kertoa'",
+                "sille": "to them - spoken 'hänelle'",
+                "et": "that - spoken 'että'",
+                "mä": "I",
+                "tuun": "come - spoken 'tulen'",
+                "kohta": "soon / in a moment"
+            }
+        },
+        {
+            "fi": "Ne sano, et kaikki on hyvin.",
+            "en": "They said everything is fine.",
+            "written": "He sanoivat, että kaikki on hyvin.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "sano": "said - spoken drops the '-ivat' ending",
+                "et": "that - spoken 'että'",
+                "kaikki": "everything",
+                "on": "is",
+                "hyvin": "fine / well"
+            }
+        },
+        {
+            "fi": "Mä kysyin, et onks se totta.",
+            "en": "I asked if it's true.",
+            "written": "Minä kysyin, onko se totta.",
+            "glosses": {
+                "mä": "I",
+                "kysyin": "asked - from 'kysyä'",
+                "et": "that - only spoken Finnish puts 'et' before a question",
+                "onks": "is it - spoken 'onko'",
+                "se": "it",
+                "totta": "true"
+            }
+        },
+        {
+            "fi": "Pomo lupas, et mä saan huomenna vapaata.",
+            "en": "The boss promised I get tomorrow off.",
+            "written": "Pomo lupasi, että minä saan huomenna vapaata.",
+            "glosses": {
+                "pomo": "boss",
+                "lupas": "promised - spoken 'lupasi'",
+                "et": "that - spoken 'että'",
+                "mä": "I",
+                "saan": "get - from 'saada'",
+                "huomenna": "tomorrow",
+                "vapaata": "time off"
+            }
+        },
+        {
+            "fi": "Se väitti, et se oli koko ajan siel.",
+            "en": "They claimed they were there the whole time.",
+            "written": "Hän väitti, että hän oli koko ajan siellä.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "väitti": "claimed - from 'väittää'",
+                "et": "that - spoken 'että'",
+                "oli": "was",
+                "koko": "whole - 'koko ajan' = the whole time",
+                "ajan": "time - 'koko ajan' = the whole time",
+                "siel": "there - spoken 'siellä'"
+            }
+        }
+    ]
+}

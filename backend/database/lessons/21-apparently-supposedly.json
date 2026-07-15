@@ -1,0 +1,112 @@
+{
+    "title": "Apparently, Supposedly",
+    "level": "B2",
+    "pattern": {
+        "title": "Hearsay: kuulemma, muka, näköjään",
+        "summary": "Three little words tell your listener how you know something: 'kuulemma' = I heard it from someone, 'näköjään' = I can see the evidence, and 'muka' = supposedly - and I doubt it. Drop them into a sentence and you never have to say 'someone told me that...'",
+        "examples": [
+            "Se on kuulemma tosi hyvä. = It's apparently really good.",
+            "Nyt sataa näköjään taas. = It's evidently raining again.",
+            "Se muka unohti koko jutun. = They supposedly forgot the whole thing."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Se uus ravintola on kuulemma tosi hyvä.",
+            "en": "That new restaurant is apparently really good.",
+            "written": "Se uusi ravintola on kuulemma tosi hyvä.",
+            "glosses": {
+                "se": "that",
+                "uus": "new - spoken 'uusi'",
+                "ravintola": "restaurant",
+                "on": "is",
+                "kuulemma": "apparently / I hear - marks hearsay",
+                "tosi": "really",
+                "hyvä": "good"
+            }
+        },
+        {
+            "fi": "Nyt sataa näköjään taas.",
+            "en": "It's evidently raining again.",
+            "written": null,
+            "glosses": {
+                "nyt": "now",
+                "sataa": "rains",
+                "näköjään": "evidently / by the looks of it",
+                "taas": "again"
+            }
+        },
+        {
+            "fi": "Sä oot näköjään ollu ahkera.",
+            "en": "You've evidently been hard at work.",
+            "written": "Sinä olet näköjään ollut ahkera.",
+            "glosses": {
+                "sä": "you",
+                "oot": "have - spoken 'olet'",
+                "näköjään": "evidently - I can see the results",
+                "ollu": "been - spoken 'ollut'",
+                "ahkera": "hard-working / diligent"
+            }
+        },
+        {
+            "fi": "Se muka unohti koko jutun.",
+            "en": "They supposedly forgot the whole thing.",
+            "written": "Hän muka unohti koko jutun.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "muka": "supposedly / as if - signals doubt",
+                "unohti": "forgot - from 'unohtaa'",
+                "koko": "whole",
+                "jutun": "thing / matter - from 'juttu'"
+            }
+        },
+        {
+            "fi": "Huomenna pitäis kuulemma tulla lunta.",
+            "en": "Apparently it's supposed to snow tomorrow.",
+            "written": "Huomenna pitäisi kuulemma tulla lunta.",
+            "glosses": {
+                "huomenna": "tomorrow",
+                "pitäis": "is supposed to - spoken 'pitäisi'",
+                "kuulemma": "apparently / so they say",
+                "tulla": "to come",
+                "lunta": "snow"
+            }
+        },
+        {
+            "fi": "Ne on kuulemma eronnu.",
+            "en": "Apparently they've broken up.",
+            "written": "He ovat kuulemma eronneet.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "on": "have - spoken Finnish uses 'on' for plurals too",
+                "kuulemma": "apparently / word is",
+                "eronnu": "broken up / divorced - spoken 'eronneet'"
+            }
+        },
+        {
+            "fi": "Ilmeisesti kokous siirty ens viikkoon.",
+            "en": "Apparently the meeting moved to next week.",
+            "written": "Ilmeisesti kokous siirtyi ensi viikkoon.",
+            "glosses": {
+                "ilmeisesti": "apparently / evidently",
+                "kokous": "meeting",
+                "siirty": "moved - spoken 'siirtyi'",
+                "ens": "next - spoken 'ensi'",
+                "viikkoon": "to week - 'ens viikkoon' = to next week"
+            }
+        },
+        {
+            "fi": "Se oli muka koko ajan sairaana.",
+            "en": "They were supposedly sick the whole time.",
+            "written": "Hän oli muka koko ajan sairaana.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "oli": "was",
+                "muka": "supposedly - and I don't quite buy it",
+                "koko": "whole - 'koko ajan' = the whole time",
+                "ajan": "time - 'koko ajan' = the whole time",
+                "sairaana": "sick - 'olla sairaana' = to be sick"
+            }
+        }
+    ]
+}

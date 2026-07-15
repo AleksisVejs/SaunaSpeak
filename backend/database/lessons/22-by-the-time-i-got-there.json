@@ -1,0 +1,129 @@
+{
+    "title": "By the Time I Got There",
+    "level": "B2",
+    "pattern": {
+        "title": "Backstory: oli menny, olin just lähteny",
+        "summary": "For things that had already happened before your story's main event, use oli + participle: bussi oli jo menny = the bus had already gone. Spoken forms shorten as usual (mennyt → menny), and the we-form is 'me oltiin' + participle: me oltiin just päästy kotiin.",
+        "examples": [
+            "Mä olin just lähteny, ku se soitti. = I had just left when they called.",
+            "Se oli unohtanu avaimet himaan. = They had forgotten their keys at home.",
+            "Kävi ilmi, et se oli tienny kaiken. = It turned out they had known everything."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä olin just lähteny, ku se soitti.",
+            "en": "I had just left when they called.",
+            "written": "Minä olin juuri lähtenyt, kun hän soitti.",
+            "glosses": {
+                "mä": "I",
+                "olin": "had - 'olla' in the past",
+                "just": "just - spoken 'juuri'",
+                "lähteny": "left - spoken 'lähtenyt'",
+                "ku": "when - spoken 'kun'",
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "soitti": "called - from 'soittaa'"
+            }
+        },
+        {
+            "fi": "Se oli unohtanu avaimet himaan.",
+            "en": "They had forgotten their keys at home.",
+            "written": "Hän oli unohtanut avaimet kotiin.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "oli": "had",
+                "unohtanu": "forgotten - spoken 'unohtanut'",
+                "avaimet": "the keys",
+                "himaan": "at home - slang 'hima'"
+            }
+        },
+        {
+            "fi": "Bussi oli jo menny, ku mä pääsin pysäkille.",
+            "en": "The bus had already gone when I got to the stop.",
+            "written": "Bussi oli jo mennyt, kun minä pääsin pysäkille.",
+            "glosses": {
+                "bussi": "bus",
+                "oli": "had",
+                "jo": "already",
+                "menny": "gone - spoken 'mennyt'",
+                "ku": "when - spoken 'kun'",
+                "mä": "I",
+                "pääsin": "got / made it - from 'päästä'",
+                "pysäkille": "to the stop"
+            }
+        },
+        {
+            "fi": "Sä et ollu viel heränny, ku mä lähdin.",
+            "en": "You hadn't woken up yet when I left.",
+            "written": "Sinä et ollut vielä herännyt, kun minä lähdin.",
+            "glosses": {
+                "sä": "you",
+                "et": "hadn't - the you-form of 'ei'",
+                "ollu": "been - spoken 'ollut'",
+                "viel": "yet - spoken 'vielä'",
+                "heränny": "woken up - spoken 'herännyt'",
+                "ku": "when - spoken 'kun'",
+                "mä": "I",
+                "lähdin": "left - from 'lähteä'"
+            }
+        },
+        {
+            "fi": "Onneks mä olin ottanu kuitin talteen.",
+            "en": "Luckily I had kept the receipt.",
+            "written": "Onneksi minä olin ottanut kuitin talteen.",
+            "glosses": {
+                "onneks": "luckily - spoken 'onneksi'",
+                "mä": "I",
+                "olin": "had",
+                "ottanu": "taken - spoken 'ottanut'",
+                "kuitin": "the receipt",
+                "talteen": "into safekeeping - 'ottaa talteen' = to keep"
+            }
+        },
+        {
+            "fi": "Me oltiin just päästy kotiin, ku sähköt katkes.",
+            "en": "We had just gotten home when the power went out.",
+            "written": "Me olimme juuri päässeet kotiin, kun sähköt katkesivat.",
+            "glosses": {
+                "me": "we",
+                "oltiin": "had - the spoken we-form",
+                "just": "just - spoken 'juuri'",
+                "päästy": "gotten - the participle the spoken we-form takes",
+                "kotiin": "home",
+                "ku": "when - spoken 'kun'",
+                "sähköt": "the electricity - literally 'the electricities'",
+                "katkes": "cut out - spoken 'katkesi'"
+            }
+        },
+        {
+            "fi": "Kävi ilmi, et se oli tienny kaiken.",
+            "en": "It turned out they had known everything.",
+            "written": "Kävi ilmi, että hän oli tiennyt kaiken.",
+            "glosses": {
+                "kävi": "turned - 'kävi ilmi' = it turned out",
+                "ilmi": "out / into the open",
+                "et": "that - spoken 'että'",
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "oli": "had",
+                "tienny": "known - spoken 'tiennyt'",
+                "kaiken": "everything"
+            }
+        },
+        {
+            "fi": "Mä tajusin, et mä olin nähny sen tyypin jossain aikasemmin.",
+            "en": "I realized I had seen that person somewhere before.",
+            "written": "Minä tajusin, että minä olin nähnyt sen tyypin jossakin aikaisemmin.",
+            "glosses": {
+                "mä": "I",
+                "tajusin": "realized - from 'tajuta'",
+                "et": "that - spoken 'että'",
+                "olin": "had",
+                "nähny": "seen - spoken 'nähnyt'",
+                "sen": "that",
+                "tyypin": "person / guy - casual 'tyyppi'",
+                "jossain": "somewhere - spoken 'jossakin'",
+                "aikasemmin": "before / earlier - spoken 'aikaisemmin'"
+            }
+        }
+    ]
+}

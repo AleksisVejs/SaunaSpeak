@@ -1,0 +1,114 @@
+{
+    "title": "You Should Try It",
+    "level": "B1",
+    "pattern": {
+        "title": "Worth doing: kannattaa, sun kannattais",
+        "summary": "'Kannattaa' means it's worth it / you should: sun kannattaa kokeilla = you should try. Softer advice takes the conditional: sun kannattais. The negative 'ei kannata' = don't bother. For it-was-worth-it, Helsinki slang has 'sen väärti'.",
+        "examples": [
+            "Sun kannattaa kokeilla tätä. = You should try this.",
+            "Ei kannata ostaa tota. = It's not worth buying that.",
+            "Se oli kyl sen väärti. = It was totally worth it."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Sun kannattaa kokeilla tätä.",
+            "en": "You should try this.",
+            "written": "Sinun kannattaa kokeilla tätä.",
+            "glosses": {
+                "sun": "you - spoken 'sinun', literally 'your'",
+                "kannattaa": "it's worth it / should - advice verb",
+                "kokeilla": "to try",
+                "tätä": "this"
+            }
+        },
+        {
+            "fi": "Ei kannata ostaa tota.",
+            "en": "It's not worth buying that.",
+            "written": "Ei kannata ostaa tuota.",
+            "glosses": {
+                "ei": "not",
+                "kannata": "worth it - negative form of 'kannattaa'",
+                "ostaa": "to buy",
+                "tota": "that - spoken 'tuota'"
+            }
+        },
+        {
+            "fi": "Kannattaaks sinne mennä autolla?",
+            "en": "Is it worth going there by car?",
+            "written": "Kannattaako sinne mennä autolla?",
+            "glosses": {
+                "kannattaaks": "is it worth - spoken 'kannattaako'",
+                "sinne": "to there",
+                "mennä": "to go",
+                "autolla": "by car"
+            }
+        },
+        {
+            "fi": "Ota villasukat mukaan, siel on kylmä.",
+            "en": "Take wool socks along, it's cold there.",
+            "written": "Ota villasukat mukaan, siellä on kylmä.",
+            "glosses": {
+                "ota": "take! - from 'ottaa'",
+                "villasukat": "wool socks",
+                "mukaan": "along / with you",
+                "siel": "there - spoken 'siellä'",
+                "on": "is",
+                "kylmä": "cold"
+            }
+        },
+        {
+            "fi": "Sun kannattais varata liput ajoissa.",
+            "en": "You should book the tickets in good time.",
+            "written": "Sinun kannattaisi varata liput ajoissa.",
+            "glosses": {
+                "sun": "you - spoken 'sinun'",
+                "kannattais": "should - softer, spoken 'kannattaisi'",
+                "varata": "to book / reserve",
+                "liput": "tickets",
+                "ajoissa": "in time / early enough"
+            }
+        },
+        {
+            "fi": "Sinne kannattaa mennä ajoissa, ku siel on aina jonoo.",
+            "en": "It's worth going early, since there's always a line.",
+            "written": "Sinne kannattaa mennä ajoissa, koska siellä on aina jonoa.",
+            "glosses": {
+                "sinne": "to there",
+                "kannattaa": "it's worth it",
+                "mennä": "to go",
+                "ajoissa": "in time / early",
+                "ku": "since / because - spoken 'kun'",
+                "siel": "there - spoken 'siellä'",
+                "on": "is",
+                "aina": "always",
+                "jonoo": "a line / queue - spoken 'jonoa'"
+            }
+        },
+        {
+            "fi": "Jos mä oisin sä, mä en menis.",
+            "en": "If I were you, I wouldn't go.",
+            "written": "Jos minä olisin sinä, minä en menisi.",
+            "glosses": {
+                "jos": "if",
+                "mä": "I",
+                "oisin": "were - spoken 'olisin'",
+                "sä": "you",
+                "en": "wouldn't - the I-form of 'ei'",
+                "menis": "go - spoken 'menisi'"
+            }
+        },
+        {
+            "fi": "Se oli kyl sen väärti.",
+            "en": "It was totally worth it.",
+            "written": "Se oli kyllä sen arvoista.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "kyl": "totally / for sure - spoken 'kyllä'",
+                "sen": "it - pairs with 'väärti'",
+                "väärti": "worth - Helsinki slang, from Swedish 'värd'"
+            }
+        }
+    ]
+}

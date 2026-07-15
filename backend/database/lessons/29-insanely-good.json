@@ -1,0 +1,112 @@
+{
+    "title": "Insanely Good, Totally Beat",
+    "level": "C1",
+    "pattern": {
+        "title": "Intensifiers: älyttömän, törkeen, sikana",
+        "summary": "Past 'tosi' and 'ihan' lies the fun layer: älyttömän hyvä (insanely good), törkeen hyvää (outrageously good), sairaan hauskaa (sick fun), jäätävän kallis (freezing-ly expensive). Exhaustion has its own idiom: olla ihan puhki = to be completely beat.",
+        "examples": [
+            "Toi leffa oli älyttömän hyvä. = That movie was insanely good.",
+            "Mä oon ihan puhki. = I'm completely beat.",
+            "Siel oli ihan sikana porukkaa. = There were tons of people there."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Toi leffa oli älyttömän hyvä.",
+            "en": "That movie was insanely good.",
+            "written": "Tuo elokuva oli älyttömän hyvä.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "leffa": "movie - slang for 'elokuva'",
+                "oli": "was",
+                "älyttömän": "insanely - literally 'senselessly'",
+                "hyvä": "good"
+            }
+        },
+        {
+            "fi": "Mä oon ihan puhki.",
+            "en": "I'm completely beat.",
+            "written": "Minä olen aivan puhki.",
+            "glosses": {
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "ihan": "completely - spoken for 'aivan'",
+                "puhki": "worn through - the idiom means exhausted"
+            }
+        },
+        {
+            "fi": "Tää kahvi on törkeen hyvää.",
+            "en": "This coffee is outrageously good.",
+            "written": "Tämä kahvi on törkeän hyvää.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "kahvi": "coffee",
+                "on": "is",
+                "törkeen": "outrageously - spoken 'törkeän'",
+                "hyvää": "good"
+            }
+        },
+        {
+            "fi": "Siel oli ihan sikana porukkaa.",
+            "en": "There were tons of people there.",
+            "written": "Siellä oli todella paljon ihmisiä.",
+            "glosses": {
+                "siel": "there - spoken 'siellä'",
+                "oli": "was",
+                "ihan": "quite / totally",
+                "sikana": "tons - slang, literally 'as a pig'",
+                "porukkaa": "people / crowd - casual 'porukka'"
+            }
+        },
+        {
+            "fi": "Mul on ihan hirveesti duunii just nyt.",
+            "en": "I have a horrendous amount of work right now.",
+            "written": "Minulla on aivan hirveästi työtä juuri nyt.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "ihan": "quite / really",
+                "hirveesti": "horrendously much - spoken 'hirveästi'",
+                "duunii": "work - slang 'duuni'",
+                "just": "right - spoken 'juuri'",
+                "nyt": "now"
+            }
+        },
+        {
+            "fi": "Se paikka on jäätävän kallis.",
+            "en": "That place is insanely expensive.",
+            "written": null,
+            "glosses": {
+                "se": "that",
+                "paikka": "place",
+                "on": "is",
+                "jäätävän": "insanely - literally 'freezing-ly'",
+                "kallis": "expensive"
+            }
+        },
+        {
+            "fi": "Mul on ihan järkyttävä nälkä.",
+            "en": "I'm shockingly hungry.",
+            "written": "Minulla on aivan järkyttävä nälkä.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "ihan": "quite / really",
+                "järkyttävä": "shocking - here just 'huge'",
+                "nälkä": "hunger"
+            }
+        },
+        {
+            "fi": "Eilen oli niin sairaan hauskaa.",
+            "en": "Yesterday was such sick fun.",
+            "written": "Eilen oli todella hauskaa.",
+            "glosses": {
+                "eilen": "yesterday",
+                "oli": "was",
+                "niin": "so",
+                "sairaan": "sick(ly) - slang intensifier",
+                "hauskaa": "fun"
+            }
+        }
+    ]
+}

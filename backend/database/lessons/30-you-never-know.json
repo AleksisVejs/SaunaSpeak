@@ -1,0 +1,108 @@
+{
+    "title": "You Never Know",
+    "level": "C1",
+    "pattern": {
+        "title": "The generic sitä: sitä ei ikinä tiedä",
+        "summary": "When Finns talk about people in general - or themselves at arm's length - the subject disappears: Sitä ei ikinä tiedä = you never know. 'Sitä' fills the empty slot, or the verb stands alone: Saunan jälkeen nukkuu paremmin = one sleeps better after sauna.",
+        "examples": [
+            "Sitä ei ikinä tiedä. = You never know.",
+            "Kyl sitä pärjää, ku vaan yrittää. = You manage alright, as long as you try.",
+            "Saunan jälkeen nukkuu aina paremmin. = You always sleep better after sauna."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Sitä ei ikinä tiedä.",
+            "en": "You never know.",
+            "written": null,
+            "glosses": {
+                "sitä": "one / you in general - the generic subject",
+                "ei": "not",
+                "ikinä": "ever / never",
+                "tiedä": "know - from 'tietää'"
+            }
+        },
+        {
+            "fi": "Täält näkee koko kaupungin.",
+            "en": "From here you can see the whole city.",
+            "written": "Täältä näkee koko kaupungin.",
+            "glosses": {
+                "täält": "from here - spoken 'täältä'",
+                "näkee": "one sees - no subject needed",
+                "koko": "whole",
+                "kaupungin": "the city"
+            }
+        },
+        {
+            "fi": "Saunan jälkeen nukkuu aina paremmin.",
+            "en": "You always sleep better after sauna.",
+            "written": null,
+            "glosses": {
+                "saunan": "sauna's - genitive",
+                "jälkeen": "after",
+                "nukkuu": "one sleeps - no subject needed",
+                "aina": "always",
+                "paremmin": "better"
+            }
+        },
+        {
+            "fi": "Kyl sitä pärjää, ku vaan yrittää.",
+            "en": "You manage alright, as long as you try.",
+            "written": "Kyllä sitä pärjää, kun vain yrittää.",
+            "glosses": {
+                "kyl": "surely - spoken 'kyllä'",
+                "sitä": "one / you in general - the generic subject",
+                "pärjää": "manages / gets by - from 'pärjätä'",
+                "ku": "when / as long as - spoken 'kun'",
+                "vaan": "just - spoken 'vain'",
+                "yrittää": "tries"
+            }
+        },
+        {
+            "fi": "Ei sitä opi, jos ei kokeile.",
+            "en": "You don't learn if you don't try.",
+            "written": null,
+            "glosses": {
+                "ei": "not",
+                "sitä": "one / you in general - the generic subject",
+                "opi": "learn - from 'oppia'",
+                "jos": "if",
+                "kokeile": "try - from 'kokeilla'"
+            }
+        },
+        {
+            "fi": "Sitä luulis, et tää ois helppoo.",
+            "en": "You'd think this would be easy.",
+            "written": "Sitä luulisi, että tämä olisi helppoa.",
+            "glosses": {
+                "sitä": "one / you in general - the generic subject",
+                "luulis": "would think - spoken 'luulisi'",
+                "et": "that - spoken 'että'",
+                "tää": "this - spoken 'tämä'",
+                "ois": "would be - spoken 'olisi'",
+                "helppoo": "easy - spoken 'helppoa'"
+            }
+        },
+        {
+            "fi": "Väsyneenä sitä sanoo kaikenlaista.",
+            "en": "When tired, one says all kinds of things.",
+            "written": null,
+            "glosses": {
+                "väsyneenä": "when tired - 'as a tired one'",
+                "sitä": "one / you in general - softens the confession",
+                "sanoo": "says",
+                "kaikenlaista": "all kinds of things"
+            }
+        },
+        {
+            "fi": "Kyl sitä kelpaa!",
+            "en": "Well, aren't you living the life!",
+            "written": "Kyllä sitä kelpaa!",
+            "glosses": {
+                "kyl": "surely - spoken 'kyllä'",
+                "sitä": "one - the generic subject",
+                "kelpaa": "is fine / suits - the idiom teases someone doing suspiciously well"
+            }
+        }
+    ]
+}

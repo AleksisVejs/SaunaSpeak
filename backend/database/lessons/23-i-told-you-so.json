@@ -1,0 +1,104 @@
+{
+    "title": "I Told You So",
+    "level": "B2",
+    "pattern": {
+        "title": "The -han flavor: sehän, onhan, mähän",
+        "summary": "Stick -han/-hän onto the first word and the sentence gets a knowing tone: 'as we both know', 'oh look', or 'I told you'. Sehän on hieno = well, that IS nice. -pa adds surprise: Onpa kylmä! Small endings, big attitude - Finns use them constantly.",
+        "examples": [
+            "Sehän on hyvä uutinen! = Well, that's good news!",
+            "Mähän sanoin, et näin käy. = I told you this would happen.",
+            "Onpa kylmä päivä! = What a cold day!"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Sehän on hyvä uutinen!",
+            "en": "Well, that's good news!",
+            "written": null,
+            "glosses": {
+                "sehän": "well, that - 'se' + the knowing -hän",
+                "on": "is",
+                "hyvä": "good",
+                "uutinen": "a piece of news"
+            }
+        },
+        {
+            "fi": "Onpa kylmä päivä!",
+            "en": "What a cold day!",
+            "written": null,
+            "glosses": {
+                "onpa": "what a / it sure is - 'on' + surprised -pa",
+                "kylmä": "cold",
+                "päivä": "day"
+            }
+        },
+        {
+            "fi": "Sähän puhut jo tosi hyvin suomee!",
+            "en": "You already speak really good Finnish!",
+            "written": "Sinähän puhut jo tosi hyvin suomea!",
+            "glosses": {
+                "sähän": "you (I just noticed!) - 'sä' + -hän",
+                "puhut": "speak - from 'puhua'",
+                "jo": "already",
+                "tosi": "really",
+                "hyvin": "well",
+                "suomee": "Finnish - spoken 'suomea'"
+            }
+        },
+        {
+            "fi": "Eihän se mitään maksa.",
+            "en": "It doesn't cost anything, you know.",
+            "written": null,
+            "glosses": {
+                "eihän": "doesn't, you know - 'ei' + reassuring -hän",
+                "se": "it",
+                "mitään": "anything",
+                "maksa": "cost - from 'maksaa'"
+            }
+        },
+        {
+            "fi": "Onhan se vähän kallis.",
+            "en": "It is a bit expensive, admittedly.",
+            "written": null,
+            "glosses": {
+                "onhan": "it is, admittedly - 'on' + conceding -han",
+                "se": "it",
+                "vähän": "a bit",
+                "kallis": "expensive"
+            }
+        },
+        {
+            "fi": "Kylhän sä sen tiesit?",
+            "en": "Surely you knew that?",
+            "written": "Kyllähän sinä sen tiesit?",
+            "glosses": {
+                "kylhän": "surely - spoken 'kyllä' + -hän",
+                "sä": "you",
+                "sen": "that / it",
+                "tiesit": "knew - from 'tietää'"
+            }
+        },
+        {
+            "fi": "Mähän sanoin, et näin käy.",
+            "en": "I told you this would happen.",
+            "written": "Minähän sanoin, että näin käy.",
+            "glosses": {
+                "mähän": "I (told you!) - 'mä' + -hän",
+                "sanoin": "said - from 'sanoa'",
+                "et": "that - spoken 'että'",
+                "näin": "like this / this way",
+                "käy": "goes / happens - from 'käydä'"
+            }
+        },
+        {
+            "fi": "Eipä siin mitään.",
+            "en": "Oh well, no harm done.",
+            "written": "Eipä siinä mitään.",
+            "glosses": {
+                "eipä": "oh well, no - 'ei' + shrugging -pä",
+                "siin": "in it / about it - spoken 'siinä'",
+                "mitään": "anything"
+            }
+        }
+    ]
+}

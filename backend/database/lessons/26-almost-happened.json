@@ -1,0 +1,105 @@
+{
+    "title": "Almost Happened",
+    "level": "C1",
+    "pattern": {
+        "title": "Nearly: meinata, olla vähällä",
+        "summary": "'Meinata' does double duty in speech: mä meinasin unohtaa = I almost forgot, and mitä sä meinaat tehä = what do you plan to do. 'Olla vähällä' + verb also means nearly: oltiin vähäl myöhästyy. And when disaster just missed you: Vähält piti!",
+        "examples": [
+            "Mä meinasin unohtaa koko jutun. = I almost forgot the whole thing.",
+            "Vähält piti! = That was close!",
+            "Mitä sä meinaat tehä ens kesänä? = What are you planning to do next summer?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä meinasin unohtaa koko jutun.",
+            "en": "I almost forgot the whole thing.",
+            "written": "Minä meinasin unohtaa koko jutun.",
+            "glosses": {
+                "mä": "I",
+                "meinasin": "almost / was about to - from 'meinata'",
+                "unohtaa": "to forget",
+                "koko": "whole",
+                "jutun": "thing - from 'juttu'"
+            }
+        },
+        {
+            "fi": "Vähält piti!",
+            "en": "That was close!",
+            "written": "Vähältä piti!",
+            "glosses": {
+                "vähält": "by a little - spoken 'vähältä'",
+                "piti": "held - the whole idiom means 'a close call'"
+            }
+        },
+        {
+            "fi": "Se meinas kaatuu liukkaalla.",
+            "en": "They almost fell on the slippery ice.",
+            "written": "Hän meinasi kaatua liukkaalla.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "meinas": "almost - spoken 'meinasi'",
+                "kaatuu": "to fall over - spoken 'kaatua'",
+                "liukkaalla": "on the slippery (ground)"
+            }
+        },
+        {
+            "fi": "Oltiin vähäl myöhästyy lennolta.",
+            "en": "We almost missed the flight.",
+            "written": "Olimme vähällä myöhästyä lennolta.",
+            "glosses": {
+                "oltiin": "we were - the spoken we-form",
+                "vähäl": "on the verge of - spoken 'vähällä'",
+                "myöhästyy": "to miss / be late - spoken 'myöhästyä'",
+                "lennolta": "from the flight"
+            }
+        },
+        {
+            "fi": "Mä meinasin jo luovuttaa.",
+            "en": "I was about to give up already.",
+            "written": "Minä meinasin jo luovuttaa.",
+            "glosses": {
+                "mä": "I",
+                "meinasin": "was about to - from 'meinata'",
+                "jo": "already",
+                "luovuttaa": "to give up"
+            }
+        },
+        {
+            "fi": "Meinasitsä oikeesti lähtee?",
+            "en": "Were you seriously planning to leave?",
+            "written": "Meinasitko sinä oikeasti lähteä?",
+            "glosses": {
+                "meinasitsä": "were you planning - spoken 'meinasitko sinä'",
+                "oikeesti": "seriously / really - spoken 'oikeasti'",
+                "lähtee": "to leave - spoken 'lähteä'"
+            }
+        },
+        {
+            "fi": "Mitä sä meinaat tehä ens kesänä?",
+            "en": "What are you planning to do next summer?",
+            "written": "Mitä sinä meinaat tehdä ensi kesänä?",
+            "glosses": {
+                "mitä": "what",
+                "sä": "you",
+                "meinaat": "plan / intend - the other meaning of 'meinata'",
+                "tehä": "to do - spoken 'tehdä'",
+                "ens": "next - spoken 'ensi'",
+                "kesänä": "in the summer"
+            }
+        },
+        {
+            "fi": "Mä olin vähäl sanoo jotain tyhmää.",
+            "en": "I almost said something stupid.",
+            "written": "Minä olin vähällä sanoa jotakin tyhmää.",
+            "glosses": {
+                "mä": "I",
+                "olin": "was",
+                "vähäl": "on the verge of - spoken 'vähällä'",
+                "sanoo": "to say - spoken 'sanoa'",
+                "jotain": "something - spoken 'jotakin'",
+                "tyhmää": "stupid"
+            }
+        }
+    ]
+}

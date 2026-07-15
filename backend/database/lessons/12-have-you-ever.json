@@ -1,0 +1,110 @@
+{
+    "title": "Have You Ever?",
+    "level": "A2",
+    "pattern": {
+        "title": "Spoken perfect: oon käyny, ootsä ollu",
+        "summary": "To say what you have done, use 'olla' + a participle: mä oon käyny = I've been / visited. In spoken Finnish the participle drops its final -t: käynyt → käyny, ollut → ollu, syönyt → syöny. The negative is 'en oo' + the same form: en oo käyny.",
+        "examples": [
+            "Mä oon käyny Tallinnas. = I've been to Tallinn.",
+            "Ootsä jo syöny? = Have you eaten yet?",
+            "En oo ikinä kokeillu. = I've never tried it."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Ootsä jo syöny?",
+            "en": "Have you eaten yet?",
+            "written": "Oletko sinä jo syönyt?",
+            "glosses": {
+                "ootsä": "have you - spoken 'oletko sinä'",
+                "jo": "yet / already",
+                "syöny": "eaten - spoken 'syönyt'"
+            }
+        },
+        {
+            "fi": "Mä oon käyny Tallinnas kerran.",
+            "en": "I've been to Tallinn once.",
+            "written": "Minä olen käynyt Tallinnassa kerran.",
+            "glosses": {
+                "mä": "I",
+                "oon": "have - spoken 'olen'",
+                "käyny": "been / visited - spoken 'käynyt'",
+                "tallinnas": "in Tallinn - spoken 'Tallinnassa'",
+                "kerran": "once"
+            }
+        },
+        {
+            "fi": "Ootsä ollu Lapissa?",
+            "en": "Have you been to Lapland?",
+            "written": "Oletko sinä ollut Lapissa?",
+            "glosses": {
+                "ootsä": "have you - spoken 'oletko sinä'",
+                "ollu": "been - spoken 'ollut'",
+                "lapissa": "in Lapland"
+            }
+        },
+        {
+            "fi": "Mä en oo ikinä syöny mämmii.",
+            "en": "I've never eaten mämmi.",
+            "written": "Minä en ole ikinä syönyt mämmiä.",
+            "glosses": {
+                "mä": "I",
+                "en": "not - the I-form of 'ei'",
+                "oo": "have - spoken 'ole'",
+                "ikinä": "ever / never",
+                "syöny": "eaten - spoken 'syönyt'",
+                "mämmii": "mämmi, the Easter rye pudding - spoken 'mämmiä'"
+            }
+        },
+        {
+            "fi": "Me ollaan asuttu tääl kaks vuotta.",
+            "en": "We've lived here for two years.",
+            "written": "Me olemme asuneet täällä kaksi vuotta.",
+            "glosses": {
+                "me": "we",
+                "ollaan": "have - the spoken we-form",
+                "asuttu": "lived - the participle the spoken we-form takes",
+                "tääl": "here - spoken 'täällä'",
+                "kaks": "two - spoken 'kaksi'",
+                "vuotta": "years"
+            }
+        },
+        {
+            "fi": "Se on asunu Suomes koko ikänsä.",
+            "en": "They've lived in Finland their whole life.",
+            "written": "Hän on asunut Suomessa koko ikänsä.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "on": "has",
+                "asunu": "lived - spoken 'asunut'",
+                "suomes": "in Finland - spoken 'Suomessa'",
+                "koko": "whole",
+                "ikänsä": "their life - literally 'their age'"
+            }
+        },
+        {
+            "fi": "Mä oon aina halunnu oppii suomee.",
+            "en": "I've always wanted to learn Finnish.",
+            "written": "Minä olen aina halunnut oppia suomea.",
+            "glosses": {
+                "mä": "I",
+                "oon": "have - spoken 'olen'",
+                "aina": "always",
+                "halunnu": "wanted - spoken 'halunnut'",
+                "oppii": "to learn - spoken 'oppia'",
+                "suomee": "Finnish - spoken 'suomea'"
+            }
+        },
+        {
+            "fi": "Ootsä ikinä kokeillu avantouintii?",
+            "en": "Have you ever tried ice swimming?",
+            "written": "Oletko sinä ikinä kokeillut avantouintia?",
+            "glosses": {
+                "ootsä": "have you - spoken 'oletko sinä'",
+                "ikinä": "ever",
+                "kokeillu": "tried - spoken 'kokeillut'",
+                "avantouintii": "ice swimming - spoken 'avantouintia'"
+            }
+        }
+    ]
+}
