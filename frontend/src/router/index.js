@@ -44,7 +44,13 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  // New page starts at the top; back/forward restores where the user was.
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: to.hash, top: 12 }
+    return { top: 0 }
+  }
 })
 
 router.beforeEach((to) => {
