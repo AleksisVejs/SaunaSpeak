@@ -1,0 +1,105 @@
+{
+    "title": "No Niin",
+    "level": "C1",
+    "pattern": {
+        "title": "No niin: one phrase, twenty meanings",
+        "summary": "Finns joke that 'no niin' is the only phrase you really need - the tone does the rest. It opens meetings, serves dinner, scolds children, wraps up visits and recovers lost thoughts. Its cousins: jaaha (well well), jaahas (what's this then), selvä homma (all sorted).",
+        "examples": [
+            "No niin, aloitetaan! = Right, let's begin!",
+            "No niin, ruoka on valmis! = Ok everyone, food's ready!",
+            "Jaaha, sielt tullaan. = Well well, here they come."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "No niin, aloitetaan!",
+            "en": "Right, let's begin!",
+            "written": null,
+            "glosses": {
+                "no": "well",
+                "niin": "so - together: the get-going 'no niin'",
+                "aloitetaan": "let's start - the spoken we-form"
+            }
+        },
+        {
+            "fi": "No niin, ruoka on valmis!",
+            "en": "Ok everyone, food's ready!",
+            "written": null,
+            "glosses": {
+                "no": "well",
+                "niin": "so - the announcing 'no niin'",
+                "ruoka": "food",
+                "on": "is",
+                "valmis": "ready"
+            }
+        },
+        {
+            "fi": "No niin, sehän onnistu hienosti.",
+            "en": "Well now, that worked out beautifully.",
+            "written": "No niin, sehän onnistui hienosti.",
+            "glosses": {
+                "no": "well",
+                "niin": "so - the satisfied 'no niin'",
+                "sehän": "that indeed - 'se' + -hän",
+                "onnistu": "succeeded - spoken 'onnistui'",
+                "hienosti": "beautifully"
+            }
+        },
+        {
+            "fi": "No niin... mitäs mä olin sanomassa?",
+            "en": "Right... what was I saying?",
+            "written": "No niin... mitä minä olin sanomassa?",
+            "glosses": {
+                "no": "well",
+                "niin": "so - the thread-recovering 'no niin'",
+                "mitäs": "what - casual -s",
+                "mä": "I",
+                "olin": "was",
+                "sanomassa": "in the middle of saying"
+            }
+        },
+        {
+            "fi": "No nii, taas tää alkaa.",
+            "en": "Oh great, here we go again.",
+            "written": "No niin, taas tämä alkaa.",
+            "glosses": {
+                "no": "well",
+                "nii": "so - clipped short = annoyed",
+                "taas": "again",
+                "tää": "this - spoken 'tämä'",
+                "alkaa": "begins"
+            }
+        },
+        {
+            "fi": "Jaaha, sielt tullaan.",
+            "en": "Well well, here they come.",
+            "written": "Jaaha, sieltä tullaan.",
+            "glosses": {
+                "jaaha": "well well - dry acknowledgement",
+                "sielt": "from there - spoken 'sieltä'",
+                "tullaan": "one comes - the spoken passive"
+            }
+        },
+        {
+            "fi": "Jaahas, mitäs täällä tapahtuu?",
+            "en": "What's all this, then?",
+            "written": "Jaaha, mitä täällä tapahtuu?",
+            "glosses": {
+                "jaahas": "what's this then - 'jaaha' + amused -s",
+                "mitäs": "what - casual -s",
+                "täällä": "here",
+                "tapahtuu": "is happening"
+            }
+        },
+        {
+            "fi": "Selvä homma, hoidetaan.",
+            "en": "All sorted, we'll handle it.",
+            "written": "Selvä asia, hoidetaan.",
+            "glosses": {
+                "selvä": "clear - 'selvä homma' = deal / all sorted",
+                "homma": "thing / business - casual",
+                "hoidetaan": "we'll handle it - the spoken we-form"
+            }
+        }
+    ]
+}

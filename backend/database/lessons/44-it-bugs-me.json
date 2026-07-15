@@ -1,0 +1,110 @@
+{
+    "title": "It Bugs Me",
+    "level": "B2",
+    "pattern": {
+        "title": "Feeling verbs: harmittaa, ärsyttää, jännittää",
+        "summary": "Finnish feelings often hit you from outside: mua harmittaa = I'm bummed, mua ärsyttää = it annoys me, mua jännittää = I'm nervous. The feeler goes in the mua/sua form and the verb stays third person - the same pattern as 'mua väsyttää', just with the full emotional range.",
+        "examples": [
+            "Mua harmittaa, et se meni näin. = I'm bummed it went this way.",
+            "Mua jännittää huominen ihan hirveesti. = I'm terribly nervous about tomorrow.",
+            "Naurattaaks sua? = Does it make you laugh?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mua harmittaa, et se meni näin.",
+            "en": "I'm bummed that it went this way.",
+            "written": "Minua harmittaa, että se meni näin.",
+            "glosses": {
+                "mua": "me - spoken 'minua'",
+                "harmittaa": "bums out - from 'harmittaa'",
+                "et": "that - spoken 'että'",
+                "se": "it",
+                "meni": "went",
+                "näin": "this way"
+            }
+        },
+        {
+            "fi": "Toi ääni ärsyttää mua ihan sikana.",
+            "en": "That sound annoys me like crazy.",
+            "written": "Tuo ääni ärsyttää minua todella paljon.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "ääni": "sound",
+                "ärsyttää": "annoys",
+                "mua": "me - spoken 'minua'",
+                "ihan": "totally",
+                "sikana": "like crazy - slang intensifier"
+            }
+        },
+        {
+            "fi": "Mua jännittää huominen ihan hirveesti.",
+            "en": "I'm terribly nervous about tomorrow.",
+            "written": "Minua jännittää huominen ihan hirveästi.",
+            "glosses": {
+                "mua": "me - spoken 'minua'",
+                "jännittää": "makes nervous / excites",
+                "huominen": "tomorrow - as a noun",
+                "ihan": "quite",
+                "hirveesti": "terribly - spoken 'hirveästi'"
+            }
+        },
+        {
+            "fi": "Naurattaaks sua?",
+            "en": "Does it make you laugh?",
+            "written": "Naurattaako sinua?",
+            "glosses": {
+                "naurattaaks": "does it make laugh - spoken 'naurattaako'",
+                "sua": "you - spoken 'sinua'"
+            }
+        },
+        {
+            "fi": "Mua alko itkettää.",
+            "en": "It started to make me cry.",
+            "written": "Minua alkoi itkettää.",
+            "glosses": {
+                "mua": "me - spoken 'minua'",
+                "alko": "started - spoken 'alkoi'",
+                "itkettää": "to make cry - from 'itkeä'"
+            }
+        },
+        {
+            "fi": "Ketuttaa, ku bussi meni just nenän edestä.",
+            "en": "So annoying - the bus left right under my nose.",
+            "written": "Harmittaa, kun bussi meni juuri nenän edestä.",
+            "glosses": {
+                "ketuttaa": "it ticks (me) off - mild slang, from 'kettu'",
+                "ku": "because / when - spoken 'kun'",
+                "bussi": "bus",
+                "meni": "went",
+                "just": "right - spoken 'juuri'",
+                "nenän": "the nose's",
+                "edestä": "from in front of - 'nenän edestä' = under one's nose"
+            }
+        },
+        {
+            "fi": "Ei mua enää pelota.",
+            "en": "I'm not scared anymore.",
+            "written": "Ei minua enää pelota.",
+            "glosses": {
+                "ei": "not",
+                "mua": "me - spoken 'minua'",
+                "enää": "anymore",
+                "pelota": "scare - from 'pelottaa'"
+            }
+        },
+        {
+            "fi": "Mua vaan väsyttää ja ärsyttää tänään.",
+            "en": "I'm just tired and cranky today.",
+            "written": "Minua vain väsyttää ja ärsyttää tänään.",
+            "glosses": {
+                "mua": "me - spoken 'minua'",
+                "vaan": "just - spoken 'vain'",
+                "väsyttää": "makes tired",
+                "ja": "and",
+                "ärsyttää": "annoys",
+                "tänään": "today"
+            }
+        }
+    ]
+}

@@ -1,0 +1,102 @@
+{
+    "title": "When to Be Formal",
+    "level": "C1",
+    "pattern": {
+        "title": "Teitittely: Voisitteko...?",
+        "summary": "Finland is casual, but the formal you (te + plural verb) still earns respect with elderly people, in customer service, and in official calls: Voisitteko auttaa? = Could you (formally) help? Knowing when to switch - and how to ask permission to switch back (sopiiks, et mä sinuttelen?) - is real C1 skill.",
+        "examples": [
+            "Anteeksi, voisitteko auttaa hetken? = Excuse me, could you help for a moment?",
+            "Käykö teille torstai? = Does Thursday work for you?",
+            "Sopiiks, et mä sinuttelen? = Is it ok if I use the informal you?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Anteeksi, voisitteko auttaa hetken?",
+            "en": "Excuse me, could you help for a moment?",
+            "written": null,
+            "glosses": {
+                "anteeksi": "excuse me",
+                "voisitteko": "could you - the formal plural 'te' form",
+                "auttaa": "help",
+                "hetken": "for a moment"
+            }
+        },
+        {
+            "fi": "Oletteko te jonossa?",
+            "en": "Are you in the queue? (formal)",
+            "written": null,
+            "glosses": {
+                "oletteko": "are you - formal 'te' form",
+                "te": "you - the formal/plural you",
+                "jonossa": "in the queue"
+            }
+        },
+        {
+            "fi": "Käykö teille torstai?",
+            "en": "Does Thursday work for you? (formal)",
+            "written": null,
+            "glosses": {
+                "käykö": "does it suit - from 'käydä'",
+                "teille": "for you - formal 'te'",
+                "torstai": "Thursday"
+            }
+        },
+        {
+            "fi": "Haluaisitteko jotain juotavaa?",
+            "en": "Would you like something to drink? (formal)",
+            "written": null,
+            "glosses": {
+                "haluaisitteko": "would you like - formal conditional",
+                "jotain": "something",
+                "juotavaa": "to drink"
+            }
+        },
+        {
+            "fi": "Kiitos teille tosi paljon avusta.",
+            "en": "Thank you so much for the help. (formal)",
+            "written": null,
+            "glosses": {
+                "kiitos": "thanks",
+                "teille": "to you - formal 'te'",
+                "tosi": "really",
+                "paljon": "much",
+                "avusta": "for the help - from 'apu'"
+            }
+        },
+        {
+            "fi": "Sopiiks, et mä sinuttelen?",
+            "en": "Is it ok if I use the informal you?",
+            "written": "Sopiiko, että minä sinuttelen?",
+            "glosses": {
+                "sopiiks": "is it ok - spoken 'sopiiko'",
+                "et": "that - spoken 'että'",
+                "mä": "I",
+                "sinuttelen": "use 'sinä' - from 'sinutella'"
+            }
+        },
+        {
+            "fi": "Asiakaspalvelus teititellään usein.",
+            "en": "In customer service, the formal you is common.",
+            "written": "Asiakaspalvelussa teititellään usein.",
+            "glosses": {
+                "asiakaspalvelus": "in customer service - spoken '-palvelussa'",
+                "teititellään": "people use the formal you - from 'teititellä'",
+                "usein": "often"
+            }
+        },
+        {
+            "fi": "Vanhemmille ihmisille mä käytän välil teitittelyy.",
+            "en": "With older people I sometimes use the formal you.",
+            "written": "Vanhemmille ihmisille minä käytän välillä teitittelyä.",
+            "glosses": {
+                "vanhemmille": "for older",
+                "ihmisille": "people",
+                "mä": "I",
+                "käytän": "use - from 'käyttää'",
+                "välil": "sometimes - spoken 'välillä'",
+                "teitittelyy": "the formal address - spoken 'teitittelyä'"
+            }
+        }
+    ]
+}

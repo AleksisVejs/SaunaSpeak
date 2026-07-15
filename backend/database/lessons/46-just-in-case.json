@@ -1,0 +1,112 @@
+{
+    "title": "Just in Case",
+    "level": "B2",
+    "pattern": {
+        "title": "Contingency: jos vaikka, siltä varalta",
+        "summary": "Plans that leave room to move: jos vaikka = in case / what if, siltä varalta et = just in case, varmuuden vuoks = to be safe. And the phrase every Finnish plan ends with: ei lyödä viel mitään lukkoon - let's not lock anything in yet.",
+        "examples": [
+            "Ota sateenvarjo, jos vaikka alkaa sataa. = Take an umbrella in case it starts raining.",
+            "Varmuuden vuoks mä otin molemmat. = To be safe, I took both.",
+            "Ei lyödä viel mitään lukkoon. = Let's not lock anything in yet."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Ota sateenvarjo, jos vaikka alkaa sataa.",
+            "en": "Take an umbrella in case it starts raining.",
+            "written": null,
+            "glosses": {
+                "ota": "take! - from 'ottaa'",
+                "sateenvarjo": "umbrella",
+                "jos": "if",
+                "vaikka": "perhaps - 'jos vaikka' = in case",
+                "alkaa": "starts",
+                "sataa": "to rain"
+            }
+        },
+        {
+            "fi": "Mä tuun vähän aikasemmin siltä varalta, et on jonoo.",
+            "en": "I'll come a bit early just in case there's a line.",
+            "written": "Minä tulen vähän aikaisemmin siltä varalta, että on jonoa.",
+            "glosses": {
+                "mä": "I",
+                "tuun": "come - spoken 'tulen'",
+                "vähän": "a bit",
+                "aikasemmin": "earlier - spoken 'aikaisemmin'",
+                "siltä": "for that - pairs with 'varalta'",
+                "varalta": "in case - 'siltä varalta' = just in case",
+                "et": "that - spoken 'että'",
+                "on": "there is",
+                "jonoo": "a line - spoken 'jonoa'"
+            }
+        },
+        {
+            "fi": "Sovitaan alustavasti torstaiks.",
+            "en": "Let's tentatively say Thursday.",
+            "written": "Sovitaan alustavasti torstaiksi.",
+            "glosses": {
+                "sovitaan": "let's agree - the spoken we-form",
+                "alustavasti": "tentatively / provisionally",
+                "torstaiks": "for Thursday - spoken 'torstaiksi'"
+            }
+        },
+        {
+            "fi": "Jos jotain tulee, mä laitan viestii.",
+            "en": "If something comes up, I'll text you.",
+            "written": "Jos jotain tulee, minä laitan viestiä.",
+            "glosses": {
+                "jos": "if",
+                "jotain": "something",
+                "tulee": "comes up",
+                "mä": "I",
+                "laitan": "send - from 'laittaa'",
+                "viestii": "a message - spoken 'viestiä'"
+            }
+        },
+        {
+            "fi": "Varmuuden vuoks mä otin molemmat.",
+            "en": "To be safe, I took both.",
+            "written": "Varmuuden vuoksi minä otin molemmat.",
+            "glosses": {
+                "varmuuden": "certainty's",
+                "vuoks": "for the sake of - spoken 'vuoksi'",
+                "mä": "I",
+                "otin": "took",
+                "molemmat": "both"
+            }
+        },
+        {
+            "fi": "Pidetään varasuunnitelma takataskussa.",
+            "en": "Let's keep a backup plan in the back pocket.",
+            "written": null,
+            "glosses": {
+                "pidetään": "let's keep - the spoken we-form",
+                "varasuunnitelma": "backup plan",
+                "takataskussa": "in the back pocket - ready if needed"
+            }
+        },
+        {
+            "fi": "Ei lyödä viel mitään lukkoon.",
+            "en": "Let's not lock anything in yet.",
+            "written": "Ei lyödä vielä mitään lukkoon.",
+            "glosses": {
+                "ei": "not",
+                "lyödä": "hit / strike - 'lyödä lukkoon' = to lock in",
+                "viel": "yet - spoken 'vielä'",
+                "mitään": "anything",
+                "lukkoon": "into a lock"
+            }
+        },
+        {
+            "fi": "Kaikki voi viel muuttuu.",
+            "en": "Everything can still change.",
+            "written": "Kaikki voi vielä muuttua.",
+            "glosses": {
+                "kaikki": "everything",
+                "voi": "can",
+                "viel": "still - spoken 'vielä'",
+                "muuttuu": "change - spoken 'muuttua'"
+            }
+        }
+    ]
+}

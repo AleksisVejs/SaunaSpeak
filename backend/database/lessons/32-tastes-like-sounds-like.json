@@ -1,0 +1,98 @@
+{
+    "title": "Tastes Like, Sounds Like",
+    "level": "A2",
+    "pattern": {
+        "title": "Senses + -lta: maistuu hyvältä",
+        "summary": "Sense verbs pair with -lta/-ltä: maistuu hyvältä (tastes good), kuulostaa kivalta (sounds nice), näyttää väsyneeltä (looks tired), tuntuu oudolta (feels weird). One ending unlocks a whole family of everyday reactions.",
+        "examples": [
+            "Tää maistuu tosi hyvältä. = This tastes really good.",
+            "Toi kuulostaa kivalta. = That sounds nice.",
+            "Miltä sust tuntuu? = How do you feel?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Tää maistuu tosi hyvältä.",
+            "en": "This tastes really good.",
+            "written": "Tämä maistuu tosi hyvältä.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "maistuu": "tastes - from 'maistua'",
+                "tosi": "really",
+                "hyvältä": "good - the -ltä ending sense verbs take"
+            }
+        },
+        {
+            "fi": "Toi kuulostaa kivalta.",
+            "en": "That sounds nice.",
+            "written": "Tuo kuulostaa kivalta.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "kuulostaa": "sounds - from 'kuulostaa'",
+                "kivalta": "nice - from 'kiva'"
+            }
+        },
+        {
+            "fi": "Sä näytät väsyneeltä.",
+            "en": "You look tired.",
+            "written": "Sinä näytät väsyneeltä.",
+            "glosses": {
+                "sä": "you",
+                "näytät": "look - from 'näyttää'",
+                "väsyneeltä": "tired - from 'väsynyt'"
+            }
+        },
+        {
+            "fi": "Tuntuuks tää oudolta?",
+            "en": "Does this feel weird?",
+            "written": "Tuntuuko tämä oudolta?",
+            "glosses": {
+                "tuntuuks": "does it feel - spoken 'tuntuuko'",
+                "tää": "this - spoken 'tämä'",
+                "oudolta": "weird - from 'outo'"
+            }
+        },
+        {
+            "fi": "Ruoka tuoksuu ihanalta.",
+            "en": "The food smells wonderful.",
+            "written": null,
+            "glosses": {
+                "ruoka": "food",
+                "tuoksuu": "smells (good) - from 'tuoksua'",
+                "ihanalta": "wonderful - from 'ihana'"
+            }
+        },
+        {
+            "fi": "Tää haisee ihan palaneelta.",
+            "en": "This smells totally burnt.",
+            "written": "Tämä haisee ihan palaneelta.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "haisee": "smells (bad) - from 'haista'",
+                "ihan": "totally",
+                "palaneelta": "burnt - from 'palanut'"
+            }
+        },
+        {
+            "fi": "Se kuulosti hyvältä idealta.",
+            "en": "It sounded like a good idea.",
+            "written": null,
+            "glosses": {
+                "se": "it",
+                "kuulosti": "sounded - past of 'kuulostaa'",
+                "hyvältä": "good",
+                "idealta": "idea - with the -lta ending"
+            }
+        },
+        {
+            "fi": "Miltä sust tuntuu?",
+            "en": "How do you feel?",
+            "written": "Miltä sinusta tuntuu?",
+            "glosses": {
+                "miltä": "like what / how",
+                "sust": "to you - spoken 'sinusta'",
+                "tuntuu": "feels - from 'tuntua'"
+            }
+        }
+    ]
+}

@@ -1,0 +1,108 @@
+{
+    "title": "Office Finnish",
+    "level": "B2",
+    "pattern": {
+        "title": "Työelämä: palaveri, etänä, deadline",
+        "summary": "The vocabulary of Finnish working life: palaveri (meeting), olla etänä (work remotely), deadline (yes, the English word), pitää lyhyempää päivää (leave early). Half loanwords, half compounds - all of it daily bread in any Finnish workplace.",
+        "examples": [
+            "Mul on palaveri koko aamupäivän. = I'm in meetings all morning.",
+            "Mä oon huomenna etänä. = I'm working remotely tomorrow.",
+            "Työkaverit on onneks tosi rentoja. = Luckily my coworkers are really chill."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mul on palaveri koko aamupäivän.",
+            "en": "I'm in meetings all morning.",
+            "written": "Minulla on palaveri koko aamupäivän.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "palaveri": "meeting - the everyday work word",
+                "koko": "whole",
+                "aamupäivän": "morning / forenoon"
+            }
+        },
+        {
+            "fi": "Mä oon huomenna etänä.",
+            "en": "I'm working remotely tomorrow.",
+            "written": "Minä olen huomenna etätöissä.",
+            "glosses": {
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "huomenna": "tomorrow",
+                "etänä": "remote - short for 'etätöissä'"
+            }
+        },
+        {
+            "fi": "Deadline on perjantaina, eli kiirettä pitää.",
+            "en": "The deadline is Friday, so it's crunch time.",
+            "written": "Määräaika on perjantaina, eli kiirettä pitää.",
+            "glosses": {
+                "deadline": "deadline - the English word, used as-is",
+                "on": "is",
+                "perjantaina": "on Friday",
+                "eli": "so / in other words",
+                "kiirettä": "hurry",
+                "pitää": "holds - 'kiirettä pitää' = it's busy"
+            }
+        },
+        {
+            "fi": "Laitatsä mulle kalenterikutsun?",
+            "en": "Will you send me a calendar invite?",
+            "written": "Laitatko sinä minulle kalenterikutsun?",
+            "glosses": {
+                "laitatsä": "will you put/send - spoken 'laitatko sinä'",
+                "mulle": "to me - spoken 'minulle'",
+                "kalenterikutsun": "a calendar invite"
+            }
+        },
+        {
+            "fi": "Otetaan tää asia esiin viikkopalaveris.",
+            "en": "Let's bring this up in the weekly meeting.",
+            "written": "Otetaan tämä asia esiin viikkopalaverissa.",
+            "glosses": {
+                "otetaan": "let's take - the spoken we-form",
+                "tää": "this - spoken 'tämä'",
+                "asia": "matter",
+                "esiin": "up / forward - 'ottaa esiin' = to bring up",
+                "viikkopalaveris": "in the weekly meeting - spoken '-palaverissa'"
+            }
+        },
+        {
+            "fi": "Pomo hyväksy mun lomat.",
+            "en": "The boss approved my vacation days.",
+            "written": "Pomo hyväksyi minun lomani.",
+            "glosses": {
+                "pomo": "boss",
+                "hyväksy": "approved - spoken 'hyväksyi'",
+                "mun": "my - spoken 'minun'",
+                "lomat": "vacation days"
+            }
+        },
+        {
+            "fi": "Mä pidän tänään lyhyempää päivää.",
+            "en": "I'm doing a shorter day today.",
+            "written": "Minä pidän tänään lyhyempää päivää.",
+            "glosses": {
+                "mä": "I",
+                "pidän": "keep / hold - from 'pitää'",
+                "tänään": "today",
+                "lyhyempää": "shorter - comparative of 'lyhyt'",
+                "päivää": "day"
+            }
+        },
+        {
+            "fi": "Työkaverit on onneks tosi rentoja.",
+            "en": "Luckily my coworkers are really chill.",
+            "written": "Työkaverit ovat onneksi tosi rentoja.",
+            "glosses": {
+                "työkaverit": "coworkers",
+                "on": "are - spoken Finnish uses 'on' for plurals too",
+                "onneks": "luckily - spoken 'onneksi'",
+                "tosi": "really",
+                "rentoja": "chill / relaxed - from 'rento'"
+            }
+        }
+    ]
+}

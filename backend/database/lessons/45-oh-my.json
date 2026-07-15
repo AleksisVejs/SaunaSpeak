@@ -1,0 +1,107 @@
+{
+    "title": "Oh My!",
+    "level": "B2",
+    "pattern": {
+        "title": "Exclamations: voi että, no voi vitsi",
+        "summary": "The family-friendly end of Finnish exclamations: voi että (oh my), no voi vitsi (oh man), herranjestas (good heavens), huhhuh (phew), no johan nyt jotain (well I never). They carry the emotion so your sentence doesn't have to.",
+        "examples": [
+            "Voi että, miten kaunis päivä! = Oh my, what a beautiful day!",
+            "No voi vitsi, mä unohdin koko jutun. = Oh man, I forgot the whole thing.",
+            "No johan nyt jotain. = Well, I never."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Voi että, miten kaunis päivä!",
+            "en": "Oh my, what a beautiful day!",
+            "written": null,
+            "glosses": {
+                "voi": "oh",
+                "että": "that - 'voi että' = oh my",
+                "miten": "how",
+                "kaunis": "beautiful",
+                "päivä": "day"
+            }
+        },
+        {
+            "fi": "No voi vitsi, mä unohdin koko jutun.",
+            "en": "Oh man, I forgot the whole thing.",
+            "written": "No voi vitsi, minä unohdin koko jutun.",
+            "glosses": {
+                "no": "well",
+                "voi": "oh",
+                "vitsi": "joke - 'voi vitsi' = oh man, totally clean",
+                "mä": "I",
+                "unohdin": "forgot",
+                "koko": "whole",
+                "jutun": "thing"
+            }
+        },
+        {
+            "fi": "Voi ei, ei kai taas.",
+            "en": "Oh no, not again, surely.",
+            "written": null,
+            "glosses": {
+                "voi": "oh",
+                "ei": "no",
+                "kai": "surely - the hedge",
+                "taas": "again"
+            }
+        },
+        {
+            "fi": "Herranjestas, mikä jono!",
+            "en": "Good heavens, what a line!",
+            "written": null,
+            "glosses": {
+                "herranjestas": "good heavens - mild, old-fashioned",
+                "mikä": "what a",
+                "jono": "line / queue"
+            }
+        },
+        {
+            "fi": "Vitsit, et se oli hyvää!",
+            "en": "Wow, that was good!",
+            "written": "Vitsit, että se oli hyvää!",
+            "glosses": {
+                "vitsit": "wow - literally 'jokes', totally clean",
+                "et": "that - spoken 'että'",
+                "se": "it",
+                "oli": "was",
+                "hyvää": "good"
+            }
+        },
+        {
+            "fi": "No johan nyt jotain.",
+            "en": "Well, I never.",
+            "written": null,
+            "glosses": {
+                "no": "well",
+                "johan": "already indeed - 'jo' + -han",
+                "nyt": "now",
+                "jotain": "something - the idiom = 'well I never'"
+            }
+        },
+        {
+            "fi": "Voi harmi, ens kerral sit.",
+            "en": "Oh shame, next time then.",
+            "written": "Voi harmi, ensi kerralla sitten.",
+            "glosses": {
+                "voi": "oh",
+                "harmi": "a shame",
+                "ens": "next - spoken 'ensi'",
+                "kerral": "time - spoken 'kerralla'",
+                "sit": "then - spoken 'sitten'"
+            }
+        },
+        {
+            "fi": "Huhhuh, olipa päivä.",
+            "en": "Phew, what a day.",
+            "written": null,
+            "glosses": {
+                "huhhuh": "phew - exhaustion or amazement",
+                "olipa": "was quite - 'oli' + surprised -pa",
+                "päivä": "a day"
+            }
+        }
+    ]
+}

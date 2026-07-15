@@ -1,0 +1,107 @@
+{
+    "title": "Hobbies and Free Time",
+    "level": "A2",
+    "pattern": {
+        "title": "Hobbies: mä käyn salilla, kerran viikos",
+        "summary": "Regular activities use 'käydä' + a place: mä käyn salilla = I go to the gym. How often takes -s endings in speech: kerran viikos (once a week), joka aamu (every morning). Asking about hobbies: harrastatsä mitään?",
+        "examples": [
+            "Mä käyn salilla kolme kertaa viikos. = I go to the gym three times a week.",
+            "Harrastatsä mitään? = Do you have any hobbies?",
+            "Me käydään lenkillä joka aamu. = We go for a walk every morning."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Harrastatsä mitään?",
+            "en": "Do you have any hobbies?",
+            "written": "Harrastatko sinä mitään?",
+            "glosses": {
+                "harrastatsä": "do you do as a hobby - spoken 'harrastatko sinä'",
+                "mitään": "anything"
+            }
+        },
+        {
+            "fi": "Mä käyn salilla kolme kertaa viikos.",
+            "en": "I go to the gym three times a week.",
+            "written": "Minä käyn salilla kolme kertaa viikossa.",
+            "glosses": {
+                "mä": "I",
+                "käyn": "go (regularly) - from 'käydä'",
+                "salilla": "at the gym - 'sali' = gym",
+                "kolme": "three",
+                "kertaa": "times",
+                "viikos": "a week - spoken 'viikossa'"
+            }
+        },
+        {
+            "fi": "Me käydään lenkillä joka aamu.",
+            "en": "We go for a walk every morning.",
+            "written": "Me käymme lenkillä joka aamu.",
+            "glosses": {
+                "me": "we",
+                "käydään": "go - the spoken we-form",
+                "lenkillä": "on a walk / jog - 'lenkki'",
+                "joka": "every",
+                "aamu": "morning"
+            }
+        },
+        {
+            "fi": "Mä pelaan futista kavereitten kaa.",
+            "en": "I play football with my friends.",
+            "written": "Minä pelaan jalkapalloa kavereiden kanssa.",
+            "glosses": {
+                "mä": "I",
+                "pelaan": "play - from 'pelata'",
+                "futista": "football - casual 'futis'",
+                "kavereitten": "friends' - spoken 'kavereiden'",
+                "kaa": "with - spoken 'kanssa'"
+            }
+        },
+        {
+            "fi": "Mä alotin just joogan.",
+            "en": "I just started yoga.",
+            "written": "Minä aloitin juuri joogan.",
+            "glosses": {
+                "mä": "I",
+                "alotin": "started - spoken 'aloitin'",
+                "just": "just - spoken 'juuri'",
+                "joogan": "yoga"
+            }
+        },
+        {
+            "fi": "Talvella mä hiihdän ja luistelen.",
+            "en": "In winter I ski and skate.",
+            "written": "Talvella minä hiihdän ja luistelen.",
+            "glosses": {
+                "talvella": "in winter",
+                "mä": "I",
+                "hiihdän": "ski - from 'hiihtää'",
+                "ja": "and",
+                "luistelen": "skate - from 'luistella'"
+            }
+        },
+        {
+            "fi": "Mul ei oo aikaa harrastuksille.",
+            "en": "I don't have time for hobbies.",
+            "written": "Minulla ei ole aikaa harrastuksille.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "ei": "not",
+                "oo": "have - spoken 'ole'",
+                "aikaa": "time",
+                "harrastuksille": "for hobbies - from 'harrastus'"
+            }
+        },
+        {
+            "fi": "Mikä sun lempilaji on?",
+            "en": "What's your favorite sport?",
+            "written": "Mikä sinun lempilajisi on?",
+            "glosses": {
+                "mikä": "what",
+                "sun": "your - spoken 'sinun'",
+                "lempilaji": "favorite sport - 'laji' = discipline",
+                "on": "is"
+            }
+        }
+    ]
+}

@@ -1,0 +1,103 @@
+{
+    "title": "City Slang Starter Pack",
+    "level": "C1",
+    "pattern": {
+        "title": "Stadi slang: mesta, fillari, kämppis",
+        "summary": "The Helsinki slang layer you'll hear daily: mesta (place), fillari (bike), kämppis (roommate), spora (tram), bailut (party), bongata (to spot). None of it is in the dictionary your teacher gave you - all of it is in every conversation under 40.",
+        "examples": [
+            "Toi on mun lempimesta. = That's my favorite spot.",
+            "Mä tuun fillarilla. = I'll come by bike.",
+            "Meil on bailut lauantaina. = We're having a party on Saturday."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Toi on mun lempimesta.",
+            "en": "That's my favorite spot.",
+            "written": "Tuo on minun lempipaikkani.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "on": "is",
+                "mun": "my - spoken 'minun'",
+                "lempimesta": "favorite spot - slang 'mesta' = place"
+            }
+        },
+        {
+            "fi": "Mä tuun fillarilla.",
+            "en": "I'll come by bike.",
+            "written": "Minä tulen polkupyörällä.",
+            "glosses": {
+                "mä": "I",
+                "tuun": "come - spoken 'tulen'",
+                "fillarilla": "by bike - slang 'fillari' = polkupyörä"
+            }
+        },
+        {
+            "fi": "Mun kämppis on viikon reissussa.",
+            "en": "My roommate is away for a week.",
+            "written": "Minun kämppäkaverini on viikon matkoilla.",
+            "glosses": {
+                "mun": "my - spoken 'minun'",
+                "kämppis": "roommate - from 'kämppäkaveri'",
+                "on": "is",
+                "viikon": "for a week",
+                "reissussa": "on a trip - casual 'reissu'"
+            }
+        },
+        {
+            "fi": "Mennään sporalla keskustaan.",
+            "en": "Let's take the tram downtown.",
+            "written": "Mennään raitiovaunulla keskustaan.",
+            "glosses": {
+                "mennään": "let's go - the spoken we-form",
+                "sporalla": "by tram - Helsinki slang 'spora' = raitiovaunu",
+                "keskustaan": "to the center"
+            }
+        },
+        {
+            "fi": "Meil on bailut lauantaina.",
+            "en": "We're having a party on Saturday.",
+            "written": "Meillä on juhlat lauantaina.",
+            "glosses": {
+                "meil": "we have - spoken 'meillä'",
+                "on": "is",
+                "bailut": "a party - slang for 'juhlat'",
+                "lauantaina": "on Saturday"
+            }
+        },
+        {
+            "fi": "Lähetsä messiin?",
+            "en": "You coming along?",
+            "written": "Lähdetkö sinä mukaan?",
+            "glosses": {
+                "lähetsä": "are you leaving - spoken 'lähdetkö sinä'",
+                "messiin": "along - slang 'messiin' = mukaan"
+            }
+        },
+        {
+            "fi": "Se mesta on aina ihan täynnä.",
+            "en": "That place is always packed.",
+            "written": "Se paikka on aina ihan täynnä.",
+            "glosses": {
+                "se": "that",
+                "mesta": "place - Helsinki slang",
+                "on": "is",
+                "aina": "always",
+                "ihan": "completely",
+                "täynnä": "full / packed"
+            }
+        },
+        {
+            "fi": "Mä bongasin sut eilen sporasta.",
+            "en": "I spotted you on the tram yesterday.",
+            "written": "Minä näin sinut eilen raitiovaunussa.",
+            "glosses": {
+                "mä": "I",
+                "bongasin": "spotted - slang 'bongata', from birdwatching",
+                "sut": "you - spoken 'sinut'",
+                "eilen": "yesterday",
+                "sporasta": "on the tram - slang 'spora'"
+            }
+        }
+    ]
+}

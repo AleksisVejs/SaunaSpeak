@@ -1,0 +1,110 @@
+{
+    "title": "Job Hunting",
+    "level": "B1",
+    "pattern": {
+        "title": "The job hunt: hakemus, haastattelu, kokemus",
+        "summary": "The words that get you hired: hakea (to apply), hakemus (application), työhaastattelu (job interview), kokemus (experience), palkka (salary). In speech a job is 'duuni' or 'paikka' - and the interview itself often decides how much kirjakieli you should mix in.",
+        "examples": [
+            "Mul on työhaastattelu torstaina. = I have a job interview on Thursday.",
+            "Mul on aika paljon kokemusta asiakaspalvelusta. = I have quite a lot of customer service experience.",
+            "Mä sain sen paikan! = I got the job!"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä hain yhtä duunii viime kuussa.",
+            "en": "I applied for a job last month.",
+            "written": "Minä hain yhtä työpaikkaa viime kuussa.",
+            "glosses": {
+                "mä": "I",
+                "hain": "applied for - from 'hakea'",
+                "yhtä": "one / a",
+                "duunii": "job - slang 'duuni'",
+                "viime": "last",
+                "kuussa": "month"
+            }
+        },
+        {
+            "fi": "Mä lähetin hakemuksen ja CV:n.",
+            "en": "I sent the application and my CV.",
+            "written": "Minä lähetin hakemuksen ja CV:n.",
+            "glosses": {
+                "mä": "I",
+                "lähetin": "sent - from 'lähettää'",
+                "hakemuksen": "the application",
+                "ja": "and",
+                "cv:n": "the CV"
+            }
+        },
+        {
+            "fi": "Mul on työhaastattelu torstaina.",
+            "en": "I have a job interview on Thursday.",
+            "written": "Minulla on työhaastattelu torstaina.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "työhaastattelu": "job interview",
+                "torstaina": "on Thursday"
+            }
+        },
+        {
+            "fi": "Mul on aika paljon kokemusta asiakaspalvelusta.",
+            "en": "I have quite a lot of customer service experience.",
+            "written": "Minulla on aika paljon kokemusta asiakaspalvelusta.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "aika": "quite",
+                "paljon": "a lot",
+                "kokemusta": "experience",
+                "asiakaspalvelusta": "of customer service"
+            }
+        },
+        {
+            "fi": "Ne kysy, miks mä haluun just sinne.",
+            "en": "They asked why I want to work exactly there.",
+            "written": "He kysyivät, miksi minä haluan juuri sinne.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "kysy": "asked - spoken 'kysyivät'",
+                "miks": "why - spoken 'miksi'",
+                "mä": "I",
+                "haluun": "want - spoken 'haluan'",
+                "just": "exactly - spoken 'juuri'",
+                "sinne": "there"
+            }
+        },
+        {
+            "fi": "Palkasta voi neuvotella.",
+            "en": "The salary is negotiable.",
+            "written": null,
+            "glosses": {
+                "palkasta": "about the salary - from 'palkka'",
+                "voi": "can",
+                "neuvotella": "negotiate"
+            }
+        },
+        {
+            "fi": "Koska sä voisit alottaa?",
+            "en": "When could you start?",
+            "written": "Koska sinä voisit aloittaa?",
+            "glosses": {
+                "koska": "when",
+                "sä": "you",
+                "voisit": "could - conditional of 'voida'",
+                "alottaa": "to start - spoken 'aloittaa'"
+            }
+        },
+        {
+            "fi": "Mä sain sen paikan!",
+            "en": "I got the job!",
+            "written": "Minä sain sen paikan!",
+            "glosses": {
+                "mä": "I",
+                "sain": "got - from 'saada'",
+                "sen": "the",
+                "paikan": "position - 'paikka' = job/spot"
+            }
+        }
+    ]
+}

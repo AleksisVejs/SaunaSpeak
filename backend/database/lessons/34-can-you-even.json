@@ -1,0 +1,102 @@
+{
+    "title": "Can You Even?",
+    "level": "A2",
+    "pattern": {
+        "title": "Energy verbs: jaksaa, ehtiä, viitsiä",
+        "summary": "Three verbs Finns use constantly and textbooks barely teach: jaksaa = to have the energy, ehtiä = to have the time, viitsiä = to be bothered. Emmä jaksa = I'm too tired, mä en ehtiny = I didn't have time, emmä viitti = I can't be bothered.",
+        "examples": [
+            "Emmä jaksa enää. = I don't have the energy anymore.",
+            "Ehitsä auttaa mua tänään? = Do you have time to help me today?",
+            "Emmä viitti lähtee. = I can't be bothered to go."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Emmä jaksa enää.",
+            "en": "I don't have the energy anymore.",
+            "written": "En minä jaksa enää.",
+            "glosses": {
+                "emmä": "I don't - 'en' + 'mä' fused",
+                "jaksa": "have the energy - from 'jaksaa'",
+                "enää": "anymore"
+            }
+        },
+        {
+            "fi": "Jaksatsä viel vähän?",
+            "en": "Can you keep going a little longer?",
+            "written": "Jaksatko sinä vielä vähän?",
+            "glosses": {
+                "jaksatsä": "do you have the energy - spoken 'jaksatko sinä'",
+                "viel": "still - spoken 'vielä'",
+                "vähän": "a little"
+            }
+        },
+        {
+            "fi": "Mä en ehtiny syödä mitään.",
+            "en": "I didn't have time to eat anything.",
+            "written": "Minä en ehtinyt syödä mitään.",
+            "glosses": {
+                "mä": "I",
+                "en": "didn't",
+                "ehtiny": "have time - spoken 'ehtinyt'",
+                "syödä": "to eat",
+                "mitään": "anything"
+            }
+        },
+        {
+            "fi": "Ehitsä auttaa mua tänään?",
+            "en": "Do you have time to help me today?",
+            "written": "Ehditkö sinä auttaa minua tänään?",
+            "glosses": {
+                "ehitsä": "do you have time - spoken 'ehditkö sinä'",
+                "auttaa": "to help",
+                "mua": "me - spoken 'minua'",
+                "tänään": "today"
+            }
+        },
+        {
+            "fi": "Emmä viitti lähtee.",
+            "en": "I can't be bothered to go.",
+            "written": "En minä viitsi lähteä.",
+            "glosses": {
+                "emmä": "I don't - 'en' + 'mä' fused",
+                "viitti": "be bothered - spoken 'viitsi'",
+                "lähtee": "to go - spoken 'lähteä'"
+            }
+        },
+        {
+            "fi": "Viititsä avata oven?",
+            "en": "Would you mind opening the door?",
+            "written": "Viitsitkö sinä avata oven?",
+            "glosses": {
+                "viititsä": "would you mind - spoken 'viitsitkö sinä'",
+                "avata": "to open",
+                "oven": "the door"
+            }
+        },
+        {
+            "fi": "Kyl mä jaksan, jos sä jaksat.",
+            "en": "I can keep going if you can.",
+            "written": "Kyllä minä jaksan, jos sinä jaksat.",
+            "glosses": {
+                "kyl": "surely - spoken 'kyllä'",
+                "mä": "I",
+                "jaksan": "have the energy",
+                "jos": "if",
+                "sä": "you",
+                "jaksat": "have the energy"
+            }
+        },
+        {
+            "fi": "Ei jaksais mennä töihin.",
+            "en": "Really don't feel like going to work.",
+            "written": "Ei jaksaisi mennä töihin.",
+            "glosses": {
+                "ei": "not",
+                "jaksais": "would have the energy - spoken 'jaksaisi'",
+                "mennä": "to go",
+                "töihin": "to work"
+            }
+        }
+    ]
+}

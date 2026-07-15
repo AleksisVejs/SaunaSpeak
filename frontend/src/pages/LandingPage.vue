@@ -136,8 +136,8 @@ onBeforeUnmount(() => faqLd?.remove())
     <!-- the scale in one glance (update the counts as the course grows) -->
     <section class="stats-band" aria-label="Course size">
       <div class="stat-item"><b>A0 → C1</b><span>full path</span></div>
-      <div class="stat-item"><b>47</b><span>lessons</span></div>
-      <div class="stat-item"><b>375+</b><span>voiced sentences</span></div>
+      <div class="stat-item"><b>68</b><span>lessons</span></div>
+      <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>
     </section>
 

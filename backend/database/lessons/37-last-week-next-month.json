@@ -1,0 +1,109 @@
+{
+    "title": "Last Week, Next Month",
+    "level": "B1",
+    "pattern": {
+        "title": "Time talk: viime viikol, ens kuus, sitte",
+        "summary": "Spoken time expressions shrink: viime viikolla → viime viikol, ensi kuussa → ens kuus, sitten → sitte. Add ylihuomenna (day after tomorrow), toissapäivänä (day before yesterday) and puolen tunnin päästä (in half an hour) and you can place anything in time.",
+        "examples": [
+            "Me nähtiin viime viikol. = We saw each other last week.",
+            "Ens kuus mul on lomaa. = Next month I have vacation.",
+            "Tavataan puolen tunnin päästä. = Let's meet in half an hour."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Me nähtiin viime viikol.",
+            "en": "We saw each other last week.",
+            "written": "Me näimme viime viikolla.",
+            "glosses": {
+                "me": "we",
+                "nähtiin": "saw (each other) - the spoken we-form",
+                "viime": "last",
+                "viikol": "week - spoken 'viikolla'"
+            }
+        },
+        {
+            "fi": "Mä muutin tänne pari vuotta sitte.",
+            "en": "I moved here a couple of years ago.",
+            "written": "Minä muutin tänne pari vuotta sitten.",
+            "glosses": {
+                "mä": "I",
+                "muutin": "moved - from 'muuttaa'",
+                "tänne": "here",
+                "pari": "a couple of",
+                "vuotta": "years",
+                "sitte": "ago - spoken 'sitten'"
+            }
+        },
+        {
+            "fi": "Ens kuus mul on lomaa.",
+            "en": "Next month I have vacation.",
+            "written": "Ensi kuussa minulla on lomaa.",
+            "glosses": {
+                "ens": "next - spoken 'ensi'",
+                "kuus": "month - spoken 'kuussa'",
+                "mul": "I have - spoken 'minulla'",
+                "on": "is",
+                "lomaa": "vacation"
+            }
+        },
+        {
+            "fi": "Palataan asiaan ylihuomenna.",
+            "en": "Let's get back to it the day after tomorrow.",
+            "written": null,
+            "glosses": {
+                "palataan": "let's return - the spoken we-form",
+                "asiaan": "to the matter",
+                "ylihuomenna": "the day after tomorrow"
+            }
+        },
+        {
+            "fi": "Toissapäivänä satoi koko päivän.",
+            "en": "The day before yesterday it rained all day.",
+            "written": null,
+            "glosses": {
+                "toissapäivänä": "the day before yesterday",
+                "satoi": "rained - past of 'sataa'",
+                "koko": "whole",
+                "päivän": "day"
+            }
+        },
+        {
+            "fi": "Mä oon varannu ajan ens tiistaiks.",
+            "en": "I've booked an appointment for next Tuesday.",
+            "written": "Minä olen varannut ajan ensi tiistaiksi.",
+            "glosses": {
+                "mä": "I",
+                "oon": "have - spoken 'olen'",
+                "varannu": "booked - spoken 'varannut'",
+                "ajan": "an appointment - 'aika' = time slot",
+                "ens": "next - spoken 'ensi'",
+                "tiistaiks": "for Tuesday - spoken 'tiistaiksi'"
+            }
+        },
+        {
+            "fi": "Kuun lopus mä oon taas himassa.",
+            "en": "At the end of the month I'll be home again.",
+            "written": "Kuun lopussa minä olen taas kotona.",
+            "glosses": {
+                "kuun": "the month's",
+                "lopus": "at the end - spoken 'lopussa'",
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "taas": "again",
+                "himassa": "at home - slang 'hima'"
+            }
+        },
+        {
+            "fi": "Tavataan puolen tunnin päästä.",
+            "en": "Let's meet in half an hour.",
+            "written": null,
+            "glosses": {
+                "tavataan": "let's meet - the spoken we-form",
+                "puolen": "half",
+                "tunnin": "an hour's",
+                "päästä": "from now - 'x päästä' = in x time"
+            }
+        }
+    ]
+}

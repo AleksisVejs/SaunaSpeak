@@ -1,0 +1,110 @@
+{
+    "title": "Dating and Gossip",
+    "level": "C1",
+    "pattern": {
+        "title": "Relationships: seurustella, olla yhes, jättää",
+        "summary": "The relationship vocabulary gossip runs on: deittailla (to date around), seurustella (to be in a relationship), olla yhes (be together), mennä kihloihin (get engaged), jättää (to dump), erota (to break up). 'Yhes' is spoken 'yhdessä' - and yes, 'iskeä' means both to strike and to pick someone up.",
+        "examples": [
+            "Ne on oltu yhes jo vuoden. = They've been together for a year already.",
+            "Eka treffit meni tosi hyvin. = The first date went really well.",
+            "Se jätti mut tekstiviestillä. = They dumped me by text."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Eka treffit meni tosi hyvin.",
+            "en": "The first date went really well.",
+            "written": "Ensimmäiset treffit menivät tosi hyvin.",
+            "glosses": {
+                "eka": "first - spoken 'ensimmäinen'",
+                "treffit": "date - always plural in Finnish",
+                "meni": "went - spoken keeps the singular",
+                "tosi": "really",
+                "hyvin": "well"
+            }
+        },
+        {
+            "fi": "Mä oon deittaillu yhen tyypin kaa.",
+            "en": "I've been dating someone.",
+            "written": "Minä olen deittaillut yhden tyypin kanssa.",
+            "glosses": {
+                "mä": "I",
+                "oon": "have - spoken 'olen'",
+                "deittaillu": "been dating - spoken 'deittaillut'",
+                "yhen": "one - spoken 'yhden'",
+                "tyypin": "person / guy - casual 'tyyppi'",
+                "kaa": "with - spoken 'kanssa'"
+            }
+        },
+        {
+            "fi": "Ne alko seurustelee viime kesänä.",
+            "en": "They started dating last summer.",
+            "written": "He alkoivat seurustella viime kesänä.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "alko": "started - spoken 'alkoivat'",
+                "seurustelee": "to be a couple - spoken 'seurustella'",
+                "viime": "last",
+                "kesänä": "in the summer"
+            }
+        },
+        {
+            "fi": "Ne on olleet yhes jo vuoden.",
+            "en": "They've been together for a year already.",
+            "written": "He ovat olleet yhdessä jo vuoden.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "on": "have - spoken Finnish uses 'on' for plurals too",
+                "olleet": "been",
+                "yhes": "together - spoken 'yhdessä'",
+                "jo": "already",
+                "vuoden": "for a year"
+            }
+        },
+        {
+            "fi": "Se iski mun kaverin baaris.",
+            "en": "They picked up my friend at a bar.",
+            "written": "Hän iski minun kaverini baarissa.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "iski": "picked up - 'iskeä', literally 'to strike'",
+                "mun": "my - spoken 'minun'",
+                "kaverin": "friend",
+                "baaris": "at a bar - spoken 'baarissa'"
+            }
+        },
+        {
+            "fi": "Ne meni kihloihin juhannuksena.",
+            "en": "They got engaged at Midsummer.",
+            "written": "He menivät kihloihin juhannuksena.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "meni": "went - spoken keeps the singular",
+                "kihloihin": "into engagement - 'mennä kihloihin' = get engaged",
+                "juhannuksena": "at Midsummer - the juhannus festival"
+            }
+        },
+        {
+            "fi": "Se jätti mut tekstiviestillä.",
+            "en": "They dumped me by text.",
+            "written": "Hän jätti minut tekstiviestillä.",
+            "glosses": {
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "jätti": "dumped - 'jättää', literally 'to leave'",
+                "mut": "me - spoken 'minut'",
+                "tekstiviestillä": "by text message"
+            }
+        },
+        {
+            "fi": "Ne erosi ihan sovussa.",
+            "en": "They broke up on good terms.",
+            "written": "He erosivat ihan sovussa.",
+            "glosses": {
+                "ne": "they - spoken 'he'",
+                "erosi": "broke up - spoken 'erosivat'",
+                "ihan": "quite",
+                "sovussa": "in harmony - 'sopu' = peace/accord"
+            }
+        }
+    ]
+}

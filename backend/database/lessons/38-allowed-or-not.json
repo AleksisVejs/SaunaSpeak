@@ -1,0 +1,111 @@
+{
+    "title": "Allowed or Not",
+    "level": "B1",
+    "pattern": {
+        "title": "Permission: saa, ei saa, ei tarvii",
+        "summary": "'Saa' covers permission: saaks tääl polttaa? = is smoking allowed here?, ei saa = not allowed. The opposite of must is 'ei tarvii' (don't have to) - a different thing than 'ei saa', and mixing them up changes the meaning completely.",
+        "examples": [
+            "Saaks tääl polttaa? = Is smoking allowed here?",
+            "Sun ei tarvii tulla, jos et jaksa. = You don't have to come if you're not up to it.",
+            "Koiran saa ottaa mukaan. = You're allowed to bring a dog."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Saaks tääl polttaa?",
+            "en": "Is smoking allowed here?",
+            "written": "Saako täällä polttaa?",
+            "glosses": {
+                "saaks": "is it allowed - spoken 'saako'",
+                "tääl": "here - spoken 'täällä'",
+                "polttaa": "to smoke"
+            }
+        },
+        {
+            "fi": "Saanks mä ottaa viimesen palan?",
+            "en": "Can I take the last piece?",
+            "written": "Saanko minä ottaa viimeisen palan?",
+            "glosses": {
+                "saanks": "may I - spoken 'saanko'",
+                "mä": "I",
+                "ottaa": "take",
+                "viimesen": "the last - spoken 'viimeisen'",
+                "palan": "piece"
+            }
+        },
+        {
+            "fi": "Tänne ei saa tuoda omii juomii.",
+            "en": "You can't bring your own drinks in here.",
+            "written": "Tänne ei saa tuoda omia juomia.",
+            "glosses": {
+                "tänne": "in here",
+                "ei": "not",
+                "saa": "allowed",
+                "tuoda": "to bring",
+                "omii": "own - spoken 'omia'",
+                "juomii": "drinks - spoken 'juomia'"
+            }
+        },
+        {
+            "fi": "Koiran saa ottaa mukaan.",
+            "en": "You're allowed to bring a dog.",
+            "written": null,
+            "glosses": {
+                "koiran": "a dog",
+                "saa": "is allowed",
+                "ottaa": "to take",
+                "mukaan": "along"
+            }
+        },
+        {
+            "fi": "Sun ei tarvii tulla, jos et jaksa.",
+            "en": "You don't have to come if you're not up to it.",
+            "written": "Sinun ei tarvitse tulla, jos et jaksa.",
+            "glosses": {
+                "sun": "you - spoken 'sinun'",
+                "ei": "not",
+                "tarvii": "need to - spoken 'tarvitse'",
+                "tulla": "to come",
+                "jos": "if",
+                "et": "you don't",
+                "jaksa": "have the energy"
+            }
+        },
+        {
+            "fi": "Täst ei tarvii maksaa mitään.",
+            "en": "You don't have to pay anything for this.",
+            "written": "Tästä ei tarvitse maksaa mitään.",
+            "glosses": {
+                "täst": "for this - spoken 'tästä'",
+                "ei": "not",
+                "tarvii": "need to - spoken 'tarvitse'",
+                "maksaa": "to pay",
+                "mitään": "anything"
+            }
+        },
+        {
+            "fi": "Ei mun tarvii, kiitos vaan.",
+            "en": "I don't need to, but thanks.",
+            "written": "Ei minun tarvitse, kiitos vain.",
+            "glosses": {
+                "ei": "not",
+                "mun": "I - spoken 'minun'",
+                "tarvii": "need to - spoken 'tarvitse'",
+                "kiitos": "thanks",
+                "vaan": "though / anyway - spoken 'vain'"
+            }
+        },
+        {
+            "fi": "Kysy eka, saaks sinne mennä.",
+            "en": "Ask first whether you're allowed to go there.",
+            "written": "Kysy ensin, saako sinne mennä.",
+            "glosses": {
+                "kysy": "ask! - from 'kysyä'",
+                "eka": "first - spoken 'ensin'",
+                "saaks": "whether it's allowed - spoken 'saako'",
+                "sinne": "to there",
+                "mennä": "to go"
+            }
+        }
+    ]
+}

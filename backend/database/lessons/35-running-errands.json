@@ -1,0 +1,102 @@
+{
+    "title": "Running Errands",
+    "level": "A2",
+    "pattern": {
+        "title": "Errands: käydä pankissa, hoitaa",
+        "summary": "Quick visits use 'käydä' + -ssa: käydä pankissa (stop by the bank), käydä postissa. 'Hoitaa' is the get-it-done verb: mä hoidan sen = I'll take care of it. Errands are 'jutut' or 'hommat' in speech.",
+        "examples": [
+            "Mun pitää käydä pankissa. = I have to stop by the bank.",
+            "Mä hoidan sen huomenna. = I'll take care of it tomorrow.",
+            "Voitsä hakee paketin? = Can you pick up the package?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mun pitää käydä pankissa.",
+            "en": "I have to stop by the bank.",
+            "written": "Minun pitää käydä pankissa.",
+            "glosses": {
+                "mun": "I - spoken 'minun', literally 'my'",
+                "pitää": "have to",
+                "käydä": "to stop by / visit",
+                "pankissa": "at the bank"
+            }
+        },
+        {
+            "fi": "Mä käyn nopeesti postissa.",
+            "en": "I'll quickly stop by the post office.",
+            "written": "Minä käyn nopeasti postissa.",
+            "glosses": {
+                "mä": "I",
+                "käyn": "stop by - from 'käydä'",
+                "nopeesti": "quickly - spoken 'nopeasti'",
+                "postissa": "at the post office"
+            }
+        },
+        {
+            "fi": "Voitsä hakee paketin?",
+            "en": "Can you pick up the package?",
+            "written": "Voitko sinä hakea paketin?",
+            "glosses": {
+                "voitsä": "can you - spoken 'voitko sinä'",
+                "hakee": "to fetch / pick up - spoken 'hakea'",
+                "paketin": "the package"
+            }
+        },
+        {
+            "fi": "Mä hoidan sen huomenna.",
+            "en": "I'll take care of it tomorrow.",
+            "written": "Minä hoidan sen huomenna.",
+            "glosses": {
+                "mä": "I",
+                "hoidan": "take care of - from 'hoitaa'",
+                "sen": "it",
+                "huomenna": "tomorrow"
+            }
+        },
+        {
+            "fi": "Kauppa menee kohta kii.",
+            "en": "The shop is closing soon.",
+            "written": "Kauppa menee kohta kiinni.",
+            "glosses": {
+                "kauppa": "shop",
+                "menee": "goes",
+                "kohta": "soon",
+                "kii": "closed - spoken 'kiinni'"
+            }
+        },
+        {
+            "fi": "Muista viedä roskat!",
+            "en": "Remember to take out the trash!",
+            "written": null,
+            "glosses": {
+                "muista": "remember! - from 'muistaa'",
+                "viedä": "to take (away)",
+                "roskat": "the trash"
+            }
+        },
+        {
+            "fi": "Mä unohdin nostaa rahaa.",
+            "en": "I forgot to withdraw cash.",
+            "written": "Minä unohdin nostaa rahaa.",
+            "glosses": {
+                "mä": "I",
+                "unohdin": "forgot - from 'unohtaa'",
+                "nostaa": "to withdraw - literally 'to lift'",
+                "rahaa": "money / cash"
+            }
+        },
+        {
+            "fi": "Hoidetaan ne hommat ens viikolla.",
+            "en": "Let's deal with those errands next week.",
+            "written": "Hoidetaan ne asiat ensi viikolla.",
+            "glosses": {
+                "hoidetaan": "let's take care of - the spoken we-form",
+                "ne": "those",
+                "hommat": "errands / chores - casual 'homma'",
+                "ens": "next - spoken 'ensi'",
+                "viikolla": "week"
+            }
+        }
+    ]
+}

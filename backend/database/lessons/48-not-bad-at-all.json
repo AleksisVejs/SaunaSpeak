@@ -1,0 +1,95 @@
+{
+    "title": "Not Bad at All",
+    "level": "C1",
+    "pattern": {
+        "title": "Understatement: ei huono, ihan jees",
+        "summary": "Finnish praise runs cold on purpose. 'Ei huono' (not bad) is a compliment, 'ihan jees' (quite ok) means genuinely good, 'menettelee' (it'll do) can be high praise, and 'ei valittamista' (no complaints) is close to a rave. Calibrate accordingly - in both directions.",
+        "examples": [
+            "Ei huono! = Not bad! (= that's impressive)",
+            "Tää on ihan jees. = This is pretty good.",
+            "Menettelee. = It'll do. (often: it's great)"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Ei huono!",
+            "en": "Not bad! (high praise)",
+            "written": null,
+            "glosses": {
+                "ei": "not",
+                "huono": "bad - said of something impressive"
+            }
+        },
+        {
+            "fi": "Tää on ihan jees.",
+            "en": "This is pretty good.",
+            "written": "Tämä on ihan hyvä.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "on": "is",
+                "ihan": "quite",
+                "jees": "ok / good - slang, from English 'yes'"
+            }
+        },
+        {
+            "fi": "Ei valittamista.",
+            "en": "No complaints. (= things are good)",
+            "written": null,
+            "glosses": {
+                "ei": "no",
+                "valittamista": "complaining - from 'valittaa'"
+            }
+        },
+        {
+            "fi": "Menettelee.",
+            "en": "It'll do. (often means: it's great)",
+            "written": null,
+            "glosses": {
+                "menettelee": "passes / will do - from 'menetellä'; deadpan approval"
+            }
+        },
+        {
+            "fi": "Ihan ok päivä, ei mitään ihmeellistä.",
+            "en": "A perfectly fine day, nothing special.",
+            "written": "Ihan hyvä päivä, ei mitään ihmeellistä.",
+            "glosses": {
+                "ihan": "quite",
+                "ok": "ok",
+                "päivä": "day",
+                "ei": "not",
+                "mitään": "anything",
+                "ihmeellistä": "miraculous / special"
+            }
+        },
+        {
+            "fi": "Kyl tää kelpaa.",
+            "en": "Yeah, this will do nicely.",
+            "written": "Kyllä tämä kelpaa.",
+            "glosses": {
+                "kyl": "surely - spoken 'kyllä'",
+                "tää": "this - spoken 'tämä'",
+                "kelpaa": "is acceptable - from 'kelvata'; content approval"
+            }
+        },
+        {
+            "fi": "Ei tää huonompikaan oo.",
+            "en": "This isn't half bad either.",
+            "written": "Ei tämä huonompikaan ole.",
+            "glosses": {
+                "ei": "not",
+                "tää": "this - spoken 'tämä'",
+                "huonompikaan": "the worse one either - 'huonompi' + -kaan",
+                "oo": "is - spoken 'ole'"
+            }
+        },
+        {
+            "fi": "Ihan syötävää.",
+            "en": "Quite edible. (= delicious)",
+            "written": null,
+            "glosses": {
+                "ihan": "quite",
+                "syötävää": "edible - deadpan praise for good food"
+            }
+        }
+    ]
+}

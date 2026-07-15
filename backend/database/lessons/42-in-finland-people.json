@@ -1,0 +1,112 @@
+{
+    "title": "In Finland, People...",
+    "level": "B2",
+    "pattern": {
+        "title": "The generic passive: Suomes juodaan",
+        "summary": "When it's about people in general, Finnish drops the subject and uses the passive: Suomes juodaan paljon kahvii = in Finland people drink a lot of coffee. The same form covers habits (kesäl grillataan), rules of a place, and how-questions (miten tää lausutaan?).",
+        "examples": [
+            "Suomes juodaan tosi paljon kahvii. = In Finland people drink a LOT of coffee.",
+            "Kesäl grillataan melkein joka päivä. = In summer people grill almost every day.",
+            "Miten tää sana lausutaan? = How is this word pronounced?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Suomes juodaan tosi paljon kahvii.",
+            "en": "In Finland people drink a lot of coffee.",
+            "written": "Suomessa juodaan tosi paljon kahvia.",
+            "glosses": {
+                "suomes": "in Finland - spoken 'Suomessa'",
+                "juodaan": "people drink - the generic passive",
+                "tosi": "really",
+                "paljon": "much / a lot",
+                "kahvii": "coffee - spoken 'kahvia'"
+            }
+        },
+        {
+            "fi": "Tääl puhutaan aika suoraan.",
+            "en": "People here speak quite directly.",
+            "written": "Täällä puhutaan aika suoraan.",
+            "glosses": {
+                "tääl": "here - spoken 'täällä'",
+                "puhutaan": "people speak - the generic passive",
+                "aika": "quite",
+                "suoraan": "directly"
+            }
+        },
+        {
+            "fi": "Kesäl grillataan melkein joka päivä.",
+            "en": "In summer people grill almost every day.",
+            "written": "Kesällä grillataan melkein joka päivä.",
+            "glosses": {
+                "kesäl": "in summer - spoken 'kesällä'",
+                "grillataan": "people grill - the generic passive",
+                "melkein": "almost",
+                "joka": "every",
+                "päivä": "day"
+            }
+        },
+        {
+            "fi": "Saunas istutaan yleensä ihan hiljaa.",
+            "en": "In the sauna people usually sit in silence.",
+            "written": "Saunassa istutaan yleensä ihan hiljaa.",
+            "glosses": {
+                "saunas": "in the sauna - spoken 'saunassa'",
+                "istutaan": "people sit - the generic passive",
+                "yleensä": "usually",
+                "ihan": "quite",
+                "hiljaa": "silently"
+            }
+        },
+        {
+            "fi": "Jouluna syödään kinkkua ja laatikoita.",
+            "en": "At Christmas people eat ham and casseroles.",
+            "written": null,
+            "glosses": {
+                "jouluna": "at Christmas",
+                "syödään": "people eat - the generic passive",
+                "kinkkua": "ham",
+                "ja": "and",
+                "laatikoita": "casseroles - the Christmas 'laatikko' dishes"
+            }
+        },
+        {
+            "fi": "Näin tääl on aina tehty.",
+            "en": "That's how it's always been done here.",
+            "written": "Näin täällä on aina tehty.",
+            "glosses": {
+                "näin": "this way",
+                "tääl": "here - spoken 'täällä'",
+                "on": "has",
+                "aina": "always",
+                "tehty": "been done - the passive perfect"
+            }
+        },
+        {
+            "fi": "Sitä ei sanota ääneen, mut kaikki tietää sen.",
+            "en": "It's not said out loud, but everyone knows it.",
+            "written": "Sitä ei sanota ääneen, mutta kaikki tietävät sen.",
+            "glosses": {
+                "sitä": "it",
+                "ei": "not",
+                "sanota": "said - the passive",
+                "ääneen": "out loud",
+                "mut": "but - spoken 'mutta'",
+                "kaikki": "everyone",
+                "tietää": "knows - spoken keeps the singular",
+                "sen": "it"
+            }
+        },
+        {
+            "fi": "Miten tää sana lausutaan?",
+            "en": "How is this word pronounced?",
+            "written": "Miten tämä sana lausutaan?",
+            "glosses": {
+                "miten": "how",
+                "tää": "this - spoken 'tämä'",
+                "sana": "word",
+                "lausutaan": "is pronounced - the passive"
+            }
+        }
+    ]
+}

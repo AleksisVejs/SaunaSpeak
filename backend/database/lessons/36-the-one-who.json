@@ -1,0 +1,126 @@
+{
+    "title": "The One Who...",
+    "level": "B1",
+    "pattern": {
+        "title": "Spoken relatives: se joka, se mikä",
+        "summary": "Pointing at people and things with a clause: se tyyppi, joka... = the person who..., se paikka, mistä mä kerroin = the place I told you about. Spoken Finnish often swaps 'joka' for 'mikä' with things, and superlatives take 'minkä': paras leffa, minkä mä oon nähny.",
+        "examples": [
+            "Se tyyppi, joka asuu naapuris, on tosi mukava. = The person who lives next door is really nice.",
+            "Tää on se paikka, mistä mä kerroin. = This is the place I told you about.",
+            "Se oli paras leffa, minkä mä oon ikinä nähny. = It was the best movie I've ever seen."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Se tyyppi, joka asuu naapuris, on tosi mukava.",
+            "en": "The person who lives next door is really nice.",
+            "written": "Se tyyppi, joka asuu naapurissa, on tosi mukava.",
+            "glosses": {
+                "se": "that",
+                "tyyppi": "person / guy - casual",
+                "joka": "who - the relative pronoun",
+                "asuu": "lives",
+                "naapuris": "next door - spoken 'naapurissa'",
+                "on": "is",
+                "tosi": "really",
+                "mukava": "nice"
+            }
+        },
+        {
+            "fi": "Mis se kirja on, jonka mä lainasin sulle?",
+            "en": "Where's that book I lent you?",
+            "written": "Missä se kirja on, jonka minä lainasin sinulle?",
+            "glosses": {
+                "mis": "where - spoken 'missä'",
+                "se": "that",
+                "kirja": "book",
+                "on": "is",
+                "jonka": "which - object form of 'joka'",
+                "mä": "I",
+                "lainasin": "lent - from 'lainata'",
+                "sulle": "to you - spoken 'sinulle'"
+            }
+        },
+        {
+            "fi": "Tunnetsä ketään, joka puhuu ruotsii?",
+            "en": "Do you know anyone who speaks Swedish?",
+            "written": "Tunnetko sinä ketään, joka puhuu ruotsia?",
+            "glosses": {
+                "tunnetsä": "do you know - spoken 'tunnetko sinä'",
+                "ketään": "anyone",
+                "joka": "who",
+                "puhuu": "speaks",
+                "ruotsii": "Swedish - spoken 'ruotsia'"
+            }
+        },
+        {
+            "fi": "Tää on se paikka, mistä mä kerroin.",
+            "en": "This is the place I told you about.",
+            "written": "Tämä on se paikka, josta minä kerroin.",
+            "glosses": {
+                "tää": "this - spoken 'tämä'",
+                "on": "is",
+                "se": "the / that",
+                "paikka": "place",
+                "mistä": "about which - spoken for 'josta'",
+                "mä": "I",
+                "kerroin": "told - from 'kertoa'"
+            }
+        },
+        {
+            "fi": "Kaikki, mitä se sanoo, on totta.",
+            "en": "Everything they say is true.",
+            "written": "Kaikki, mitä hän sanoo, on totta.",
+            "glosses": {
+                "kaikki": "everything",
+                "mitä": "that / what",
+                "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "sanoo": "says",
+                "on": "is",
+                "totta": "true"
+            }
+        },
+        {
+            "fi": "Se oli paras leffa, minkä mä oon ikinä nähny.",
+            "en": "It was the best movie I've ever seen.",
+            "written": "Se oli paras elokuva, jonka minä olen ikinä nähnyt.",
+            "glosses": {
+                "se": "it",
+                "oli": "was",
+                "paras": "best",
+                "leffa": "movie - slang for 'elokuva'",
+                "minkä": "that - spoken for 'jonka' after superlatives",
+                "mä": "I",
+                "oon": "have - spoken 'olen'",
+                "ikinä": "ever",
+                "nähny": "seen - spoken 'nähnyt'"
+            }
+        },
+        {
+            "fi": "Onks tääl ketään, joka osais auttaa?",
+            "en": "Is there anyone here who could help?",
+            "written": "Onko täällä ketään, joka osaisi auttaa?",
+            "glosses": {
+                "onks": "is there - spoken 'onko'",
+                "tääl": "here - spoken 'täällä'",
+                "ketään": "anyone",
+                "joka": "who",
+                "osais": "could / would know how - spoken 'osaisi'",
+                "auttaa": "to help"
+            }
+        },
+        {
+            "fi": "Mä otan sen, mikä on halvin.",
+            "en": "I'll take whichever is cheapest.",
+            "written": "Minä otan sen, joka on halvin.",
+            "glosses": {
+                "mä": "I",
+                "otan": "take",
+                "sen": "the one",
+                "mikä": "which - spoken where written uses 'joka'",
+                "on": "is",
+                "halvin": "cheapest - superlative of 'halpa'"
+            }
+        }
+    ]
+}

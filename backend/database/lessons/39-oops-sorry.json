@@ -1,0 +1,109 @@
+{
+    "title": "Oops, Sorry",
+    "level": "B1",
+    "pattern": {
+        "title": "Apologies: sori, ei ollu tarkotus, mun moka",
+        "summary": "Everyday sorry is 'sori' (anteeksi in careful speech). 'Ei ollu tarkotus' = I didn't mean to, 'mun moka' = my bad. Accepting one: ei se mitään, ei haittaa. Small phrases, big social value.",
+        "examples": [
+            "Sori, mä en huomannu sua. = Sorry, I didn't notice you.",
+            "Ei ollu tarkotus säikäyttää. = I didn't mean to startle you.",
+            "Mun moka, mä korjaan sen. = My bad, I'll fix it."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Sori, mä en huomannu sua.",
+            "en": "Sorry, I didn't notice you.",
+            "written": "Anteeksi, minä en huomannut sinua.",
+            "glosses": {
+                "sori": "sorry - casual, from English",
+                "mä": "I",
+                "en": "didn't",
+                "huomannu": "notice - spoken 'huomannut'",
+                "sua": "you - spoken 'sinua'"
+            }
+        },
+        {
+            "fi": "Ei ollu tarkotus säikäyttää.",
+            "en": "I didn't mean to startle you.",
+            "written": "Ei ollut tarkoitus säikäyttää.",
+            "glosses": {
+                "ei": "not",
+                "ollu": "was - spoken 'ollut'",
+                "tarkotus": "intention - spoken 'tarkoitus'",
+                "säikäyttää": "to startle"
+            }
+        },
+        {
+            "fi": "Mun moka, mä korjaan sen.",
+            "en": "My bad, I'll fix it.",
+            "written": "Minun virheeni, minä korjaan sen.",
+            "glosses": {
+                "mun": "my - spoken 'minun'",
+                "moka": "mistake / screw-up - casual",
+                "mä": "I",
+                "korjaan": "fix - from 'korjata'",
+                "sen": "it"
+            }
+        },
+        {
+            "fi": "Anteeks et mä myöhästyin taas.",
+            "en": "Sorry I was late again.",
+            "written": "Anteeksi, että minä myöhästyin taas.",
+            "glosses": {
+                "anteeks": "sorry - spoken 'anteeksi'",
+                "et": "that - spoken 'että'",
+                "mä": "I",
+                "myöhästyin": "was late - from 'myöhästyä'",
+                "taas": "again"
+            }
+        },
+        {
+            "fi": "Unohtu ihan kokonaan, sori!",
+            "en": "It totally slipped my mind, sorry!",
+            "written": "Se unohtui ihan kokonaan, anteeksi!",
+            "glosses": {
+                "unohtu": "it got forgotten - spoken 'unohtui'",
+                "ihan": "totally",
+                "kokonaan": "completely",
+                "sori": "sorry - casual"
+            }
+        },
+        {
+            "fi": "Mä pyydän anteeks, se oli tyhmästi sanottu.",
+            "en": "I apologize, that was a dumb thing to say.",
+            "written": "Minä pyydän anteeksi, se oli tyhmästi sanottu.",
+            "glosses": {
+                "mä": "I",
+                "pyydän": "ask / beg - 'pyytää anteeks' = to apologize",
+                "anteeks": "forgiveness - spoken 'anteeksi'",
+                "se": "it",
+                "oli": "was",
+                "tyhmästi": "stupidly",
+                "sanottu": "said"
+            }
+        },
+        {
+            "fi": "Ei se mitään, sattuuhan sitä.",
+            "en": "It's fine, these things happen.",
+            "written": null,
+            "glosses": {
+                "ei": "not",
+                "se": "it",
+                "mitään": "anything - 'ei se mitään' = no worries",
+                "sattuuhan": "does happen - 'sattuu' + the knowing -han",
+                "sitä": "it / such things"
+            }
+        },
+        {
+            "fi": "Ei haittaa, oikeesti.",
+            "en": "It's no problem, really.",
+            "written": "Ei haittaa, oikeasti.",
+            "glosses": {
+                "ei": "not",
+                "haittaa": "harm - 'ei haittaa' = no harm done",
+                "oikeesti": "really - spoken 'oikeasti'"
+            }
+        }
+    ]
+}

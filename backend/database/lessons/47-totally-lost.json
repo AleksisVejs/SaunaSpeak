@@ -1,0 +1,116 @@
+{
+    "title": "Totally Lost",
+    "level": "C1",
+    "pattern": {
+        "title": "Clueless: olla pihalla, pudota kärryiltä",
+        "summary": "The idioms of not getting it: olla pihalla (be clueless, lit. 'in the yard'), olla kujalla (same, lit. 'in the alley'), pudota kärryiltä (lose the thread, lit. 'fall off the cart'), mennä yli hilseen (go over one's head) - and the rescue: selittää rautalangasta (explain in the simplest terms).",
+        "examples": [
+            "Mä oon ihan pihalla täst jutusta. = I'm completely lost with this thing.",
+            "Nyt mä putosin kärryiltä. = Now I've lost the thread.",
+            "Voitsä selittää sen rautalangasta? = Can you dumb it down for me?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä oon ihan pihalla täst jutusta.",
+            "en": "I'm completely lost with this thing.",
+            "written": "Minä en ymmärrä tästä asiasta mitään.",
+            "glosses": {
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "ihan": "completely",
+                "pihalla": "clueless - literally 'in the yard'",
+                "täst": "about this - spoken 'tästä'",
+                "jutusta": "thing - from 'juttu'"
+            }
+        },
+        {
+            "fi": "Mul ei oo hajuukaan, mist toi puhuu.",
+            "en": "I have no clue what they're talking about.",
+            "written": "Minulla ei ole aavistustakaan, mistä tuo puhuu.",
+            "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "ei": "not",
+                "oo": "have - spoken 'ole'",
+                "hajuukaan": "even a whiff - spoken 'hajuakaan'; no clue",
+                "mist": "about what - spoken 'mistä'",
+                "toi": "that one - spoken 'tuo'",
+                "puhuu": "talks"
+            }
+        },
+        {
+            "fi": "Toi meni kyl ihan yli hilseen.",
+            "en": "That went completely over my head.",
+            "written": "Tuo meni kyllä ihan yli ymmärryksen.",
+            "glosses": {
+                "toi": "that - spoken 'tuo'",
+                "meni": "went",
+                "kyl": "for sure - spoken 'kyllä'",
+                "ihan": "completely",
+                "yli": "over",
+                "hilseen": "the dandruff - the idiom for 'over my head'"
+            }
+        },
+        {
+            "fi": "Mä olin ihan kujalla koko palaverin.",
+            "en": "I was totally lost the whole meeting.",
+            "written": "Minä olin ihan ymmälläni koko palaverin.",
+            "glosses": {
+                "mä": "I",
+                "olin": "was",
+                "ihan": "totally",
+                "kujalla": "lost / clueless - literally 'in the alley'",
+                "koko": "whole",
+                "palaverin": "meeting"
+            }
+        },
+        {
+            "fi": "Nyt mä putosin kärryiltä.",
+            "en": "Now I've lost the thread.",
+            "written": "Nyt minä putosin kärryiltä.",
+            "glosses": {
+                "nyt": "now",
+                "mä": "I",
+                "putosin": "fell - from 'pudota'",
+                "kärryiltä": "off the cart - the idiom for losing the thread"
+            }
+        },
+        {
+            "fi": "Voitsä selittää sen ihan rautalangasta?",
+            "en": "Can you explain it in the simplest possible terms?",
+            "written": "Voitko sinä selittää sen ihan rautalangasta?",
+            "glosses": {
+                "voitsä": "can you - spoken 'voitko sinä'",
+                "selittää": "explain",
+                "sen": "it",
+                "ihan": "quite",
+                "rautalangasta": "from iron wire - the idiom for 'dumbed down'"
+            }
+        },
+        {
+            "fi": "Aa, nyt mä pääsin taas kärryille!",
+            "en": "Ah, now I'm back on track!",
+            "written": "Ahaa, nyt minä pääsin taas kärryille!",
+            "glosses": {
+                "aa": "ah - the lightbulb moment",
+                "nyt": "now",
+                "mä": "I",
+                "pääsin": "got - from 'päästä'",
+                "taas": "again",
+                "kärryille": "onto the cart - back in the loop"
+            }
+        },
+        {
+            "fi": "Ei mitään hajuu, kysytään joltain.",
+            "en": "No clue at all - let's ask someone.",
+            "written": "Ei mitään hajua, kysytään joltakulta.",
+            "glosses": {
+                "ei": "not",
+                "mitään": "any",
+                "hajuu": "whiff / clue - spoken 'hajua'",
+                "kysytään": "let's ask - the spoken we-form",
+                "joltain": "from someone - spoken 'joltakulta'"
+            }
+        }
+    ]
+}

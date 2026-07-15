@@ -1,0 +1,104 @@
+{
+    "title": "Totally Agree, No Way",
+    "level": "B2",
+    "pattern": {
+        "title": "Force: nii just, ei todellakaan",
+        "summary": "Agreement and disagreement come in strengths. Full agreement: nii just, just noin, totta kai. Hard no: ei todellakaan. And the very Finnish soft no: 'emmä nyt ihan noinkaan sanois' - a whole disagreement wrapped in cotton wool.",
+        "examples": [
+            "Just noin! = Exactly!",
+            "Ei todellakaan. = Absolutely not.",
+            "Emmä nyt ihan noinkaan sanois. = I wouldn't quite put it that way."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Just noin!",
+            "en": "Exactly!",
+            "written": "Juuri noin!",
+            "glosses": {
+                "just": "exactly - spoken 'juuri'",
+                "noin": "like that"
+            }
+        },
+        {
+            "fi": "Nii just, mä oon ihan samaa mieltä.",
+            "en": "Right, I completely agree.",
+            "written": "Niin juuri, minä olen ihan samaa mieltä.",
+            "glosses": {
+                "nii": "so / right - spoken 'niin'",
+                "just": "exactly - spoken 'juuri'",
+                "mä": "I",
+                "oon": "am - spoken 'olen'",
+                "ihan": "completely",
+                "samaa": "the same",
+                "mieltä": "of opinion - 'samaa mieltä' = agree"
+            }
+        },
+        {
+            "fi": "Totta kai, ilman muuta.",
+            "en": "Of course, absolutely.",
+            "written": null,
+            "glosses": {
+                "totta": "true - 'totta kai' = of course",
+                "kai": "surely",
+                "ilman": "without - 'ilman muuta' = without question",
+                "muuta": "anything else"
+            }
+        },
+        {
+            "fi": "Ei todellakaan.",
+            "en": "Absolutely not.",
+            "written": null,
+            "glosses": {
+                "ei": "no",
+                "todellakaan": "really (not) - hard refusal"
+            }
+        },
+        {
+            "fi": "No en kyl usko.",
+            "en": "Well, I really don't think so.",
+            "written": "No en kyllä usko.",
+            "glosses": {
+                "no": "well",
+                "en": "I don't",
+                "kyl": "really - spoken 'kyllä'",
+                "usko": "believe - from 'uskoa'"
+            }
+        },
+        {
+            "fi": "Emmä nyt ihan noinkaan sanois.",
+            "en": "I wouldn't quite put it that way.",
+            "written": "En minä nyt ihan noinkaan sanoisi.",
+            "glosses": {
+                "emmä": "I don't - 'en' + 'mä' fused",
+                "nyt": "now - softens the pushback",
+                "ihan": "quite",
+                "noinkaan": "like that either - 'noin' + -kaan",
+                "sanois": "would say - spoken 'sanoisi'"
+            }
+        },
+        {
+            "fi": "Sä oot ihan väärässä.",
+            "en": "You're completely wrong.",
+            "written": "Sinä olet ihan väärässä.",
+            "glosses": {
+                "sä": "you",
+                "oot": "are - spoken 'olet'",
+                "ihan": "completely",
+                "väärässä": "wrong - 'olla väärässä' = to be wrong"
+            }
+        },
+        {
+            "fi": "No nyt sä puhut asiaa!",
+            "en": "Now you're talking sense!",
+            "written": "No nyt sinä puhut asiaa!",
+            "glosses": {
+                "no": "well",
+                "nyt": "now",
+                "sä": "you",
+                "puhut": "talk",
+                "asiaa": "sense - 'puhua asiaa' = to talk sense"
+            }
+        }
+    ]
+}
