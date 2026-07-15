@@ -97,6 +97,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // The Tilanteet catalog is browsable by everyone (free users see the
     // cards + paywall); actually chatting goes through the premium /chat.
     Route::get('/scenarios', [ChatController::class, 'scenarios']);
+    Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
 
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {

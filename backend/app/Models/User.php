@@ -29,6 +29,7 @@ class User extends Authenticatable
         'streak_broken_date',
         'last_active_date',
         'checkpoints',
+        'scenarios_done',
         'preferences',
         'timezone',
         'review_emails',
@@ -50,7 +51,13 @@ class User extends Authenticatable
     ];
 
     /** The dashboard's repair offer keys off this. */
-    protected $appends = ['streak_repairable'];
+    protected $appends = ['streak_repairable', 'google_linked'];
+
+    /** google_id stays hidden; the profile page only needs to know IF it's linked. */
+    public function getGoogleLinkedAttribute(): bool
+    {
+        return $this->google_id !== null;
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -65,6 +72,7 @@ class User extends Authenticatable
             'last_active_date' => 'date:Y-m-d',
             'streak_broken_date' => 'date:Y-m-d',
             'checkpoints' => 'array',
+            'scenarios_done' => 'array',
             'preferences' => 'array',
             'premium_until' => 'datetime',
             'is_admin' => 'boolean',

@@ -133,6 +133,14 @@ onBeforeUnmount(() => faqLd?.remove())
       </p>
     </section>
 
+    <!-- the scale in one glance (update the counts as the course grows) -->
+    <section class="stats-band" aria-label="Course size">
+      <div class="stat-item"><b>A0 → C1</b><span>full path</span></div>
+      <div class="stat-item"><b>47</b><span>lessons</span></div>
+      <div class="stat-item"><b>375+</b><span>voiced sentences</span></div>
+      <div class="stat-item"><b>€0</b><span>free forever</span></div>
+    </section>
+
     <section class="contrast">
       <h2>Textbooks teach a language nobody speaks</h2>
       <div class="samples">
@@ -149,6 +157,31 @@ onBeforeUnmount(() => faqLd?.remove())
         </button>
       </div>
       <p class="muted">Left: what you'll say. Right: what the textbook would have taught you.</p>
+    </section>
+
+    <!-- the daily session itself: show the actual product, not adjectives -->
+    <section class="session-demo">
+      <h2>A session, not a word list</h2>
+      <p class="section-lede muted">
+        Every sentence climbs a ladder as you learn it: listen &amp; shadow, fill
+        the gap, write what you hear, then say it from memory. Harder each time
+        it comes back - that's what makes it stick.
+      </p>
+      <div class="mock" aria-hidden="true">
+        <div class="mock-top">
+          <span class="mock-x">✕</span>
+          <span class="mock-track"><span class="mock-fill"></span></span>
+          <span class="mock-count">4/8</span>
+        </div>
+        <p class="mock-hint">Fill the gap</p>
+        <p class="mock-fi">Mä otan <span class="mock-gap">&nbsp;____&nbsp;</span>, kiitos.</p>
+        <p class="mock-en muted">I'll take a coffee, please.</p>
+        <div class="mock-grades">
+          <span class="mock-g">🔁 Again</span>
+          <span class="mock-g good">👍 Good</span>
+          <span class="mock-g">✨ Easy</span>
+        </div>
+      </div>
     </section>
 
     <!-- Situations: show, don't tell - one mission playing out -->
@@ -283,6 +316,7 @@ onBeforeUnmount(() => faqLd?.remove())
 .tiny { font-size: 12px; }
 
 .contrast h2,
+.session-demo h2,
 .situations h2,
 .method h2,
 .features h2,
@@ -360,6 +394,73 @@ onBeforeUnmount(() => faqLd?.remove())
   padding: 6px 14px;
   margin-top: 2px;
 }
+
+/* ---- stats band ---- */
+.stats-band {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: -34px;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 22px;
+}
+.stat-item + .stat-item { border-left: 1px solid var(--border); }
+.stat-item b { font-size: 19px; font-weight: 800; color: var(--accent); line-height: 1; }
+.stat-item span {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ---- session mock ---- */
+.mock {
+  max-width: 400px;
+  margin: 0 auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: center;
+}
+.mock-top { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.mock-x { color: var(--text-faint); font-size: 14px; }
+.mock-track { flex: 1; height: 8px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
+.mock-fill { display: block; width: 50%; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.mock-count { font-size: 12px; font-weight: 700; color: var(--text-dim); }
+.mock-hint {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.mock-fi { font-size: 21px; font-weight: 800; }
+.mock-gap {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 0 4px;
+}
+.mock-en { font-size: 14px; margin-top: 6px; }
+.mock-grades { display: flex; gap: 8px; margin-top: 16px; }
+.mock-g {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 4px;
+}
+.mock-g.good { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
 /* ---- method ---- */
 .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }

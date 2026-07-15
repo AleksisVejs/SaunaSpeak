@@ -31,12 +31,16 @@ onMounted(async () => {
 
 const recommended = computed(() => (scenarios.value ?? []).filter((s) => s.recommended))
 const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommended))
+const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).length)
 </script>
 
 <template>
   <div class="scenarios">
     <header class="head">
-      <h1>Situations</h1>
+      <h1>
+        Situations
+        <span v-if="doneCount" class="done-count">🏅 {{ doneCount }}/{{ scenarios.length }} completed</span>
+      </h1>
       <p class="muted lead">
         Real-life missions, played out in spoken Finnish. Walk into the scene,
         say your part, get the thing done.
@@ -82,7 +86,8 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
             </div>
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
-              <span v-if="!premium" class="scene-lock">🔒</span>
+              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
+              <span v-else-if="!premium" class="scene-lock">🔒</span>
             </span>
           </component>
         </div>
@@ -115,7 +120,8 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
             </div>
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
-              <span v-if="!premium" class="scene-lock">🔒</span>
+              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
+              <span v-else-if="!premium" class="scene-lock">🔒</span>
             </span>
           </component>
         </div>
@@ -130,7 +136,28 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
 
 <style scoped>
 .scenarios { display: flex; flex-direction: column; gap: 20px; }
-.head h1 { font-size: 26px; }
+.head h1 { font-size: 26px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.done-count {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid var(--green);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+.scene-done {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1.5px solid var(--green);
+}
 .lead { margin-top: 6px; font-size: 14px; line-height: 1.5; max-width: 46ch; }
 .loading { text-align: center; padding: 30px 0; }
 
@@ -183,6 +210,7 @@ const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommend
   color: var(--text-dim);
 }
 .pill.easy { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.pill.hard { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .scene-lock { font-size: 13px; }
 
 .free-chat { text-align: center; font-size: 13px; }

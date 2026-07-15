@@ -33,7 +33,7 @@ async function enterScene() {
   const id = route.query.scenario
   if (!id) {
     scenario.value = null
-    messages.value = [randomOpener()]
+    messages.value = restoreChat() ?? [randomOpener()]
     return
   }
 
@@ -68,6 +68,43 @@ const OPENERS = [
 ]
 
 const randomOpener = () => ({ role: 'assistant', ...OPENERS[Math.floor(Math.random() * OPENERS.length)] })
+
+// Väinö remembers the bench: the free-form chat survives a refresh (24h),
+// so leaving mid-thought never wipes the conversation. Missions start fresh.
+const CHAT_STORE = 'ss_chat_vaino'
+
+function saveChat() {
+  if (scenario.value) return
+  try {
+    localStorage.setItem(CHAT_STORE, JSON.stringify({ at: Date.now(), messages: messages.value }))
+  } catch {
+    // storage blocked or full - the chat just won't persist
+  }
+}
+
+function restoreChat() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CHAT_STORE))
+    if (raw?.messages?.length > 1 && Date.now() - raw.at < 24 * 3600 * 1000) return raw.messages
+  } catch {
+    // corrupt entry - fall through to a fresh opener
+  }
+  return null
+}
+
+// Scaffolding for the blank-page moment: three all-purpose lines a beginner
+// can always reach for. Tapping one fills the box - reading it before
+// sending is part of the practice.
+const HINTS = [
+  { fi: 'Mulle kuuluu hyvää, entä sulle?', en: "I'm doing well, how about you?" },
+  { fi: 'Voitsä sanoo sen uudestaan?', en: 'Can you say that again?' },
+  { fi: 'Mitä toi tarkottaa?', en: 'What does that mean?' }
+]
+const showHints = ref(false)
+function useHint(h) {
+  draft.value = h.fi
+  showHints.value = false
+}
 
 // Scenario mode: metadata for the situation named in ?scenario=, or null for
 // Väinö's free-form bench. Fetched from the catalog so prompts and openers
@@ -173,6 +210,8 @@ async function send() {
     if (scenario.value && data.goal_reached && !missionDone.value) {
       missionDone.value = true
       window.umami?.track('scenario_complete', { scenario: scenario.value.id })
+      // Persist the ✓ so the Situations catalog shows what's been conquered.
+      api.post(`/scenarios/${scenario.value.id}/complete`).catch(() => {})
     }
     burst.value = Date.now()
     playSpoken(data.reply)
@@ -191,10 +230,13 @@ async function send() {
 function reset() {
   missionDone.value = false
   showTranslation.value = {}
+  localStorage.removeItem(CHAT_STORE)
   messages.value = scenario.value
     ? [{ role: 'assistant', content: scenario.value.opener, translation: scenario.value.opener_translation }]
     : [randomOpener()]
 }
+
+watch(messages, saveChat, { deep: true })
 
 const full = () => messages.value.length >= MAX_TURNS
 </script>
@@ -336,7 +378,21 @@ const full = () => messages.value.length >= MAX_TURNS
         <button class="btn btn-ghost" @click="reset">Start a fresh chat</button>
       </div>
 
-      <div v-else class="composer">
+      <div v-if="!full() && showHints" class="hint-row">
+        <button v-for="h in HINTS" :key="h.fi" class="hint-chip" @click="useHint(h)">
+          <span class="hint-fi">{{ h.fi }}</span>
+          <span class="hint-en">{{ h.en }}</span>
+        </button>
+      </div>
+
+      <div v-if="!full()" class="composer">
+        <button
+          class="btn btn-ghost mic hint-btn"
+          :class="{ on: showHints }"
+          :title="showHints ? 'Hide hints' : 'Stuck? Get a line to say'"
+          aria-label="Toggle reply hints"
+          @click="showHints = !showHints"
+        >💡</button>
         <button
           v-if="micSupported"
           class="btn btn-ghost mic"
@@ -861,8 +917,28 @@ const full = () => messages.value.length >= MAX_TURNS
 }
 .full-note .muted { color: rgba(243, 231, 211, 0.7); }
 
+/* ---- reply hints ---- */
+.hint-row { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; flex-shrink: 0; }
+.hint-chip {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  text-align: left;
+  background: rgba(10, 6, 3, 0.55);
+  border: 1px solid rgba(243, 231, 211, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(4px);
+}
+.hint-chip:hover { border-color: var(--accent); }
+.hint-fi { color: #f3e7d3; font-size: 14px; font-weight: 700; }
+.hint-en { color: rgba(243, 231, 211, 0.55); font-size: 12px; }
+
 /* ---- composer ---- */
 .composer { position: relative; display: flex; gap: 8px; padding-top: 10px; flex-shrink: 0; }
+.hint-btn.on { border-color: var(--accent); color: var(--accent); }
 .mic { padding: 12px 14px; font-size: 17px; flex-shrink: 0; }
 .mic.listening {
   border-color: var(--accent);

@@ -13,7 +13,9 @@ const LEVEL_BLURBS = {
   A0: 'Your first spoken words - greetings, ordering coffee, surviving day one.',
   A1: 'Everyday life out loud: shops, weather, plans, small talk on the bench.',
   A2: 'Opinions, stories and the past tense - the way Finns actually tell them.',
-  B1: 'Real-world Finnish: renting a place, hedging with "ehkä" and "kai".'
+  B1: 'Real-world Finnish: renting a place, hedging with "ehkä" and "kai".',
+  B2: 'The native layer: regrets, gossip particles and "mähän sanoin".',
+  C1: 'Sounding local: slang, sarcasm and the idioms textbooks skip.'
 }
 
 const byLevel = computed(() => {

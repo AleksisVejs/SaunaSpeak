@@ -1,7 +1,7 @@
 <script setup>
 // Anki-style flip card. Front prompts recall; tap/space flips to the answer.
 // direction 'fi-en' = see Finnish, recall meaning; 'en-fi' = see meaning, recall Finnish.
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const props = defineProps({
@@ -25,6 +25,14 @@ const backGloss = computed(() => props.card.gloss)
 function play() {
   playWord(props.card.word)
 }
+
+// Every reveal is a listening rep: hear the word the moment the answer shows.
+watch(
+  () => props.flipped,
+  (flipped) => {
+    if (flipped) play()
+  }
+)
 </script>
 
 <template>

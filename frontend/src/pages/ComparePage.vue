@@ -47,7 +47,7 @@ const ROWS = [
   },
   {
     label: 'How far it takes you',
-    cells: ['A0 → B1, growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
+    cells: ['A0 → C1, growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
   },
   {
     label: 'Built only for Finnish',

@@ -62,14 +62,22 @@ class AccountController extends Controller
     public function destroy(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'password' => ['required', 'string'],
+            'password' => ['required_without:confirm', 'string'],
+            'confirm' => ['required_without:password', 'string'],
         ]);
 
         $user = $request->user();
 
-        if (! Hash::check($data['password'], $user->password)) {
+        // Google-created accounts hold a random password the user has never
+        // seen - they confirm by typing "delete" instead. Password accounts
+        // keep the stricter password check.
+        $confirmed = isset($data['password'])
+            ? Hash::check($data['password'], $user->password)
+            : ($user->google_id !== null && strtolower(trim($data['confirm'])) === 'delete');
+
+        if (! $confirmed) {
             throw ValidationException::withMessages([
-                'password' => ['That password is not correct.'],
+                'password' => [isset($data['password']) ? 'That password is not correct.' : 'Type "delete" to confirm.'],
             ]);
         }
 

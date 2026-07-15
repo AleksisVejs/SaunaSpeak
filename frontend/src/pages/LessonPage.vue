@@ -81,6 +81,11 @@ onUnmounted(stopPlayAll)
         :class="{ 'now-playing': playingId === s.id }"
       />
     </div>
+
+    <!-- Reading is the intro; retrieval is the learning. Close the loop. -->
+    <router-link to="/session" class="btn btn-primary btn-block practice-cta">
+      🧖 Practice these in a session
+    </router-link>
   </div>
   </div>
 </template>
@@ -101,6 +106,7 @@ onUnmounted(stopPlayAll)
 .listen-all { margin-bottom: 18px; font-size: 15px; }
 .lesson-pattern { margin-bottom: 18px; }
 .sentence-list { display: flex; flex-direction: column; gap: 14px; }
+.practice-cta { margin-top: 20px; font-size: 16px; }
 .sentence-list :deep(.now-playing) {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);

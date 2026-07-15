@@ -1,7 +1,7 @@
 <script setup>
 // A single stop on the learning path. Locked nodes are non-interactive.
+// The CEFR level lives on the surrounding section header, not the card.
 import { computed } from 'vue'
-import Pill from './ui/Pill.vue'
 
 const props = defineProps({
   lesson: { type: Object, required: true },
@@ -42,11 +42,10 @@ const badge = computed(() => {
       :aria-disabled="locked ? 'true' : undefined"
     >
       <div class="node-head">
-        <Pill :tone="status === 'mastered' ? 'green' : 'accent'">{{ lesson.level }}</Pill>
+        <p class="node-title">{{ lesson.title }}</p>
         <span v-if="recommended" class="rec-tag">Start here →</span>
-        <span v-else-if="status === 'mastered'" class="done-tag">Mastered</span>
+        <span v-else-if="status === 'mastered'" class="done-tag">✓</span>
       </div>
-      <p class="node-title">{{ lesson.title }}</p>
       <div class="node-foot">
         <div class="mini-track"><div class="mini-fill" :style="{ width: pct + '%' }"></div></div>
         <span class="mini-count">{{ lesson.mastered_count }}/{{ lesson.sentences_count }}</span>
@@ -121,10 +120,10 @@ const badge = computed(() => {
 .recommended .node-card { border-color: var(--accent); }
 .node-card.locked { opacity: 0.5; cursor: not-allowed; }
 
-.node-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.rec-tag { font-size: var(--text-xs); font-weight: 800; color: var(--accent); }
-.done-tag { font-size: var(--text-xs); font-weight: 700; color: var(--green); }
-.node-title { font-weight: 700; font-size: 16px; }
+.node-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rec-tag { font-size: var(--text-xs); font-weight: 800; color: var(--accent); white-space: nowrap; }
+.done-tag { font-size: 14px; font-weight: 800; color: var(--green); }
+.node-title { font-weight: 700; font-size: 15px; }
 
 .node-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .mini-track { flex: 1; height: 6px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }

@@ -15,7 +15,9 @@ const samples = [
   { fi: 'Otetaanks kahvit?', book: 'Otetaanko kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.', audio: '/audio/try-3.mp3' },
   { fi: 'Mitä kuuluu?', book: null, en: 'How are you?', note: 'Literally “what is heard?” - the everyday how-are-you.', audio: '/audio/sentence-4.mp3' },
   { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.', audio: '/audio/sentence-10.mp3' },
-  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' }
+  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' },
+  // A taste from the far end of the path - the course runs A0 → C1.
+  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'A C1 sentence from the same course - “överiks” is Helsinki slang, from Swedish “över”. The path runs all the way there.', audio: '/audio/sentence-369.mp3' }
 ]
 
 const index = ref(0)
@@ -89,8 +91,9 @@ function next() {
         <h1>That's spoken Finnish.</h1>
         <p class="finish-text">
           SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
-          then say it from memory - so it actually sticks. Create a free account to keep your
-          streak and unlock the full path.
+          then say it from memory - so it actually sticks. The path runs from your first
+          words (A0) to sounding local (C1), and it's free. Already know some Finnish?
+          Placement tests let you skip ahead.
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>
         <router-link to="/login" class="btn btn-ghost btn-block login-link">I already have an account</router-link>

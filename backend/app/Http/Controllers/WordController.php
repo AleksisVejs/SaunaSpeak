@@ -15,7 +15,7 @@ class WordController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json([
-            'words' => $request->user()->words()->latest()->get(),
+            'words' => $request->user()->words()->with('sentence:id,finnish_text,audio_url')->latest()->get(),
             'due_count' => $request->user()->words()->due()->count(),
         ]);
     }

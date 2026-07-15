@@ -17,6 +17,9 @@ const level = String(route.params.level || 'A0').toUpperCase()
 
 const loading = ref(true)
 const ready = ref(false)
+// Placement mode: quizzed over the whole level (not just studied material)
+// because the learner hasn't studied it - passing tests them out of it.
+const placement = ref(false)
 const studied = ref(0)
 const needed = ref(5)
 const sentences = ref([])
@@ -38,6 +41,7 @@ onMounted(async () => {
     const { data } = await api.get(`/checkpoint/${level}`)
     ready.value = data.ready
     if (data.ready) {
+      placement.value = !!data.placement
       sentences.value = data.sentences
     } else {
       studied.value = data.studied
@@ -119,13 +123,17 @@ function onKey(e) {
         :src="passed ? '/vaino-medal.png' : '/vaino-flex.png'"
         :alt="passed ? 'Väinö holding a gold medal' : 'Väinö flexing encouragement'"
       />
-      <h1>{{ passed ? `${level} checkpoint passed!` : 'Good training!' }}</h1>
+      <h1>{{ passed ? (placement ? `You tested out of ${level}!` : `${level} checkpoint passed!`) : 'Good training!' }}</h1>
       <div class="score" :class="{ pass: passed }">{{ correct }}/{{ total }} · {{ scorePct }}%</div>
       <p v-if="passed && xpGained" class="xp-note">+{{ xpGained }} XP badge bonus</p>
       <p class="muted">
         {{ passed
-          ? 'Your badge is on the journey path. Retake it any time - recalling is rehearsing.'
-          : 'No pressure - every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.' }}
+          ? (placement
+            ? `The path past ${level} is unlocked and your daily sessions skip straight to the next level. The ${level} lessons stay open whenever you want them.`
+            : 'Your badge is on the journey path. Retake it any time - recalling is rehearsing.')
+          : (placement
+            ? `Not this time - you need 80% to place out of ${level}. Its lessons will get you there fast, and you can retake this any time.`
+            : 'No pressure - every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.') }}
       </p>
       <router-link to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
     </div>
@@ -138,10 +146,14 @@ function onKey(e) {
         <span class="counter">{{ index + 1 }}/{{ total }}</span>
       </div>
 
-      <p class="stakes-note">🧘 Low stakes: taking this quiz is itself practice. Say each one out loud.</p>
+      <p class="stakes-note">
+        {{ placement
+          ? `🚀 Placement: score 80% and skip straight past ${level}.`
+          : '🧘 Low stakes: taking this quiz is itself practice. Say each one out loud.' }}
+      </p>
 
       <div class="card quiz-card">
-        <p class="hint">🧠 {{ level }} checkpoint - say it in Finnish</p>
+        <p class="hint">🧠 {{ level }} {{ placement ? 'placement' : 'checkpoint' }} - say it in Finnish</p>
         <p class="prompt">{{ current.english_text }}</p>
 
         <template v-if="revealed">

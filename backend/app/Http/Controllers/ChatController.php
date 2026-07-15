@@ -60,9 +60,29 @@ class ChatController extends Controller
             'opener' => $s['opener_fi'],
             'opener_translation' => $s['opener_en'],
             'recommended' => $s['recommended'],
+            'done' => isset($request->user()->scenarios_done[$s['id']]),
         ], Scenarios::forGoal(is_string($goal) ? $goal : null));
 
         return response()->json(['scenarios' => $public]);
+    }
+
+    /**
+     * POST /api/scenarios/{id}/complete - mark a Situation's mission as
+     * accomplished (called when the character reports goal_reached).
+     * Idempotent; the first completion timestamp wins.
+     */
+    public function completeScenario(Request $request, string $id): JsonResponse
+    {
+        abort_unless(Scenarios::find($id) !== null, 404);
+
+        $user = $request->user();
+        $done = $user->scenarios_done ?? [];
+
+        if (! isset($done[$id])) {
+            $user->update(['scenarios_done' => array_merge($done, [$id => now()->toIso8601String()])]);
+        }
+
+        return response()->json(['scenarios_done' => $user->fresh()->scenarios_done]);
     }
 
     public function chat(Request $request): JsonResponse
@@ -88,7 +108,7 @@ class ChatController extends Controller
             ]);
         }
         $mastered = $user->progress()->where('status', 'mastered')->count();
-        $level = $mastered >= 40 ? 'A2' : ($mastered >= 15 ? 'A1' : 'A0');
+        $level = $mastered >= 300 ? 'C1' : ($mastered >= 200 ? 'B2' : ($mastered >= 100 ? 'B1' : ($mastered >= 40 ? 'A2' : ($mastered >= 15 ? 'A1' : 'A0'))));
 
         $system = $scenario
             ? $this->scenarioPrompt($scenario, $level, $this->learnerContext($user))

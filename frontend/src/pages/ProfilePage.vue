@@ -6,6 +6,7 @@ import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { usePrefs } from '../composables/usePrefs'
 import { useTheme } from '../composables/useTheme'
+import { rankFor } from '../utils/ranks'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -49,21 +50,9 @@ const weekBars = computed(() => {
   })
 })
 
-const RANKS = [
-  { xp: 0, title: 'Kylmä Kiuas', icon: '🪨' },
-  { xp: 150, title: 'Ensilöyly', icon: '💧' },
-  { xp: 400, title: 'Löylynheittäjä', icon: '♨️' },
-  { xp: 800, title: 'Lauteiden Vakio', icon: '🧖' },
-  { xp: 1400, title: 'Löylymestari', icon: '🔥' },
-  { xp: 2200, title: 'Saunalegenda', icon: '👑' }
-]
-
-const rank = computed(() => {
-  const xp = auth.user?.xp ?? 0
-  let idx = 0
-  RANKS.forEach((r, i) => { if (xp >= r.xp) idx = i })
-  return RANKS[idx]
-})
+// One rank ladder for the whole app (utils/ranks) - a local copy here once
+// drifted out of sync with the dashboard.
+const rank = computed(() => rankFor(auth.user?.xp ?? 0))
 
 const GOAL_LABELS = { move: 'Moving to Finland', travel: 'Travel & visits', family: 'Family & friends', casual: 'Just curious' }
 const TIME_OPTIONS = [{ v: 2, l: '2 min' }, { v: 5, l: '5 min' }, { v: 15, l: '15 min' }]
@@ -111,12 +100,17 @@ const confirmingDelete = ref(false)
 const deletePassword = ref('')
 const deleting = ref(false)
 const deleteError = ref('')
+// Google-created accounts have no known password - they confirm by typing
+// "delete" instead (the backend checks google_linked the same way).
+const googleUser = computed(() => !!auth.user?.google_linked)
 async function deleteAccount() {
   if (!deletePassword.value) return
   deleting.value = true
   deleteError.value = ''
   try {
-    await api.delete('/account', { data: { password: deletePassword.value } })
+    await api.delete('/account', {
+      data: googleUser.value ? { confirm: deletePassword.value } : { password: deletePassword.value }
+    })
     localStorage.clear()
     window.location.href = '/'
   } catch (e) {
@@ -261,8 +255,24 @@ async function deleteAccount() {
         </p>
         <div v-if="deleteError" class="error-msg">{{ deleteError }}</div>
         <div class="field">
-          <label for="delete-password">Confirm with your password</label>
-          <input id="delete-password" v-model="deletePassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+          <label for="delete-password">{{ googleUser ? 'Type "delete" to confirm' : 'Confirm with your password' }}</label>
+          <input
+            v-if="googleUser"
+            id="delete-password"
+            v-model="deletePassword"
+            type="text"
+            autocomplete="off"
+            autocapitalize="none"
+            placeholder="delete"
+          />
+          <input
+            v-else
+            id="delete-password"
+            v-model="deletePassword"
+            type="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+          />
         </div>
         <div class="danger-row">
           <button class="btn btn-ghost danger-yes" :disabled="deleting || !deletePassword" @click="deleteAccount">

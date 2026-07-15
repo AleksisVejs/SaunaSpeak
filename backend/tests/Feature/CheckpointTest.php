@@ -46,14 +46,21 @@ class CheckpointTest extends TestCase
         }
     }
 
-    public function test_checkpoint_not_ready_before_enough_studied_sentences(): void
+    public function test_few_studied_sentences_get_a_placement_quiz(): void
     {
         $this->studySentences('A0', 3);
 
         $this->getJson('/api/checkpoint/A0')
             ->assertOk()
+            ->assertJsonPath('ready', true)
+            ->assertJsonPath('placement', true);
+    }
+
+    public function test_checkpoint_not_ready_when_the_level_has_no_sentences(): void
+    {
+        $this->getJson('/api/checkpoint/A0')
+            ->assertOk()
             ->assertJsonPath('ready', false)
-            ->assertJsonPath('studied', 3)
             ->assertJsonPath('needed', 5);
     }
 
@@ -100,6 +107,6 @@ class CheckpointTest extends TestCase
 
     public function test_unknown_level_is_rejected(): void
     {
-        $this->getJson('/api/checkpoint/B2')->assertStatus(422);
+        $this->getJson('/api/checkpoint/Z9')->assertStatus(422);
     }
 }

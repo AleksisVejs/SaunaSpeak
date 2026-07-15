@@ -181,7 +181,10 @@ function confettiStyle(i) {
       </div>
     </div>
 
-    <router-link to="/dashboard" class="btn btn-primary btn-block">Back to dashboard</router-link>
+    <!-- Momentum is precious: offer another round before the exit. If
+         nothing is left, the reload lands on the "all caught up" state. -->
+    <button class="btn btn-primary btn-block" @click="session.loadToday()">🔥 Keep going - another round</button>
+    <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to dashboard</router-link>
   </div>
 
   <!-- Empty state -->

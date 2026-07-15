@@ -3,7 +3,7 @@
 // the webhook flips the account to premium. Cancelling happens right here -
 // confirmed in-page, access runs until the paid period ends, reversible
 // until then via Resume.
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
@@ -46,7 +46,23 @@ onMounted(async () => {
   } catch {
     error.value = 'Could not load subscription status.'
   }
+  // Back from Stripe: poll until the webhook lands so the page flips itself
+  // to "active" instead of asking the user to refresh.
+  if (justPaid.value && !auth.user?.is_premium) {
+    pollTimer = setInterval(async () => {
+      pollTries++
+      await auth.fetchUser()
+      if (auth.user?.is_premium || pollTries >= 10) {
+        clearInterval(pollTimer)
+        pollTimer = null
+      }
+    }, 3000)
+  }
 })
+
+let pollTimer = null
+let pollTries = 0
+onBeforeUnmount(() => pollTimer && clearInterval(pollTimer))
 
 // Only offer intervals the backend has a Stripe price for.
 const availablePlans = computed(() =>
@@ -126,8 +142,8 @@ async function managePortal() {
     </div>
 
     <div v-if="justPaid" class="card paid">
-      🎉 <b>Kiitos!</b> Your payment went through - Löyly+ unlocks within a minute.
-      Pull the dashboard to refresh if it hasn't yet.
+      <template v-if="auth.user?.is_premium">🎉 <b>Kiitos!</b> Löyly+ is active - enjoy the steam!</template>
+      <template v-else>🎉 <b>Kiitos!</b> Your payment went through - unlocking Löyly+ now…</template>
     </div>
 
     <div class="card perks">

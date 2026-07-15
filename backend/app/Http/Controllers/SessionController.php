@@ -58,9 +58,13 @@ class SessionController extends Controller
 
         if ($slotsLeft > 0) {
             $seenIds = $user->progress()->pluck('sentence_id');
+            // Levels tested out of (passed checkpoint) never feed fresh
+            // sentences - a placed B1 learner starts at B1, not "Moi!".
+            $passedLevels = array_keys($user->checkpoints ?? []);
 
             $fresh = Sentence::whereNotIn('sentences.id', $seenIds)
                 ->join('lessons', 'lessons.id', '=', 'sentences.lesson_id')
+                ->when($passedLevels !== [], fn ($q) => $q->whereNotIn('lessons.level', $passedLevels))
                 ->orderBy('lessons.order_index')
                 ->orderBy('sentences.id')
                 ->limit($slotsLeft)

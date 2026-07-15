@@ -82,8 +82,10 @@ function finish() {
     level: answers.value.level,
     minutes: answers.value.minutes
   })
-  // Straight into the first session - earn value immediately.
-  router.push({ name: 'session' })
+  // Beginners go straight into the first session - earn value immediately.
+  // Learners with prior Finnish land on the path, where every level's
+  // checkpoint doubles as a placement test ("test out and skip ahead").
+  router.push({ name: answers.value.level === 'none' ? 'session' : 'dashboard' })
 }
 </script>
 

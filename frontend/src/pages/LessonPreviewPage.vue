@@ -3,7 +3,7 @@
 // written-Finnish counterpart and word-by-word glosses. Each page targets
 // the long-tail searches only this content can answer ("mä oon meaning",
 // "onks meaning Finnish") and funnels into /try and /register.
-import { onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -39,12 +39,44 @@ async function load(slug) {
       title: `${data.lesson.title} - ${data.lesson.level} spoken Finnish lesson - SaunaSpeak`,
       description: `Learn "${first?.finnish_text}" and ${data.lesson.sentences.length - 1} more real spoken-Finnish (puhekieli) sentences with audio, written Finnish and word-by-word explanations.`
     })
+    setJsonLd(data.lesson, slug)
   } catch {
     missing.value = true
   } finally {
     loading.value = false
   }
 }
+
+// Structured data for the content hub: Article + BreadcrumbList per lesson.
+// Injected per slug and removed on leave so it never leaks onto app pages.
+let ld = null
+function setJsonLd(l, slug) {
+  ld?.remove()
+  ld = document.createElement('script')
+  ld.type = 'application/ld+json'
+  ld.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: `${l.title} - ${l.level} spoken Finnish lesson`,
+        inLanguage: 'en',
+        about: 'Spoken Finnish (puhekieli)',
+        author: { '@type': 'Organization', name: 'SaunaSpeak', url: 'https://saunaspeak.com' },
+        publisher: { '@type': 'Organization', name: 'SaunaSpeak', url: 'https://saunaspeak.com' }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Lessons', item: 'https://saunaspeak.com/lessons' },
+          { '@type': 'ListItem', position: 2, name: l.title, item: `https://saunaspeak.com/lessons/${slug}` }
+        ]
+      }
+    ]
+  })
+  document.head.appendChild(ld)
+}
+onBeforeUnmount(() => ld?.remove())
 
 onMounted(() => load(route.params.slug))
 // Prev/next links land on this same component - refetch on slug change.

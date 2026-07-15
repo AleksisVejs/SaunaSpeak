@@ -21,7 +21,13 @@ class CheckpointController extends Controller
     private const PASS_RATIO = 0.8;
     private const XP_PASS_BONUS = 100;
 
-    /** GET /api/checkpoint/{level} - a random recall quiz over studied sentences. */
+    /**
+     * GET /api/checkpoint/{level} - a random recall quiz. Learners who have
+     * studied the level get a quiz over their own material; learners who
+     * haven't (yet) get a PLACEMENT quiz over the whole level - passing it
+     * unlocks the path past that level and skips its sentences in sessions,
+     * so nobody with prior Finnish has to grind through A0.
+     */
     public function show(Request $request, string $level): JsonResponse
     {
         $level = $this->validLevel($level);
@@ -34,16 +40,25 @@ class CheckpointController extends Controller
             ->where('lessons.level', $level)
             ->get(['sentences.*']);
 
-        if ($pool->count() < self::MIN_STUDIED) {
+        $placement = $pool->count() < self::MIN_STUDIED;
+
+        if ($placement) {
+            $pool = Sentence::join('lessons', 'lessons.id', '=', 'sentences.lesson_id')
+                ->where('lessons.level', $level)
+                ->get(['sentences.*']);
+        }
+
+        if ($pool->isEmpty()) {
             return response()->json([
                 'ready' => false,
-                'studied' => $pool->count(),
+                'studied' => 0,
                 'needed' => self::MIN_STUDIED,
             ]);
         }
 
         return response()->json([
             'ready' => true,
+            'placement' => $placement,
             'sentences' => $pool->shuffle()->take(self::QUIZ_SIZE)->values(),
             'pass_ratio' => self::PASS_RATIO,
             'passed_at' => $user->checkpoints[$level] ?? null,
@@ -82,7 +97,7 @@ class CheckpointController extends Controller
 
     private function validLevel(string $level): string
     {
-        validator(['level' => $level], ['level' => ['required', Rule::in(['A0', 'A1', 'A2', 'B1'])]])->validate();
+        validator(['level' => $level], ['level' => ['required', Rule::in(['A0', 'A1', 'A2', 'B1', 'B2', 'C1'])]])->validate();
 
         return $level;
     }

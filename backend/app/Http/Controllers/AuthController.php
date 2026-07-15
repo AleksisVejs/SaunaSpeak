@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lesson;
+use App\Models\ReviewLog;
 use App\Models\User;
 use App\Models\UserProgress;
 use App\Models\Sentence;
@@ -128,7 +129,10 @@ class AuthController extends Controller
                 'mastered_count' => $user->progress()->where('status', UserProgress::STATUS_MASTERED)->count(),
                 'learning_count' => $user->progress()->whereNot('status', UserProgress::STATUS_MASTERED)->count(),
                 'due_count' => $user->progress()->where('next_review_at', '<=', now())->count(),
+                'reviews_today' => ReviewLog::where('user_id', $user->id)->where('created_at', '>=', today())->count(),
+                'words_due' => $user->words()->due()->count(),
                 'forecast' => $this->forecast($user),
+                'activity' => $this->activity($user),
             ],
         ]);
     }
@@ -353,6 +357,27 @@ class AuthController extends Controller
 
         return collect($byDay)
             ->map(fn ($count, $day) => ['date' => $day, 'count' => $count])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Reviews done per day over the past 7 days (oldest first, today last) -
+     * the "you showed up" half of the dashboard week view.
+     */
+    private function activity(User $user): array
+    {
+        $byDay = ReviewLog::where('user_id', $user->id)
+            ->where('created_at', '>=', today()->subDays(6))
+            ->get(['created_at'])
+            ->countBy(fn ($row) => $row->created_at->toDateString());
+
+        return collect(range(6, 0))
+            ->map(function ($daysAgo) use ($byDay) {
+                $date = today()->subDays($daysAgo)->toDateString();
+
+                return ['date' => $date, 'count' => (int) ($byDay[$date] ?? 0)];
+            })
             ->values()
             ->all();
     }
