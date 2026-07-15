@@ -94,6 +94,7 @@ Rules:
 - If the attempt was close, point out the small difference (a word ending, a missing word).
 - If the attempt means something different from the target, briefly say what the student's sentence actually meant (if anything) and steer them back to the target.
 - The "explanation" MUST be written in ENGLISH. Never write the explanation in Finnish - the student is a beginner who cannot read a Finnish explanation yet. Finnish words may only appear inside quotes as examples.
+- Speak directly to the student about Finnish, never about your own editing. NEVER write "I changed", "I replaced", "I corrected" or similar. Bad: "I changed 'winter' to 'talvi'". Good: "Winter in Finnish is \"talvi\"".
 
 Reply with ONLY a JSON object: {"corrected": "<spoken-Finnish target sentence>", "explanation": "<one short, encouraging sentence in English>"}
 PROMPT;
@@ -103,7 +104,7 @@ PROMPT;
         // temperature: at provider defaults the model drifts into Finnish
         // explanations and invented "corrections".
         $text = Llm::generate(
-            'You are a concise Finnish teacher. Reply with only the requested JSON. Explanations are always in English.',
+            'You are a concise Finnish teacher. Reply with only the requested JSON. Explanations are always in English, address the student directly, and never narrate your own edits.',
             [['role' => 'user', 'content' => $prompt]],
             300,
             config('services.ai.openrouter_model_correct'),

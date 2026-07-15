@@ -159,7 +159,9 @@ const VERDICTS = [
 </template>
 
 <style scoped>
-.compare { max-width: 860px; margin: 0 auto; padding: 16px 4px 60px; }
+/* meta.full route: the shell adds no width cap or padding, so we own both.
+   Bottom padding clears the mobile tab bar for logged-in visitors. */
+.compare { max-width: 860px; margin: 0 auto; padding: 16px 20px calc(84px + env(safe-area-inset-bottom)); }
 .page-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
 .home-link { color: var(--text-dim); font-size: 14px; font-weight: 600; }
 

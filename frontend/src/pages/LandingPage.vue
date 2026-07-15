@@ -217,6 +217,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <h2>Five minutes. Every day. Out loud.</h2>
       <router-link to="/try" class="btn btn-primary cta">Start your first session</router-link>
       <p class="muted tiny">Already learning? <router-link to="/login">Log in</router-link></p>
+      <p class="muted tiny">Comparing apps? <router-link to="/compare">See how SaunaSpeak stacks up against Duolingo &amp; co →</router-link></p>
     </section>
 
     <footer class="site-footer">

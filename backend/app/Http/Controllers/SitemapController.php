@@ -22,6 +22,7 @@ class SitemapController extends Controller
             ['loc' => '/try', 'changefreq' => 'monthly', 'priority' => '0.8'],
             ['loc' => '/lessons', 'changefreq' => 'weekly', 'priority' => '0.8'],
             ['loc' => '/pricing', 'changefreq' => 'monthly', 'priority' => '0.7'],
+            ['loc' => '/compare', 'changefreq' => 'monthly', 'priority' => '0.7'],
             ['loc' => '/register', 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => '/privacy', 'changefreq' => 'yearly', 'priority' => '0.2'],
             ['loc' => '/terms', 'changefreq' => 'yearly', 'priority' => '0.2'],
