@@ -91,7 +91,7 @@ function next() {
         <h1>That's spoken Finnish.</h1>
         <p class="finish-text">
           SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
-          then say it from memory - so it actually sticks. The path runs from your first
+          then say it from memory - so it actually sticks. The lessons span your first
           words (A0) to sounding local (C1), and it's free. Already know some Finnish?
           Placement tests let you skip ahead.
         </p>

@@ -189,6 +189,14 @@ async function deleteAccount() {
         </router-link>
       </template>
 
+      <template v-if="auth.user?.is_recorder || auth.user?.is_admin">
+        <h3 class="section">Recording studio</h3>
+        <router-link to="/record" class="card row-link">
+          <span>🎙 Record course audio</span>
+          <span class="chev">Open ›</span>
+        </router-link>
+      </template>
+
       <h3 class="section">Audio speed</h3>
       <div class="card">
         <div class="rate-head">

@@ -27,9 +27,11 @@ async function resendVerification() {
   }
 }
 
-// Landing back from the mail link (?verified=1): refresh the user so the
-// nudge disappears, and celebrate briefly.
+// Landing back from the mail link: ?verified=1 means success (refresh the
+// user so the nudge disappears, celebrate briefly); ?verified=expired means
+// the signed link ran out, so the nudge switches to an explanation + resend.
 const justVerified = ref(false)
+const linkExpired = ref(false)
 watch(
   () => route.query.verified,
   (v) => {
@@ -38,6 +40,9 @@ watch(
       auth.fetchUser()
       router.replace({ query: {} })
       setTimeout(() => (justVerified.value = false), 6000)
+    } else if (v === 'expired') {
+      linkExpired.value = true
+      router.replace({ query: {} })
     }
   },
   { immediate: true }
@@ -101,7 +106,8 @@ async function logout() {
         ✅ Email confirmed - kiitos!
       </div>
       <div v-else-if="showShell && needsVerification" class="verify-banner">
-        <span class="vb-text">📧 Confirm your email - we sent a link to <b>{{ auth.user.email }}</b></span>
+        <span v-if="linkExpired" class="vb-text">⏳ That confirmation link had expired - tap Resend and we'll send a fresh one to <b>{{ auth.user.email }}</b></span>
+        <span v-else class="vb-text">📧 Confirm your email - we sent a link to <b>{{ auth.user.email }}</b></span>
         <button class="vb-btn" :disabled="resendState === 'sending' || resendState === 'sent'" @click="resendVerification">
           {{ resendState === 'sent' ? 'Sent!' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend' }}
         </button>

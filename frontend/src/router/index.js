@@ -39,6 +39,7 @@ const routes = [
   { path: '/chat', name: 'chat', component: () => import('../pages/ChatPage.vue'), meta: { auth: true, full: true, title: 'Sauna Chat - SaunaSpeak' } },
   { path: '/scenarios', name: 'scenarios', component: () => import('../pages/ScenariosPage.vue'), meta: { auth: true, title: 'Situations - SaunaSpeak' } },
   { path: '/upgrade', name: 'upgrade', component: () => import('../pages/UpgradePage.vue'), meta: { auth: true } },
+  { path: '/record', name: 'record', component: () => import('../pages/RecorderPage.vue'), meta: { auth: true, title: 'Recording studio - SaunaSpeak' } },
   { path: '/admin', name: 'admin', component: () => import('../pages/AdminPage.vue'), meta: { auth: true } }
 ]
 

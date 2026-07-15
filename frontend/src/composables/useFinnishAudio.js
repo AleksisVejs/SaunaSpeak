@@ -132,5 +132,12 @@ export function useFinnishAudio() {
     if (url) playUrl(url, rate ?? audioRate())
   }
 
-  return { playSentence, playSentenceAsync, playSpoken, playWord, stop: stopAll }
+  // Play any audio file by URL (recording-studio takes, admin review) -
+  // routed through the same player so clips never overlap. Raw takes play
+  // at 1x: the reviewer needs to hear exactly what was recorded.
+  function playClip(url) {
+    if (url) playUrl(url, 1)
+  }
+
+  return { playSentence, playSentenceAsync, playSpoken, playWord, playClip, stop: stopAll }
 }

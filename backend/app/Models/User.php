@@ -37,6 +37,7 @@ class User extends Authenticatable
         'stripe_subscription_id',
         'premium_until',
         'is_admin',
+        'is_recorder',
     ];
 
     /**
@@ -76,6 +77,7 @@ class User extends Authenticatable
             'preferences' => 'array',
             'premium_until' => 'datetime',
             'is_admin' => 'boolean',
+            'is_recorder' => 'boolean',
             'review_emails' => 'boolean',
         ];
     }

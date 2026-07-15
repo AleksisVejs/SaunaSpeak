@@ -10,6 +10,7 @@ use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\PublicLessonController;
+use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
@@ -37,10 +38,11 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::get('/public/lessons/{slug}', [PublicLessonController::class, 'show']);
 });
 
-// The link inside the verification mail. 'signed' rejects any tampering with
-// id/hash/expiry; the throttle just caps drive-by probing on top of that.
+// The link inside the verification mail. 'signed:relative' rejects tampering
+// with id/hash/expiry but ignores scheme/host, so cPanel's https/www redirects
+// can't invalidate it; the throttle caps drive-by probing on top of that.
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-    ->middleware(['signed', 'throttle:10,1'])
+    ->middleware(['signed:relative', 'throttle:10,1'])
     ->name('verification.verify');
 
 // Stripe calls this, not browsers; signature check happens in the controller.
@@ -99,11 +101,26 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/scenarios', [ChatController::class, 'scenarios']);
     Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
 
+    // Recording studio (is_recorder users): human audio over TTS.
+    Route::get('/record/queue', [RecordController::class, 'queue']);
+    Route::get('/record/submitted', [RecordController::class, 'submitted']);
+    Route::post('/record/sentence/{id}', [RecordController::class, 'storeSentence']);
+    Route::delete('/record/sentence/{id}', [RecordController::class, 'revertSentence']);
+    Route::post('/record/word', [RecordController::class, 'storeWord']);
+    Route::delete('/record/word', [RecordController::class, 'revertWord']);
+
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
+        Route::get('/trends', [AdminController::class, 'trends']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
+        Route::post('/users/{user}/recorder', [AdminController::class, 'toggleRecorder']);
+
+        // Review pending recordings: approve → goes live, reject → back to queue.
+        Route::get('/recordings', [RecordController::class, 'pending']);
+        Route::post('/recordings/approve', [RecordController::class, 'approve']);
+        Route::post('/recordings/reject', [RecordController::class, 'reject']);
     });
 
     // Löyly+ features.

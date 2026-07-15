@@ -30,6 +30,15 @@ class EmailVerificationTest extends TestCase
         );
     }
 
+    /** Relative signed URL, exactly as VerifyEmail::verificationUrl builds it. */
+    private function verificationLink(User $user): string
+    {
+        return URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
+            'id' => $user->id,
+            'hash' => sha1($user->email),
+        ], absolute: false);
+    }
+
     public function test_signed_link_verifies_and_redirects_into_the_app(): void
     {
         $user = User::create([
@@ -38,12 +47,23 @@ class EmailVerificationTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $url = URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
-            'id' => $user->id,
-            'hash' => sha1($user->email),
+        $this->get($this->verificationLink($user))->assertRedirectContains('/dashboard?verified=1');
+
+        $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
+    public function test_link_survives_a_scheme_or_host_change(): void
+    {
+        // cPanel's force-https / www redirects change scheme+host between
+        // mail-out and click; the relative signature must not care.
+        $user = User::create([
+            'name' => 'Testi',
+            'email' => 'testi@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
-        $this->get($url)->assertRedirectContains('/dashboard?verified=1');
+        $this->get('https://www.saunaspeak.test'.$this->verificationLink($user))
+            ->assertRedirectContains('/dashboard?verified=1');
 
         $this->assertNotNull($user->fresh()->email_verified_at);
     }
@@ -56,13 +76,29 @@ class EmailVerificationTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        // Valid signature but for a different hash → signed middleware 403s.
-        $url = URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
-            'id' => $user->id,
-            'hash' => sha1($user->email),
+        // Valid signature but for a different hash → signed middleware rejects
+        // and the exception handler bounces into the SPA, unverified.
+        $url = $this->verificationLink($user);
+
+        $this->get(str_replace($user->id.'/', $user->id.'x/', $url))
+            ->assertRedirectContains('/dashboard?verified=expired');
+        $this->assertNull($user->fresh()->email_verified_at);
+    }
+
+    public function test_expired_link_redirects_to_the_resend_banner(): void
+    {
+        $user = User::create([
+            'name' => 'Testi',
+            'email' => 'testi@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
-        $this->get(str_replace($user->id.'/', $user->id.'x/', $url))->assertForbidden();
+        $url = URL::temporarySignedRoute('verification.verify', now()->subMinute(), [
+            'id' => $user->id,
+            'hash' => sha1($user->email),
+        ], absolute: false);
+
+        $this->get($url)->assertRedirectContains('/dashboard?verified=expired');
         $this->assertNull($user->fresh()->email_verified_at);
     }
 

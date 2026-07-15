@@ -71,7 +71,11 @@ const FAQ = [
   },
   {
     q: 'How much time does it take per day?',
-    a: 'You choose: 2, 5 or 15 minutes a day. Short daily sessions scheduled by spaced repetition beat long weekly cramming - that\'s the science the app is built on.'
+    a: 'You choose: 2, 5 or 15 minutes a day. A 2-minute session is enough to keep your reviews and streak alive on a busy day; 5-15 focused minutes is where real progress happens. Either way, short daily sessions scheduled by spaced repetition beat a long weekly cram - that\'s the science the app is built on.'
+  },
+  {
+    q: 'Will SaunaSpeak alone take me to C1?',
+    a: 'No single app will, and we won\'t pretend otherwise. The lesson path spans A0 to C1 in spoken Finnish, so there is material to train listening and speaking at every level - but real C1 also takes reading, writing and kirjakieli study alongside. SaunaSpeak covers the part most courses skip: understanding and producing the Finnish you actually hear.'
   }
 ]
 
@@ -135,7 +139,7 @@ onBeforeUnmount(() => faqLd?.remove())
 
     <!-- the scale in one glance (update the counts as the course grows) -->
     <section class="stats-band" aria-label="Course size">
-      <div class="stat-item"><b>A0 → C1</b><span>full path</span></div>
+      <div class="stat-item"><b>A0 → C1</b><span>lesson levels</span></div>
       <div class="stat-item"><b>68</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>

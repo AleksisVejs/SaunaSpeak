@@ -61,6 +61,16 @@ class GenerateAudio extends Command
         $failed = 0;
 
         foreach (Sentence::all() as $sentence) {
+            // A human recording (from /record) always wins over TTS - link it
+            // and move on, even under --force.
+            if ($human = $this->humanUrl("sentence-{$sentence->id}")) {
+                if ($sentence->audio_url !== $human) {
+                    $sentence->update(['audio_url' => $human]);
+                }
+
+                continue;
+            }
+
             $file = "{$dir}/sentence-{$sentence->id}.mp3";
             $url = "/audio/sentence-{$sentence->id}.mp3";
 
@@ -126,7 +136,16 @@ class GenerateAudio extends Command
 
         foreach ($words as $word) {
             // Slug + short hash: filesystem-safe and collision-proof (sää vs saa).
-            $name = Str::slug($word) . '-' . substr(md5($word), 0, 6) . '.mp3';
+            $base = Str::slug($word) . '-' . substr(md5($word), 0, 6);
+
+            // A human recording always wins over TTS in the manifest.
+            if ($human = $this->humanUrl("words/{$base}")) {
+                $manifest[$word] = $human;
+
+                continue;
+            }
+
+            $name = $base . '.mp3';
             $file = "{$dir}/{$name}";
             $url = "/audio/words/{$name}";
 
@@ -164,5 +183,13 @@ class GenerateAudio extends Command
         );
 
         return [$generated, $failed];
+    }
+
+    /** First human take for a base name ("sentence-12", "words/moi-abc123"), as a URL. */
+    private function humanUrl(string $base): ?string
+    {
+        $match = File::glob(public_path("audio/human/{$base}.*"))[0] ?? null;
+
+        return $match ? '/audio/human/'.(str_contains($base, '/') ? 'words/' : '').basename($match) : null;
     }
 }

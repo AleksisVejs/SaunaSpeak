@@ -101,6 +101,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Email Verification Link Expiry
+    |--------------------------------------------------------------------------
+    |
+    | How long (in minutes) the signed link in the verification mail stays
+    | valid. Laravel's default of 60 minutes proved too tight for people who
+    | open the mail later; verification is encouraged, not blocking, so a
+    | generous window costs nothing. Keep the email copy in sync.
+    |
+    */
+
+    'verification' => [
+        'expire' => 60 * 24,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Password Confirmation Timeout
     |--------------------------------------------------------------------------
     |

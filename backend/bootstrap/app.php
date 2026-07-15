@@ -18,5 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // An expired or mangled verification link lands real users on Laravel's
+        // bare "403 invalid signature" page. Send them into the SPA instead,
+        // where the verification banner offers a one-click resend.
+        $exceptions->render(function (\Illuminate\Routing\Exceptions\InvalidSignatureException $e, \Illuminate\Http\Request $request) {
+            if ($request->routeIs('verification.verify')) {
+                $appUrl = rtrim(config('services.stripe.frontend_url') ?: config('app.url'), '/');
+
+                return redirect()->away($appUrl.'/dashboard?verified=expired');
+            }
+        });
     })->create();
