@@ -82,6 +82,9 @@ async function grade(g) {
 const totalXp = computed(() => session.xpEarned + session.bonusXp)
 const shownXp = ref(0)
 const rankPct = ref(0)
+// Transition stays off until the start position has actually painted -
+// otherwise the bar animates 0 → start → target and visibly lurches.
+const sweepOn = ref(false)
 
 const rank = computed(() => rankFor(auth.user?.xp ?? 0))
 // Where the learner stood before this session's XP landed.
@@ -105,9 +108,16 @@ function startCelebration() {
   requestAnimationFrame(step)
 
   // Sweep the bar from the pre-session position (from 0 after a rank-up,
-  // so the fill visibly enters the new rank) once it has rendered.
+  // so the fill visibly enters the new rank). Double rAF guarantees the
+  // start width is painted before the transition switches on.
+  sweepOn.value = false
   rankPct.value = rankedUp.value ? 0 : prevRank.value.pct
-  setTimeout(() => (rankPct.value = rank.value.pct), 400)
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      sweepOn.value = true
+      rankPct.value = rank.value.pct
+    })
+  )
 }
 
 // End-of-session consolidation: everything studied today, once more with audio.
@@ -153,7 +163,7 @@ function confettiStyle(i) {
         <span>{{ rank.icon }} {{ rank.title }}</span>
         <span v-if="rank.next" class="muted rank-to-next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</span>
       </p>
-      <div class="progress-track"><div class="progress-fill rank-sweep" :style="{ width: rankPct + '%' }"></div></div>
+      <div class="progress-track rank-track"><div class="progress-fill rank-sweep" :class="{ sweeping: sweepOn }" :style="{ width: rankPct + '%' }"></div></div>
     </div>
 
     <div class="streak-note">🔥 {{ auth.user?.streak }} day streak</div>
@@ -273,7 +283,42 @@ function confettiStyle(i) {
   text-align: center;
   animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.rank-sweep { transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
+/* the celebratory bar: molten gradient, breathing glow, hot leading edge */
+.rank-track { overflow: visible; }
+.rank-sweep {
+  position: relative;
+  min-width: 12px;
+  border-radius: 99px;
+  transition: none; /* overrides the global 0.4s - no motion until armed */
+  background: linear-gradient(90deg, var(--accent-2), var(--accent), #ffd166, var(--accent), var(--accent-2));
+  background-size: 300% 100%;
+  animation: molten 2.4s linear infinite, bar-glow 1.8s ease-in-out infinite;
+}
+.rank-sweep.sweeping { transition: width 1.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.rank-sweep::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(35%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff8e7 0%, var(--accent) 45%, transparent 72%);
+  animation: spark-pulse 1.1s ease-in-out infinite;
+}
+@keyframes molten {
+  from { background-position: 0% 0; }
+  to { background-position: -300% 0; }
+}
+@keyframes bar-glow {
+  0%, 100% { box-shadow: 0 0 6px 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  50% { box-shadow: 0 0 16px 2px color-mix(in srgb, var(--accent) 80%, transparent); }
+}
+@keyframes spark-pulse {
+  0%, 100% { opacity: 0.75; transform: translate(35%, -50%) scale(0.85); }
+  50% { opacity: 1; transform: translate(35%, -50%) scale(1.15); }
+}
 .freeze-note { font-size: 13px; font-weight: 600; }
 
 .streak-note { font-weight: 700; color: var(--accent-2); animation: flame-pulse 1.6s ease-in-out infinite; }
