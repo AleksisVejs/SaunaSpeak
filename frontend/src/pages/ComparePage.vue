@@ -47,7 +47,7 @@ const ROWS = [
   },
   {
     label: 'How far it takes you',
-    cells: ['A0 → C1, growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
+    cells: ['Zero → confident everyday speech (~B1), upper lessons growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
   },
   {
     label: 'Built only for Finnish',
@@ -82,7 +82,7 @@ const VERDICTS = [
     app: 'SaunaSpeak',
     icon: '♨️',
     pick: 'Pick it if you want to understand and speak the Finnish you\'ll actually hear in Finland - from the first lesson.',
-    but: 'But if you want C-level grammar theory or a 4,000-word vocabulary tracker, pair it with a grammar resource.'
+    but: 'But if you want C-level grammar theory or a 4,000-word vocabulary tracker, pair it with a grammar resource - and while native recordings roll out sentence by sentence, most audio is still a synthetic voice.'
   }
 ]
 </script>

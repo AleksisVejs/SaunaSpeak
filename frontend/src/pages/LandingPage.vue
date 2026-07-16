@@ -50,13 +50,13 @@ const METHOD = [
 
 // A Situations round in one glance: mission, character, real puhekieli.
 const DEMO_CHAT = [
-  { who: 'them', text: 'Moi! Mitä sulle saisi olla?', en: 'Hi! What can I get you?' },
+  { who: 'them', text: 'Moi! Mitäs sais olla?', en: 'Hi! What can I get you?' },
   { who: 'you', text: 'Yks kahvi ja korvapuusti, kiitos!', en: 'One coffee and a cinnamon bun, please!' },
   { who: 'them', text: 'Selvä! Täällä vai mukaan?', en: 'Sure! For here or to go?' }
 ]
 
 const FEATURES = [
-  { icon: '🎧', title: 'Audio on every sentence', body: 'One consistent Finnish voice across the whole app - listen, shadow, speak.' },
+  { icon: '🎧', title: 'Audio on every sentence', body: 'Every sentence and word plays out loud - a clear synthetic Finnish voice today, replaced sentence by sentence with real native recordings (watch the 🎙 counter grow).' },
   { icon: '🔁', title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
   { icon: '⭐', title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
   { icon: '🏁', title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
@@ -77,19 +77,19 @@ const FAQ = [
   },
   {
     q: 'Will Finns everywhere understand me?',
-    a: 'Yes. SaunaSpeak teaches the capital-region spoken standard - the neutral everyday Finnish used in media and cities, understood in the whole country. Regional dialects like Savo or Oulu differ, but every Finn understands what you learn here.'
+    a: 'They\'ll understand you - SaunaSpeak teaches the capital-region spoken standard, the everyday Finnish used in media and cities, understood in the whole country. Honest flip side: you won\'t instantly understand every regional dialect (Savo, Oulu and Tampere all have their own flavor), and the bigger real-world hurdle is that Finns often switch to English the moment you hesitate. The course trains you for both: broad listening practice, and the phrases for politely keeping the conversation in Finnish.'
   },
   {
     q: 'I\'m a complete beginner - is this for me?',
-    a: 'Absolutely. The path starts at zero with listen-and-repeat, and exercises grow with you: fill-the-gap, dictation, then full recall from English. Already know a few words? The intake quiz skips you past the very first lessons. You can try six real sentences right now without an account.'
+    a: 'Absolutely. The path starts at zero with listen-and-repeat, and exercises grow with you: fill-the-gap, dictation, then full recall from English. Already know a few words? The intake quiz skips you past the very first lessons. You can try a handful of real sentences right now without an account.'
   },
   {
     q: 'How much time does it take per day?',
     a: 'Five to fifteen focused minutes a day is where real progress happens - short daily sessions scheduled by spaced repetition beat a long weekly cram. On a packed day, a 2-minute session keeps your reviews and streak alive, but let\'s be honest: nobody learns Finnish in 2 minutes a day, and we won\'t pretend otherwise.'
   },
   {
-    q: 'Will SaunaSpeak alone take me to C1?',
-    a: 'No single app will, and we won\'t pretend otherwise. The lesson path spans A0 to C1 in spoken Finnish, so there is material to train listening and speaking at every level - but real C1 also takes reading, writing and kirjakieli study alongside. SaunaSpeak covers the part most courses skip: understanding and producing the Finnish you actually hear.'
+    q: 'How far will SaunaSpeak take me?',
+    a: 'Honestly: from zero to confident everyday spoken Finnish - understanding and holding your own in real conversations, roughly the A0-B1 range where the course is strongest. There are upper-level lessons too (idioms, hearsay particles, workplace Finnish) and the path keeps growing, but no app alone takes anyone to C1 - that also takes reading, writing and kirjakieli study. SaunaSpeak covers the part most courses skip: the Finnish you actually hear.'
   }
 ]
 
@@ -139,7 +139,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <h1>Learn the Finnish <em>Finns actually speak</em></h1>
       <p class="lede">
         Spoken Finnish (puhekieli) in short daily sauna sessions - audio-first,
-        scheduled by spaced repetition, practiced out loud with an AI Finn.
+        scheduled by spaced repetition, spoken out loud from the first lesson.
       </p>
       <div class="cta-row">
         <router-link to="/try" class="btn btn-primary cta">🔥 Try it - no account</router-link>
@@ -154,7 +154,7 @@ onBeforeUnmount(() => faqLd?.remove())
     <!-- the scale in one glance (update the counts as the course grows) -->
     <section class="stats-band" aria-label="Course size">
       <div class="stat-item"><b>A0</b><span>starts from zero</span></div>
-      <div class="stat-item"><b>68</b><span>lessons</span></div>
+      <div class="stat-item"><b>69</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div v-if="nativeCount" class="stat-item"><b>🎙 {{ nativeCount }}</b><span>voiced by a native Finn</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>

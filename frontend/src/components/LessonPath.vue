@@ -1,6 +1,6 @@
 <script setup>
 // Turns the flat lessons array into a guided, sequentially-unlocked journey,
-// grouped into one collapsible section per CEFR level (A0 → C1) with a
+// grouped into one collapsible section per CEFR level with a
 // clickable level map on top. The level you're working on starts open;
 // finished and future levels fold away so 40+ lessons stay scannable.
 //
@@ -134,8 +134,8 @@ function jumpTo(level) {
   <div class="lesson-path">
     <p class="path-explainer">
       Your daily Sauna Session works through these lessons in order and brings
-      every sentence back until it's mastered - from your first words (A0) all
-      the way to sounding local (C1).
+      every sentence back until it's mastered - from your first words all the
+      way into slang and idioms the textbooks skip.
     </p>
 
     <!-- the whole journey at a glance -->

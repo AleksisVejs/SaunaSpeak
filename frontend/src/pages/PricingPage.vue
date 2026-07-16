@@ -4,7 +4,7 @@
 import { computed, ref } from 'vue'
 
 const FREE = [
-  'The full lesson path (A0 → C1, growing)',
+  'The full lesson path (starts at zero, growing)',
   'Daily Sauna Sessions with spaced repetition',
   'Audio on every sentence and word',
   'Word bank + flashcard reviews',

@@ -58,6 +58,12 @@ cp -r "$REPO_PATH/frontend/dist/." "$BACKEND/public/"
 echo "Running migrations..."
 $PHP_BIN artisan migrate --force || fail "migrations failed"
 
+# JsonLessonSeeder is idempotent (skips lessons already present by title), so
+# any new database/lessons/*.json shipped in this pull imports automatically -
+# no manual db:seed step on the server anymore.
+echo "Importing any new lessons..."
+$PHP_BIN artisan db:seed --class=JsonLessonSeeder --force || fail "lesson seeding failed"
+
 # git reset reverts the tracked words.json to the committed (all-TTS) version.
 # audio:generate rebuilds it from the files actually on disk - human takes win
 # where their files exist, dangling human URLs in the DB fall back to TTS.

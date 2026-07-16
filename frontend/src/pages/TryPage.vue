@@ -19,8 +19,8 @@ const samples = [
   { fi: 'Mitä kuuluu?', book: null, en: 'How are you?', note: 'Literally “what is heard?” - the everyday how-are-you.', audio: '/audio/sentence-4.mp3' },
   { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.', audio: '/audio/sentence-10.mp3' },
   { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' },
-  // A taste from the far end of the path - the course runs A0 → C1.
-  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'A C1 sentence from the same course - “överiks” is Helsinki slang, from Swedish “över”. The path runs all the way there.', audio: '/audio/sentence-369.mp3' }
+  // A taste from further down the path - slang the textbooks never touch.
+  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'From further down the same course - “överiks” is Helsinki slang, borrowed from Swedish “över”. The path keeps going into Finnish the textbooks never touch.', audio: '/audio/sentence-369.mp3' }
 ]
 
 // Upgrade the hardcoded MP3s to whatever the course currently plays for the
@@ -95,7 +95,9 @@ function next() {
         <transition name="fade" :duration="200">
           <div v-if="revealed" class="reveal">
             <p class="en">{{ current.en }}</p>
-            <p v-if="current.book" class="book">📖 The textbook would've taught you: <s>{{ current.book }}</s></p>
+            <!-- Plain text, no strikethrough: the written form isn't wrong, it's
+                 the register of every sign, email and form - you need both. -->
+            <p v-if="current.book" class="book">📖 In writing: {{ current.book }}</p>
             <p class="note">💡 {{ current.note }}</p>
           </div>
         </transition>
@@ -113,9 +115,9 @@ function next() {
         <h1>That's spoken Finnish.</h1>
         <p class="finish-text">
           SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
-          then say it from memory - so it actually sticks. The lessons span your first
-          words (A0) to sounding local (C1), and it's free. Already know some Finnish?
-          Placement tests let you skip ahead.
+          then say it from memory - so it actually sticks. The lessons run from your first
+          words to confident everyday conversation - and the path keeps growing. It's free.
+          Already know some Finnish? Placement tests let you skip ahead.
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>
         <router-link to="/login" class="btn btn-ghost btn-block login-link">I already have an account</router-link>
@@ -159,7 +161,6 @@ function next() {
 .reveal { margin-top: 16px; }
 .en { font-size: 17px; color: var(--text-dim); }
 .book { font-size: 13.5px; color: var(--text-dim); margin-top: 10px; }
-.book s { text-decoration-color: rgba(245, 158, 11, 0.5); }
 .note { font-size: 14px; color: var(--text); background: var(--bg-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; line-height: 1.5; }
 
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; }

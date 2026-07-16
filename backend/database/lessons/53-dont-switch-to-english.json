@@ -1,0 +1,105 @@
+{
+    "title": "Don't Switch to English!",
+    "level": "A2",
+    "pattern": {
+        "title": "Keeping it in Finnish: älä vaihda englantiin",
+        "summary": "The real boss fight of learning Finnish: the moment you hesitate, a friendly Finn switches to English. They mean well - so push back politely. Ask for a repeat, ask for slower, and say you want the practice. Finns respect the effort, and most will happily stay in Finnish once you ask.",
+        "examples": [
+            "Voidaanks puhuu suomee? = Can we speak Finnish?",
+            "Älä vaihda englantiin, mä yritän! = Don't switch to English, I'm trying!",
+            "Sano viel kerran, vähän hitaammin. = Say it once more, a bit slower."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Voidaanks puhuu suomee?",
+            "en": "Can we speak Finnish?",
+            "written": "Voidaanko puhua suomea?",
+            "glosses": {
+                "voidaanks": "can we - spoken 'voidaanko'",
+                "puhuu": "speak - spoken 'puhua'",
+                "suomee": "Finnish - spoken 'suomea'"
+            }
+        },
+        {
+            "fi": "Mä opettelen suomee.",
+            "en": "I'm learning Finnish.",
+            "written": "Minä opettelen suomea.",
+            "glosses": {
+                "mä": "I",
+                "opettelen": "am learning - practicing a skill",
+                "suomee": "Finnish - spoken 'suomea'"
+            }
+        },
+        {
+            "fi": "Älä vaihda englantiin, mä yritän!",
+            "en": "Don't switch to English, I'm trying!",
+            "written": "Älä vaihda englantiin, minä yritän!",
+            "glosses": {
+                "älä": "don't - the negative command",
+                "vaihda": "switch",
+                "englantiin": "to English - the -iin says 'into'",
+                "mä": "I",
+                "yritän": "am trying"
+            }
+        },
+        {
+            "fi": "Sano viel kerran, vähän hitaammin.",
+            "en": "Say it once more, a bit slower.",
+            "written": "Sano vielä kerran, vähän hitaammin.",
+            "glosses": {
+                "sano": "say - a friendly command",
+                "viel": "still / once more - spoken 'vielä'",
+                "kerran": "one time",
+                "vähän": "a bit",
+                "hitaammin": "more slowly - from 'hitaasti'"
+            }
+        },
+        {
+            "fi": "Mitä toi tarkottaa?",
+            "en": "What does that mean?",
+            "written": "Mitä tuo tarkoittaa?",
+            "glosses": {
+                "mitä": "what",
+                "toi": "that - spoken 'tuo'",
+                "tarkottaa": "means - spoken 'tarkoittaa'"
+            }
+        },
+        {
+            "fi": "Miten se sanotaan suomeks?",
+            "en": "How do you say it in Finnish?",
+            "written": "Miten se sanotaan suomeksi?",
+            "glosses": {
+                "miten": "how",
+                "se": "it",
+                "sanotaan": "is said - the generic passive",
+                "suomeks": "in Finnish - spoken 'suomeksi'"
+            }
+        },
+        {
+            "fi": "Puhu vaan suomee, kyl mä pärjään.",
+            "en": "Just speak Finnish, I'll manage.",
+            "written": "Puhu vain suomea, kyllä minä pärjään.",
+            "glosses": {
+                "puhu": "speak - a friendly command",
+                "vaan": "just - spoken 'vain'",
+                "suomee": "Finnish - spoken 'suomea'",
+                "kyl": "surely - spoken 'kyllä', here reassuring",
+                "mä": "I",
+                "pärjään": "manage / get by"
+            }
+        },
+        {
+            "fi": "Kiitti ku puhuit mulle suomee!",
+            "en": "Thanks for speaking Finnish with me!",
+            "written": "Kiitos kun puhuit minulle suomea!",
+            "glosses": {
+                "kiitti": "thanks - casual 'kiitos'",
+                "ku": "that / for - spoken 'kun'",
+                "puhuit": "you spoke",
+                "mulle": "to me - spoken 'minulle'",
+                "suomee": "Finnish - spoken 'suomea'"
+            }
+        }
+    ]
+}

@@ -113,10 +113,11 @@ from the files on disk so approved human takes stay live across deploys.
 ## 4. After every content addition (locally)
 
 ```bash
-php artisan db:seed --class=<NewLessonSeeder> && php artisan audio:generate && php artisan images:fetch
+php artisan db:seed --class=JsonLessonSeeder && php artisan audio:generate && php artisan images:fetch
 cd ../frontend && npm run build
 git add -A && git commit -m "new lessons" && git push
-# then on the server: ./deploy.sh  (+ run the same db:seed --class=... there once)
+# then on the server: ./deploy.sh (it now runs JsonLessonSeeder itself - any
+# new database/lessons/*.json imports automatically)
 ```
 
 ## 5. Smoke test after deploy
