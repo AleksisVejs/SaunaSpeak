@@ -20,7 +20,7 @@ const METHOD = [
   {
     icon: '🗣️',
     title: 'Speak from day one',
-    body: 'Every sentence is heard, shadowed and produced out loud - retrieval practice, the single best-evidenced way to make language stick.'
+    body: 'Every sentence is heard, shadowed and produced out loud - retrieval practice, one of the best-evidenced ways to make language stick.'
   },
   {
     icon: '📅',
@@ -71,7 +71,7 @@ const FAQ = [
   },
   {
     q: 'How much time does it take per day?',
-    a: 'You choose: 2, 5 or 15 minutes a day. A 2-minute session is enough to keep your reviews and streak alive on a busy day; 5-15 focused minutes is where real progress happens. Either way, short daily sessions scheduled by spaced repetition beat a long weekly cram - that\'s the science the app is built on.'
+    a: 'Five to fifteen focused minutes a day is where real progress happens - short daily sessions scheduled by spaced repetition beat a long weekly cram. On a packed day, a 2-minute session keeps your reviews and streak alive, but let\'s be honest: nobody learns Finnish in 2 minutes a day, and we won\'t pretend otherwise.'
   },
   {
     q: 'Will SaunaSpeak alone take me to C1?',
@@ -139,14 +139,14 @@ onBeforeUnmount(() => faqLd?.remove())
 
     <!-- the scale in one glance (update the counts as the course grows) -->
     <section class="stats-band" aria-label="Course size">
-      <div class="stat-item"><b>A0 → C1</b><span>lesson levels</span></div>
+      <div class="stat-item"><b>A0</b><span>starts from zero</span></div>
       <div class="stat-item"><b>68</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>
     </section>
 
     <section class="contrast">
-      <h2>Textbooks teach a language nobody speaks</h2>
+      <h2>The Finnish in your textbook isn't the Finnish you'll hear</h2>
       <div class="samples">
         <button
           v-for="s in SAMPLES"
@@ -160,7 +160,7 @@ onBeforeUnmount(() => faqLd?.remove())
           <span class="sample-en">{{ s.en }}</span>
         </button>
       </div>
-      <p class="muted">Left: what you'll say. Right: what the textbook would have taught you.</p>
+      <p class="muted">Left: what you'll say. Right: the written form - kept one tap away in every lesson, because you'll need both.</p>
     </section>
 
     <!-- the daily session itself: show the actual product, not adjectives -->
@@ -344,7 +344,7 @@ onBeforeUnmount(() => faqLd?.remove())
 }
 .sample:hover { border-color: var(--accent); }
 .sample-fi { font-weight: 800; font-size: 16px; color: var(--text); }
-.sample-book { font-size: 14px; color: var(--text-dim); text-decoration: line-through; text-decoration-color: rgba(245, 158, 11, 0.5); }
+.sample-book { font-size: 14px; color: var(--text-dim); }
 .sample-en { grid-column: 1 / -1; font-size: 13px; color: var(--text-dim); }
 @media (max-width: 480px) {
   .sample { grid-template-columns: 1fr; }
