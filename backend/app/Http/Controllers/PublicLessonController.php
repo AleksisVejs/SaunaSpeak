@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lesson;
+use App\Models\Sentence;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -31,6 +33,31 @@ class PublicLessonController extends Controller
 
         return response()->json(['lessons' => $lessons])
             ->header('Cache-Control', 'public, max-age=3600');
+    }
+
+    /**
+     * GET /api/public/try-audio?texts[]=... - current audio for the guest
+     * /try demo. The page ships with committed TTS MP3s so it works without
+     * the backend; this lets it upgrade to the human recording the moment
+     * one is approved, matched by exact Finnish text.
+     */
+    public function tryAudio(Request $request): JsonResponse
+    {
+        $texts = collect((array) $request->query('texts'))
+            ->filter(fn ($t) => is_string($t) && $t !== '' && mb_strlen($t) <= 120)
+            ->take(10)
+            ->values();
+
+        $audio = Sentence::whereIn('finnish_text', $texts)
+            ->whereNotNull('audio_url')
+            ->get(['finnish_text', 'audio_url'])
+            // The same line can appear in several lessons; prefer a human take.
+            ->sortBy(fn ($s) => str_starts_with($s->audio_url, '/audio/human/') ? 0 : 1)
+            ->unique('finnish_text')
+            ->pluck('audio_url', 'finnish_text');
+
+        return response()->json(['audio' => $audio])
+            ->header('Cache-Control', 'public, max-age=300');
     }
 
     public function show(string $slug): JsonResponse

@@ -37,6 +37,7 @@ Route::get('/auth/google/callback', [AuthController::class, 'googleCallback'])->
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/public/lessons', [PublicLessonController::class, 'index']);
     Route::get('/public/lessons/{slug}', [PublicLessonController::class, 'show']);
+    Route::get('/public/try-audio', [PublicLessonController::class, 'tryAudio']);
 });
 
 // The link inside the verification mail. 'signed:relative' rejects tampering

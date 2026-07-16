@@ -70,6 +70,33 @@ class PublicLessonsTest extends TestCase
         $this->getJson('/api/public/lessons/nonexistent')->assertNotFound();
     }
 
+    public function test_try_audio_maps_texts_to_current_audio(): void
+    {
+        $this->seedLessons();
+
+        // Duplicate sentence texts across lessons: the human take must win.
+        Lesson::where('title', 'Coffee Time')->first()->sentences()
+            ->first()->update(['audio_url' => '/audio/human/sentence-2.mp3']);
+
+        // Sentence texts contain dots, so read the array instead of JSON paths.
+        $audio = $this->getJson('/api/public/try-audio?'.http_build_query([
+            'texts' => ['Mä oon Anna.', 'Onks sul nälkä?'],
+        ]))->assertOk()->json('audio');
+
+        $this->assertSame('/audio/human/sentence-2.mp3', $audio['Mä oon Anna.'] ?? null);
+        $this->assertArrayNotHasKey('Onks sul nälkä?', $audio);
+    }
+
+    public function test_try_audio_ignores_junk_input(): void
+    {
+        $this->seedLessons();
+
+        // Non-string entries and absurd lengths are dropped, not 500s.
+        $this->getJson('/api/public/try-audio?texts[0][nested]=x&texts[1]='.str_repeat('a', 500))
+            ->assertOk()
+            ->assertJsonPath('audio', []);
+    }
+
     public function test_sitemap_includes_lesson_urls(): void
     {
         $this->seedLessons();

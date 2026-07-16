@@ -2,13 +2,16 @@
 // Guest "try it now" taste - no account needed. Runs six real sentences with
 // listen + reveal (plus the textbook form for contrast), then invites signup.
 // Self-contained sample content so it works without the backend/auth.
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSentence } = useFinnishAudio()
 
 // The audio files are the committed course MP3s (sentence ids from the seed
-// order), so the demo voice is exactly the voice inside the app.
+// order), so the demo voice is exactly the voice inside the app. On mount we
+// ask the backend for each sentence's CURRENT audio - once a human recording
+// is approved, the demo plays the human voice too (see tryAudio upgrade below).
 const samples = [
   { fi: 'Moi! Mä oon Anna.', book: 'Hei! Minä olen Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
   { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
@@ -19,6 +22,22 @@ const samples = [
   // A taste from the far end of the path - the course runs A0 → C1.
   { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'A C1 sentence from the same course - “överiks” is Helsinki slang, from Swedish “över”. The path runs all the way there.', audio: '/audio/sentence-369.mp3' }
 ]
+
+// Upgrade the hardcoded MP3s to whatever the course currently plays for the
+// same sentences (human takes once approved). Failure changes nothing - the
+// committed files keep the page fully self-contained.
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/public/try-audio', {
+      params: { texts: samples.map((s) => s.fi) }
+    })
+    for (const s of samples) {
+      if (data.audio?.[s.fi]) s.audio = data.audio[s.fi]
+    }
+  } catch {
+    /* offline or backend down: demo stays on the committed MP3s */
+  }
+})
 
 const index = ref(0)
 const revealed = ref(false)
