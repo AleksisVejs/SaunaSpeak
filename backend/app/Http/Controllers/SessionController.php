@@ -70,7 +70,11 @@ class SessionController extends Controller
                 ->limit($slotsLeft)
                 ->get(['sentences.*']);
 
-            $fresh->each(fn (Sentence $sentence) => $sentence->status = UserProgress::STATUS_NEW);
+            // Statement body on purpose: each() aborts if the callback
+            // returns false, and an arrow-fn assignment returns the value.
+            $fresh->each(function (Sentence $sentence) {
+                $sentence->status = UserProgress::STATUS_NEW;
+            });
         }
 
         return response()->json([

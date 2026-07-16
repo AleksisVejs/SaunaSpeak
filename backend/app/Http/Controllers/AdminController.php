@@ -112,7 +112,11 @@ class AdminController extends Controller
             ->orderByDesc('id')
             ->paginate(25, ['id', 'name', 'email', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until', 'is_admin', 'is_recorder', 'created_at']);
 
-        $users->getCollection()->each(fn (User $u) => $u->is_premium = $u->isPremium());
+        // Statement body on purpose: an arrow-fn assignment returns the
+        // assigned value, and each() aborts on the first false.
+        $users->getCollection()->each(function (User $u) {
+            $u->is_premium = $u->isPremium();
+        });
 
         return response()->json($users);
     }
