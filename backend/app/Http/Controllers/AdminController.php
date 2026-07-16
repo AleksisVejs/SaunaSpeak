@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\File;
 
 /**
  * Admin panel API. Read-heavy: platform stats, 30-day trends and the user
- * list, plus two write actions - comping Löyly+ and granting recording
- * rights. Admins are promoted only via `php artisan user:promote <email>`.
+ * list, plus three write actions - comping Löyly+, granting recording
+ * rights, and confirming an email by hand. Admins are promoted only via
+ * `php artisan user:promote <email>`.
  */
 class AdminController extends Controller
 {
@@ -107,7 +108,7 @@ class AdminController extends Controller
             })
             ->orderByDesc('last_active_date')
             ->orderByDesc('id')
-            ->paginate(25, ['id', 'name', 'email', 'xp', 'streak', 'last_active_date', 'premium_until', 'is_admin', 'is_recorder', 'created_at']);
+            ->paginate(25, ['id', 'name', 'email', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until', 'is_admin', 'is_recorder', 'created_at']);
 
         $users->getCollection()->each(fn (User $u) => $u->is_premium = $u->isPremium());
 
@@ -124,6 +125,24 @@ class AdminController extends Controller
         return response()->json([
             'id' => $user->id,
             'premium_until' => $user->fresh()->premium_until,
+        ]);
+    }
+
+    /**
+     * Confirm an email by hand - for learners whose verification mail never
+     * arrived (spam filters, corporate relays). One-way on purpose: there is
+     * no legitimate admin reason to un-verify an address. Unblocks Löyly+
+     * checkout, which requires a confirmed inbox.
+     */
+    public function verifyEmail(Request $request, User $user): JsonResponse
+    {
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return response()->json([
+            'id' => $user->id,
+            'email_verified_at' => $user->fresh()->email_verified_at,
         ]);
     }
 

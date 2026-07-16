@@ -65,6 +65,27 @@ class AdminTest extends TestCase
         $this->assertFalse($this->member->fresh()->isPremium());
     }
 
+    public function test_admin_can_confirm_an_email_by_hand(): void
+    {
+        Sanctum::actingAs($this->admin);
+        $this->assertFalse($this->member->hasVerifiedEmail());
+
+        $this->postJson("/api/admin/users/{$this->member->id}/verify-email")
+            ->assertOk()
+            ->assertJsonPath('id', $this->member->id);
+
+        $this->assertTrue($this->member->fresh()->hasVerifiedEmail());
+
+        // Idempotent: confirming again keeps the original timestamp.
+        $first = $this->member->fresh()->email_verified_at;
+        $this->postJson("/api/admin/users/{$this->member->id}/verify-email")->assertOk();
+        $this->assertEquals($first, $this->member->fresh()->email_verified_at);
+
+        // And it is admin-only, like every other write action here.
+        Sanctum::actingAs($this->member);
+        $this->postJson("/api/admin/users/{$this->admin->id}/verify-email")->assertStatus(403);
+    }
+
     public function test_promote_command_grants_and_revokes(): void
     {
         $this->artisan('user:promote', ['email' => 'member@example.com'])->assertSuccessful();

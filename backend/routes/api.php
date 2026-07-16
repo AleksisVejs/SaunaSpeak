@@ -116,6 +116,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/users', [AdminController::class, 'users']);
         Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
         Route::post('/users/{user}/recorder', [AdminController::class, 'toggleRecorder']);
+        Route::post('/users/{user}/verify-email', [AdminController::class, 'verifyEmail']);
 
         // Review pending recordings: approve → goes live, reject → back to queue.
         Route::get('/recordings', [RecordController::class, 'pending']);

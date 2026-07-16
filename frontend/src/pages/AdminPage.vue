@@ -208,6 +208,18 @@ async function toggleRecorder(u) {
   }
 }
 
+// One-way: for learners whose verification mail never arrived. Unblocks
+// Löyly+ checkout, which requires a confirmed inbox.
+async function verifyEmail(u) {
+  busy.value[u.id] = true
+  try {
+    const { data } = await api.post(`/admin/users/${u.id}/verify-email`)
+    u.email_verified_at = data.email_verified_at
+  } finally {
+    busy.value[u.id] = false
+  }
+}
+
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 </script>
 
@@ -377,6 +389,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
               <span v-if="u.is_admin" class="tag admin-tag">admin</span>
               <span v-if="u.is_recorder" class="tag recorder-tag">recorder</span>
               <span v-if="u.is_premium" class="tag premium-tag">Löyly+</span>
+              <span v-if="!u.email_verified_at" class="tag unverified-tag">unverified</span>
             </p>
             <p class="u-email muted">{{ u.email }}</p>
           </div>
@@ -392,6 +405,15 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
             </button>
             <button class="comp" :disabled="busy[u.id]" :title="u.is_recorder ? 'Revoke recording rights' : 'Grant recording-studio access'" @click="toggleRecorder(u)">
               {{ u.is_recorder ? '🎙 Revoke' : '🎙 Grant' }}
+            </button>
+            <button
+              v-if="!u.email_verified_at"
+              class="comp"
+              :disabled="busy[u.id]"
+              title="Mark the email as confirmed - use when the verification mail never arrived. Unblocks Löyly+ checkout."
+              @click="verifyEmail(u)"
+            >
+              ✉️ Confirm
             </button>
           </div>
         </div>
@@ -591,6 +613,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .admin-tag { background: var(--blue-soft, rgba(96,165,250,0.14)); color: #60a5fa; }
 .recorder-tag { background: var(--green-soft); color: var(--green); }
 .premium-tag { background: var(--accent-soft); color: var(--accent); }
+.unverified-tag { background: var(--red-soft, rgba(239,68,68,0.12)); color: var(--red); }
 .u-stats { display: flex; gap: 10px; font-size: 12px; white-space: nowrap; flex-wrap: wrap; }
 .u-actions { display: flex; gap: 6px; }
 .comp {
