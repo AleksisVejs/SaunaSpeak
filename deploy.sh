@@ -35,7 +35,16 @@ cd "$REPO_PATH" || fail "Repo not found at $REPO_PATH - clone it first (see DEPL
 
 echo "Resetting and pulling latest from git..."
 git reset --hard HEAD || fail "git reset failed"
-git clean -fd --exclude=backend/.env --exclude=backend/storage --exclude=backend/public/audio/tts
+# audio/human + audio/pending are the native recordings uploaded through the
+# studio - they exist ONLY on this server. They're gitignored (which already
+# shields them from clean), but keep the explicit excludes as a second lock:
+# a clean without them once deleted every approved take.
+git clean -fd \
+  --exclude=backend/.env \
+  --exclude=backend/storage \
+  --exclude=backend/public/audio/tts \
+  --exclude=backend/public/audio/human \
+  --exclude=backend/public/audio/pending
 git pull || fail "git pull failed"
 
 echo "Installing backend dependencies..."
@@ -48,6 +57,13 @@ cp -r "$REPO_PATH/frontend/dist/." "$BACKEND/public/"
 
 echo "Running migrations..."
 $PHP_BIN artisan migrate --force || fail "migrations failed"
+
+# git reset reverts the tracked words.json to the committed (all-TTS) version.
+# audio:generate rebuilds it from the files actually on disk - human takes win
+# where their files exist, dangling human URLs in the DB fall back to TTS.
+# Never fatal: on a host without edge-tts it still links everything shipped.
+echo "Relinking audio (human takes win, manifest rebuilt)..."
+$PHP_BIN artisan audio:generate || echo "audio:generate reported missing files - check output above"
 
 echo "Clearing caches..."
 $PHP_BIN artisan config:clear

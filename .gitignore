@@ -39,3 +39,9 @@ saunaspeak-release.tar.gz
 
 # Runtime TTS cache (regenerated on demand per chat reply)
 /backend/public/audio/tts/
+
+# Human recordings live ONLY on the server (uploaded via /record, approved by
+# admin). Ignoring them keeps `git clean -fd` in deploy.sh from deleting them
+# and keeps a local `git add -A` from ever committing server-shaped state.
+/backend/public/audio/human/
+/backend/public/audio/pending/

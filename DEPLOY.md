@@ -100,10 +100,15 @@ cd ~/saunaspeak && ./deploy.sh
 ```
 
 The script: resets + pulls, composer install, copies `frontend/dist` into
-`backend/public`, runs migrations, clears + rebuilds caches, fixes
-permissions, and keeps the `public_html` symlink pointed at `backend/public`.
-Server-local files (`backend/.env`, `storage/`, generated chat TTS) survive
-because they're gitignored.
+`backend/public`, runs migrations, relinks audio, clears + rebuilds caches,
+fixes permissions, and keeps the `public_html` symlink pointed at
+`backend/public`. Server-local files (`backend/.env`, `storage/`, generated
+chat TTS, and the **native recordings** in `public/audio/human/` +
+`public/audio/pending/`) survive because they're gitignored.
+
+The `audio:generate` step matters: `git reset` reverts the tracked
+`words.json` to the all-TTS committed version, and that command rebuilds it
+from the files on disk so approved human takes stay live across deploys.
 
 ## 4. After every content addition (locally)
 
