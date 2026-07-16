@@ -217,7 +217,10 @@ class BillingController extends Controller
         $object = $event['data']['object'] ?? [];
 
         match ($event['type'] ?? null) {
-            'checkout.session.completed' => $this->activate($object),
+            // async_payment_succeeded: delayed methods (bank debits) complete
+            // the session unpaid and settle later - this is the settle signal.
+            'checkout.session.completed',
+            'checkout.session.async_payment_succeeded' => $this->activate($object),
             'customer.subscription.created',
             'customer.subscription.updated',
             'customer.subscription.deleted' => $this->syncSubscription($object),
@@ -257,9 +260,22 @@ class BillingController extends Controller
     /** Renewals extend premium_until; cancellations let it lapse at period end. */
     private function syncSubscription(array $subscription): void
     {
-        $user = User::where('stripe_subscription_id', $subscription['id'] ?? '')->first();
+        // Match by the stored subscription id, falling back to the user_id we
+        // stamped into subscription metadata at checkout - subscription events
+        // can arrive before activate() stores the id (or never after it, for
+        // sessions that completed unpaid), and without the fallback those
+        // subscribers would stay unlinked forever.
+        $user = User::where('stripe_subscription_id', $subscription['id'] ?? '')->first()
+            ?? User::find($subscription['metadata']['user_id'] ?? null);
         if (! $user) {
             return;
+        }
+
+        if (! $user->stripe_subscription_id) {
+            $user->update([
+                'stripe_subscription_id' => $subscription['id'],
+                'stripe_customer_id' => $subscription['customer'] ?? $user->stripe_customer_id,
+            ]);
         }
 
         $periodEnd = $this->periodEnd($subscription);
@@ -269,6 +285,14 @@ class BillingController extends Controller
             // Store the true period end; the renewal-processing grace window
             // lives in User::isPremium() so displayed dates stay honest.
             $user->update(['premium_until' => now()->setTimestamp($periodEnd)]);
+        } elseif ($status === 'past_due') {
+            // Failed renewal charge: Stripe retries for days. Keep access with
+            // a bounded allowance (extend-only, never shrink) instead of lapsing
+            // mid-retry; a later 'active' restores the real period end and
+            // 'canceled'/'unpaid' cuts access once Stripe gives up.
+            if ($user->premium_until === null || $user->premium_until->lt(now()->addDays(7))) {
+                $user->update(['premium_until' => now()->addDays(7)]);
+            }
         } elseif (in_array($status, ['canceled', 'unpaid', 'incomplete_expired'], true)) {
             $user->update([
                 'premium_until' => $periodEnd ? now()->setTimestamp($periodEnd) : now(),

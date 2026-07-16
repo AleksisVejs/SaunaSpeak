@@ -164,6 +164,80 @@ class PremiumTest extends TestCase
         $this->assertNull($this->user->stripe_subscription_id);
     }
 
+    /**
+     * Regression: subscription events used to match only on a stored
+     * stripe_subscription_id, so events arriving before activate() ran (or for
+     * sessions that completed unpaid) left real subscribers unlinked forever -
+     * paying users with no Löyly+ badge in the admin panel.
+     */
+    public function test_subscription_events_link_users_via_metadata_fallback(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x', 'services.stripe.webhook_secret' => 'whsec_test']);
+
+        $periodEnd = now()->addMonth()->timestamp;
+
+        $this->postWebhook([
+            'type' => 'customer.subscription.updated',
+            'data' => ['object' => [
+                'id' => 'sub_123',
+                'status' => 'active',
+                'customer' => 'cus_123',
+                'metadata' => ['user_id' => (string) $this->user->id],
+                'items' => ['data' => [['current_period_end' => $periodEnd]]],
+            ]],
+        ])->assertOk();
+
+        $this->user->refresh();
+        $this->assertTrue($this->user->isPremium());
+        $this->assertSame('sub_123', $this->user->stripe_subscription_id);
+        $this->assertSame('cus_123', $this->user->stripe_customer_id);
+    }
+
+    /** Delayed payment methods settle after the session completes unpaid. */
+    public function test_delayed_payment_settlement_activates_premium(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x', 'services.stripe.webhook_secret' => 'whsec_test']);
+
+        $periodEnd = now()->addMonth()->timestamp;
+        Http::fake(['api.stripe.com/v1/subscriptions/*' => Http::response([
+            'id' => 'sub_123',
+            'status' => 'active',
+            'items' => ['data' => [['current_period_end' => $periodEnd]]],
+        ])]);
+
+        $this->postWebhook([
+            'type' => 'checkout.session.async_payment_succeeded',
+            'data' => ['object' => [
+                'client_reference_id' => (string) $this->user->id,
+                'payment_status' => 'paid',
+                'customer' => 'cus_123',
+                'subscription' => 'sub_123',
+            ]],
+        ])->assertOk();
+
+        $this->assertTrue($this->user->fresh()->isPremium());
+    }
+
+    public function test_past_due_keeps_a_bounded_retry_allowance(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x', 'services.stripe.webhook_secret' => 'whsec_test']);
+        $this->user->update(['stripe_subscription_id' => 'sub_123', 'premium_until' => now()->addDay()]);
+
+        $pastDue = fn () => $this->postWebhook([
+            'type' => 'customer.subscription.updated',
+            'data' => ['object' => ['id' => 'sub_123', 'status' => 'past_due']],
+        ])->assertOk();
+
+        // A failing renewal extends access to cover Stripe's retry window...
+        $pastDue();
+        $this->assertTrue($this->user->fresh()->premium_until->greaterThan(now()->addDays(6)));
+
+        // ...but never shrinks a period that already runs further out.
+        $this->user->update(['premium_until' => now()->addDays(30)]);
+        $pastDue();
+        $this->assertTrue($this->user->fresh()->premium_until->greaterThan(now()->addDays(29)));
+    }
+
     public function test_webhook_accepts_any_of_several_rotating_signatures(): void
     {
         config(['services.stripe.secret' => 'sk_test_x', 'services.stripe.webhook_secret' => 'whsec_test']);

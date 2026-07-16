@@ -34,7 +34,9 @@ class AdminController extends Controller
             'users_active_today' => User::whereDate('last_active_date', today())->count(),
             'users_active_7d' => User::where('last_active_date', '>=', today()->subDays(7))->count(),
             'users_verified' => User::whereNotNull('email_verified_at')->count(),
-            'premium_count' => User::where('premium_until', '>', $now)->count(),
+            // Mirrors User::isPremium()'s 2-day renewal grace so this count
+            // always matches the Löyly+ badges in the users list below.
+            'premium_count' => User::where('premium_until', '>', $now->copy()->subDays(2))->count(),
             'reviews_today' => ReviewLog::whereDate('created_at', today())->count(),
             'reviews_7d' => ReviewLog::where('created_at', '>=', $now->copy()->subDays(7))->count(),
             'sentences_mastered_total' => UserProgress::where('status', UserProgress::STATUS_MASTERED)->count(),
