@@ -121,6 +121,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
         Route::get('/trends', [AdminController::class, 'trends']);
+        Route::get('/activity', [AdminController::class, 'activity']);
+        Route::get('/retention', [AdminController::class, 'retention']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
         Route::post('/users/{user}/recorder', [AdminController::class, 'toggleRecorder']);

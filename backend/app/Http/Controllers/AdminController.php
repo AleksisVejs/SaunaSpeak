@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChatDay;
 use App\Models\Lesson;
 use App\Models\ReviewLog;
 use App\Models\Sentence;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Models\UserProgress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -33,6 +35,7 @@ class AdminController extends Controller
             'users_new_7d' => User::where('created_at', '>=', $now->copy()->subDays(7))->count(),
             'users_active_today' => User::whereDate('last_active_date', today())->count(),
             'users_active_7d' => User::where('last_active_date', '>=', today()->subDays(7))->count(),
+            'users_active_30d' => User::where('last_active_date', '>=', today()->subDays(30))->count(),
             'users_verified' => User::whereNotNull('email_verified_at')->count(),
             // Mirrors User::isPremium()'s 2-day renewal grace so this count
             // always matches the Löyly+ badges in the users list below.
@@ -93,6 +96,121 @@ class AdminController extends Controller
         });
 
         return response()->json(['days' => $days->values()]);
+    }
+
+    /**
+     * GET /api/admin/activity?days=&search=&page= - the retention matrix:
+     * one row per user, one [reviews, chat messages] cell per day. Built
+     * from review_logs and chat_days, the two per-day activity streams the
+     * app records - "was this learner here on Tuesday?" answered in one
+     * glance. Ordered by last active so the live learners come first.
+     */
+    public function activity(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'days' => ['sometimes', 'integer', 'min:7', 'max:60'],
+            'search' => ['sometimes', 'string', 'max:100'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+        ]);
+
+        $window = (int) ($data['days'] ?? 30);
+        $from = today()->subDays($window - 1);
+
+        $users = User::query()
+            ->when($data['search'] ?? null, function ($query, $search) {
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%"));
+            })
+            ->orderByDesc('last_active_date')
+            ->orderByDesc('id')
+            ->paginate(50, ['id', 'name', 'email', 'streak', 'last_active_date', 'premium_until', 'created_at']);
+
+        $ids = $users->getCollection()->pluck('id');
+
+        $reviewsByUser = ReviewLog::whereIn('user_id', $ids)
+            ->where('created_at', '>=', $from->copy()->startOfDay())
+            ->get(['user_id', 'created_at'])
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->countBy(fn ($r) => $r->created_at->toDateString()));
+
+        $chatByUser = ChatDay::whereIn('user_id', $ids)
+            ->where('date', '>=', $from->toDateString())
+            ->get(['user_id', 'date', 'messages'])
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->mapWithKeys(
+                fn ($c) => [substr((string) $c->date, 0, 10) => (int) $c->messages]
+            ));
+
+        $dates = collect(range($window - 1, 0))->map(fn ($d) => today()->subDays($d)->toDateString());
+
+        $rows = $users->getCollection()->map(function (User $u) use ($reviewsByUser, $chatByUser, $dates) {
+            $reviews = $reviewsByUser->get($u->id) ?? collect();
+            $chat = $chatByUser->get($u->id) ?? collect();
+            $cells = $dates->map(fn ($date) => [(int) ($reviews[$date] ?? 0), (int) ($chat[$date] ?? 0)]);
+
+            return [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'streak' => $u->streak,
+                'is_premium' => $u->isPremium(),
+                'created_at' => $u->created_at->toDateString(),
+                'last_active_date' => $u->last_active_date?->toDateString(),
+                'active_days' => $cells->filter(fn ($c) => $c[0] + $c[1] > 0)->count(),
+                'cells' => $cells,
+            ];
+        });
+
+        return response()->json([
+            'dates' => $dates,
+            'users' => $rows->values(),
+            'current_page' => $users->currentPage(),
+            'last_page' => $users->lastPage(),
+            'total' => $users->total(),
+        ]);
+    }
+
+    /**
+     * GET /api/admin/retention - weekly signup cohorts: of the people who
+     * joined in week X, how many came back in week X+1, X+2, ...? The
+     * "who stayed" question in one table. Activity = reviewed or chatted
+     * (the same day-level streams as the activity matrix).
+     */
+    public function retention(): JsonResponse
+    {
+        $start = today()->startOfWeek()->subWeeks(7);
+
+        $members = User::where('created_at', '>=', $start)->get(['id', 'created_at']);
+
+        // Distinct activity dates per user across both streams.
+        $activeDates = ReviewLog::where('created_at', '>=', $start)
+            ->get(['user_id', 'created_at'])
+            ->map(fn ($r) => ['user_id' => $r->user_id, 'date' => $r->created_at->toDateString()])
+            ->concat(ChatDay::where('date', '>=', $start->toDateString())
+                ->get(['user_id', 'date'])
+                ->map(fn ($c) => ['user_id' => $c->user_id, 'date' => substr((string) $c->date, 0, 10)]))
+            ->groupBy('user_id')
+            ->map(fn ($rows) => collect($rows)->pluck('date')->unique());
+
+        $cohorts = $members
+            ->groupBy(fn ($u) => $u->created_at->copy()->startOfWeek()->toDateString())
+            ->sortKeys()
+            ->map(function ($cohort, $weekStart) use ($activeDates) {
+                $week0 = Carbon::parse($weekStart);
+                $active = [];
+                for ($i = 0; $week0->copy()->addWeeks($i)->lte(today()); $i++) {
+                    $lo = $week0->copy()->addWeeks($i)->toDateString();
+                    $hi = $week0->copy()->addWeeks($i + 1)->toDateString();
+                    $active[] = $cohort->filter(fn ($u) => ($activeDates->get($u->id) ?? collect())
+                        ->contains(fn ($d) => $d >= $lo && $d < $hi))->count();
+                }
+
+                return ['week' => $weekStart, 'size' => $cohort->count(), 'active' => $active];
+            })
+            ->values();
+
+        return response()->json(['cohorts' => $cohorts]);
     }
 
     public function users(Request $request): JsonResponse
