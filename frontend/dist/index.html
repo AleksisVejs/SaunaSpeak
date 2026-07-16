@@ -10,8 +10,21 @@
     <meta name="description" content="Learn spoken Finnish (puhekieli) - 'mä oon', not 'minä olen'. Daily 5-minute sessions with audio, spaced repetition, AI conversation practice and real-life roleplay. The learning path is free, forever." />
     <link rel="canonical" href="https://saunaspeak.com/" />
 
-    <!-- LCP: the hero Väinö - fetch it before the JS bundle asks for it -->
-    <link rel="preload" as="image" href="/vaino.webp" type="image/webp" fetchpriority="high" />
+    <!-- LCP: the hero Väinö - fetch it before the JS bundle asks for it.
+         Only the logged-out landing page ('/') renders it: any other route,
+         and logged-in visits to '/' (redirected to the dashboard), would
+         download it for nothing - so gate the preload instead of hardcoding it. -->
+    <script>
+      if (location.pathname === '/' && !localStorage.getItem('token')) {
+        var l = document.createElement('link')
+        l.rel = 'preload'
+        l.as = 'image'
+        l.href = '/vaino.webp'
+        l.type = 'image/webp'
+        l.fetchPriority = 'high'
+        document.head.appendChild(l)
+      }
+    </script>
 
     <!-- Structured data: tells Google this is a free language-learning web app -->
     <script type="application/ld+json">
@@ -87,7 +100,7 @@
       data-website-id="07db80cb-c075-4295-a69b-66172af04cd6"
       data-domains="saunaspeak.com"
     ></script>
-    <script type="module" crossorigin src="/assets/index-BlF99Jah.js"></script>
+    <script type="module" crossorigin src="/assets/index-WAQ6eHU4.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-6epFGZCr.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>

@@ -77,10 +77,25 @@ async function upgrade() {
     window.umami?.track('checkout_start', { plan: plan.value })
     window.location.href = data.url
   } catch (e) {
-    error.value = e?.response?.status === 429
-      ? 'Slow down a little - too many checkout attempts. Wait a minute and try again.'
-      : 'Could not start checkout. Please try again.'
+    error.value = e?.response?.data?.code === 'email_unverified'
+      ? 'Confirm your email address first - check your inbox for the link.'
+      : e?.response?.status === 429
+        ? 'Slow down a little - too many checkout attempts. Wait a minute and try again.'
+        : 'Could not start checkout. Please try again.'
     starting.value = false
+  }
+}
+
+// Same resend flow as the App.vue banner, kept local so this page works
+// standalone (the banner may already be in its "sent" state).
+const resendState = ref('idle') // idle | sending | sent | error
+async function resendVerification() {
+  resendState.value = 'sending'
+  try {
+    await api.post('/email/resend')
+    resendState.value = 'sent'
+  } catch {
+    resendState.value = 'error'
   }
 }
 
@@ -214,6 +229,23 @@ async function managePortal() {
         </template>
       </template>
 
+      <!-- checkout requires a confirmed email: Stripe's receipts and the
+           trial reminder go there, so it must be a real inbox first -->
+      <div v-else-if="auth.user && !auth.user.email_verified_at" class="card verify-first">
+        <p class="verify-title">📧 One step before Löyly+</p>
+        <p class="muted verify-text">
+          Confirm your email first - your receipts and trial reminder will go to
+          <b>{{ auth.user.email }}</b>. Check your inbox for the link.
+        </p>
+        <button
+          class="btn btn-primary btn-block"
+          :disabled="resendState === 'sending' || resendState === 'sent'"
+          @click="resendVerification"
+        >
+          {{ resendState === 'sent' ? '✓ Sent - check your inbox' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend the link' }}
+        </button>
+      </div>
+
       <div v-else class="buy">
         <!-- interval picker: shown when more than one Stripe price exists -->
         <div v-if="availablePlans.length > 1" class="plan-row">
@@ -302,6 +334,10 @@ async function managePortal() {
 .free-note { text-align: center; font-size: 13px; line-height: 1.5; padding: 0 12px; }
 
 .founder { text-align: center; line-height: 1.5; }
+
+.verify-first { display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.verify-title { font-weight: 800; font-size: 16px; }
+.verify-text { font-size: 14px; line-height: 1.5; }
 .active-plan { text-align: center; background: var(--green-soft); border-color: var(--green); }
 
 .buy { display: flex; flex-direction: column; align-items: center; gap: 12px; }

@@ -23,6 +23,8 @@ class BillingCheckoutTest extends TestCase
             'email' => 'testi@example.com',
             'password' => bcrypt('password'),
         ]);
+        // Checkout requires a confirmed address (Stripe emails go there).
+        $this->user->forceFill(['email_verified_at' => now()])->save();
         Sanctum::actingAs($this->user);
 
         config([
@@ -45,6 +47,19 @@ class BillingCheckoutTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->body(), 'success_url')
             && str_contains($request->body(), 'cancel_url')
             && ! str_contains($request->body(), 'payment_method_types'));
+    }
+
+    public function test_checkout_requires_a_verified_email(): void
+    {
+        $this->user->forceFill(['email_verified_at' => null])->save();
+
+        Http::fake();
+
+        $this->postJson('/api/billing/checkout')
+            ->assertForbidden()
+            ->assertJsonPath('code', 'email_unverified');
+
+        Http::assertNothingSent();
     }
 
     public function test_first_checkout_includes_the_free_trial(): void

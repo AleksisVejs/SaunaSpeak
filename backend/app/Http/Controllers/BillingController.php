@@ -82,6 +82,18 @@ class BillingController extends Controller
         }
 
         $user = $request->user();
+
+        // Verification is encouraged-never-blocking everywhere except here:
+        // Stripe's receipts, trial reminders and renewal notices go to this
+        // address, and checkout locks it in via customer_email - so it has
+        // to be a mailbox the learner actually owns before money attaches.
+        if (! $user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Confirm your email address before subscribing.',
+                'code' => 'email_unverified',
+            ], 403);
+        }
+
         $appUrl = $this->frontendUrl();
 
         // No payment_method_types: Stripe picks the eligible methods from the
