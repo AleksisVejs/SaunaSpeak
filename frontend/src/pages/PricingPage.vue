@@ -38,6 +38,10 @@ const FAQ = [
     a: 'No. The whole learning path is on the free plan. Löyly+ is for when you want to practice talking - open conversation, roleplay missions, and AI feedback on your own sentences.'
   },
   {
+    q: 'How does the 3-day Löyly+ trial work?',
+    a: 'Your first Löyly+ subscription starts with 3 free days. You add a card at checkout but pay €0 up front - the first charge happens when the trial ends. Cancel any time during those 3 days and you pay nothing. The trial applies once per account.'
+  },
+  {
     q: 'Can I cancel any time?',
     a: 'Any time, in one tap, from inside the app. You keep Löyly+ until the end of the period you already paid for - no partial locks, no retention hoops.'
   },
@@ -111,6 +115,7 @@ const FAQ = [
           <li v-for="f in PLUS" :key="f">✓ {{ f }}</li>
         </ul>
         <router-link to="/register" class="btn btn-primary btn-block">Start free, upgrade inside</router-link>
+        <p class="plan-trial muted">First subscription starts with 3 free days</p>
       </div>
     </div>
 
@@ -197,6 +202,7 @@ const FAQ = [
 .plan-price { font-size: 32px; font-weight: 800; }
 .plan-price .per { font-size: 14px; font-weight: 600; color: var(--text-dim); }
 .plan-note { font-size: 13px; margin-top: -4px; }
+.plan-trial { font-size: 12.5px; text-align: center; margin-top: 8px; }
 .plan ul { list-style: none; padding: 0; margin: 10px 0 16px; display: flex; flex-direction: column; gap: 8px; }
 .plan li { font-size: 14px; line-height: 1.45; color: var(--text-dim); }
 .plan .btn { margin-top: auto; }

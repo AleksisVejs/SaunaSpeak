@@ -143,7 +143,7 @@ async function managePortal() {
 
     <div v-if="justPaid" class="card paid">
       <template v-if="auth.user?.is_premium">🎉 <b>Kiitos!</b> Löyly+ is active - enjoy the steam!</template>
-      <template v-else>🎉 <b>Kiitos!</b> Your payment went through - unlocking Löyly+ now…</template>
+      <template v-else>🎉 <b>Kiitos!</b> Checkout complete - unlocking Löyly+ now…</template>
     </div>
 
     <div class="card perks">
@@ -236,9 +236,13 @@ async function managePortal() {
         </div>
 
         <button class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
-          {{ starting ? 'Opening checkout…' : '♨️ Upgrade to Löyly+' }}
+          {{ starting ? 'Opening checkout…' : billing.trial_eligible ? '♨️ Start 3-day free trial' : '♨️ Upgrade to Löyly+' }}
         </button>
-        <p class="reassure muted">Cancel anytime - you keep access until the period ends.</p>
+        <p v-if="billing.trial_eligible" class="reassure muted">
+          €0 today - your card is charged after the 3 free days.
+          Cancel before then and you pay nothing.
+        </p>
+        <p v-else class="reassure muted">Cancel anytime - you keep access until the period ends.</p>
       </div>
     </template>
 

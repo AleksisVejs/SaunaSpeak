@@ -30,6 +30,14 @@ class BillingController extends Controller
      */
     public const API_VERSION = '2026-06-24.dahlia'; // public: account deletion cancels subscriptions too
 
+    /**
+     * First-ever subscriptions start with a free trial (card collected
+     * upfront, first charge after the trial). Repeat subscribers pay
+     * immediately - stripe_customer_id marks anyone who completed a
+     * checkout before, so cancelling and re-subscribing earns no new trial.
+     */
+    private const TRIAL_DAYS = 3;
+
     /** GET /api/billing - current plan state for the profile/upgrade pages. */
     public function status(Request $request): JsonResponse
     {
@@ -53,6 +61,8 @@ class BillingController extends Controller
                 'monthly' => (bool) config('services.stripe.price_id'),
                 'yearly' => (bool) config('services.stripe.price_id_yearly'),
             ],
+            'trial_eligible' => $user->stripe_customer_id === null,
+            'trial_days' => self::TRIAL_DAYS,
         ]);
     }
 
@@ -76,10 +86,13 @@ class BillingController extends Controller
 
         // No payment_method_types: Stripe picks the eligible methods from the
         // Dashboard settings, which converts better than hardcoding cards.
+        // No payment_method_collection either: the default collects the card
+        // during checkout even with a trial, which is what we want.
         $payload = array_filter([
             'mode' => 'subscription',
             'line_items[0][price]' => $priceId,
             'line_items[0][quantity]' => 1,
+            'subscription_data[trial_period_days]' => $user->stripe_customer_id ? null : self::TRIAL_DAYS,
             'customer' => $user->stripe_customer_id,
             'customer_email' => $user->stripe_customer_id ? null : $user->email,
             'client_reference_id' => (string) $user->id,

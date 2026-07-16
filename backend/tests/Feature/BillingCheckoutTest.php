@@ -47,6 +47,45 @@ class BillingCheckoutTest extends TestCase
             && ! str_contains($request->body(), 'payment_method_types'));
     }
 
+    public function test_first_checkout_includes_the_free_trial(): void
+    {
+        Http::fake(['api.stripe.com/v1/checkout/sessions' => Http::response([
+            'id' => 'cs_123', 'url' => 'https://checkout.stripe.com/c/pay/cs_123',
+        ])]);
+
+        $this->postJson('/api/billing/checkout')->assertOk();
+
+        Http::assertSent(fn ($r) => str_contains(
+            urldecode($r->body()),
+            'subscription_data[trial_period_days]=3'
+        ));
+    }
+
+    public function test_returning_subscribers_get_no_second_trial(): void
+    {
+        $this->user->update(['stripe_customer_id' => 'cus_123']);
+
+        Http::fake(['api.stripe.com/v1/checkout/sessions' => Http::response([
+            'id' => 'cs_123', 'url' => 'https://checkout.stripe.com/c/pay/cs_123',
+        ])]);
+
+        $this->postJson('/api/billing/checkout')->assertOk();
+
+        Http::assertSent(fn ($r) => ! str_contains(urldecode($r->body()), 'trial_period_days'));
+    }
+
+    public function test_billing_status_reports_trial_eligibility(): void
+    {
+        $this->getJson('/api/billing')
+            ->assertOk()
+            ->assertJsonPath('trial_eligible', true)
+            ->assertJsonPath('trial_days', 3);
+
+        $this->user->update(['stripe_customer_id' => 'cus_123']);
+
+        $this->getJson('/api/billing')->assertJsonPath('trial_eligible', false);
+    }
+
     public function test_checkout_uses_the_yearly_price_when_asked(): void
     {
         config(['services.stripe.price_id_yearly' => 'price_yr']);
