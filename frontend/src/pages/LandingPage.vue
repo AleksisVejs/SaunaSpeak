@@ -2,10 +2,24 @@
 // Public front door: the only page a search engine or a shared link shows.
 // Sells the one thing competitors don't have - real SPOKEN Finnish - and
 // funnels to /try (no account needed) or /register.
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSentence } = useFinnishAudio()
+
+// Native-audio progress ("X sentences voiced by a real Finn") - the honest
+// answer to "robot voice" criticism: partial coverage shown as a counter
+// that grows. Hidden while zero; hidden too if the fetch fails.
+const nativeCount = ref(0)
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/public/stats')
+    nativeCount.value = data.sentences_human ?? 0
+  } catch {
+    /* stats band simply keeps its static items */
+  }
+})
 
 // Spoken-vs-textbook contrast is the product in one glance. These are real
 // course sentences, so their pre-generated MP3s exist (this app never falls
@@ -142,6 +156,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <div class="stat-item"><b>A0</b><span>starts from zero</span></div>
       <div class="stat-item"><b>68</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
+      <div v-if="nativeCount" class="stat-item"><b>🎙 {{ nativeCount }}</b><span>voiced by a native Finn</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>
     </section>
 

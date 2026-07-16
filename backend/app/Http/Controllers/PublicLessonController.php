@@ -60,6 +60,19 @@ class PublicLessonController extends Controller
             ->header('Cache-Control', 'public, max-age=300');
     }
 
+    /**
+     * GET /api/public/stats - the native-audio progress counter the landing
+     * page shows ("X sentences voiced by a real Finn"). Cheap and cacheable;
+     * hidden client-side while the count is zero.
+     */
+    public function stats(): JsonResponse
+    {
+        return response()->json([
+            'sentences_total' => Sentence::count(),
+            'sentences_human' => Sentence::where('audio_url', 'like', '/audio/human/%')->count(),
+        ])->header('Cache-Control', 'public, max-age=3600');
+    }
+
     public function show(string $slug): JsonResponse
     {
         $lessons = Lesson::orderBy('order_index')->get();

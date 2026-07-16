@@ -43,6 +43,8 @@ const index = ref(0)
 const revealed = ref(false)
 
 const current = computed(() => samples[index.value])
+// True once the upgrade above swapped in an approved human recording.
+const nativeAudio = computed(() => !!current.value.audio?.startsWith('/audio/human/'))
 const isLast = computed(() => index.value === samples.length - 1)
 const done = ref(false)
 
@@ -84,6 +86,7 @@ function next() {
           <button class="audio" @click="play()" aria-label="Play audio">🔊 Listen</button>
           <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly">🐢 Slow</button>
         </div>
+        <p v-if="nativeAudio" class="native-note">🎙 recorded by a native Finnish speaker</p>
         <p class="fi">{{ current.fi }}</p>
 
         <!-- :duration guarantees the leave element is removed even if the tab
@@ -151,6 +154,7 @@ function next() {
   cursor: pointer;
 }
 .audio.slow { background: var(--bg-soft); color: var(--text-dim); }
+.native-note { font-size: 12px; font-weight: 700; color: var(--green); margin: -8px 0 12px; }
 .fi { font-size: 26px; font-weight: 700; line-height: 1.35; }
 .reveal { margin-top: 16px; }
 .en { font-size: 17px; color: var(--text-dim); }

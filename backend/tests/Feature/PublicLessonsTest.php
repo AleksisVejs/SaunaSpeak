@@ -97,6 +97,17 @@ class PublicLessonsTest extends TestCase
             ->assertJsonPath('audio', []);
     }
 
+    public function test_public_stats_report_native_audio_progress(): void
+    {
+        $this->seedLessons();
+        Lesson::first()->sentences()->first()->update(['audio_url' => '/audio/human/sentence-1.mp3']);
+
+        $this->getJson('/api/public/stats')
+            ->assertOk()
+            ->assertJsonPath('sentences_total', 3)
+            ->assertJsonPath('sentences_human', 1);
+    }
+
     public function test_sitemap_includes_lesson_urls(): void
     {
         $this->seedLessons();

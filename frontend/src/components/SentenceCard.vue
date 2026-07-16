@@ -83,6 +83,9 @@ const statusLabels = {
   review: 'Review',
   mastered: 'Mastered'
 }
+
+// A human take (recording studio), not TTS - worth showing off.
+const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audio/human/'))
 </script>
 
 <template>
@@ -141,7 +144,10 @@ const statusLabels = {
         📖 {{ sentence.written_text }}
       </p>
 
-      <AudioButton ref="audio" :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
+      <div class="audio-line">
+        <AudioButton ref="audio" :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
+        <span v-if="nativeAudio" class="native-pill" title="Recorded by a native Finnish speaker">🎙 native</span>
+      </div>
 
       <template v-if="kind === 'study'">
         <p class="hint">🗣 Listen, then say it out loud - twice</p>
@@ -185,6 +191,18 @@ const statusLabels = {
 }
 .status-new { background: var(--accent-soft); color: var(--accent); }
 .status-mastered { background: var(--green-soft); color: var(--green); }
+.audio-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.native-pill {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--green-soft);
+  color: var(--green);
+  white-space: nowrap;
+}
 .finnish {
   font-size: 26px;
   font-weight: 700;

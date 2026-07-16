@@ -126,6 +126,11 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
               @click="playSentence(s.finnish_text, s.audio_url)"
             >🔊</button>
             <h2 class="fi-text">{{ s.finnish_text }}</h2>
+            <span
+              v-if="s.audio_url?.startsWith('/audio/human/')"
+              class="native-pill"
+              title="Recorded by a native Finnish speaker"
+            >🎙 native</span>
           </div>
           <p class="english">{{ s.english_text }}</p>
           <p v-if="s.written_text && s.written_text !== s.finnish_text" class="written muted">
@@ -188,7 +193,18 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
 .fi-example { font-size: 14px; color: var(--text-dim); }
 
 .sentences { display: flex; flex-direction: column; gap: 12px; }
-.fi-row { display: flex; align-items: center; gap: 10px; }
+.fi-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.native-pill {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--green-soft);
+  color: var(--green);
+  white-space: nowrap;
+}
 .play {
   flex: 0 0 auto; background: var(--accent-soft); border: none; cursor: pointer;
   font-size: 16px; border-radius: 50%; width: 38px; height: 38px;
