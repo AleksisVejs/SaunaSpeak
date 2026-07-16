@@ -40,6 +40,7 @@ class ScenarioChatTest extends TestCase
         $first = $scenarios[0];
         $this->assertArrayHasKey('mission', $first);
         $this->assertArrayHasKey('opener', $first);
+        $this->assertArrayHasKey('xp', $first);
         // Prompt internals must not leak to the client.
         $this->assertArrayNotHasKey('scene', $first);
         $this->assertArrayNotHasKey('goal_check', $first);
@@ -77,6 +78,40 @@ class ScenarioChatTest extends TestCase
             ->assertOk()
             ->assertJsonPath('source', 'mock')
             ->assertJsonPath('goal_reached', true);
+    }
+
+    public function test_completing_a_scenario_awards_xp_once(): void
+    {
+        $this->postJson('/api/scenarios/kauppa/complete')
+            ->assertOk()
+            ->assertJsonPath('xp_gained', Scenarios::XP['easy'])
+            ->assertJsonPath('xp', Scenarios::XP['easy']);
+
+        // Replays keep the ✓ but never farm XP.
+        $this->postJson('/api/scenarios/kauppa/complete')
+            ->assertOk()
+            ->assertJsonPath('xp_gained', 0);
+
+        $this->assertSame(Scenarios::XP['easy'], $this->user->fresh()->xp);
+    }
+
+    public function test_harder_scenarios_pay_more_xp(): void
+    {
+        // puhelin is the hard one (phone call, no visual context).
+        $this->postJson('/api/scenarios/puhelin/complete')
+            ->assertOk()
+            ->assertJsonPath('xp_gained', Scenarios::XP['hard']);
+    }
+
+    public function test_completion_is_premium_gated_when_billing_is_enabled(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+
+        // Free users can browse the catalog but not bank completions/XP.
+        $this->getJson('/api/scenarios')->assertOk();
+        $this->postJson('/api/scenarios/kauppa/complete')
+            ->assertStatus(402)
+            ->assertJsonPath('code', 'premium_required');
     }
 
     public function test_unknown_scenario_is_rejected(): void

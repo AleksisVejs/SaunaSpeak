@@ -122,6 +122,16 @@ class User extends Authenticatable
         return $this->hasMany(UserWord::class);
     }
 
+    public function mistakes(): HasMany
+    {
+        return $this->hasMany(UserMistake::class);
+    }
+
+    public function chatDays(): HasMany
+    {
+        return $this->hasMany(ChatDay::class);
+    }
+
     /**
      * Löyly+ access. While billing is unconfigured (no STRIPE_SECRET), every
      * feature is open - flip the paywall on by adding the Stripe keys.

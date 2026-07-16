@@ -88,6 +88,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
               <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
               <span v-else-if="!premium" class="scene-lock">🔒</span>
+              <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
         </div>
@@ -122,6 +123,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
               <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
               <span v-else-if="!premium" class="scene-lock">🔒</span>
+              <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
         </div>
@@ -212,6 +214,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
 .pill.easy { background: var(--green-soft); border-color: var(--green); color: var(--green); }
 .pill.hard { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .scene-lock { font-size: 13px; }
+.scene-xp { font-size: 11px; font-weight: 800; color: var(--accent); white-space: nowrap; }
 
 .free-chat { text-align: center; font-size: 13px; }
 .free-chat a { color: var(--accent); font-weight: 700; }

@@ -9,6 +9,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\PublicLessonController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SessionController;
@@ -84,6 +85,13 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/words/{id}/grade', [WordController::class, 'grade']);
     Route::delete('/words/{id}', [WordController::class, 'destroy']);
 
+    // Chat mistakes as flashcards. Capture happens inside the premium /chat;
+    // reviewing what was already captured stays open (it's the learner's own
+    // data, and reviews must not die with a lapsed subscription).
+    Route::get('/mistakes/review', [MistakeController::class, 'review']);
+    Route::post('/mistakes/{id}/grade', [MistakeController::class, 'grade']);
+    Route::delete('/mistakes/{id}', [MistakeController::class, 'destroy']);
+
     Route::get('/billing', [BillingController::class, 'status']);
     // Embedded checkout creates a session on every open/reopen of the form,
     // so this needs headroom; sessions are free on Stripe's side. Per-user.
@@ -99,7 +107,6 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // The Tilanteet catalog is browsable by everyone (free users see the
     // cards + paywall); actually chatting goes through the premium /chat.
     Route::get('/scenarios', [ChatController::class, 'scenarios']);
-    Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
 
     // Recording studio (is_recorder users): human audio over TTS.
     Route::get('/record/queue', [RecordController::class, 'queue']);
@@ -124,9 +131,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::post('/recordings/reject', [RecordController::class, 'reject']);
     });
 
-    // Löyly+ features.
+    // Löyly+ features. Completing a Situation lives here too: it awards XP
+    // and can only legitimately happen from inside the premium /chat.
     Route::middleware('premium')->group(function () {
         Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1,chat');
+        Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
         Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1,tts');
         Route::get('/insights/week', [InsightsController::class, 'week']);
     });

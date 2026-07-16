@@ -131,6 +131,7 @@ class AuthController extends Controller
                 'due_count' => $user->progress()->where('next_review_at', '<=', now())->count(),
                 'reviews_today' => ReviewLog::where('user_id', $user->id)->where('created_at', '>=', today())->count(),
                 'words_due' => $user->words()->due()->count(),
+                'mistakes_due' => $user->mistakes()->due()->count(),
                 'forecast' => $this->forecast($user),
                 'activity' => $this->activity($user),
             ],

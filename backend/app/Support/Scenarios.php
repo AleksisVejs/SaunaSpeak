@@ -152,6 +152,14 @@ class Scenarios
         ],
     ];
 
+    /** First-completion XP by difficulty - paid once, on the first clear. */
+    public const XP = ['easy' => 30, 'medium' => 50, 'hard' => 80];
+
+    public static function xpFor(array $scenario): int
+    {
+        return self::XP[$scenario['difficulty']] ?? self::XP['easy'];
+    }
+
     /** The whole catalog, ids included. */
     public static function all(): array
     {

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChatDay;
 use App\Models\User;
+use App\Models\UserMistake;
 use App\Models\UserWord;
 use App\Services\Llm;
 use App\Support\Scenarios;
@@ -57,6 +59,7 @@ class ChatController extends Controller
             'persona' => $s['persona'],
             'mission' => $s['mission'],
             'difficulty' => $s['difficulty'],
+            'xp' => Scenarios::xpFor($s),
             'opener' => $s['opener_fi'],
             'opener_translation' => $s['opener_en'],
             'recommended' => $s['recommended'],
@@ -69,20 +72,33 @@ class ChatController extends Controller
     /**
      * POST /api/scenarios/{id}/complete - mark a Situation's mission as
      * accomplished (called when the character reports goal_reached).
-     * Idempotent; the first completion timestamp wins.
+     * Idempotent; the first completion timestamp wins and pays the XP.
      */
     public function completeScenario(Request $request, string $id): JsonResponse
     {
-        abort_unless(Scenarios::find($id) !== null, 404);
+        $scenario = Scenarios::find($id);
+        abort_unless($scenario !== null, 404);
 
         $user = $request->user();
         $done = $user->scenarios_done ?? [];
+        $xp = 0;
 
         if (! isset($done[$id])) {
+            // A finished mission is many self-produced turns of output -
+            // worth more than one drilled sentence (10 XP), scaled by
+            // difficulty. Replays keep the ✓ but never farm XP.
+            $xp = Scenarios::xpFor($scenario);
             $user->update(['scenarios_done' => array_merge($done, [$id => now()->toIso8601String()])]);
+            $user->increment('xp', $xp);
         }
 
-        return response()->json(['scenarios_done' => $user->fresh()->scenarios_done]);
+        $user->refresh();
+
+        return response()->json([
+            'scenarios_done' => $user->scenarios_done,
+            'xp_gained' => $xp,
+            'xp' => $user->xp,
+        ]);
     }
 
     public function chat(Request $request): JsonResponse
@@ -96,6 +112,10 @@ class ChatController extends Controller
 
         $user = $request->user();
         $scenario = Scenarios::find($data['scenario'] ?? null);
+
+        // Count the sent message (a counter, never the content) - this is
+        // the "chat messages this week" line in weekly insights.
+        ChatDay::bump($user->id);
 
         $budgetKey = 'chat-budget:'.$user->id.':'.today()->toDateString();
         Cache::add($budgetKey, 0, now()->endOfDay());
@@ -117,6 +137,13 @@ class ChatController extends Controller
         if (Llm::available()) {
             $response = $this->chatWithAi($system, $data['messages'], (bool) $scenario);
             if ($response !== null) {
+                // Every correction becomes a review card: producing the fixed
+                // form again later (error-driven retrieval practice) is what
+                // makes the correction stick - reading it once doesn't.
+                if (! empty($response['correction']) && is_string($response['correction'])) {
+                    $this->captureMistake($user, $data['messages'], $response['correction'], $scenario['id'] ?? null);
+                }
+
                 return response()->json($response);
             }
 
@@ -137,6 +164,45 @@ class ChatController extends Controller
         return response()->json(
             $scenario ? $this->mockScenarioReply($data['messages']) : $this->mockReply($data['messages'])
         );
+    }
+
+    /**
+     * File the corrected sentence as a flashcard (see UserMistake). One card
+     * per target sentence: making the same mistake again reopens the card,
+     * due immediately, instead of duplicating it.
+     */
+    private function captureMistake(User $user, array $messages, string $corrected, ?string $source): void
+    {
+        $attempt = null;
+        for ($i = count($messages) - 1; $i >= 0; $i--) {
+            if ($messages[$i]['role'] === 'user') {
+                $attempt = trim($messages[$i]['content']);
+                break;
+            }
+        }
+
+        $corrected = trim($corrected);
+        if ($attempt === null || $attempt === '' || $corrected === '' || mb_strlen($corrected) > 500) {
+            return;
+        }
+
+        // The model occasionally "corrects" with the identical sentence -
+        // that's praise, not a mistake worth a card.
+        $normalize = fn (string $s) => preg_replace('/[^\p{L}\p{N} ]/u', '', preg_replace('/\s+/u', ' ', mb_strtolower($s)));
+        if ($normalize($attempt) === $normalize($corrected)) {
+            return;
+        }
+
+        $mistake = $user->mistakes()->firstOrNew(['hash' => UserMistake::keyFor($corrected)]);
+        $mistake->fill([
+            'attempt' => mb_substr($attempt, 0, 500),
+            'corrected' => $corrected,
+            'source' => $source,
+            // A repeat of an old mistake proves it isn't learned: the card
+            // lapses back and comes due right away.
+            'status' => $mistake->exists ? UserMistake::STATUS_LEARNING : UserMistake::STATUS_NEW,
+            'next_review_at' => null,
+        ])->save();
     }
 
     /**

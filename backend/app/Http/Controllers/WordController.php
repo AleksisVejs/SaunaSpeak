@@ -67,23 +67,11 @@ class WordController extends Controller
         ]);
 
         $word = $request->user()->words()->whereKey($id)->firstOrFail();
-        $current = $word->status ?? UserWord::STATUS_NEW;
 
-        [$nextStatus, $intervalDays] = match ($data['grade']) {
-            'again' => [UserWord::STATUS_LEARNING, 0],
-            'easy' => match ($current) {
-                UserWord::STATUS_NEW => [UserWord::STATUS_REVIEW, 4],
-                UserWord::STATUS_LEARNING => [UserWord::STATUS_MASTERED, 15],
-                UserWord::STATUS_REVIEW => [UserWord::STATUS_MASTERED, 30],
-                default => [UserWord::STATUS_MASTERED, 60],
-            },
-            default => match ($current) {
-                UserWord::STATUS_NEW => [UserWord::STATUS_LEARNING, 1],
-                UserWord::STATUS_LEARNING => [UserWord::STATUS_REVIEW, 4],
-                UserWord::STATUS_REVIEW => [UserWord::STATUS_MASTERED, 15],
-                default => [UserWord::STATUS_MASTERED, 30],
-            },
-        };
+        [$nextStatus, $intervalDays] = \App\Support\Srs::gradeStep(
+            $word->status ?? UserWord::STATUS_NEW,
+            $data['grade'],
+        );
 
         $word->update([
             'status' => $nextStatus,

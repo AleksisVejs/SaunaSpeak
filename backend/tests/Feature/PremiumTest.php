@@ -293,11 +293,20 @@ class PremiumTest extends TestCase
         // Outside the 7-day window - must not count.
         ReviewLog::create(['user_id' => $this->user->id, 'kind' => 'sentence', 'grade' => 'good', 'created_at' => now()->subDays(10)]);
 
+        // Situations: one conquered this week, one long before it.
+        $this->user->update(['scenarios_done' => [
+            'kauppa' => now()->subDays(2)->toIso8601String(),
+            'kahvila' => now()->subDays(20)->toIso8601String(),
+        ]]);
+
         $this->getJson('/api/insights/week')
             ->assertOk()
             ->assertJsonPath('reviews', 5)
             ->assertJsonPath('recall_pct', 80) // 4 of 5 good/easy
+            // The 10-day-old log is "last week": 100% then, 80% now → ▼20.
+            ->assertJsonPath('recall_delta', -20)
             ->assertJsonPath('word_reviews', 1)
-            ->assertJsonPath('active_days', 2);
+            ->assertJsonPath('active_days', 2)
+            ->assertJsonPath('scenarios_week', 1);
     }
 }

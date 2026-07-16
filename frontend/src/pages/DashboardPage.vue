@@ -275,6 +275,12 @@ const showWeek = computed(() => hasActivity.value || hasSchedule.value)
           <span class="quick-name">Word bank</span>
           <span v-if="auth.stats?.words_due" class="quick-badge">{{ auth.stats.words_due }} due</span>
         </router-link>
+        <!-- appears only once chat corrections have piled up into due cards -->
+        <router-link v-if="auth.stats?.mistakes_due" to="/mistakes/review" class="quick">
+          <span class="quick-icon">✏️</span>
+          <span class="quick-name">Chat mistakes</span>
+          <span class="quick-badge">{{ auth.stats.mistakes_due }} due</span>
+        </router-link>
       </div>
 
       <button v-if="installPrompt" class="btn btn-ghost btn-block install-btn" @click="install">
@@ -503,7 +509,10 @@ const showWeek = computed(() => hasActivity.value || hasSchedule.value)
 /* ---- quick actions ---- */
 .quick-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* equal columns for however many tiles render (the mistakes tile is
+     conditional), instead of a hardcoded 3 */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 10px;
   margin-bottom: 14px;
 }

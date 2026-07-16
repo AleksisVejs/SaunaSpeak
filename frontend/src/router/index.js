@@ -34,6 +34,7 @@ const routes = [
   { path: '/session', name: 'session', component: () => import('../pages/SessionPage.vue'), meta: { auth: true } },
   { path: '/words', name: 'words', component: () => import('../pages/WordBankPage.vue'), meta: { auth: true } },
   { path: '/words/review', name: 'words-review', component: () => import('../pages/WordReviewPage.vue'), meta: { auth: true } },
+  { path: '/mistakes/review', name: 'mistakes-review', component: () => import('../pages/MistakeReviewPage.vue'), meta: { auth: true, title: 'Mistake review - SaunaSpeak' } },
   { path: '/profile', name: 'profile', component: () => import('../pages/ProfilePage.vue'), meta: { auth: true } },
   { path: '/checkpoint/:level', name: 'checkpoint', component: () => import('../pages/CheckpointPage.vue'), meta: { auth: true } },
   { path: '/chat', name: 'chat', component: () => import('../pages/ChatPage.vue'), meta: { auth: true, full: true, title: 'Sauna Chat - SaunaSpeak' } },

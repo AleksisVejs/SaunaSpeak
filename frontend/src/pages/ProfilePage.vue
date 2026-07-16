@@ -54,6 +54,21 @@ const weekBars = computed(() => {
 // drifted out of sync with the dashboard.
 const rank = computed(() => rankFor(auth.user?.xp ?? 0))
 
+// The Löyly+ side of the week: chat volume, Situations, mistakes caught in
+// conversation and cleared in review. Hidden until there's something to show.
+const plusWeek = computed(() => {
+  const i = insights.value
+  if (!i) return false
+  return (i.chat_messages ?? 0) > 0 || (i.scenarios_week ?? 0) > 0 || (i.mistakes_caught ?? 0) > 0 || (i.mistakes_cleared ?? 0) > 0
+})
+
+// Recall trend vs the week before: "▲ 6" reads as progress, a bare 82% doesn't.
+const recallTrend = computed(() => {
+  const d = insights.value?.recall_delta
+  if (d === null || d === undefined || d === 0) return null
+  return { up: d > 0, text: `${d > 0 ? '▲' : '▼'} ${Math.abs(d)}` }
+})
+
 const GOAL_LABELS = { move: 'Moving to Finland', travel: 'Travel & visits', family: 'Family & friends', casual: 'Just curious' }
 const TIME_OPTIONS = [{ v: 2, l: '2 min' }, { v: 5, l: '5 min' }, { v: 15, l: '15 min' }]
 
@@ -158,7 +173,13 @@ async function deleteAccount() {
       <div v-if="insights" class="card week">
         <div class="week-stats">
           <div class="wstat"><span class="wv">{{ insights.reviews }}</span><span class="wl">reviews</span></div>
-          <div class="wstat"><span class="wv">{{ insights.recall_pct ?? '–' }}<small v-if="insights.recall_pct !== null">%</small></span><span class="wl">recall</span></div>
+          <div class="wstat">
+            <span class="wv">{{ insights.recall_pct ?? '–' }}<small v-if="insights.recall_pct !== null">%</small></span>
+            <span class="wl">
+              recall
+              <b v-if="recallTrend" class="trend" :class="recallTrend.up ? 'up' : 'down'" title="vs the week before">{{ recallTrend.text }}</b>
+            </span>
+          </div>
           <div class="wstat"><span class="wv">{{ insights.new_sentences }}</span><span class="wl">new</span></div>
           <div class="wstat"><span class="wv">{{ insights.active_days }}/7</span><span class="wl">days</span></div>
         </div>
@@ -167,6 +188,19 @@ async function deleteAccount() {
             <div class="wb-track"><div class="wb-fill" :style="{ height: b.pct + '%' }"></div></div>
             <span class="wb-label">{{ b.label }}</span>
           </div>
+        </div>
+        <!-- the Löyly+ side of the same week -->
+        <div v-if="plusWeek" class="plus-week">
+          <p class="plus-week-title">♨️ Löyly+ this week</p>
+          <div class="week-stats">
+            <div class="wstat"><span class="wv">{{ insights.chat_messages ?? 0 }}</span><span class="wl">chat messages</span></div>
+            <div class="wstat"><span class="wv">{{ insights.scenarios_week ?? 0 }}</span><span class="wl">situations</span></div>
+            <div class="wstat"><span class="wv">{{ insights.mistakes_caught ?? 0 }}</span><span class="wl">mistakes caught</span></div>
+            <div class="wstat"><span class="wv">{{ insights.mistakes_cleared ?? 0 }}</span><span class="wl">cleared</span></div>
+          </div>
+          <router-link v-if="insights.mistakes_due" to="/mistakes/review" class="plus-week-cta">
+            ✏️ Review {{ insights.mistakes_due }} chat {{ insights.mistakes_due === 1 ? 'mistake' : 'mistakes' }} ›
+          </router-link>
         </div>
         <p v-if="insights.reviews === 0" class="muted week-empty">No reviews yet this week - a Sauna Session fixes that. 🧖</p>
       </div>
@@ -349,6 +383,31 @@ async function deleteAccount() {
 .wb-fill { width: 100%; background: linear-gradient(180deg, var(--accent-2), var(--accent)); border-radius: 6px 6px 0 0; min-height: 2px; }
 .wb-label { font-size: 10px; color: var(--text-faint); }
 .week-empty { font-size: 13px; text-align: center; }
+
+.trend { font-size: 10px; font-weight: 800; margin-left: 2px; }
+.trend.up { color: var(--green); }
+.trend.down { color: var(--red, #f87171); }
+
+.plus-week {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+.plus-week-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.plus-week-cta {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+}
 
 .rate-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .rate-value { color: var(--accent); font-size: 18px; }

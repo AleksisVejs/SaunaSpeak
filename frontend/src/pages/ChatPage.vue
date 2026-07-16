@@ -27,6 +27,7 @@ const premium = computed(() => auth.user?.is_premium !== false)
 // while inside a situation returns to Väinö).
 async function enterScene() {
   missionDone.value = false
+  xpGained.value = 0
   showTranslation.value = {}
   charOk.value = true
 
@@ -92,14 +93,22 @@ function restoreChat() {
   return null
 }
 
-// Scaffolding for the blank-page moment: three all-purpose lines a beginner
-// can always reach for. Tapping one fills the box - reading it before
-// sending is part of the practice.
-const HINTS = [
+// Scaffolding for the blank-page moment: three lines a beginner can always
+// reach for. Tapping one fills the box - reading it before sending is part
+// of the practice. Väinö's bench gets small talk; inside a Situation the
+// small-talk line would derail the mission, so that set is all repair
+// phrases that work mid-transaction with any character.
+const OPEN_HINTS = [
   { fi: 'Mulle kuuluu hyvää, entä sulle?', en: "I'm doing well, how about you?" },
   { fi: 'Voitsä sanoo sen uudestaan?', en: 'Can you say that again?' },
   { fi: 'Mitä toi tarkottaa?', en: 'What does that mean?' }
 ]
+const SCENARIO_HINTS = [
+  { fi: 'Anteeks, mä en ymmärtäny.', en: "Sorry, I didn't understand." },
+  { fi: 'Voitsä sanoo sen uudestaan?', en: 'Can you say that again?' },
+  { fi: 'Miten se sanotaan suomeks?', en: 'How do you say that in Finnish?' }
+]
+const hints = computed(() => (scenario.value ? SCENARIO_HINTS : OPEN_HINTS))
 const showHints = ref(false)
 function useHint(h) {
   draft.value = h.fi
@@ -111,6 +120,8 @@ function useHint(h) {
 // have one source of truth (the backend).
 const scenario = ref(null)
 const missionDone = ref(false)
+// First-completion XP reward, shown in the done mission strip.
+const xpGained = ref(0)
 
 const personaName = computed(() => scenario.value?.persona ?? 'Väinö')
 // Emoji stands in wherever a portrait image is missing or fails to load.
@@ -210,8 +221,13 @@ async function send() {
     if (scenario.value && data.goal_reached && !missionDone.value) {
       missionDone.value = true
       window.umami?.track('scenario_complete', { scenario: scenario.value.id })
-      // Persist the ✓ so the Situations catalog shows what's been conquered.
-      api.post(`/scenarios/${scenario.value.id}/complete`).catch(() => {})
+      // Persist the ✓ and collect the first-completion XP (0 on replays).
+      api.post(`/scenarios/${scenario.value.id}/complete`)
+        .then(({ data: d }) => {
+          xpGained.value = d.xp_gained ?? 0
+          if (auth.user && typeof d.xp === 'number') auth.user.xp = d.xp
+        })
+        .catch(() => {})
     }
     burst.value = Date.now()
     playSpoken(data.reply)
@@ -229,6 +245,7 @@ async function send() {
 
 function reset() {
   missionDone.value = false
+  xpGained.value = 0
   showTranslation.value = {}
   localStorage.removeItem(CHAT_STORE)
   messages.value = scenario.value
@@ -328,6 +345,7 @@ const full = () => messages.value.length >= MAX_TURNS
       <div v-if="scenario" class="mission" :class="{ done: missionDone }">
         <span class="mission-icon">{{ missionDone ? '✅' : '🎯' }}</span>
         <p class="mission-text">{{ missionDone ? 'Mission accomplished!' : scenario.mission }}</p>
+        <span v-if="missionDone && xpGained" class="mission-xp">+{{ xpGained }} XP</span>
         <router-link v-if="missionDone" to="/scenarios" class="mission-next">Next situation ›</router-link>
       </div>
 
@@ -351,7 +369,16 @@ const full = () => messages.value.length >= MAX_TURNS
           <p v-if="m.role === 'assistant' && showTranslation[i]" class="bubble-translation">
             {{ m.translation }}
           </p>
-          <p v-if="m.correction" class="bubble-correction">✏️ {{ m.correction }}</p>
+          <p v-if="m.correction" class="bubble-correction">
+            ✏️ {{ m.correction }}
+            <button
+              class="corr-speak"
+              aria-label="Hear the corrected sentence"
+              title="Hear how it sounds"
+              @click.stop="playSpoken(m.correction)"
+            >🔊</button>
+            <span class="corr-saved" title="This correction is now a flashcard - it comes back for review before you'd slip again">saved for review</span>
+          </p>
         </div>
         <button
           v-if="m.role === 'assistant'"
@@ -379,7 +406,7 @@ const full = () => messages.value.length >= MAX_TURNS
       </div>
 
       <div v-if="!full() && showHints" class="hint-row">
-        <button v-for="h in HINTS" :key="h.fi" class="hint-chip" @click="useHint(h)">
+        <button v-for="h in hints" :key="h.fi" class="hint-chip" @click="useHint(h)">
           <span class="hint-fi">{{ h.fi }}</span>
           <span class="hint-en">{{ h.en }}</span>
         </button>
@@ -775,6 +802,24 @@ const full = () => messages.value.length >= MAX_TURNS
 }
 .mission-icon { font-size: 15px; flex-shrink: 0; }
 .mission-text { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: #f3e7d3; line-height: 1.35; }
+.mission-xp {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1a1204;
+  background: linear-gradient(180deg, #fcc860, #f59e0b);
+  border-radius: var(--radius-pill, 999px);
+  padding: 3px 10px;
+  white-space: nowrap;
+  animation: xp-pop 0.5s cubic-bezier(0.34, 1.5, 0.64, 1);
+}
+@keyframes xp-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mission-xp { animation: none; }
+}
 .mission-next {
   flex-shrink: 0;
   font-size: 12.5px;
@@ -869,6 +914,27 @@ const full = () => messages.value.length >= MAX_TURNS
   font-weight: 700;
   margin-top: 6px;
   color: #7a3b00;
+}
+/* hear the corrected form right where it's shown (shadow it back) */
+.corr-speak {
+  background: rgba(122, 59, 0, 0.12);
+  border: 1px solid rgba(122, 59, 0, 0.35);
+  color: #7a3b00;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.corr-speak:hover { border-color: #7a3b00; }
+.corr-saved {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(122, 59, 0, 0.65);
+  margin-left: 6px;
+  white-space: nowrap;
 }
 .bubble.typing {
   font-style: italic;
