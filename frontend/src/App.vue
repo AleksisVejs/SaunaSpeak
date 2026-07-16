@@ -53,13 +53,18 @@ const FOCUS_ROUTES = ['session', 'onboarding', 'try', 'words-review', 'checkpoin
 
 const showShell = computed(() => auth.isLoggedIn && !FOCUS_ROUTES.includes(route.name))
 
-const navItems = [
+// The Studio tab only exists for accounts with recording rights - everyone
+// else never sees it.
+const navItems = computed(() => [
   { name: 'dashboard', to: '/dashboard', icon: '🧭', label: 'Learn' },
   { name: 'chat', to: '/chat', icon: '💬', label: 'Chat' },
   { name: 'scenarios', to: '/scenarios', icon: '🎭', label: 'Situations' },
   { name: 'words', to: '/words', icon: '⭐', label: 'Words' },
+  ...(auth.user?.is_recorder || auth.user?.is_admin
+    ? [{ name: 'record', to: '/record', icon: '🎙', label: 'Studio' }]
+    : []),
   { name: 'profile', to: '/profile', icon: '🧖', label: 'Profile' }
-]
+])
 
 async function logout() {
   await auth.logout()
@@ -130,10 +135,6 @@ async function logout() {
         <span class="tab-icon">{{ item.icon }}</span>
         <span class="tab-label">{{ item.label }}</span>
       </router-link>
-      <button class="tab" @click="toggleTheme">
-        <span class="tab-icon">{{ theme === 'dark' ? '☀️' : '🌙' }}</span>
-        <span class="tab-label">Theme</span>
-      </button>
     </nav>
   </div>
 </template>

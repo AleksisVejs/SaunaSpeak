@@ -62,15 +62,6 @@ function strip(key) {
 const fmtDay = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('en', { month: 'short', day: 'numeric' })
 
 // ---- content health ----
-const audioPct = computed(() => {
-  const a = stats.value?.audio
-  if (!a) return { sentences: 0, words: 0 }
-  return {
-    sentences: a.sentences_total ? Math.round((a.sentences_human / a.sentences_total) * 100) : 0,
-    words: a.words_total ? Math.round((a.words_human / a.words_total) * 100) : 0
-  }
-})
-
 const maxLevelSentences = computed(() =>
   Math.max(1, ...(stats.value?.levels ?? []).map((l) => Number(l.sentences) || 0))
 )
@@ -83,6 +74,29 @@ const pendingItems = () => [
   ...(recordings.value?.sentences ?? []).map((s) => ({ ...s, type: 'sentence', key: String(s.id), label: s.finnish_text })),
   ...(recordings.value?.words ?? []).map((w) => ({ ...w, type: 'word', key: w.word, label: w.word }))
 ]
+
+const pendingOf = (type) => pendingItems().filter((i) => i.type === type)
+
+// The recordings manager lives inside the content-health card: each
+// "Human-voiced …" row expands into its review + live lists.
+const openAudio = ref(null) // 'sentence' | 'word' | null
+function toggleAudio(type) {
+  openAudio.value = openAudio.value === type ? null : type
+  liveQ.value = ''
+}
+
+const AUDIO_SECTIONS = [
+  { type: 'sentence', label: 'Human-voiced sentences' },
+  { type: 'word', label: 'Human-voiced words' }
+]
+
+function audioNums(type) {
+  const a = stats.value?.audio
+  if (!a) return { done: 0, total: 0, pct: 0 }
+  const done = type === 'sentence' ? a.sentences_human : a.words_human
+  const total = type === 'sentence' ? a.sentences_total : a.words_total
+  return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
+}
 
 // New takes can arrive while this tab sits open - refetch on demand.
 const recRefreshing = ref(false)
@@ -114,13 +128,13 @@ async function review(item, action) {
   }
 }
 
-async function approveAll() {
+async function approveAllType(type) {
   recBusy.value = true
   try {
-    await api.post('/admin/recordings/approve', { all: true })
-    // Approved pending takes are now live - refetch for the fresh picture.
-    const { data } = await api.get('/admin/recordings')
-    recordings.value = data
+    for (const item of pendingOf(type)) {
+      await api.post('/admin/recordings/approve', { type: item.type, key: item.key })
+    }
+    await refreshRecordings()
   } finally {
     recBusy.value = false
   }
@@ -138,10 +152,12 @@ const liveItems = computed(() => {
       type: 'sentence', keyId: `s-${s.id}`, id: s.id, label: s.finnish_text, note: s.english_text, url: s.audio_url
     })),
     ...(recordings.value?.live_words ?? []).filter((w) => hit(w.word)).map((w) => ({
-      type: 'word', keyId: `w-${w.word}`, word: w.word, label: w.word, note: 'word', url: w.audio_url
+      type: 'word', keyId: `w-${w.word}`, word: w.word, label: w.word, note: '', url: w.audio_url
     }))
   ]
 })
+
+const liveOf = (type) => liveItems.value.filter((i) => i.type === type)
 
 async function removeLive(item) {
   recBusy.value = true
@@ -269,70 +285,75 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
           </div>
 
           <div class="audio-block">
-            <div class="audio-row">
-              <span class="audio-label">🎙 Human-voiced sentences</span>
-              <span class="audio-nums muted">{{ stats.audio.sentences_human }}/{{ stats.audio.sentences_total }} · {{ audioPct.sentences }}%</span>
-            </div>
-            <div class="progress-track slim"><div class="progress-fill green" :style="{ width: audioPct.sentences + '%' }"></div></div>
+            <template v-for="sec in AUDIO_SECTIONS" :key="sec.type">
+              <button class="audio-row" :aria-expanded="openAudio === sec.type ? 'true' : 'false'" @click="toggleAudio(sec.type)">
+                <span class="audio-label">🎙 {{ sec.label }}</span>
+                <span v-if="pendingOf(sec.type).length" class="rev-badge">{{ pendingOf(sec.type).length }} to review</span>
+                <span class="audio-nums muted">{{ audioNums(sec.type).done }}/{{ audioNums(sec.type).total }} · {{ audioNums(sec.type).pct }}%</span>
+                <svg class="audio-chev" :class="{ open: openAudio === sec.type }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <div class="progress-track slim"><div class="progress-fill green" :style="{ width: audioNums(sec.type).pct + '%' }"></div></div>
 
-            <div class="audio-row">
-              <span class="audio-label">🎙 Human-voiced words</span>
-              <span class="audio-nums muted">{{ stats.audio.words_human }}/{{ stats.audio.words_total }} · {{ audioPct.words }}%</span>
-            </div>
-            <div class="progress-track slim"><div class="progress-fill green" :style="{ width: audioPct.words + '%' }"></div></div>
-          </div>
-        </div>
-      </template>
+              <!-- expanded: review what's pending, manage what's live -->
+              <div v-if="openAudio === sec.type" class="audio-panel">
+                <div class="rec-tools">
+                  <button class="rec-btn" :disabled="recRefreshing" title="Check for newly submitted takes" @click="refreshRecordings">
+                    {{ recRefreshing ? '↻ Checking…' : '↻ Refresh' }}
+                  </button>
+                  <button v-if="pendingOf(sec.type).length" class="rec-btn ok" :disabled="recBusy" @click="approveAllType(sec.type)">
+                    ✓ Approve all ({{ pendingOf(sec.type).length }})
+                  </button>
+                  <input
+                    v-if="liveOf(sec.type).length > 5 || liveQ"
+                    v-model="liveQ"
+                    class="search live-search"
+                    type="search"
+                    placeholder="Search…"
+                    aria-label="Search recordings"
+                  />
+                </div>
 
-      <!-- pending recordings: nothing goes live without a listen here -->
-      <template v-if="pendingItems().length">
-        <div class="rec-head">
-          <h3 class="group-label rec-label">🎙 Recordings awaiting review <span class="rec-count">{{ pendingItems().length }}</span></h3>
-          <button class="btn btn-ghost approve-all" :disabled="recBusy" @click="approveAll">✓ Approve all</button>
-        </div>
-        <div class="rec-list">
-          <div v-for="item in pendingItems()" :key="item.type + item.key" class="card rec-row">
-            <div class="rec-main">
-              <p class="rec-text">{{ item.label }}</p>
-              <p v-if="item.type === 'sentence' && item.english_text" class="rec-en muted">{{ item.english_text }}</p>
-              <p v-else-if="item.type === 'word'" class="rec-en muted">word</p>
-            </div>
-            <div class="rec-actions">
-              <button class="rec-btn" title="Play the new human take" @click="playUrl(item.pending_url)">▶ New</button>
-              <button class="rec-btn" title="Play the current (TTS) version" :disabled="!item.current_url" @click="playUrl(item.current_url)">🤖 Old</button>
-              <button class="rec-btn ok" :disabled="recBusy" title="Approve - goes live" @click="review(item, 'approve')">✓</button>
-              <button class="rec-btn no" :disabled="recBusy" title="Reject - back to the recorder's queue" @click="review(item, 'reject')">✗</button>
-            </div>
-          </div>
-        </div>
-      </template>
+                <p v-if="!pendingOf(sec.type).length && !liveOf(sec.type).length" class="rec-empty muted">
+                  {{ liveQ ? `Nothing matches "${liveQ}".` : 'Nothing here yet - takes appear the moment your recorder keeps one.' }}
+                </p>
 
-      <!-- live human recordings: play any, retire any back to TTS -->
-      <template v-if="recordings && (recordings.live_sentences?.length || recordings.live_words?.length)">
-        <div class="rec-head">
-          <h3 class="group-label rec-label">✅ Live human recordings <span class="rec-count">{{ (recordings.live_sentences?.length ?? 0) + (recordings.live_words?.length ?? 0) }}</span></h3>
-          <input
-            v-model="liveQ"
-            class="search live-search"
-            type="search"
-            placeholder="Search recordings…"
-            aria-label="Search live recordings"
-          />
-        </div>
-        <div class="rec-list">
-          <div v-for="item in liveItems.slice(0, LIVE_MAX)" :key="item.keyId" class="card rec-row">
-            <div class="rec-main">
-              <p class="rec-text">{{ item.label }}</p>
-              <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
-            </div>
-            <div class="rec-actions">
-              <button class="rec-btn" title="Play the live recording" @click="playUrl(item.url)">▶ Play</button>
-              <button class="rec-btn no" :disabled="recBusy" title="Remove - the app falls back to the TTS voice" @click="removeLive(item)">✗ Remove</button>
-            </div>
+                <template v-if="pendingOf(sec.type).length">
+                  <p class="panel-sub">⏳ Awaiting review</p>
+                  <div v-for="item in pendingOf(sec.type)" :key="item.type + item.key" class="rec-row pending">
+                    <div class="rec-main">
+                      <p class="rec-text">{{ item.label }}</p>
+                      <p v-if="item.type === 'sentence' && item.english_text" class="rec-en muted">{{ item.english_text }}</p>
+                    </div>
+                    <div class="rec-actions">
+                      <button class="rec-btn play" title="Play the new human take" @click="playClip(item.pending_url)">▶ New take</button>
+                      <button class="rec-btn" title="Play the current version for comparison" :disabled="!item.current_url" @click="playClip(item.current_url)">🤖 Current</button>
+                      <button class="rec-btn ok" :disabled="recBusy" title="Approve - goes live" @click="review(item, 'approve')">✓ Approve</button>
+                      <button class="rec-btn no" :disabled="recBusy" title="Reject - back to the recorder's queue" @click="review(item, 'reject')">✗</button>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-if="liveOf(sec.type).length">
+                  <p class="panel-sub">✅ Live in the app <span class="muted">{{ liveOf(sec.type).length }}</span></p>
+                  <div v-for="item in liveOf(sec.type).slice(0, LIVE_MAX)" :key="item.keyId" class="rec-row">
+                    <div class="rec-main">
+                      <p class="rec-text">{{ item.label }}</p>
+                      <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
+                    </div>
+                    <div class="rec-actions">
+                      <button class="rec-btn play" title="Play the live recording" @click="playClip(item.url)">▶ Play</button>
+                      <button class="rec-btn no" :disabled="recBusy" title="Remove - the app falls back to the TTS voice" @click="removeLive(item)">✗ Remove</button>
+                    </div>
+                  </div>
+                  <p v-if="liveOf(sec.type).length > LIVE_MAX" class="muted live-more">
+                    +{{ liveOf(sec.type).length - LIVE_MAX }} more - search to narrow down.
+                  </p>
+                </template>
+              </div>
+            </template>
           </div>
-          <p v-if="liveItems.length > LIVE_MAX" class="muted live-more">
-            +{{ liveItems.length - LIVE_MAX }} more - search to narrow down.
-          </p>
         </div>
       </template>
 
@@ -449,41 +470,81 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .level-fill { height: 100%; border-radius: 99px; background: var(--accent); }
 
 .audio-block { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 6px; }
-.audio-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.audio-label { font-size: 13px; font-weight: 700; }
-.audio-nums { font-size: 12px; white-space: nowrap; }
-.progress-track.slim { height: 6px; margin-bottom: 8px; }
-.progress-fill.green { background: var(--green); }
-
-/* ---- pending recordings ---- */
-.rec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.rec-label { display: flex; align-items: center; gap: 8px; }
-.rec-count {
-  font-size: 11px;
+.audio-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+}
+.audio-row:hover .audio-label { color: var(--accent); }
+.audio-label { font-size: 13px; font-weight: 700; flex: 1; }
+.rev-badge {
+  font-size: 10.5px;
   font-weight: 800;
   color: var(--accent);
   background: var(--accent-soft);
   border-radius: 99px;
   padding: 2px 9px;
+  white-space: nowrap;
 }
-.approve-all { font-size: 13px; padding: 8px 14px; }
-.live-search { max-width: 200px; }
-.live-more { font-size: 12px; text-align: center; margin-top: 4px; }
-.rec-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.rec-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; flex-wrap: wrap; }
-.rec-main { flex: 1; min-width: 160px; }
-.rec-text { font-weight: 700; font-size: 15px; }
+.audio-nums { font-size: 12px; white-space: nowrap; }
+.audio-chev { width: 14px; height: 14px; color: var(--text-faint); transition: transform 0.2s ease; flex-shrink: 0; }
+.audio-chev.open { transform: rotate(180deg); }
+.progress-track.slim { height: 6px; margin-bottom: 8px; }
+.progress-fill.green { background: var(--green); }
+
+/* ---- expanded recordings panel ---- */
+.audio-panel {
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.rec-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.rec-empty { font-size: 13px; text-align: center; line-height: 1.5; padding: 8px 0; }
+.panel-sub {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 10px 0 6px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.rec-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+.rec-row.pending { border-color: var(--accent); border-style: dashed; }
+.rec-main { flex: 1; min-width: 150px; }
+.rec-text { font-weight: 700; font-size: 14px; }
 .rec-en { font-size: 12px; margin-top: 1px; }
-.rec-actions { display: flex; gap: 6px; }
+.rec-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 .rec-btn {
-  background: none;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-dim);
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 7px 10px;
+  padding: 6px 9px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -491,6 +552,10 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .rec-btn:disabled { opacity: 0.5; cursor: default; }
 .rec-btn.ok:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
 .rec-btn.no:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.rec-btn.play { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.live-search { max-width: 170px; margin-left: auto; padding: 7px 10px; font-size: 13px; }
+.live-more { font-size: 12px; text-align: center; margin-top: 4px; }
+
 
 /* ---- users ---- */
 .users-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
