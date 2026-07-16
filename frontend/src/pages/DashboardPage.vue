@@ -111,6 +111,31 @@ const schedule = computed(() => {
 
 const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
 const showWeek = computed(() => hasActivity.value || hasSchedule.value)
+
+// Feedback box: the private channel to the maker. Collapsed to one line
+// until tapped; throttled server-side (5 per 10 min).
+const fbOpen = ref(false)
+const fbText = ref('')
+const fbSending = ref(false)
+const fbSent = ref(false)
+const fbError = ref('')
+
+async function sendFeedback() {
+  if (fbSending.value || fbText.value.trim().length < 5) return
+  fbSending.value = true
+  fbError.value = ''
+  try {
+    await api.post('/feedback', { message: fbText.value.trim() })
+    fbSent.value = true
+    fbText.value = ''
+  } catch (e) {
+    fbError.value = e.response?.status === 429
+      ? "That's plenty for now - try again in a few minutes."
+      : "Couldn't send - check your connection and try again."
+  } finally {
+    fbSending.value = false
+  }
+}
 </script>
 
 <template>
@@ -293,6 +318,32 @@ const showWeek = computed(() => hasActivity.value || hasSchedule.value)
         <span class="muted">{{ auth.stats?.mastered_count ?? 0 }} / {{ auth.stats?.total_sentences ?? 0 }} sentences mastered</span>
       </div>
       <LessonPath :lessons="lessons" />
+
+      <!-- feedback: complaints belong here, where they get fixed -->
+      <div class="card feedback">
+        <button v-if="!fbOpen && !fbSent" class="fb-toggle" @click="fbOpen = true">
+          💬 Something confusing, broken, or missing? Tell me
+        </button>
+        <template v-else-if="!fbSent">
+          <p class="fb-title">💬 Feedback</p>
+          <p class="fb-sub muted">Goes straight to the maker. Rough honesty welcome.</p>
+          <textarea
+            v-model="fbText"
+            class="fb-input"
+            rows="3"
+            maxlength="2000"
+            placeholder="What should be better?"
+          ></textarea>
+          <p v-if="fbError" class="fb-error">{{ fbError }}</p>
+          <div class="fb-actions">
+            <button class="btn btn-ghost" @click="fbOpen = false">Cancel</button>
+            <button class="btn btn-primary" :disabled="fbSending || fbText.trim().length < 5" @click="sendFeedback">
+              {{ fbSending ? 'Sending…' : 'Send' }}
+            </button>
+          </div>
+        </template>
+        <p v-else class="fb-thanks">Kiitos! 🙏 Read by a human, promise.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -542,6 +593,38 @@ const showWeek = computed(() => hasActivity.value || hasSchedule.value)
 }
 
 .install-btn { margin-bottom: 22px; font-size: 15px; }
+
+/* ---- feedback box ---- */
+.feedback { margin-top: 22px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.fb-toggle {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 0;
+  text-align: center;
+}
+.fb-toggle:hover { color: var(--accent); }
+.fb-title { font-size: 15px; font-weight: 800; }
+.fb-sub { font-size: 12.5px; margin-top: -6px; }
+.fb-input {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+}
+.fb-input:focus { border-color: var(--accent); }
+.fb-error { font-size: 12.5px; color: var(--red); }
+.fb-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.fb-thanks { text-align: center; font-size: 14px; font-weight: 700; padding: 4px 0; }
 
 .journey-head {
   display: flex;

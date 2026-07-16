@@ -17,7 +17,8 @@ const TABS = [
   { id: 'pulse', label: '📈 Pulse' },
   { id: 'activity', label: '📅 Activity' },
   { id: 'content', label: '📚 Content' },
-  { id: 'users', label: '👥 Users' }
+  { id: 'users', label: '👥 Users' },
+  { id: 'feedback', label: '💬 Feedback' }
 ]
 const tab = ref('pulse')
 
@@ -36,13 +37,14 @@ onMounted(load)
 async function load() {
   loading.value = true
   try {
-    const [statsRes, trendsRes, retRes, actRes, usersRes, recRes] = await Promise.all([
+    const [statsRes, trendsRes, retRes, actRes, usersRes, recRes, fbRes] = await Promise.all([
       api.get('/admin/stats'),
       api.get('/admin/trends'),
       api.get('/admin/retention'),
       api.get('/admin/activity', { params: activityParams() }),
       api.get('/admin/users', { params: { page: page.value, search: search.value || undefined } }),
-      api.get('/admin/recordings')
+      api.get('/admin/recordings'),
+      api.get('/admin/feedback')
     ])
     stats.value = statsRes.data
     trends.value = trendsRes.data
@@ -50,6 +52,7 @@ async function load() {
     activity.value = actRes.data
     users.value = usersRes.data
     recordings.value = recRes.data
+    feedback.value = fbRes.data
   } catch (e) {
     if (e.response?.status === 403) denied.value = true
   } finally {
@@ -281,6 +284,29 @@ async function removeLive(item) {
   }
 }
 
+// ---- feedback inbox ----
+const feedback = ref(null)
+const fbBusy = ref({}) // feedback id → deleting
+
+async function loadFeedback(p = 1) {
+  const { data } = await api.get('/admin/feedback', { params: { page: p } })
+  feedback.value = data
+}
+
+async function clearFeedback(item) {
+  fbBusy.value[item.id] = true
+  try {
+    await api.delete(`/admin/feedback/${item.id}`)
+    const idx = feedback.value.data.findIndex((f) => f.id === item.id)
+    if (idx !== -1) feedback.value.data.splice(idx, 1)
+    feedback.value.total = Math.max(0, (feedback.value.total ?? 1) - 1)
+  } finally {
+    fbBusy.value[item.id] = false
+  }
+}
+
+const fmtWhen = (d) => new Date(d).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+
 // ---- users ----
 async function loadUsers() {
   const { data } = await api.get('/admin/users', { params: { page: page.value, search: search.value || undefined } })
@@ -358,6 +384,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
           @click="tab = t.id"
         >
           {{ t.label }}
+          <span v-if="t.id === 'feedback' && feedback?.total" class="tab-badge">{{ feedback.total }}</span>
         </button>
       </div>
 
@@ -671,6 +698,37 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
           </div>
         </div>
       </template>
+
+      <!-- ============================= FEEDBACK ============================= -->
+      <template v-else-if="tab === 'feedback'">
+        <h3 class="group-label">What learners wrote</h3>
+
+        <div v-if="feedback" class="user-list">
+          <p v-if="!feedback.data.length" class="rec-empty muted">
+            Inbox zero - feedback appears here the moment someone uses the dashboard box.
+          </p>
+
+          <div v-for="f in feedback.data" :key="f.id" class="card fb-row">
+            <div class="fb-main">
+              <p class="fb-who">
+                {{ f.user?.name ?? 'deleted user' }}
+                <span class="muted fb-mail">{{ f.user?.email }}</span>
+                <span class="muted fb-when">{{ fmtWhen(f.created_at) }}</span>
+              </p>
+              <p class="fb-msg">{{ f.message }}</p>
+            </div>
+            <button class="comp" :disabled="fbBusy[f.id]" title="Handled - remove from the inbox" @click="clearFeedback(f)">
+              ✓ Clear
+            </button>
+          </div>
+
+          <div v-if="feedback.last_page > 1" class="pager">
+            <button class="btn btn-ghost" :disabled="feedback.current_page <= 1" @click="loadFeedback(feedback.current_page - 1)">‹ Prev</button>
+            <span class="muted">{{ feedback.current_page }} / {{ feedback.last_page }}</span>
+            <button class="btn btn-ghost" :disabled="feedback.current_page >= feedback.last_page" @click="loadFeedback(feedback.current_page + 1)">Next ›</button>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -700,6 +758,22 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-badge {
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 99px;
+  padding: 1px 7px;
+  margin-left: 3px;
+}
+
+/* ---- feedback inbox ---- */
+.fb-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; }
+.fb-main { flex: 1; min-width: 0; }
+.fb-who { font-size: 13px; font-weight: 700; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.fb-mail, .fb-when { font-size: 11.5px; font-weight: 600; }
+.fb-msg { font-size: 14px; line-height: 1.5; margin-top: 5px; white-space: pre-wrap; overflow-wrap: break-word; }
 
 .group-label {
   font-size: 12px;

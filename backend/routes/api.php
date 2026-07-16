@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckpointController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\MistakeController;
@@ -109,6 +110,9 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // cards + paywall); actually chatting goes through the premium /chat.
     Route::get('/scenarios', [ChatController::class, 'scenarios']);
 
+    // Feedback box on the dashboard - throttled so it can't become a spam pipe.
+    Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,10,feedback');
+
     // Recording studio (is_recorder users): human audio over TTS.
     Route::get('/record/queue', [RecordController::class, 'queue']);
     Route::get('/record/submitted', [RecordController::class, 'submitted']);
@@ -127,6 +131,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
         Route::post('/users/{user}/recorder', [AdminController::class, 'toggleRecorder']);
         Route::post('/users/{user}/verify-email', [AdminController::class, 'verifyEmail']);
+
+        // The feedback inbox: read what learners wrote, clear what's handled.
+        Route::get('/feedback', [FeedbackController::class, 'index']);
+        Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy']);
 
         // Review pending recordings: approve → goes live, reject → back to queue.
         Route::get('/recordings', [RecordController::class, 'pending']);
