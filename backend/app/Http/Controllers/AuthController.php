@@ -24,8 +24,9 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
-            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'max:64'],
         ]);
+        $data['timezone'] = $this->sanitizeTimezone($data['timezone'] ?? null);
 
         $user = User::create($data);
         $token = $user->createToken('saunaspeak')->plainTextToken;
@@ -87,8 +88,9 @@ class AuthController extends Controller
         $data = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'max:64'],
         ]);
+        $data['timezone'] = $this->sanitizeTimezone($data['timezone'] ?? null);
 
         if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
             throw ValidationException::withMessages([
@@ -143,8 +145,9 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'preferences' => ['required', 'array'],
-            'timezone' => ['sometimes', 'nullable', 'string', 'timezone:all'],
+            'timezone' => ['sometimes', 'nullable', 'string', 'max:64'],
         ]);
+        $data['timezone'] = $this->sanitizeTimezone($data['timezone'] ?? null);
 
         $user = $request->user();
 
@@ -277,6 +280,26 @@ class AuthController extends Controller
         $token = $user->createToken('saunaspeak')->plainTextToken;
 
         return redirect()->away($appUrl.'/auth/google#token='.$token.'&new='.($isNew ? 1 : 0));
+    }
+
+    /**
+     * Browsers report zones PHP's `timezone` rule rejects (ICU aliases like
+     * Asia/Calcutta), and the field is cosmetic - so never 422 over it,
+     * just drop anything DateTimeZone can't parse.
+     */
+    private function sanitizeTimezone(?string $tz): ?string
+    {
+        if (! $tz) {
+            return null;
+        }
+
+        try {
+            new \DateTimeZone($tz);
+
+            return $tz;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** The browser timezone smuggled through the OAuth state param. */
