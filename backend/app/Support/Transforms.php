@@ -153,13 +153,20 @@ class Transforms
         return $map;
     }
 
-    /** Phrase clips on disk, base name → url. A human take always wins. */
+    /**
+     * Phrase clips on disk, base name → url. Last writer wins, so the order is
+     * the priority: edge-tts → ElevenLabs → human.
+     */
     private static function clips(): array
     {
         $map = [];
 
         foreach (File::glob(public_path('audio/transforms/phrase-*.mp3')) as $path) {
             $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/transforms/'.basename($path);
+        }
+
+        foreach (File::glob(public_path('audio/eleven/phrase-*.mp3')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/eleven/'.basename($path);
         }
 
         foreach (File::glob(public_path('audio/human/phrase-*.*')) as $path) {

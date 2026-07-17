@@ -61,11 +61,13 @@ class GenerateAudio extends Command
         $failed = 0;
 
         foreach (Sentence::all() as $sentence) {
-            // A human recording (from /record) always wins over TTS - link it
-            // and move on, even under --force.
-            if ($human = $this->humanUrl("sentence-{$sentence->id}")) {
-                if ($sentence->audio_url !== $human) {
-                    $sentence->update(['audio_url' => $human]);
+            // Best available voice wins, and neither is ours to overwrite:
+            // a human recording (from /record), then an ElevenLabs take, then
+            // the edge-tts clip below. Runs on every deploy, so getting this
+            // order wrong would quietly demote the good audio back to robot.
+            if ($better = $this->bestUrl("sentence-{$sentence->id}")) {
+                if ($sentence->audio_url !== $better) {
+                    $sentence->update(['audio_url' => $better]);
                 }
 
                 continue;
@@ -138,9 +140,9 @@ class GenerateAudio extends Command
             // Slug + short hash: filesystem-safe and collision-proof (sää vs saa).
             $base = Str::slug($word) . '-' . substr(md5($word), 0, 6);
 
-            // A human recording always wins over TTS in the manifest.
-            if ($human = $this->humanUrl("words/{$base}")) {
-                $manifest[$word] = $human;
+            // Same order as sentences: human, then ElevenLabs, then edge-tts.
+            if ($better = $this->bestUrl("words/{$base}")) {
+                $manifest[$word] = $better;
 
                 continue;
             }
@@ -185,11 +187,32 @@ class GenerateAudio extends Command
         return [$generated, $failed];
     }
 
-    /** First human take for a base name ("sentence-12", "words/moi-abc123"), as a URL. */
+    /**
+     * The best voice already on disk for a base name ("sentence-12",
+     * "words/moi-abc123"), or null when only edge-tts is available.
+     *
+     * human > eleven > (caller falls back to edge-tts). ElevenLabs coverage is
+     * partial by design - credits are finite - so a missing eleven clip is the
+     * normal case, not a failure.
+     */
+    private function bestUrl(string $base): ?string
+    {
+        return $this->humanUrl($base) ?? $this->elevenUrl($base);
+    }
+
+    /** First human take for a base name, as a URL. */
     private function humanUrl(string $base): ?string
     {
         $match = File::glob(public_path("audio/human/{$base}.*"))[0] ?? null;
 
         return $match ? '/audio/human/'.(str_contains($base, '/') ? 'words/' : '').basename($match) : null;
+    }
+
+    /** The ElevenLabs take for a base name, as a URL. */
+    private function elevenUrl(string $base): ?string
+    {
+        $file = public_path("audio/eleven/{$base}.mp3");
+
+        return File::exists($file) ? "/audio/eleven/{$base}.mp3" : null;
     }
 }

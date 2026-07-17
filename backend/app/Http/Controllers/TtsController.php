@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ElevenLabs;
 use App\Support\Tts;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,13 +14,17 @@ use Illuminate\Support\Facades\Process;
  * On-demand TTS for dynamic text (Sauna Chat replies), cached by content hash
  * so each unique reply is synthesized once. Provider chain:
  *
+ *   0. ElevenLabs, but only when ELEVENLABS_FOR_CHAT is on. Off by default:
+ *      chat is unbounded spend (a call per Väinö reply, per learner), which
+ *      would drain a character budget that's better spent on lesson audio
+ *      everyone hears. Cached clips are still served without re-spending.
  *   1. edge-tts (free; male fi-FI-HarriNeural - same voice as lesson audio -
  *      or female fi-FI-NooraNeural for female scenario personas); needs
  *      Python, so it works locally and on a VPS but not shared hosting.
  *   2. Google Cloud TTS (GOOGLE_TTS_API_KEY) - cPanel-friendly HTTP API.
  *      No male Finnish voice exists there, so the WaveNet voice is pitched
  *      down (services.tts.google_pitch) when standing in for a male speaker.
- *   3. Neither available → 503; the frontend stays silent by design (no
+ *   3. None available → 503; the frontend stays silent by design (no
  *      browser-voice fallback).
  */
 class TtsController extends Controller
@@ -57,12 +62,36 @@ class TtsController extends Controller
         if (! File::exists($file)) {
             File::ensureDirectoryExists(dirname($file));
 
-            if (! $this->viaEdgeTts($text, $file, $female) && ! $this->viaGoogle($text, $file, $female)) {
+            if (! $this->viaElevenLabs($text, $file, $female)
+                && ! $this->viaEdgeTts($text, $file, $female)
+                && ! $this->viaGoogle($text, $file, $female)) {
                 return response()->json(['url' => null], 503);
             }
         }
 
         return response()->json(['url' => $url]);
+    }
+
+    /** Premium voice for chat - opt-in only (ELEVENLABS_FOR_CHAT), see above. */
+    private function viaElevenLabs(string $text, string $file, bool $female): bool
+    {
+        if (! config('services.elevenlabs.for_chat') || ! ElevenLabs::available()) {
+            return false;
+        }
+
+        $voice = ElevenLabs::voiceId($female ? 'female' : 'male');
+        if ($voice === null) {
+            return false;
+        }
+
+        $audio = ElevenLabs::synthesize($text, $voice);
+        if ($audio === null) {
+            return false; // out of credits or misconfigured - fall through to edge-tts
+        }
+
+        File::put($file, $audio);
+
+        return true;
     }
 
     /** Free neural voice via edge-tts; false where Python isn't available. */

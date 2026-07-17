@@ -233,6 +233,17 @@ function audioNums(type) {
   return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
 }
 
+// ElevenLabs coverage sits between robot and human: it never fills the bar
+// above (that tracks human takes), it just says how much of the rest has the
+// better synthetic voice.
+function elevenCount(type) {
+  const a = stats.value?.audio
+  if (!a) return 0
+  if (type === 'sentence') return a.sentences_eleven ?? 0
+  if (type === 'word') return a.words_eleven ?? 0
+  return 0
+}
+
 // New takes can arrive while this tab sits open - refetch on demand.
 const recRefreshing = ref(false)
 async function refreshRecordings() {
@@ -624,6 +635,9 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                 <button class="audio-row" :aria-expanded="openAudio === sec.type ? 'true' : 'false'" @click="toggleAudio(sec.type)">
                   <span class="audio-label">🎙 {{ sec.label }}</span>
                   <span v-if="pendingOf(sec.type).length" class="rev-badge">{{ pendingOf(sec.type).length }} to review</span>
+                  <span v-if="elevenCount(sec.type)" class="eleven-badge" title="Voiced by ElevenLabs - still robot, still worth a human take">
+                    {{ elevenCount(sec.type) }} 11L
+                  </span>
                   <span class="audio-nums muted">{{ audioNums(sec.type).done }}/{{ audioNums(sec.type).total }} · {{ audioNums(sec.type).pct }}%</span>
                   <svg class="audio-chev" :class="{ open: openAudio === sec.type }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 9l6 6 6-6" />
@@ -1022,6 +1036,17 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .audio-chev.open { transform: rotate(180deg); }
 .progress-track.slim { height: 6px; margin-bottom: 8px; }
 .progress-fill.green { background: var(--green); }
+
+.eleven-badge {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #a78bfa;
+  background: color-mix(in srgb, #a78bfa 16%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+}
 
 /* ---- expanded recordings panel ---- */
 .audio-panel {

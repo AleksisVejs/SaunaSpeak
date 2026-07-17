@@ -57,11 +57,13 @@ class Listening
     }
 
     /**
-     * Every line's current clip, as base name → URL. Two directory scans
+     * Every line's current clip, as base name → URL. A few directory scans
      * rather than a glob per line, and never cached: approving a recording is
      * a file move, so this map is the freshest source of truth there is.
      *
-     * A human take always wins over the generated one.
+     * Last writer wins, so the order IS the priority: edge-tts, then any
+     * ElevenLabs take, then any human recording. ElevenLabs coverage is
+     * partial by design (credits), so a scene voiced half by each is normal.
      *
      * @return array<string, string>
      */
@@ -71,6 +73,10 @@ class Listening
 
         foreach (File::glob(public_path('audio/listening/listening-*.mp3')) as $path) {
             $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/listening/'.basename($path);
+        }
+
+        foreach (File::glob(public_path('audio/eleven/listening-*.mp3')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/eleven/'.basename($path);
         }
 
         foreach (File::glob(public_path('audio/human/listening-*.*')) as $path) {

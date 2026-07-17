@@ -64,6 +64,13 @@ class AdminController extends Controller
                 'sentences_human' => Sentence::where('audio_url', 'like', '/audio/human/%')->count(),
                 'words_total' => count($manifest),
                 'words_human' => $wordsHuman,
+                // The middle tier: ElevenLabs coverage is partial by design
+                // (credits), so this is a mix to watch, not a bar to fill.
+                'sentences_eleven' => Sentence::where('audio_url', 'like', '/audio/eleven/%')->count(),
+                'words_eleven' => count(array_filter(
+                    $manifest,
+                    fn ($url) => str_starts_with((string) $url, '/audio/eleven/'),
+                )),
                 // Conversation lines live in JSON, not the sentences table.
                 'listening_total' => array_sum(array_map(
                     fn (array $s) => count($s['lines']),

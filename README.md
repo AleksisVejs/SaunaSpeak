@@ -22,7 +22,7 @@ SaunaSpeak teaches **puhekieli** (spoken Finnish) first - the language Finns act
 
 - **Backend** - Laravel 11 API (`backend/`), Sanctum token auth, MySQL
 - **Frontend** - Vue 3 + Vite + Pinia + Vue Router (`frontend/`), installable PWA, dark mode
-- **Audio** - pre-generated native Finnish neural voice MP3s (`php artisan audio:generate`, free via edge-tts), with browser SpeechSynthesis (`fi-FI`) as automatic fallback; speed control on both
+- **Audio** - pre-generated native Finnish neural voice MP3s (`php artisan audio:generate`, free via edge-tts), optionally upgraded per clip with ElevenLabs (`php artisan audio:eleven`) and replaced per clip by native recordings from the studio. The three tiers mix freely: **human → ElevenLabs → edge-tts**, resolved per clip, so partial coverage of the better voices is always a valid state
 - **Speaking mode** - browser SpeechRecognition (`fi-FI`, Chrome/Edge) with typed-input fallback everywhere
 
 ## Requirements
@@ -140,6 +140,27 @@ php artisan listening:audio --scene=kahvilassa --force
 Clips land in `backend/public/audio/listening/listening-{scene}-{index}.mp3`. A human recording at `public/audio/human/listening-{scene}-{index}.*` always wins over the generated one - the same override sentence audio uses, so native takes can replace TTS scene by scene without a code change. `ListeningTest` fails if any scene has a line without audio.
 
 Audio URLs are resolved on read, never cached: approving a recording is a file move, so a cached URL would mean an approved take never reaching the learner in a long-lived process (Octane).
+
+### ElevenLabs: the premium voice tier (`php artisan audio:eleven`)
+
+Optional, and **mixable on purpose** - credits are finite, so this is built to cover as much of the course as the budget reaches and leave the rest alone:
+
+```bash
+php artisan audio:eleven --dry-run          # what would it cost? spends nothing
+php artisan audio:eleven --only=sentences   # spend it where it's heard most
+php artisan audio:eleven --limit=50         # or just dip a toe
+php artisan audio:eleven --max-chars=5000
+```
+
+Clips land in `public/audio/eleven/`, **alongside** the edge-tts ones rather than over them. Every resolver prefers **human → ElevenLabs → edge-tts**, so a half-finished run is a normal state: what got voiced plays in the better voice, everything else keeps its Finnish neural clip, and nothing goes silent. A native recording still beats both — ElevenLabs is a better robot, not the goal.
+
+The whole corpus is ~**23,300 characters** (sentences 14.1k · words 6.4k · conversations 2.1k · drills 0.7k), so a small ElevenLabs plan covers all of it. `--dry-run` reports the cost and reads your remaining plan quota before you spend anything, and a real run stops cleanly when credits run out rather than failing 1600 times.
+
+**Pick Finnish-sounding voices.** `ELEVENLABS_VOICE_MALE` / `ELEVENLABS_VOICE_FEMALE` have no defaults, deliberately: edge-tts's `fi-FI-HarriNeural` is already a *native Finnish* neural voice, so a generic English-accented voice reading Finnish would be a downgrade — the exact opposite of the point. Search the Voice Library for Finnish voices first.
+
+`audio:eleven` re-runs `audio:generate` afterwards to relink sentence/word URLs. Deploy's `audio:generate` knows about this tier, so it never demotes a premium clip back to the robot.
+
+Chat replies stay on edge-tts unless `ELEVENLABS_FOR_CHAT=true` — that path is one API call per message per learner, i.e. unbounded spend, and the budget is better spent on lesson audio everyone hears.
 
 ### Taivutus audio (`php artisan transforms:audio`)
 

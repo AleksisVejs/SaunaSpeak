@@ -62,6 +62,24 @@ return [
         'frontend_url' => env('FRONTEND_URL'),
     ],
 
+    // ElevenLabs: the premium voice tier, mixed in per clip rather than all at
+    // once - credits are finite, so anything not voiced here keeps playing its
+    // edge-tts clip (and a human recording still beats both).
+    //
+    // The voice IDs are deliberately required, with no defaults: edge-tts's
+    // fi-FI-HarriNeural is a NATIVE Finnish voice, so a generic English-accented
+    // stock voice reading Finnish would be a downgrade, not an upgrade. Pick
+    // voices that actually sound Finnish (ElevenLabs Voice Library → Finnish).
+    'elevenlabs' => [
+        'key' => env('ELEVENLABS_API_KEY'),
+        'model' => env('ELEVENLABS_MODEL', 'eleven_multilingual_v2'),
+        'voice_male' => env('ELEVENLABS_VOICE_MALE'),
+        'voice_female' => env('ELEVENLABS_VOICE_FEMALE'),
+        // Chat replies are unbounded spend (one call per Väinö message), so
+        // they stay on edge-tts unless this is explicitly turned on.
+        'for_chat' => env('ELEVENLABS_FOR_CHAT', false),
+    ],
+
     'tts' => [
         'bin' => env('EDGE_TTS_BIN', 'edge-tts'),
         // Google Cloud TTS fallback for hosts that can't run edge-tts (cPanel).
