@@ -101,26 +101,28 @@ export function useFinnishAudio() {
   }
 
   // Dynamic text (chat replies): synthesized server-side with the same male
-  // neural voice as lesson audio, cached by content. If the server can't run
-  // edge-tts (e.g. shared hosting), the reply simply stays silent.
-  const spokenCache = new Map() // clean text → url | null
+  // neural voice as lesson audio - or the female voice when a female scenario
+  // persona is speaking - cached by content. If the server can't run edge-tts
+  // (e.g. shared hosting), the reply simply stays silent.
+  const spokenCache = new Map() // "voice:clean text" → url | null
   let serverTtsDown = false
-  async function playSpoken(text, rate = null) {
+  async function playSpoken(text, rate = null, voice = 'male') {
     const clean = stripEmoji(text)
     if (!clean) return
 
-    if (!spokenCache.has(clean) && !serverTtsDown) {
+    const key = `${voice}:${clean}`
+    if (!spokenCache.has(key) && !serverTtsDown) {
       try {
-        const { data } = await api.post('/tts', { text: clean })
-        spokenCache.set(clean, data.url ?? null)
+        const { data } = await api.post('/tts', { text: clean, voice })
+        spokenCache.set(key, data.url ?? null)
       } catch (e) {
-        spokenCache.set(clean, null)
+        spokenCache.set(key, null)
         // 503 = edge-tts not available on this server; stop asking.
         if (e.response?.status === 503) serverTtsDown = true
       }
     }
 
-    const url = spokenCache.get(clean)
+    const url = spokenCache.get(key)
     if (url) playUrl(url, rate ?? audioRate())
   }
 

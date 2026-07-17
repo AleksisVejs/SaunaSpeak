@@ -57,6 +57,7 @@ class ChatController extends Controller
             'title' => $s['title'],
             'tagline' => $s['tagline'],
             'persona' => $s['persona'],
+            'voice' => $s['voice'] ?? 'male',
             'mission' => $s['mission'],
             'difficulty' => $s['difficulty'],
             'xp' => Scenarios::xpFor($s),

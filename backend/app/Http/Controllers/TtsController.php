@@ -13,11 +13,12 @@ use Illuminate\Support\Facades\Process;
  * On-demand TTS for dynamic text (Sauna Chat replies), cached by content hash
  * so each unique reply is synthesized once. Provider chain:
  *
- *   1. edge-tts (free, male fi-FI-HarriNeural - same voice as lesson audio);
- *      needs Python, so it works locally and on a VPS but not shared hosting.
+ *   1. edge-tts (free; male fi-FI-HarriNeural - same voice as lesson audio -
+ *      or female fi-FI-NooraNeural for female scenario personas); needs
+ *      Python, so it works locally and on a VPS but not shared hosting.
  *   2. Google Cloud TTS (GOOGLE_TTS_API_KEY) - cPanel-friendly HTTP API.
  *      No male Finnish voice exists there, so the WaveNet voice is pitched
- *      down (services.tts.google_pitch) to sit closer to the lesson audio.
+ *      down (services.tts.google_pitch) when standing in for a male speaker.
  *   3. Neither available → 503; the frontend stays silent by design (no
  *      browser-voice fallback).
  */
@@ -27,7 +28,11 @@ class TtsController extends Controller
     {
         $data = $request->validate([
             'text' => ['required', 'string', 'max:300'],
+            // Scenario characters speak in their own voice: female personas
+            // (Marja, Liisa, Ritva, Sirpa) get the female neural voice.
+            'voice' => ['sometimes', 'in:male,female'],
         ]);
+        $female = ($data['voice'] ?? 'male') === 'female';
 
         // Strip emoji and pictographs - TTS engines read them aloud.
         $text = trim(preg_replace(
@@ -43,14 +48,16 @@ class TtsController extends Controller
         // Respell before hashing so fixed pronunciations get fresh cache slots.
         $text = Tts::respell($text);
 
-        $hash = md5($text);
+        // Female clips get their own cache slot; the bare hash stays the male
+        // voice so every clip cached before voices existed remains valid.
+        $hash = md5(($female ? 'female:' : '').$text);
         $file = public_path("audio/tts/{$hash}.mp3");
         $url = "/audio/tts/{$hash}.mp3";
 
         if (! File::exists($file)) {
             File::ensureDirectoryExists(dirname($file));
 
-            if (! $this->viaEdgeTts($text, $file) && ! $this->viaGoogle($text, $file)) {
+            if (! $this->viaEdgeTts($text, $file, $female) && ! $this->viaGoogle($text, $file, $female)) {
                 return response()->json(['url' => null], 503);
             }
         }
@@ -58,20 +65,23 @@ class TtsController extends Controller
         return response()->json(['url' => $url]);
     }
 
-    /** Free male neural voice via edge-tts; false where Python isn't available. */
-    private function viaEdgeTts(string $text, string $file): bool
+    /** Free neural voice via edge-tts; false where Python isn't available. */
+    private function viaEdgeTts(string $text, string $file, bool $female = false): bool
     {
         try {
             // SystemRoot must be passed explicitly: children of PHP's built-in
             // server can lose it, which breaks Winsock (10106) and asyncio.
+            // SystemDrive too - without it Windows drops shell caches into a
+            // literal "%SystemDrive%" folder under the working directory.
             $result = Process::timeout(20)
                 ->env([
                     'SystemRoot' => getenv('SystemRoot') ?: 'C:\\Windows',
                     'SYSTEMROOT' => getenv('SYSTEMROOT') ?: 'C:\\Windows',
+                    'SystemDrive' => getenv('SystemDrive') ?: 'C:',
                 ])
                 ->run([
                     config('services.tts.bin', 'edge-tts'),
-                    '--voice', 'fi-FI-HarriNeural',
+                    '--voice', $female ? 'fi-FI-NooraNeural' : 'fi-FI-HarriNeural',
                     '--text', $text,
                     '--write-media', $file,
                 ]);
@@ -83,7 +93,7 @@ class TtsController extends Controller
     }
 
     /** Google Cloud TTS fallback (plain HTTP, works on shared hosting). */
-    private function viaGoogle(string $text, string $file): bool
+    private function viaGoogle(string $text, string $file, bool $female = false): bool
     {
         $key = config('services.tts.google_key');
         if (! $key) {
@@ -101,7 +111,9 @@ class TtsController extends Controller
                     ],
                     'audioConfig' => [
                         'audioEncoding' => 'MP3',
-                        'pitch' => (float) config('services.tts.google_pitch', -5.0),
+                        // The WaveNet voice is female; it's only pitched down
+                        // when it has to stand in for a male speaker.
+                        'pitch' => $female ? 0.0 : (float) config('services.tts.google_pitch', -5.0),
                     ],
                 ],
             );

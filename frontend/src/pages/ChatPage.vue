@@ -129,6 +129,8 @@ const missionDone = ref(false)
 const xpGained = ref(0)
 
 const personaName = computed(() => scenario.value?.persona ?? 'Väinö')
+// Female personas (Marja, Liisa, ...) speak with the female TTS voice.
+const personaVoice = computed(() => scenario.value?.voice ?? 'male')
 // Emoji stands in wherever a portrait image is missing or fails to load.
 const personaEmoji = computed(() => scenario.value?.emoji ?? '🧔')
 
@@ -191,7 +193,7 @@ const tokenize = (text) => text.split(/(\s+)/)
 const isWord = (t) => /\p{L}/u.test(t)
 function speakWord(token) {
   const clean = token.replace(/[^\p{L}\p{N}'\-]+/gu, '')
-  if (clean) playSpoken(clean)
+  if (clean) playSpoken(clean, null, personaVoice.value)
 }
 
 // Slow playback for shadowing: same native voice, unhurried.
@@ -269,7 +271,7 @@ async function send() {
         .catch(() => {})
     }
     burst.value = Date.now()
-    playSpoken(data.reply)
+    playSpoken(data.reply, null, personaVoice.value)
   } catch {
     messages.value.push({
       role: 'assistant',
@@ -465,10 +467,10 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 
               <!-- listen / listen slowly / English - the teaching toolbar -->
               <div v-if="m.role === 'assistant'" class="msg-tools">
-                <button class="tool" title="Listen" aria-label="Listen" @click="playSpoken(m.content)">
+                <button class="tool" title="Listen" aria-label="Listen" @click="playSpoken(m.content, null, personaVoice)">
                   <Volume2 class="tool-ico" aria-hidden="true" />
                 </button>
-                <button class="tool" title="Listen slowly" aria-label="Listen slowly" @click="playSpoken(m.content, SLOW_RATE)">
+                <button class="tool" title="Listen slowly" aria-label="Listen slowly" @click="playSpoken(m.content, SLOW_RATE, personaVoice)">
                   <Turtle class="tool-ico" aria-hidden="true" />
                 </button>
                 <button
@@ -489,7 +491,7 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
                 <p class="coach-head"><Sparkles class="coach-ico" aria-hidden="true" /> A better way to say it</p>
                 <p class="coach-text">{{ m.correction }}</p>
                 <div class="coach-foot">
-                  <button class="coach-listen" @click="playSpoken(m.correction)">
+                  <button class="coach-listen" @click="playSpoken(m.correction, null, personaVoice)">
                     <Volume2 class="coach-listen-ico" aria-hidden="true" /> Listen
                   </button>
                   <span class="coach-saved" title="This correction is now a flashcard - it comes back for review before you'd slip again">
