@@ -1,0 +1,72 @@
+{
+    "title": "The one that, the one who",
+    "emoji": "🔗",
+    "level": "B1",
+    "rule": "Relative clauses: joining with joka / jonka / jota / jossa",
+    "summary": "'joka' points back to the word right before it, and it takes whatever case ITS OWN clause needs - not the case of the noun it describes. Subject → joka, possessor or whole object → jonka, partitive object → jota (katsoa, rakastaa... are partitive verbs), location → jossa. In spoken Finnish people often use 'mikä' for things instead of joka.",
+    "items": [
+        {
+            "prompt": "Join into one: 'the guy WHO...'",
+            "from": "Toi on se tyyppi. Se asuu naapuris.",
+            "from_en": "That's the guy. He lives next door.",
+            "to": "Toi on se tyyppi, joka asuu naapuris.",
+            "to_en": "That's the guy who lives next door.",
+            "accepts": ["Toi on se tyyppi joka asuu naapurissa.", "Toi on se tyyppi joka asuu naapuris."],
+            "note": "The guy is the SUBJECT of 'lives next door', so it's joka (basic form)."
+        },
+        {
+            "prompt": "Join into one: 'the book THAT I bought'",
+            "from": "Tää on se kirja. Mä ostin sen.",
+            "from_en": "This is the book. I bought it.",
+            "to": "Tää on se kirja, jonka mä ostin.",
+            "to_en": "This is the book that I bought.",
+            "accepts": ["Tää on se kirja jonka ostin.", "Tää on se kirja jonka mä ostin."],
+            "note": "The book is the whole OBJECT you bought → jonka (the object-of-a-done-deed form)."
+        },
+        {
+            "prompt": "Join into one: 'the film I'm watching'",
+            "from": "Toi on se leffa. Mä katon sitä.",
+            "from_en": "That's the film. I'm watching it.",
+            "to": "Toi on se leffa, jota mä katon.",
+            "to_en": "That's the film that I'm watching.",
+            "accepts": ["Toi on se leffa jota mä katon.", "Toi on se leffa jota katon."],
+            "note": "katsoa takes a partitive object (katon sitä, not 'sen'), so the relative word is jota."
+        },
+        {
+            "prompt": "Join into one: 'the café WHERE we sat'",
+            "from": "Tää on se kahvila. Me istuttiin siin.",
+            "from_en": "This is the café. We sat there.",
+            "to": "Tää on se kahvila, jossa me istuttiin.",
+            "to_en": "This is the café where we sat.",
+            "accepts": ["Tää on se kahvila jossa istuttiin.", "Tää on se kahvila jossa me istuttiin."],
+            "note": "'there / in it' → jossa: the relative word carries the -ssa location ending."
+        },
+        {
+            "prompt": "Join into one: 'the friend I went WITH'",
+            "from": "Toi on se kaveri. Mä menin sen kaa.",
+            "from_en": "That's the friend. I went with them.",
+            "to": "Toi on se kaveri, jonka kaa mä menin.",
+            "to_en": "That's the friend I went with.",
+            "accepts": ["Toi on se kaveri jonka kaa mä menin.", "Toi on se kaveri jonka kanssa mä menin."],
+            "note": "'with them' is 'sen kaa' → 'jonka kaa' (kaa is spoken 'kanssa')."
+        },
+        {
+            "prompt": "Join into one, spoken style (a thing → mikä)",
+            "from": "Se on yks juttu. Se ärsyttää mua.",
+            "from_en": "It's one thing. It annoys me.",
+            "to": "Se on yks juttu, mikä ärsyttää mua.",
+            "to_en": "It's one thing that annoys me.",
+            "accepts": ["Se on yks juttu joka ärsyttää mua.", "Yks juttu mikä ärsyttää mua.", "Se on yks juttu mikä ärsyttää mua."],
+            "note": "Textbook Finnish wants 'joka' here; spoken Finnish very often uses 'mikä' for a thing."
+        },
+        {
+            "prompt": "Join into one: 'the shop THAT'S open'",
+            "from": "Tää on se kauppa. Se on auki.",
+            "from_en": "This is the shop. It's open.",
+            "to": "Tää on se kauppa, joka on auki.",
+            "to_en": "This is the shop that's open.",
+            "accepts": ["Tää on se kauppa joka on auki.", "Tää on se kauppa mikä on auki."],
+            "note": "The shop is the SUBJECT of 'is open' → joka."
+        }
+    ]
+}

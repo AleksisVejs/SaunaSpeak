@@ -1,0 +1,81 @@
+{
+    "title": "Would, could, I'd like",
+    "emoji": "🙏",
+    "level": "B1",
+    "rule": "Conditional: -isi- for 'would' and polite requests",
+    "summary": "The conditional slots -isi- in before the ending: otan → ottaisin, menen → menisin. Use the strong grade (from the they-form: ottavat → otta-), and a long final vowel shortens - saada → saisin, ei saaisin. A few type-2 verbs swap the vowel like the past does: tehdä → tekisin, nähdä → näkisin. It's how you soften a demand into a request (Voisitko...? = Could you...?) and how 'on' becomes 'olisi' - spoken olis or ois.",
+    "items": [
+        {
+            "prompt": "Soften it: 'I would take'",
+            "from": "Mä otan kahvin.",
+            "from_en": "I'll take a coffee.",
+            "to": "Mä ottaisin kahvin.",
+            "to_en": "I'd take a coffee.",
+            "accepts": ["Ottaisin kahvin.", "Mä ottaisin kahvii.", "Ottaisin kahvii."],
+            "note": "otan → ottaisin: -isi- goes in before the ending, on the strong grade (ottavat → otta-)."
+        },
+        {
+            "prompt": "Say you WOULD go",
+            "from": "Mä meen kotii.",
+            "from_en": "I'm going home.",
+            "to": "Mä menisin kotii.",
+            "to_en": "I would go home.",
+            "accepts": ["Menisin kotiin.", "Mä menisin kotiin.", "Menisin kotii."],
+            "note": "Spoken 'meen' is 'menen'; the conditional is menisin (mene- + isi-)."
+        },
+        {
+            "prompt": "Say you WOULD come along",
+            "from": "Mä tuun mukaan.",
+            "from_en": "I'm coming along.",
+            "to": "Mä tulisin mukaan.",
+            "to_en": "I would come along.",
+            "accepts": ["Tulisin mukaan.", "Mä tulisin mukaan."],
+            "note": "'tuun' is spoken 'tulen'; conditional tulisin (tule- + isi-)."
+        },
+        {
+            "prompt": "Say you WOULD do it",
+            "from": "Mä teen sen.",
+            "from_en": "I'll do it.",
+            "to": "Mä tekisin sen.",
+            "to_en": "I would do it.",
+            "accepts": ["Tekisin sen.", "Mä tekisin sen."],
+            "note": "tehdä is irregular: teen → tekisin, the same k that shows up in the past (tein → teki-)."
+        },
+        {
+            "prompt": "Say you'd like some more",
+            "from": "Mä saan lisää.",
+            "from_en": "I get more.",
+            "to": "Mä saisin lisää.",
+            "to_en": "I'd get / I'd like some more.",
+            "accepts": ["Saisin lisää.", "Mä saisin lisää.", "Saisinko lisää?"],
+            "note": "Long final vowel shortens: saada → saisin (not 'saaisin'). 'Saisinko...' is the polite 'could I have...'."
+        },
+        {
+            "prompt": "Say you WOULD want a coffee",
+            "from": "Mä haluun kahvii.",
+            "from_en": "I want a coffee.",
+            "to": "Mä haluaisin kahvii.",
+            "to_en": "I'd like a coffee.",
+            "accepts": ["Haluaisin kahvia.", "Mä haluaisin kahvia.", "Haluaisin kahvii.", "Mä haluisin kahvii.", "Haluisin kahvii."],
+            "note": "'haluun' is spoken 'haluan'; conditional haluaisin. In fast speech it often shrinks to 'haluisin'."
+        },
+        {
+            "prompt": "Turn the order into a polite request",
+            "from": "Auta mua.",
+            "from_en": "Help me. (an order)",
+            "to": "Voisitko auttaa mua?",
+            "to_en": "Could you help me?",
+            "accepts": ["Auttaisitko mua?", "Voisitko sä auttaa mua?", "Voisitko auttaa?"],
+            "note": "The conditional is how you ask instead of tell: voit → voisitko, autat → auttaisitko."
+        },
+        {
+            "prompt": "Say it WOULD be nice",
+            "from": "Se on kiva.",
+            "from_en": "It's nice.",
+            "to": "Se ois kiva.",
+            "to_en": "It would be nice.",
+            "accepts": ["Se olis kiva.", "Ois kiva.", "Olis kiva.", "Se olisi kiva."],
+            "note": "on → olisi, spoken 'olis' or 'ois' - the everyday way to say 'that'd be nice'."
+        }
+    ]
+}

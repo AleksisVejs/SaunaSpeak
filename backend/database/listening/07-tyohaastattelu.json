@@ -1,0 +1,26 @@
+{
+    "title": "The job interview",
+    "emoji": "💼",
+    "level": "B1",
+    "tagline": "Experience, strengths, hours and pay - the whole round, in spoken Finnish.",
+    "speakers": {
+        "A": { "name": "Päivi", "voice": "female", "role": "recruiter" },
+        "B": { "name": "Aleksi", "voice": "male", "role": "applicant" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Tervetuloa! Käy istumaan. Kiva et pääsit tulemaan.", "en": "Welcome! Have a seat. Nice that you could make it." },
+        { "who": "B", "fi": "Kiitos! Mukava olla täällä.", "en": "Thanks! Nice to be here." },
+        { "who": "A", "fi": "No niin, kerro vähän itsestäs ja työkokemuksestas.", "en": "So, tell me a bit about yourself and your work experience." },
+        { "who": "B", "fi": "Mä oon tehny viis vuotta asiakaspalvelua, ja viimeks olin tiiminvetäjänä.", "en": "I've done five years of customer service, and most recently I was a team lead." },
+        { "who": "A", "fi": "Miks sä haet just tätä paikkaa?", "en": "Why are you applying for this job in particular?" },
+        { "who": "B", "fi": "Mua kiinnostaa teidän ala, ja mä haluisin oppia uutta.", "en": "I'm interested in your field, and I'd like to learn new things." },
+        { "who": "A", "fi": "Mitkä sä sanoisit on sun vahvuudet?", "en": "What would you say are your strengths?" },
+        { "who": "B", "fi": "Mä oon ahkera ja opin nopeesti. Ja tuun toimeen kaikkien kanssa.", "en": "I'm hardworking and I learn fast. And I get along with everyone." },
+        { "who": "A", "fi": "Ootko valmis joustaan työajoissa?", "en": "Are you willing to be flexible with your hours?" },
+        { "who": "B", "fi": "Joo, voin tehä välillä iltavuoroja.", "en": "Yeah, I can do evening shifts now and then." },
+        { "who": "A", "fi": "Millasta palkkaa sä toivot?", "en": "What kind of salary are you hoping for?" },
+        { "who": "B", "fi": "Aattelin jotain kolmee tonnii kuussa, mut se on neuvoteltavissa.", "en": "I was thinking around three grand a month, but it's negotiable." },
+        { "who": "A", "fi": "Selvä. Me ollaan yhteydessä ens viikolla.", "en": "Alright. We'll be in touch next week." },
+        { "who": "B", "fi": "Kiitos paljon! Oli kiva jutella.", "en": "Thanks a lot! It was nice chatting." }
+    ]
+}

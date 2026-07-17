@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
-import { BookOpen, Drama, Flame, Headphones, MessageCircle, Pencil, Smartphone, Snowflake, Wrench, Zap } from 'lucide-vue-next'
+import { BookOpen, Drama, Flame, Headphones, Layers, MessageCircle, Pencil, Smartphone, Snowflake, Sparkles, Wrench, Zap } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useAuthStore } from '../stores/auth'
 import { usePwaInstall } from '../composables/usePwaInstall'
@@ -15,14 +15,38 @@ const { dailyGoal } = usePrefs()
 
 const lessons = ref([])
 const loading = ref(true)
+// Today's woven plan, previewed so the four-skill session is visible from the
+// dashboard - not a surprise you only meet after tapping Start. Same GET the
+// session uses (idempotent, stable per day), fetched alongside everything else.
+const plan = ref(null)
 
 onMounted(async () => {
   try {
-    const [, lessonsRes] = await Promise.all([auth.fetchUser(), api.get('/lessons')])
+    const [, lessonsRes, planRes] = await Promise.all([
+      auth.fetchUser(),
+      api.get('/lessons'),
+      api.get('/today-session', { params: { size: dailyGoal() } }).catch(() => null)
+    ])
     lessons.value = lessonsRes.data.lessons
+    plan.value = planRes?.data ?? null
   } finally {
     loading.value = false
   }
+})
+
+// The step lineup for today: the sentence block, then whatever the theme map
+// wove in (a conversation to hear, a drill to bend), then the speaking beat.
+// Empty on a caught-up day (no sentences) so the card simply doesn't show.
+const planSteps = computed(() => {
+  const p = plan.value
+  if (!p?.sentences?.length) return []
+
+  const steps = [{ icon: Layers, kind: 'Learn', title: `${p.sentences.length} sentence${p.sentences.length > 1 ? 's' : ''}` }]
+  const w = p.woven ?? {}
+  if (w.listening) steps.push({ icon: Headphones, kind: 'Listen', title: w.listening.title })
+  if (w.transform) steps.push({ icon: Wrench, kind: 'Bend', title: w.transform.title })
+  steps.push({ icon: Sparkles, kind: 'Use', title: 'Say it for real' })
+  return steps
 })
 
 const rank = computed(() => rankFor(auth.user?.xp ?? 0))
@@ -196,6 +220,19 @@ async function sendFeedback() {
         today {{ todayDone }}/{{ goal }}{{ goalMet ? ' — goal met!' : '' }}
       </p>
 
+      <!-- today's woven session: the four-skill lineup, made visible up front.
+           This is the theme map surfacing - what you'll hear and bend today is
+           picked to match the lesson you're on, not a separate menu. -->
+      <div v-if="planSteps.length" class="card plan-card">
+        <p class="plan-title">Today's session</p>
+        <ol class="plan-steps">
+          <li v-for="(s, i) in planSteps" :key="i" class="plan-step">
+            <span class="plan-ico"><component :is="s.icon" aria-hidden="true" /></span>
+            <span class="plan-text"><b class="plan-kind">{{ s.kind }}</b><span class="plan-name">{{ s.title }}</span></span>
+          </li>
+        </ol>
+      </div>
+
       <!-- a recently broken streak can be relit for XP -->
       <div v-if="auth.user?.streak_repairable" class="card repair-card">
         <div class="repair-info">
@@ -289,7 +326,14 @@ async function sendFeedback() {
         </template>
       </div>
 
-      <!-- the rest of the sauna: listen, talk, roleplay, your own words -->
+      <!-- the rest of the sauna: listen, talk, roleplay, your own words.
+           These are no longer a separate menu - your daily session now weaves
+           listening, inflection drills and a speaking beat in. This row is the
+           library: open any one to go deeper or replay. -->
+      <div class="quick-head">
+        <h3>Go deeper</h3>
+        <span class="muted">Woven into your session — open one to practice more</span>
+      </div>
       <div class="quick-row">
         <router-link to="/listening" class="quick">
           <Headphones class="quick-icon" aria-hidden="true" />
@@ -462,6 +506,44 @@ async function sendFeedback() {
 .session-hint { text-align: center; margin: 10px 0 14px; }
 .hint-lesson { color: var(--text); font-weight: 700; }
 
+/* ---- today's woven session preview ---- */
+.plan-card { padding: 12px 14px; margin-bottom: 14px; }
+.plan-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.plan-steps { display: flex; flex-direction: column; gap: 2px; list-style: none; }
+.plan-step { display: flex; align-items: center; gap: 11px; padding: 6px 0; position: relative; }
+/* a thin connector so it reads as a sequence, not a list */
+.plan-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 32px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--border);
+}
+.plan-ico {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  z-index: 1;
+}
+.plan-ico svg { width: 15px; height: 15px; }
+.plan-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.plan-kind { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); }
+.plan-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .repair-card {
   display: flex;
   flex-wrap: wrap;
@@ -578,6 +660,15 @@ async function sendFeedback() {
 .schedule-why { font-size: 12px; line-height: 1.5; margin-top: 12px; text-align: center; }
 
 /* ---- quick actions ---- */
+.quick-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.quick-head h3 { font-size: 16px; }
+.quick-head .muted { font-size: 12px; text-align: right; }
 .quick-row {
   display: grid;
   /* equal columns for however many tiles render (the mistakes tile is

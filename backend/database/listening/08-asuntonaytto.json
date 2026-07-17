@@ -1,0 +1,26 @@
+{
+    "title": "The apartment viewing",
+    "emoji": "🔑",
+    "level": "B1",
+    "tagline": "Rooms, rent, what's included and when it's free - viewing a flat to rent.",
+    "speakers": {
+        "A": { "name": "Markku", "voice": "male", "role": "landlord" },
+        "B": { "name": "Sanna", "voice": "female", "role": "flat-hunter" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi, tuu sisään! Tää ois se kaksio.", "en": "Hi, come in! This would be the one-bedroom." },
+        { "who": "B", "fi": "Kiitos. Onpa valosa! Kuinka iso tää on?", "en": "Thanks. How bright it is! How big is it?" },
+        { "who": "A", "fi": "Neljäkytkaks neliöö. Keittiö, olohuone ja makkari.", "en": "Forty-two square meters. Kitchen, living room and bedroom." },
+        { "who": "B", "fi": "Paljonks vuokra on?", "en": "How much is the rent?" },
+        { "who": "A", "fi": "Kaheksansataa kuussa, sähkö ja vesi tulee päälle.", "en": "Eight hundred a month, electricity and water come on top." },
+        { "who": "B", "fi": "Sisältyyks siihen nettiyhteys?", "en": "Does the internet connection come with it?" },
+        { "who": "A", "fi": "Joo, netti kuuluu vuokraan.", "en": "Yeah, internet's included in the rent." },
+        { "who": "B", "fi": "Milloin asunto vapautuu?", "en": "When does the apartment become available?" },
+        { "who": "A", "fi": "Ens kuun alusta. Sä voisit muuttaa vaikka heti.", "en": "From the start of next month. You could move in right away." },
+        { "who": "B", "fi": "Saaks tänne tuoda lemmikin? Mul on kissa.", "en": "Can I bring a pet here? I have a cat." },
+        { "who": "A", "fi": "Kissa käy hyvin. Tupakointi vaan on kielletty sisällä.", "en": "A cat's fine. Only smoking is forbidden indoors." },
+        { "who": "B", "fi": "Selvä. Mä oisin tosi kiinnostunu. Miten haku toimii?", "en": "Alright. I'd be really interested. How does applying work?" },
+        { "who": "A", "fi": "Laita mulle viesti, niin lähetän hakulomakkeen.", "en": "Drop me a message and I'll send the application form." },
+        { "who": "B", "fi": "Hyvä juttu, kiitos näytöstä!", "en": "Great, thanks for the viewing!" }
+    ]
+}

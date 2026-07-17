@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lesson;
 use App\Models\ReviewLog;
 use App\Models\Sentence;
 use App\Models\UserProgress;
+use App\Support\Themes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -77,10 +79,57 @@ class SessionController extends Controller
             });
         }
 
+        $focus = $this->focus($reviews, $fresh);
+
         return response()->json([
             'sentences' => $this->interleave($reviews, $fresh)->values(),
             'due_count' => $due->count(),
+            // The four-skill weave: what to LISTEN to, BEND and USE after the
+            // sentence block, so the guided path exercises comprehension and
+            // production, not just recall. Assets matching the frontier lesson's
+            // theme are woven in when they exist; otherwise picked by level.
+            'woven' => Themes::wovenFor($user, $focus['level'], $size, $focus['title']),
         ]);
+    }
+
+    /**
+     * The session's focus: the level to pick woven extras at or below, and the
+     * frontier lesson's title for theme matching.
+     *
+     * New sentences are the learner's frontier, so they drive both - the level
+     * is the most advanced lesson in play, and the theme title is the lesson
+     * contributing the most new sentences. A pure-review day has no frontier, so
+     * it carries a level (the most advanced review) but no theme title, and the
+     * weave falls back to level-appropriate picks.
+     *
+     * @return array{level: string, title: ?string}
+     */
+    private function focus($reviews, $fresh): array
+    {
+        $primary = $fresh->isNotEmpty() ? $fresh : $reviews;
+        if ($primary->isEmpty()) {
+            return ['level' => 'A1', 'title' => null];
+        }
+
+        $lessons = Lesson::whereIn('id', $primary->pluck('lesson_id')->unique())->get(['id', 'title', 'level']);
+        if ($lessons->isEmpty()) {
+            return ['level' => 'A1', 'title' => null];
+        }
+
+        $level = $lessons->pluck('level')->sortBy(fn ($l) => Themes::levelIndex($l))->last();
+
+        // The theme is only meaningful on the frontier (fresh sentences); a
+        // pure-review day gets no title, so the weave stays level-based.
+        $title = null;
+        if ($fresh->isNotEmpty()) {
+            $dominantId = $fresh->groupBy('lesson_id')
+                ->sortByDesc(fn ($group) => $group->count())
+                ->keys()
+                ->first();
+            $title = optional($lessons->firstWhere('id', $dominantId))->title;
+        }
+
+        return ['level' => $level, 'title' => $title];
     }
 
     /**

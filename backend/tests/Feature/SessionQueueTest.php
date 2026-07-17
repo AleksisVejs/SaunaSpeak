@@ -76,6 +76,34 @@ class SessionQueueTest extends TestCase
         $this->assertSame(['learning', 'new', 'learning', 'new'], $statuses);
     }
 
+    public function test_full_size_session_weaves_in_listening_and_a_drill(): void
+    {
+        $this->makeSentences(8);
+
+        // 5-/15-minute goals (size >= 6) get the four-skill weave...
+        $res = $this->getJson('/api/today-session?size=6')->assertOk();
+        $this->assertNotNull($res->json('woven.listening'), 'a listen step should be woven in');
+        $this->assertNotNull($res->json('woven.transform'), 'a bend step should be woven in');
+
+        // ...while the 2-minute "taste" (size 3) stays short - no extra steps.
+        $light = $this->getJson('/api/today-session?size=3')->assertOk();
+        $this->assertNull($light->json('woven.listening'));
+        $this->assertNull($light->json('woven.transform'));
+    }
+
+    public function test_a_themed_lesson_weaves_in_its_own_matching_assets(): void
+    {
+        // A mapped lesson pins its own scene and drill over the level default.
+        $themed = Lesson::create(['title' => 'Buses and Trains', 'level' => 'A1', 'order_index' => 2]);
+        for ($i = 1; $i <= 8; $i++) {
+            $themed->sentences()->create(['finnish_text' => "Bussi {$i}", 'english_text' => "Bus {$i}"]);
+        }
+
+        $res = $this->getJson('/api/today-session?size=6')->assertOk();
+        $res->assertJsonPath('woven.listening.id', 'bussissa');
+        $res->assertJsonPath('woven.transform.id', 'missa-mihin');
+    }
+
     public function test_all_due_and_no_fresh_still_works(): void
     {
         $ids = $this->makeSentences(2);

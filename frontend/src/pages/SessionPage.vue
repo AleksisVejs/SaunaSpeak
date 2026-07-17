@@ -5,6 +5,9 @@ import { useSessionStore } from '../stores/session'
 import { useAuthStore } from '../stores/auth'
 import SentenceCard from '../components/SentenceCard.vue'
 import PracticeInput from '../components/PracticeInput.vue'
+import ListeningStep from '../components/ListeningStep.vue'
+import TransformStep from '../components/TransformStep.vue'
+import UseStep from '../components/UseStep.vue'
 import { cardKind, clozeWord } from '../utils/practice'
 import { rankFor } from '../utils/ranks'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -33,29 +36,35 @@ watch(
   }
 )
 
+// The current step's sentence, or null when we're on a woven step
+// (listening / bend / use). The sentence-card computeds all key off this.
+const sentenceStep = computed(() => (session.current?.type === 'sentence' ? session.current.sentence : null))
+
 // study | cloze | dictation | recall - the exercise gets harder as the SRS stage rises.
-const kind = computed(() => cardKind(session.current?.status))
+const kind = computed(() => cardKind(sentenceStep.value?.status))
 
 // Every card - including a new sentence's guess-first step - must be
 // attempted (or given up on) before self-grading. Cards emit 'revealed'.
 const canGrade = computed(() => revealed.value)
 
 // Cloze checks just the missing word; the other kinds check the whole sentence.
-const practiceExpected = computed(() =>
-  kind.value === 'cloze' ? clozeWord(session.current.finnish_text) : session.current.finnish_text
-)
+const practiceExpected = computed(() => {
+  const s = sentenceStep.value
+  if (!s) return ''
+  return kind.value === 'cloze' ? clozeWord(s.finnish_text) : s.finnish_text
+})
 
 // Cloze expects a single word, so the full-sentence translation would mislead
 // the AI corrector there; the other kinds get the English meaning as an anchor.
 const practiceTranslation = computed(() =>
-  kind.value === 'cloze' ? '' : session.current.english_text || ''
+  kind.value === 'cloze' ? '' : sentenceStep.value?.english_text || ''
 )
 
 // The kirjakieli form also counts as correct (speech recognition normalizes
 // puhekieli to written Finnish). Whole-sentence kinds only - there's no
 // word-level written mapping for a cloze gap.
 const practiceWritten = computed(() =>
-  kind.value === 'cloze' ? '' : session.current.written_text || ''
+  kind.value === 'cloze' ? '' : sentenceStep.value?.written_text || ''
 )
 
 const practiceHints = {
@@ -93,7 +102,7 @@ async function grade(g) {
   submitting.value = true
   error.value = ''
   try {
-    await session.completeCurrent(g)
+    await session.completeSentence(g)
     if (session.finished) {
       await auth.fetchUser()
       startCelebration()
@@ -111,8 +120,27 @@ async function grade(g) {
   }
 }
 
+// A woven step (listening / bend / use) reports done, with any XP its own
+// endpoint already awarded. Advancing past the last step finishes the session.
+async function onWovenDone(xp = 0) {
+  if (submitting.value) return
+  submitting.value = true
+  error.value = ''
+  try {
+    await session.completeWoven(xp)
+    if (session.finished) {
+      await auth.fetchUser()
+      startCelebration()
+    }
+  } catch {
+    error.value = 'Something went wrong saving your progress. Try again.'
+  } finally {
+    submitting.value = false
+  }
+}
+
 // --- end-of-session celebration: count the XP up, sweep the rank bar ---
-const totalXp = computed(() => session.xpEarned + session.bonusXp)
+const totalXp = computed(() => session.xpEarned + session.wovenXp + session.bonusXp)
 const shownXp = ref(0)
 const rankPct = ref(0)
 // Transition stays off until the start position has actually painted -
@@ -186,6 +214,7 @@ function confettiStyle(i) {
     <p class="muted">Löyly earned. See you tomorrow!</p>
     <div class="xp-summary">
       <div class="xp-line"><span>Sentences</span><b>+{{ session.xpEarned }} XP</b></div>
+      <div v-if="session.wovenXp" class="xp-line"><span>Listening &amp; drills</span><b>+{{ session.wovenXp }} XP</b></div>
       <div class="xp-line"><span>Daily bonus</span><b>+{{ session.bonusXp }} XP</b></div>
       <div class="xp-line total"><span>Total</span><b>+{{ shownXp }} XP</b></div>
     </div>
@@ -239,54 +268,61 @@ function confettiStyle(i) {
     </div>
 
     <transition name="slide-fade" mode="out-in">
-      <SentenceCard
-        ref="card"
-        :key="`${session.current.id}-${session.index}`"
-        :sentence="session.current"
-        :status="session.current.status"
-        mode="study"
-        @revealed="revealed = true"
-      />
-    </transition>
+      <!-- Sentence card: recall / cloze / dictation, self-graded (unchanged). -->
+      <div v-if="session.current.type === 'sentence'" :key="`s-${session.index}`" class="step-wrap">
+        <SentenceCard
+          ref="card"
+          :sentence="session.current.sentence"
+          :status="session.current.sentence.status"
+          mode="study"
+          @revealed="revealed = true"
+        />
 
-    <PracticeInput
-      :key="`practice-${session.index}`"
-      :expected="practiceExpected"
-      :translation="practiceTranslation"
-      :written="practiceWritten"
-      :placeholder="practiceHints[kind]"
-      @checked="onChecked"
-      @confirm="confirmSuggested"
-    />
+        <PracticeInput
+          :key="`practice-${session.index}`"
+          :expected="practiceExpected"
+          :translation="practiceTranslation"
+          :written="practiceWritten"
+          :placeholder="practiceHints[kind]"
+          @checked="onChecked"
+          @confirm="confirmSuggested"
+        />
 
-    <div v-if="error" class="error-msg">{{ error }}</div>
+        <div v-if="error" class="error-msg">{{ error }}</div>
 
-    <div class="grade-zone">
-      <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
-      <!-- The check result pre-picks a grade (correct → Good, miss → Again):
-           Enter or the highlighted button confirms it, the others override. -->
-      <div v-else class="grade-row">
-        <button
-          class="grade-btn again"
-          :class="suggested === 'again' ? 'btn btn-primary suggested-again' : 'btn btn-ghost'"
-          :disabled="submitting"
-          @click="grade('again')"
-        >
-          <RotateCcw class="grade-ico" aria-hidden="true" /> Again<kbd v-if="suggested === 'again'" class="key-hint">↵</kbd>
-        </button>
-        <button
-          class="grade-btn"
-          :class="suggested !== 'again' ? 'btn btn-primary' : 'btn btn-ghost'"
-          :disabled="submitting"
-          @click="grade('good')"
-        >
-          <Check class="grade-ico" aria-hidden="true" /> Good<kbd v-if="suggested === 'good'" class="key-hint">↵</kbd>
-        </button>
-        <button class="btn btn-ghost grade-btn easy" :disabled="submitting" @click="grade('easy')">
-          <Zap class="grade-ico" aria-hidden="true" /> Easy
-        </button>
+        <div class="grade-zone">
+          <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
+          <!-- The check result pre-picks a grade (correct → Good, miss → Again):
+               Enter or the highlighted button confirms it, the others override. -->
+          <div v-else class="grade-row">
+            <button
+              class="grade-btn again"
+              :class="suggested === 'again' ? 'btn btn-primary suggested-again' : 'btn btn-ghost'"
+              :disabled="submitting"
+              @click="grade('again')"
+            >
+              <RotateCcw class="grade-ico" aria-hidden="true" /> Again<kbd v-if="suggested === 'again'" class="key-hint">↵</kbd>
+            </button>
+            <button
+              class="grade-btn"
+              :class="suggested !== 'again' ? 'btn btn-primary' : 'btn btn-ghost'"
+              :disabled="submitting"
+              @click="grade('good')"
+            >
+              <Check class="grade-ico" aria-hidden="true" /> Good<kbd v-if="suggested === 'good'" class="key-hint">↵</kbd>
+            </button>
+            <button class="btn btn-ghost grade-btn easy" :disabled="submitting" @click="grade('easy')">
+              <Zap class="grade-ico" aria-hidden="true" /> Easy
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Woven steps: hear it, bend it, use it - the four-skill tail. -->
+      <ListeningStep v-else-if="session.current.type === 'listening'" :key="`l-${session.index}`" :data="session.current.data" @done="onWovenDone" />
+      <TransformStep v-else-if="session.current.type === 'transform'" :key="`t-${session.index}`" :data="session.current.data" @done="onWovenDone" />
+      <UseStep v-else-if="session.current.type === 'use'" :key="`u-${session.index}`" :data="session.current.data" @done="onWovenDone" />
+    </transition>
   </div>
   </div>
 </template>
@@ -295,6 +331,8 @@ function confettiStyle(i) {
 /* single root element - required by the page transition in App.vue */
 .session-page { display: flex; flex-direction: column; flex: 1; }
 .session { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+/* the swappable step fills the same column the sentence card used to */
+.step-wrap { display: flex; flex-direction: column; gap: 18px; flex: 1; }
 .session-top { display: flex; align-items: center; gap: 14px; }
 .quit { color: var(--text-dim); font-size: 18px; padding: 4px; }
 .quit:hover { color: var(--text); }
