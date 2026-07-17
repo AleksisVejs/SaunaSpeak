@@ -6,6 +6,7 @@
 // The "My takes" tab shows everything submitted - waiting or live - and any
 // of it can be re-recorded (the new take goes back through review).
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Check, Circle, CircleCheck, Clock, Mic, PartyPopper, Play, RotateCcw, Square, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -286,7 +287,7 @@ onBeforeUnmount(() => {
       <router-link to="/dashboard" class="back">‹ Back</router-link>
 
       <div class="head">
-        <h2>🎙 Recording studio</h2>
+        <h2><Mic class="head-ico" aria-hidden="true" /> Recording studio</h2>
         <p class="muted">
           Your voice replaces the robot's, one take at a time. Space to record,
           enter to keep - it plays back automatically so you catch bad takes
@@ -310,12 +311,12 @@ onBeforeUnmount(() => {
         <div class="progress-track studio-progress">
           <div class="progress-fill" :style="{ width: pct + '%' }"></div>
         </div>
-        <p v-if="pending" class="muted pending-note">⏳ {{ pending }} awaiting review</p>
+        <p v-if="pending" class="muted pending-note"><Clock class="sm-ico" aria-hidden="true" /> {{ pending }} awaiting review</p>
       </template>
 
       <!-- re-record banner: this take replaces an earlier one, via review -->
       <div v-if="override" class="override-note">
-        🔁 Re-recording - the new take replaces the old one after review.
+        <RotateCcw class="sm-ico" aria-hidden="true" /> Re-recording - the new take replaces the old one after review.
         <button class="override-cancel" @click="cancelOverride">Cancel</button>
       </div>
 
@@ -328,7 +329,7 @@ onBeforeUnmount(() => {
           <p class="take-fi">{{ kind === 'sentence' ? current.finnish_text : current.word }}</p>
           <p v-if="kind === 'sentence' && current.english_text" class="take-en muted">{{ current.english_text }}</p>
           <button class="ref-btn" title="Hear the current version (p)" @click="playReference">
-            🔊 Hear the current version
+            <Volume2 class="sm-ico" aria-hidden="true" /> Hear the current version
           </button>
         </div>
 
@@ -342,20 +343,22 @@ onBeforeUnmount(() => {
             :class="state === 'recording' ? 'btn-ghost recording' : 'btn-primary'"
             @click="toggleRecord"
           >
-            {{ state === 'recording' ? '⏹ Stop' : '🔴 Record' }}
+            <template v-if="state === 'recording'"><Square class="rec-ico" aria-hidden="true" /> Stop</template>
+            <template v-else><Circle class="rec-ico rec-dot" aria-hidden="true" /> Record</template>
             <span class="key-hint">space</span>
           </button>
 
           <template v-else>
             <div class="review-row">
               <button class="btn btn-ghost" :disabled="state === 'saving'" @click="playTake">
-                ▶ Listen <span class="key-hint">l</span>
+                <Play class="sm-ico" aria-hidden="true" /> Listen <span class="key-hint">l</span>
               </button>
               <button class="btn btn-ghost" :disabled="state === 'saving'" @click="redoTake">
-                ↺ Redo <span class="key-hint">r</span>
+                <RotateCcw class="sm-ico" aria-hidden="true" /> Redo <span class="key-hint">r</span>
               </button>
               <button class="btn btn-primary keep" :disabled="state === 'saving'" @click="save">
-                {{ state === 'saving' ? 'Saving…' : '✓ Keep it' }} <span class="key-hint">enter</span>
+                <template v-if="state === 'saving'">Saving…</template>
+                <template v-else><Check class="sm-ico" aria-hidden="true" /> Keep it</template> <span class="key-hint">enter</span>
               </button>
             </div>
           </template>
@@ -367,7 +370,7 @@ onBeforeUnmount(() => {
       </template>
 
       <div v-else-if="mode !== 'submitted'" class="card all-done">
-        🎉 Everything in this mode has your voice. Kiitos!
+        <PartyPopper class="sm-ico" aria-hidden="true" /> Everything in this mode has your voice. Kiitos!
       </div>
 
       <!-- "My takes": everything submitted, searchable, re-recordable -->
@@ -388,15 +391,15 @@ onBeforeUnmount(() => {
           </p>
 
           <section v-if="subLists.pending.length" class="sub-group">
-            <h3 class="sub-title">⏳ Awaiting review <span class="muted">{{ subLists.pending.length }}</span></h3>
+            <h3 class="sub-title"><Clock class="sm-ico" aria-hidden="true" /> Awaiting review <span class="muted">{{ subLists.pending.length }}</span></h3>
             <div v-for="row in subLists.pending.slice(0, SHOW_MAX)" :key="row.keyId" class="card sub-row">
               <div class="sub-main">
                 <p class="sub-label">{{ row.label }}</p>
                 <p v-if="row.note" class="sub-note muted">{{ row.note }}</p>
               </div>
               <div class="sub-actions">
-                <button class="sub-btn" title="Play your take" @click="playClip(row.url)">▶</button>
-                <button class="sub-btn" title="Record a new take" @click="redo(row)">🔁 Again</button>
+                <button class="sub-btn" title="Play your take" @click="playClip(row.url)"><Play class="sub-ico" aria-hidden="true" /></button>
+                <button class="sub-btn" title="Record a new take" @click="redo(row)"><RotateCcw class="sub-ico" aria-hidden="true" /> Again</button>
               </div>
             </div>
             <p v-if="subLists.pending.length > SHOW_MAX" class="muted sub-more">
@@ -405,15 +408,15 @@ onBeforeUnmount(() => {
           </section>
 
           <section v-if="subLists.live.length" class="sub-group">
-            <h3 class="sub-title">✅ Live in the app <span class="muted">{{ subLists.live.length }}</span></h3>
+            <h3 class="sub-title"><CircleCheck class="sm-ico" aria-hidden="true" /> Live in the app <span class="muted">{{ subLists.live.length }}</span></h3>
             <div v-for="row in subLists.live.slice(0, SHOW_MAX)" :key="row.keyId" class="card sub-row">
               <div class="sub-main">
                 <p class="sub-label">{{ row.label }}</p>
                 <p v-if="row.note" class="sub-note muted">{{ row.note }}</p>
               </div>
               <div class="sub-actions">
-                <button class="sub-btn" title="Play the live take" @click="playClip(row.url)">▶</button>
-                <button class="sub-btn" title="Record a replacement (goes through review)" @click="redo(row)">🔁 Again</button>
+                <button class="sub-btn" title="Play the live take" @click="playClip(row.url)"><Play class="sub-ico" aria-hidden="true" /></button>
+                <button class="sub-btn" title="Record a replacement (goes through review)" @click="redo(row)"><RotateCcw class="sub-ico" aria-hidden="true" /> Again</button>
               </div>
             </div>
             <p v-if="subLists.live.length > SHOW_MAX" class="muted sub-more">
@@ -431,7 +434,12 @@ onBeforeUnmount(() => {
 .back { display: inline-block; color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
 .back:hover { color: var(--text); }
 .head { margin-bottom: 18px; }
-.head h2 { font-size: 24px; margin-bottom: 6px; }
+.head h2 { font-size: 24px; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; }
+.head-ico { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
+.sm-ico { width: 14px; height: 14px; vertical-align: -2px; flex-shrink: 0; }
+.sub-ico { width: 12px; height: 12px; vertical-align: -1px; }
+.rec-ico { width: 15px; height: 15px; vertical-align: -2px; }
+.rec-dot { color: var(--red, #f87171); fill: currentColor; }
 .head .muted { line-height: 1.5; font-size: 14px; }
 
 .denied { text-align: center; padding: 26px 20px; line-height: 1.6; }

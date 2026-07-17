@@ -3,7 +3,9 @@
 // Sells the one thing competitors don't have - real SPOKEN Finnish - and
 // funnels to /try (no account needed) or /register.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { CalendarClock, Check, CircleCheck, Drama, Flag, Flame, Headphones, MessageCircle, Mic, Repeat, RotateCcw, Star, Target, Volume2, Zap } from 'lucide-vue-next'
 import api from '../api'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const { playSentence } = useFinnishAudio()
@@ -32,17 +34,17 @@ const SAMPLES = [
 
 const METHOD = [
   {
-    icon: '🗣️',
+    icon: Mic,
     title: 'Speak from day one',
     body: 'Every sentence is heard, shadowed and produced out loud - retrieval practice, one of the best-evidenced ways to make language stick.'
   },
   {
-    icon: '📅',
+    icon: CalendarClock,
     title: 'Reviews that arrive on time',
     body: 'Spaced repetition schedules each sentence right before you\'d forget it. Five focused minutes a day beats an hour on Sunday.'
   },
   {
-    icon: '🧖',
+    icon: LoylyIcon,
     title: 'Finnish Finns actually speak',
     body: 'Puhekieli first - "mä oon", not "minä olen". The textbook form stays one tap away, but you train the language of real life.'
   }
@@ -56,12 +58,12 @@ const DEMO_CHAT = [
 ]
 
 const FEATURES = [
-  { icon: '🎧', title: 'Audio on every sentence', body: 'Every sentence and word plays out loud - a clear synthetic Finnish voice today, replaced sentence by sentence with real native recordings (watch the 🎙 counter grow).' },
-  { icon: '🔁', title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
-  { icon: '⭐', title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
-  { icon: '🏁', title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
-  { icon: '💬', title: 'Sauna Chat with Väinö', body: 'Free-form AI conversation with a patient old Finn who knows your level - and your weak words. Löyly+' },
-  { icon: '🎭', title: 'Situations', body: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish. Löyly+' }
+  { icon: Headphones, title: 'Audio on every sentence', body: 'Every sentence and word plays out loud - a clear synthetic Finnish voice today, replaced sentence by sentence with real native recordings (watch the native-voice counter grow).' },
+  { icon: Repeat, title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
+  { icon: Star, title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
+  { icon: Flag, title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
+  { icon: MessageCircle, title: 'Sauna Chat with Väinö', body: 'Free-form AI conversation with a patient old Finn who knows your level - and your weak words. Löyly+' },
+  { icon: Drama, title: 'Situations', body: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish. Löyly+' }
 ]
 
 // Rendered FAQ and the FAQPage JSON-LD are built from the same array, so the
@@ -142,7 +144,7 @@ onBeforeUnmount(() => faqLd?.remove())
         scheduled by spaced repetition, spoken out loud from the first lesson.
       </p>
       <div class="cta-row">
-        <router-link to="/try" class="btn btn-primary cta">🔥 Try it - no account</router-link>
+        <router-link to="/try" class="btn btn-primary cta"><Flame class="btn-ico" aria-hidden="true" /> Try it - no account</router-link>
         <router-link to="/register" class="btn btn-ghost cta">Create free account</router-link>
       </div>
       <p class="muted tiny">
@@ -156,7 +158,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <div class="stat-item"><b>A0</b><span>starts from zero</span></div>
       <div class="stat-item"><b>69</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
-      <div v-if="nativeCount" class="stat-item"><b>🎙 {{ nativeCount }}</b><span>voiced by a native Finn</span></div>
+      <div v-if="nativeCount" class="stat-item"><b><Mic class="stat-ico" aria-hidden="true" /> {{ nativeCount }}</b><span>voiced by a native Finn</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>
     </section>
 
@@ -170,7 +172,7 @@ onBeforeUnmount(() => faqLd?.remove())
           :title="'Play ' + s.fi"
           @click="playSentence(s.fi, s.audio)"
         >
-          <span class="sample-fi">🔊 {{ s.fi }}</span>
+          <span class="sample-fi"><Volume2 class="sample-ico" aria-hidden="true" /> {{ s.fi }}</span>
           <span class="sample-book">📖 {{ s.book }}</span>
           <span class="sample-en">{{ s.en }}</span>
         </button>
@@ -196,9 +198,9 @@ onBeforeUnmount(() => faqLd?.remove())
         <p class="mock-fi">Mä otan <span class="mock-gap">&nbsp;____&nbsp;</span>, kiitos.</p>
         <p class="mock-en muted">I'll take a coffee, please.</p>
         <div class="mock-grades">
-          <span class="mock-g">🔁 Again</span>
-          <span class="mock-g good">👍 Good</span>
-          <span class="mock-g">✨ Easy</span>
+          <span class="mock-g"><RotateCcw class="g-ico" aria-hidden="true" /> Again</span>
+          <span class="mock-g good"><Check class="g-ico" aria-hidden="true" /> Good</span>
+          <span class="mock-g"><Zap class="g-ico" aria-hidden="true" /> Easy</span>
         </div>
       </div>
     </section>
@@ -217,7 +219,7 @@ onBeforeUnmount(() => faqLd?.remove())
             <p class="demo-title">Ordering at a café</p>
             <p class="demo-sub muted">with Joonas, the barista</p>
           </div>
-          <span class="demo-mission">🎯 Order a coffee</span>
+          <span class="demo-mission"><Target class="mission-ico" aria-hidden="true" /> Order a coffee</span>
         </div>
         <div class="demo-bubbles">
           <div v-for="(m, i) in DEMO_CHAT" :key="i" class="demo-row" :class="m.who">
@@ -227,7 +229,7 @@ onBeforeUnmount(() => faqLd?.remove())
             </div>
           </div>
           <div class="demo-row them">
-            <div class="demo-done">✅ Mission accomplished!</div>
+            <div class="demo-done"><CircleCheck class="done-ico" aria-hidden="true" /> Mission accomplished!</div>
           </div>
         </div>
       </div>
@@ -237,7 +239,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <h2>Why it works</h2>
       <div class="method-grid">
         <div v-for="m in METHOD" :key="m.title" class="method-card">
-          <span class="m-icon">{{ m.icon }}</span>
+          <component :is="m.icon" class="m-icon" aria-hidden="true" />
           <h3>{{ m.title }}</h3>
           <p>{{ m.body }}</p>
         </div>
@@ -248,7 +250,7 @@ onBeforeUnmount(() => faqLd?.remove())
       <h2>Everything inside</h2>
       <div class="feature-grid">
         <div v-for="f in FEATURES" :key="f.title" class="feature">
-          <span class="f-icon">{{ f.icon }}</span>
+          <component :is="f.icon" class="f-icon" aria-hidden="true" />
           <div>
             <h3>{{ f.title }}</h3>
             <p>{{ f.body }}</p>
@@ -331,7 +333,8 @@ onBeforeUnmount(() => faqLd?.remove())
 .lede { font-size: 17px; line-height: 1.55; color: var(--text-dim); max-width: 480px; }
 
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
-.cta { padding: 14px 24px; font-size: 16px; }
+.cta { padding: 14px 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 7px; }
+.btn-ico { width: 17px; height: 17px; flex-shrink: 0; }
 .tiny { font-size: 12px; }
 
 .contrast h2,
@@ -358,7 +361,8 @@ onBeforeUnmount(() => faqLd?.remove())
   transition: border-color 0.15s ease;
 }
 .sample:hover { border-color: var(--accent); }
-.sample-fi { font-weight: 800; font-size: 16px; color: var(--text); }
+.sample-fi { font-weight: 800; font-size: 16px; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
+.sample-ico { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
 .sample-book { font-size: 14px; color: var(--text-dim); }
 .sample-en { grid-column: 1 / -1; font-size: 13px; color: var(--text-dim); }
 @media (max-width: 480px) {
@@ -395,7 +399,11 @@ onBeforeUnmount(() => faqLd?.remove())
   border-radius: var(--radius-pill);
   padding: 5px 11px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.mission-ico { width: 12px; height: 12px; flex-shrink: 0; }
 .demo-bubbles { display: flex; flex-direction: column; gap: 8px; }
 .demo-row { display: flex; }
 .demo-row.you { justify-content: flex-end; }
@@ -412,7 +420,11 @@ onBeforeUnmount(() => faqLd?.remove())
   border-radius: var(--radius-pill);
   padding: 6px 14px;
   margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.done-ico { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* ---- stats band ---- */
 .stats-band {
@@ -429,7 +441,8 @@ onBeforeUnmount(() => faqLd?.remove())
   padding: 4px 22px;
 }
 .stat-item + .stat-item { border-left: 1px solid var(--border); }
-.stat-item b { font-size: 19px; font-weight: 800; color: var(--accent); line-height: 1; }
+.stat-item b { font-size: 19px; font-weight: 800; color: var(--accent); line-height: 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.stat-ico { width: 15px; height: 15px; }
 .stat-item span {
   font-size: 10.5px;
   font-weight: 700;
@@ -478,7 +491,12 @@ onBeforeUnmount(() => faqLd?.remove())
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 9px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
+.g-ico { width: 13px; height: 13px; flex-shrink: 0; }
 .mock-g.good { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
 /* ---- method ---- */
@@ -493,7 +511,7 @@ onBeforeUnmount(() => faqLd?.remove())
   gap: 8px;
   align-items: center;
 }
-.m-icon { font-size: 30px; }
+.m-icon { width: 28px; height: 28px; color: var(--accent); }
 .method-card h3 { font-size: 15px; }
 .method-card p { font-size: 13px; line-height: 1.5; color: var(--text-dim); }
 
@@ -510,7 +528,7 @@ onBeforeUnmount(() => faqLd?.remove())
   border-radius: var(--radius-sm);
   padding: 14px;
 }
-.f-icon { font-size: 22px; margin-top: 1px; }
+.f-icon { width: 20px; height: 20px; margin-top: 2px; color: var(--accent); flex-shrink: 0; }
 .feature h3 { font-size: 14px; }
 .feature p { font-size: 13px; line-height: 1.45; color: var(--text-dim); margin-top: 2px; }
 

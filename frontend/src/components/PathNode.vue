@@ -2,6 +2,7 @@
 // A single stop on the learning path. Locked nodes are non-interactive.
 // The CEFR level lives on the surrounding section header, not the card.
 import { computed } from 'vue'
+import { Check, Lock } from 'lucide-vue-next'
 
 const props = defineProps({
   lesson: { type: Object, required: true },
@@ -17,19 +18,17 @@ const pct = computed(() => {
 })
 
 const locked = computed(() => props.status === 'locked')
-
-const badge = computed(() => {
-  if (props.status === 'mastered') return '✓'
-  if (locked.value) return '🔒'
-  return String(props.index + 1)
-})
 </script>
 
 <template>
   <div class="path-node" :class="[`is-${status}`, { recommended }]">
     <!-- left rail: connector + marker -->
     <div class="rail">
-      <span class="marker">{{ badge }}</span>
+      <span class="marker">
+        <Check v-if="status === 'mastered'" class="marker-ico" aria-label="Mastered" />
+        <Lock v-else-if="locked" class="marker-ico" aria-label="Locked" />
+        <template v-else>{{ index + 1 }}</template>
+      </span>
       <span v-if="!isLast" class="connector"></span>
     </div>
 
@@ -44,7 +43,7 @@ const badge = computed(() => {
       <div class="node-head">
         <p class="node-title">{{ lesson.title }}</p>
         <span v-if="recommended" class="rec-tag">Start here →</span>
-        <span v-else-if="status === 'mastered'" class="done-tag">✓</span>
+        <Check v-else-if="status === 'mastered'" class="done-tag" aria-label="Mastered" />
       </div>
       <div class="node-foot">
         <div class="mini-track"><div class="mini-fill" :style="{ width: pct + '%' }"></div></div>
@@ -122,7 +121,8 @@ const badge = computed(() => {
 
 .node-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .rec-tag { font-size: var(--text-xs); font-weight: 800; color: var(--accent); white-space: nowrap; }
-.done-tag { font-size: 14px; font-weight: 800; color: var(--green); }
+.done-tag { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; }
+.marker-ico { width: 16px; height: 16px; }
 .node-title { font-weight: 700; font-size: 15px; }
 
 .node-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }

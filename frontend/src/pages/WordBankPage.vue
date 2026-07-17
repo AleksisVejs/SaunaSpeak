@@ -4,6 +4,7 @@
 // they are in that schedule (due / learning / mastered) so a growing bank
 // stays calm instead of becoming one long pile.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Bell, Check, Layers, Medal, Sprout, Star, Volume2, X } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
@@ -50,13 +51,14 @@ const filtered = computed(() => {
 // Three calm buckets instead of one long list or per-row status jargon.
 const groups = computed(() =>
   [
-    { key: 'due', title: '🔔 Due now', words: filtered.value.filter((w) => isDue(w)) },
+    { key: 'due', icon: Bell, title: 'Due now', words: filtered.value.filter((w) => isDue(w)) },
     {
       key: 'learning',
-      title: '🌱 Still learning',
+      icon: Sprout,
+      title: 'Still learning',
       words: filtered.value.filter((w) => !isDue(w) && w.status !== 'mastered')
     },
-    { key: 'mastered', title: '🏅 Mastered', words: filtered.value.filter((w) => !isDue(w) && w.status === 'mastered') }
+    { key: 'mastered', icon: Medal, title: 'Mastered', words: filtered.value.filter((w) => !isDue(w) && w.status === 'mastered') }
   ].filter((g) => g.words.length)
 )
 
@@ -115,7 +117,7 @@ onBeforeUnmount(commitPending)
       <router-link to="/dashboard" class="back">‹ Back</router-link>
 
       <div class="head">
-        <h2>⭐ My Word Bank <span v-if="words.length" class="head-count muted">{{ words.length }} words</span></h2>
+        <h2><Star class="head-ico" aria-hidden="true" /> My Word Bank <span v-if="words.length" class="head-count muted">{{ words.length }} words</span></h2>
         <p class="muted">
           Every word you tap gets collected here, and flashcards bring each one
           back right before you'd forget it.
@@ -123,11 +125,11 @@ onBeforeUnmount(commitPending)
       </div>
 
       <router-link v-if="dueCount" to="/words/review" class="btn btn-primary btn-block review-cta">
-        🎴 Review {{ dueCount }} {{ dueCount === 1 ? 'card' : 'cards' }}
+        <Layers class="cta-ico" aria-hidden="true" /> Review {{ dueCount }} {{ dueCount === 1 ? 'card' : 'cards' }}
       </router-link>
 
       <div v-else-if="words.length" class="card caught-up">
-        ✓ All caught up<span v-if="nextReviewText"> — next review {{ nextReviewText }}</span>
+        <Check class="cu-ico" aria-hidden="true" /> All caught up<span v-if="nextReviewText"> — next review {{ nextReviewText }}</span>
       </div>
 
       <div v-if="!words.length" class="card empty">
@@ -150,11 +152,11 @@ onBeforeUnmount(commitPending)
 
         <section v-for="g in groups" :key="g.key" class="group">
           <h3 class="group-title">
-            {{ g.title }} <span class="group-count muted">{{ g.words.length }}</span>
+            <component :is="g.icon" class="gt-ico" aria-hidden="true" /> {{ g.title }} <span class="group-count muted">{{ g.words.length }}</span>
           </h3>
           <div class="word-list">
             <div v-for="word in g.words" :key="word.id" class="card word-row">
-              <button class="play" :aria-label="`Play ${word.word}`" :title="`Play ${word.word}`" @click="playWord(word.word)">🔊</button>
+              <button class="play" :aria-label="`Play ${word.word}`" :title="`Play ${word.word}`" @click="playWord(word.word)"><Volume2 class="play-ico" aria-hidden="true" /></button>
               <div class="texts">
                 <p class="word">{{ word.word }}</p>
                 <p v-if="word.gloss" class="gloss muted">{{ word.gloss }}</p>
@@ -169,7 +171,7 @@ onBeforeUnmount(commitPending)
               </div>
               <div class="side">
                 <span v-if="backIn(word)" class="back-in muted">{{ backIn(word) }}</span>
-                <button class="remove" aria-label="Remove from word bank" title="Remove from word bank" @click="remove(word)">✕</button>
+                <button class="remove" aria-label="Remove from word bank" title="Remove from word bank" @click="remove(word)"><X class="rm-ico" aria-hidden="true" /></button>
               </div>
             </div>
           </div>
@@ -190,10 +192,12 @@ onBeforeUnmount(commitPending)
 .back { display: inline-block; color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
 .back:hover { color: var(--text); }
 .head { margin-bottom: 20px; }
-.head h2 { font-size: 24px; margin-bottom: 6px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.head h2 { font-size: 24px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.head-ico { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
 .head-count { font-size: 13px; font-weight: 600; }
 .head .muted { line-height: 1.5; }
-.review-cta { margin-bottom: 18px; font-size: 16px; }
+.review-cta { margin-bottom: 18px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.cta-ico { width: 16px; height: 16px; flex-shrink: 0; }
 
 .caught-up {
   text-align: center;
@@ -204,7 +208,13 @@ onBeforeUnmount(commitPending)
   border-color: var(--green);
   padding: 12px 16px;
   margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
+.cu-ico { width: 15px; height: 15px; flex-shrink: 0; }
 
 .empty { text-align: center; padding: 34px 22px; display: flex; flex-direction: column; gap: 8px; }
 .empty-icon.vaino { width: 120px; height: 120px; margin: 0 auto; }
@@ -232,9 +242,10 @@ onBeforeUnmount(commitPending)
   color: var(--text-dim);
   margin-bottom: 8px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 7px;
 }
+.gt-ico { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
 .group-count { font-size: 12px; font-weight: 600; }
 
 .word-list { display: flex; flex-direction: column; gap: 10px; }
@@ -244,10 +255,12 @@ onBeforeUnmount(commitPending)
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 10px;
-  font-size: 14px;
+  color: var(--text-dim);
   cursor: pointer;
   flex-shrink: 0;
+  display: inline-flex;
 }
+.play-ico { width: 15px; height: 15px; }
 .play:hover { border-color: var(--accent); }
 .texts { flex: 1; min-width: 0; }
 .word { font-weight: 800; font-size: 17px; }
@@ -282,12 +295,12 @@ onBeforeUnmount(commitPending)
   border-radius: 8px;
   color: var(--text-dim);
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
   line-height: 1;
   padding: 6px 8px;
   cursor: pointer;
+  display: inline-flex;
 }
+.rm-ico { width: 13px; height: 13px; }
 .remove:hover { border-color: var(--red); color: var(--red); }
 
 .snackbar {

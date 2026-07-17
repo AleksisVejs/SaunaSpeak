@@ -2,6 +2,7 @@
 // "Why this works" - a short, dismissible grammar rule shown in context.
 // Collapsed state is remembered per pattern so it doesn't nag on every visit.
 import { ref } from 'vue'
+import { Lightbulb } from 'lucide-vue-next'
 
 const props = defineProps({
   pattern: { type: Object, required: true }
@@ -20,7 +21,7 @@ function toggle() {
 <template>
   <div class="pattern" :class="{ open }">
     <button class="pattern-head" @click="toggle" :aria-expanded="open">
-      <span class="bulb">💡</span>
+      <Lightbulb class="bulb" aria-hidden="true" />
       <span class="pattern-title">{{ pattern.title }}</span>
       <span class="chev">{{ open ? '▾' : '▸' }}</span>
     </button>
@@ -58,7 +59,7 @@ function toggle() {
   color: var(--text);
   text-align: left;
 }
-.bulb { font-size: 18px; }
+.bulb { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
 .pattern-title { flex: 1; font-weight: 800; font-size: 15px; }
 .chev { color: var(--accent); font-size: 13px; }
 

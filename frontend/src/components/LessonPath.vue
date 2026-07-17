@@ -9,6 +9,7 @@
 // the daily session engine, which feeds fresh sentences in lesson order -
 // the map should never show a lock on ground the session already covers.
 import { computed, ref, watch } from 'vue'
+import { Check, Medal, Target } from 'lucide-vue-next'
 import PathNode from './PathNode.vue'
 import { useAuthStore } from '../stores/auth'
 
@@ -148,7 +149,11 @@ function jumpTo(level) {
         :title="`${s.level} · ${s.name} — ${s.masteredLessons}/${s.nodes.length} lessons mastered`"
         @click="jumpTo(s.level)"
       >
-        <span class="map-code">{{ s.done ? (s.checkpoint.passed ? '🏅' : '✓') : s.level }}</span>
+        <span class="map-code">
+          <Medal v-if="s.done && s.checkpoint.passed" class="map-ico" aria-label="Level mastered, checkpoint passed" />
+          <Check v-else-if="s.done" class="map-ico" aria-label="Level mastered" />
+          <template v-else>{{ s.level }}</template>
+        </span>
         <span class="map-track"><span class="map-fill" :style="{ width: s.pct + '%' }"></span></span>
         <span class="map-name">{{ s.name }}</span>
       </button>
@@ -162,14 +167,18 @@ function jumpTo(level) {
       :class="{ done: s.done, current: s.current, locked: s.locked }"
     >
       <button class="section-head" :aria-expanded="open[s.level] ? 'true' : 'false'" @click="toggle(s.level)">
-        <span class="section-badge">{{ s.done ? (s.checkpoint.passed ? '🏅' : '✓') : s.level }}</span>
+        <span class="section-badge">
+          <Medal v-if="s.done && s.checkpoint.passed" class="badge-ico" aria-label="Level mastered, checkpoint passed" />
+          <Check v-else-if="s.done" class="badge-ico" aria-label="Level mastered" />
+          <template v-else>{{ s.level }}</template>
+        </span>
         <span class="section-info">
           <span class="section-title">
             <template v-if="!s.done">{{ s.level }} · </template>{{ s.name }}
             <span v-if="s.current" class="section-now">You're here</span>
           </span>
           <span class="section-sub">
-            {{ s.done ? 'Level mastered 🏅' : `${s.masteredLessons}/${s.nodes.length} lessons mastered` }}
+            {{ s.done ? 'Level mastered' : `${s.masteredLessons}/${s.nodes.length} lessons mastered` }}
           </span>
         </span>
         <span class="section-side">
@@ -195,9 +204,9 @@ function jumpTo(level) {
           class="checkpoint-chip"
           :class="{ passed: s.checkpoint.passed }"
         >
-          <template v-if="s.checkpoint.passed">🏅 {{ s.checkpoint.level }} checkpoint passed - retake any time</template>
-          <template v-else-if="s.locked">🎯 Know {{ s.level }} already? Test out and skip ahead</template>
-          <template v-else>🎯 Take the {{ s.checkpoint.level }} checkpoint - pass to unlock the next level instantly</template>
+          <template v-if="s.checkpoint.passed"><Medal class="chip-ico" aria-hidden="true" /> {{ s.checkpoint.level }} checkpoint passed - retake any time</template>
+          <template v-else-if="s.locked"><Target class="chip-ico" aria-hidden="true" /> Know {{ s.level }} already? Test out and skip ahead</template>
+          <template v-else><Target class="chip-ico" aria-hidden="true" /> Take the {{ s.checkpoint.level }} checkpoint - pass to unlock the next level instantly</template>
         </router-link>
       </div>
     </section>
@@ -240,7 +249,12 @@ function jumpTo(level) {
   font-weight: 800;
   color: var(--text-dim);
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 14px;
 }
+.map-ico { width: 14px; height: 14px; }
 .map-track {
   width: 100%;
   height: 4px;
@@ -318,6 +332,7 @@ function jumpTo(level) {
   color: var(--text-dim);
   border: 2px solid var(--border);
 }
+.badge-ico { width: 17px; height: 17px; }
 .level-section.current .section-badge {
   background: var(--accent-soft);
   color: var(--accent);
@@ -382,7 +397,10 @@ function jumpTo(level) {
 
 /* ---- checkpoint chip caps its level ---- */
 .checkpoint-chip {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   text-align: center;
   font-size: 13px;
   font-weight: 700;
@@ -394,6 +412,7 @@ function jumpTo(level) {
   transition: filter 0.15s ease;
 }
 a.checkpoint-chip:hover { filter: brightness(1.1); }
+.chip-ico { width: 14px; height: 14px; flex-shrink: 0; }
 .checkpoint-chip.passed {
   color: var(--green);
   background: var(--green-soft);

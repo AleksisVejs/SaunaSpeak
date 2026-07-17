@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { BookOpen, Check, Flame, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
 import { useSessionStore } from '../stores/session'
 import { useAuthStore } from '../stores/auth'
 import SentenceCard from '../components/SentenceCard.vue'
@@ -158,22 +159,22 @@ function confettiStyle(i) {
     </div>
 
     <div class="rank-progress">
-      <p v-if="rankedUp" class="rankup">🎉 Rank up: {{ rank.icon }} <b>{{ rank.title }}</b></p>
+      <p v-if="rankedUp" class="rankup"><PartyPopper class="note-ico" aria-hidden="true" /> Rank up: <component :is="rank.icon" class="rank-ico" aria-hidden="true" /> <b>{{ rank.title }}</b></p>
       <p v-else class="rank-line">
-        <span>{{ rank.icon }} {{ rank.title }}</span>
+        <span class="rank-name"><component :is="rank.icon" class="rank-ico" aria-hidden="true" /> {{ rank.title }}</span>
         <span v-if="rank.next" class="muted rank-to-next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</span>
       </p>
       <div class="progress-track rank-track"><div class="progress-fill rank-sweep" :class="{ sweeping: sweepOn }" :style="{ width: rankPct + '%' }"></div></div>
     </div>
 
-    <div class="streak-note">🔥 {{ auth.user?.streak }} day streak</div>
-    <p v-if="freezeEarned" class="freeze-note">❄️ Week complete — you earned a streak freeze! It auto-saves one missed day.</p>
-    <p v-else-if="auth.user?.streak_freezes" class="freeze-note muted">❄️ {{ auth.user.streak_freezes }} freeze{{ auth.user.streak_freezes > 1 ? 's' : '' }} banked — each auto-saves one missed day</p>
+    <div class="streak-note"><Flame class="note-ico" aria-hidden="true" /> {{ auth.user?.streak }} day streak</div>
+    <p v-if="freezeEarned" class="freeze-note"><Snowflake class="note-ico" aria-hidden="true" /> Week complete — you earned a streak freeze! It auto-saves one missed day.</p>
+    <p v-else-if="auth.user?.streak_freezes" class="freeze-note muted"><Snowflake class="note-ico" aria-hidden="true" /> {{ auth.user.streak_freezes }} freeze{{ auth.user.streak_freezes > 1 ? 's' : '' }} banked — each auto-saves one missed day</p>
 
     <div v-if="studied.length" class="recap">
-      <p class="recap-title">📚 Quick recap - say each one out loud one more time</p>
+      <p class="recap-title"><BookOpen class="note-ico" aria-hidden="true" /> Quick recap - say each one out loud one more time</p>
       <div v-for="s in studied" :key="s.id" class="recap-row">
-        <button class="recap-play" :title="'Play ' + s.finnish_text" @click="playSentence(s.finnish_text, s.audio_url)">🔊</button>
+        <button class="recap-play" :title="'Play ' + s.finnish_text" @click="playSentence(s.finnish_text, s.audio_url)"><Volume2 class="play-ico" aria-hidden="true" /></button>
         <div class="recap-texts">
           <p class="recap-fi">{{ s.finnish_text }}</p>
           <p class="recap-en muted">{{ s.english_text }}</p>
@@ -183,7 +184,7 @@ function confettiStyle(i) {
 
     <!-- Momentum is precious: offer another round before the exit. If
          nothing is left, the reload lands on the "all caught up" state. -->
-    <button class="btn btn-primary btn-block" @click="session.loadToday()">🔥 Keep going - another round</button>
+    <button class="btn btn-primary btn-block more-btn" @click="session.loadToday()"><Flame class="note-ico" aria-hidden="true" /> Keep going - another round</button>
     <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to dashboard</router-link>
   </div>
 
@@ -198,7 +199,7 @@ function confettiStyle(i) {
   <!-- Active session -->
   <div v-else class="session">
     <div class="session-top">
-      <router-link to="/dashboard" class="quit">✕</router-link>
+      <router-link to="/dashboard" class="quit" aria-label="End session"><X class="quit-ico" aria-hidden="true" /></router-link>
       <div class="progress-track session-progress">
         <div class="progress-fill" :style="{ width: session.progressPct + '%' }"></div>
       </div>
@@ -230,13 +231,13 @@ function confettiStyle(i) {
       <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
       <div v-else class="grade-row">
         <button class="btn btn-ghost grade-btn again" :disabled="submitting" @click="grade('again')">
-          🔁 Again
+          <RotateCcw class="grade-ico" aria-hidden="true" /> Again
         </button>
         <button class="btn btn-primary grade-btn" :disabled="submitting" @click="grade('good')">
-          ✓ Good
+          <Check class="grade-ico" aria-hidden="true" /> Good
         </button>
         <button class="btn btn-ghost grade-btn easy" :disabled="submitting" @click="grade('easy')">
-          ⚡ Easy
+          <Zap class="grade-ico" aria-hidden="true" /> Easy
         </button>
       </div>
     </div>
@@ -257,7 +258,14 @@ function confettiStyle(i) {
 .grade-zone { margin-top: auto; }
 .grade-hint { text-align: center; padding: 14px 0; }
 .grade-row { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; }
-.grade-btn { padding: 15px 8px; font-size: 15px; }
+.grade-btn { padding: 15px 8px; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.grade-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.note-ico { width: 14px; height: 14px; vertical-align: -2px; flex-shrink: 0; }
+.play-ico { width: 16px; height: 16px; display: block; }
+.more-btn { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.quit-ico { width: 18px; height: 18px; display: block; }
+.rank-ico { width: 15px; height: 15px; vertical-align: -2px; color: var(--accent); }
+.rank-name { display: inline-flex; align-items: center; gap: 5px; }
 .grade-btn.again:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
 .grade-btn.easy:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
 

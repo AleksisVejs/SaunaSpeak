@@ -5,6 +5,8 @@
 // until then via Resume.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { Brain, ChartLine, Check, CircleCheck, Clock, Drama, Mail, MessageCircle, PartyPopper, Unlock } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 
@@ -22,10 +24,10 @@ const confirmingCancel = ref(false)
 const busyCancel = ref(false)
 
 const PERKS = [
-  { icon: '💬', title: 'Sauna Chat with Väinö', text: 'Free-form conversation that knows you: your name, your goal, and the words you keep forgetting.' },
-  { icon: '🎭', title: 'Situations', text: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish.' },
-  { icon: '🧠', title: 'AI feedback on every attempt', text: 'Not just right/wrong: what went wrong and why, in plain English.' },
-  { icon: '📈', title: 'Weekly insights', text: 'Your reviews, recall rate and momentum, week by week.' }
+  { icon: MessageCircle, title: 'Sauna Chat with Väinö', text: 'Free-form conversation that knows you: your name, your goal, and the words you keep forgetting.' },
+  { icon: Drama, title: 'Situations', text: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish.' },
+  { icon: Brain, title: 'AI feedback on every attempt', text: 'Not just right/wrong: what went wrong and why, in plain English.' },
+  { icon: ChartLine, title: 'Weekly insights', text: 'Your reviews, recall rate and momentum, week by week.' }
 ]
 
 // Billing intervals for the same Löyly+ tier. Display prices are set here;
@@ -157,13 +159,13 @@ async function managePortal() {
     </div>
 
     <div v-if="justPaid" class="card paid">
-      <template v-if="auth.user?.is_premium">🎉 <b>Kiitos!</b> Löyly+ is active - enjoy the steam!</template>
-      <template v-else>🎉 <b>Kiitos!</b> Checkout complete - unlocking Löyly+ now…</template>
+      <template v-if="auth.user?.is_premium"><PartyPopper class="in-ico" aria-hidden="true" /> <b>Kiitos!</b> Löyly+ is active - enjoy the steam!</template>
+      <template v-else><PartyPopper class="in-ico" aria-hidden="true" /> <b>Kiitos!</b> Checkout complete - unlocking Löyly+ now…</template>
     </div>
 
     <div class="card perks">
       <div v-for="p in PERKS" :key="p.title" class="perk">
-        <span class="perk-icon">{{ p.icon }}</span>
+        <span class="perk-icon"><component :is="p.icon" class="perk-ico" aria-hidden="true" /></span>
         <div>
           <p class="perk-title">{{ p.title }}</p>
           <p class="perk-text muted">{{ p.text }}</p>
@@ -180,23 +182,24 @@ async function managePortal() {
 
     <template v-if="billing">
       <div v-if="!billing.billing_enabled" class="card founder">
-        🔓 Billing isn't live yet - every Löyly+ feature is currently <b>free for everyone</b>. Enjoy!
+        <Unlock class="in-ico" aria-hidden="true" /> Billing isn't live yet - every Löyly+ feature is currently <b>free for everyone</b>. Enjoy!
       </div>
 
       <template v-else-if="billing.is_premium">
         <!-- pending cancellation: access runs out at period end, offer resume -->
         <template v-if="billing.cancel_at_period_end">
           <div class="card ending-plan">
-            ⏳ Löyly+ is <b>cancelled</b> - you keep everything<span v-if="billing.premium_until"> until <b>{{ fmtDate(billing.premium_until) }}</b></span>, then it won't renew.
+            <Clock class="in-ico" aria-hidden="true" /> Löyly+ is <b>cancelled</b> - you keep everything<span v-if="billing.premium_until"> until <b>{{ fmtDate(billing.premium_until) }}</b></span>, then it won't renew.
           </div>
-          <button class="btn btn-primary btn-block" :disabled="busyCancel" @click="resumeSubscription">
-            {{ busyCancel ? 'One moment…' : '♨️ Resume Löyly+' }}
+          <button class="btn btn-primary btn-block loyly-cta" :disabled="busyCancel" @click="resumeSubscription">
+            <template v-if="busyCancel">One moment…</template>
+            <template v-else><LoylyIcon class="cta-ico" aria-hidden="true" /> Resume Löyly+</template>
           </button>
         </template>
 
         <template v-else>
           <div class="card active-plan">
-            ✅ You're on <b>Löyly+</b><span v-if="billing.premium_until"> until {{ fmtDate(billing.premium_until) }}</span>.
+            <CircleCheck class="in-ico" aria-hidden="true" /> You're on <b>Löyly+</b><span v-if="billing.premium_until"> until {{ fmtDate(billing.premium_until) }}</span>.
           </div>
 
           <!-- two-step cancel: nothing happens without the confirmation -->
@@ -232,7 +235,7 @@ async function managePortal() {
       <!-- checkout requires a confirmed email: Stripe's receipts and the
            trial reminder go there, so it must be a real inbox first -->
       <div v-else-if="auth.user && !auth.user.email_verified_at" class="card verify-first">
-        <p class="verify-title">📧 One step before Löyly+</p>
+        <p class="verify-title"><Mail class="in-ico" aria-hidden="true" /> One step before Löyly+</p>
         <p class="muted verify-text">
           Confirm your email first - your receipts and trial reminder will go to
           <b>{{ auth.user.email }}</b>. Check your inbox for the link.
@@ -242,7 +245,7 @@ async function managePortal() {
           :disabled="resendState === 'sending' || resendState === 'sent'"
           @click="resendVerification"
         >
-          {{ resendState === 'sent' ? '✓ Sent - check your inbox' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend the link' }}
+          {{ resendState === 'sent' ? 'Sent - check your inbox' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend the link' }}
         </button>
       </div>
 
@@ -267,8 +270,9 @@ async function managePortal() {
           <span class="price-per">/ month</span>
         </div>
 
-        <button class="btn btn-primary btn-block cta" :disabled="starting" @click="upgrade">
-          {{ starting ? 'Opening checkout…' : billing.trial_eligible ? '♨️ Start 3-day free trial' : '♨️ Upgrade to Löyly+' }}
+        <button class="btn btn-primary btn-block cta loyly-cta" :disabled="starting" @click="upgrade">
+          <template v-if="starting">Opening checkout…</template>
+          <template v-else><LoylyIcon class="cta-ico" aria-hidden="true" /> {{ billing.trial_eligible ? 'Start 3-day free trial' : 'Upgrade to Löyly+' }}</template>
         </button>
         <p v-if="billing.trial_eligible" class="reassure muted">
           €0 today - your card is charged after the 3 free days.
@@ -324,10 +328,14 @@ async function managePortal() {
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  font-size: 22px;
+  color: var(--accent);
   background: var(--accent-soft);
   border-radius: var(--radius-sm);
 }
+.perk-ico { width: 20px; height: 20px; }
+.in-ico { width: 15px; height: 15px; vertical-align: -3px; }
+.loyly-cta { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.cta-ico { width: 16px; height: 16px; flex-shrink: 0; }
 .perk-title { font-weight: 800; }
 .perk-text { font-size: 14px; line-height: 1.45; margin-top: 2px; }
 

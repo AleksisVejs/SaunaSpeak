@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Check, Eye } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 import GoogleAuthButton from '../components/GoogleAuthButton.vue'
 
@@ -48,9 +49,9 @@ async function submit() {
       </router-link>
       <p class="muted">Väinö's saving you a seat on the bench. Short daily sessions, real spoken Finnish.</p>
       <ul class="trust" aria-label="What you get">
-        <li>✓ Free forever</li>
-        <li>✓ No credit card</li>
-        <li>✓ 2-minute setup</li>
+        <li><Check class="trust-ico" aria-hidden="true" /> Free forever</li>
+        <li><Check class="trust-ico" aria-hidden="true" /> No credit card</li>
+        <li><Check class="trust-ico" aria-hidden="true" /> 2-minute setup</li>
       </ul>
     </div>
 
@@ -85,7 +86,8 @@ async function submit() {
           >{{ showPassword ? 'Hide' : 'Show' }}</button>
         </div>
         <p id="pw-hint" class="pw-hint" :class="{ ok: pwOk }">
-          {{ pwOk ? '✓ Long enough' : 'At least 8 characters' }}
+          <template v-if="pwOk"><Check class="pw-ico" aria-hidden="true" /> Long enough</template>
+          <template v-else>At least 8 characters</template>
         </p>
       </div>
       <button class="btn btn-primary btn-block" type="submit" :disabled="loading">
@@ -101,7 +103,7 @@ async function submit() {
     <p class="muted switch">
       Already have an account? <router-link to="/login">Log in</router-link>
     </p>
-    <router-link to="/try" class="btn btn-ghost btn-block try-link">👀 Not sure yet? Try 6 sentences first</router-link>
+    <router-link to="/try" class="btn btn-ghost btn-block try-link"><Eye class="try-ico" aria-hidden="true" /> Not sure yet? Try a few sentences first</router-link>
   </div>
 </template>
 
@@ -116,7 +118,10 @@ async function submit() {
 .hero-vaino { width: 110px; height: 110px; margin-bottom: 6px; }
 .hero h1 { font-size: 30px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }
-.try-link { margin-top: 14px; }
+.try-link { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.try-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.trust-ico { width: 12px; height: 12px; vertical-align: -1px; color: var(--green, #4ade80); }
+.pw-ico { width: 12px; height: 12px; vertical-align: -1px; }
 
 .trust {
   list-style: none; padding: 0; margin: 14px 0 0;

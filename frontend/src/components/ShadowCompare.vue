@@ -3,6 +3,7 @@
 // the native audio. Hearing your own voice next to the model is the feedback
 // loop that makes shadowing work for prosody and pronunciation.
 import { ref, watch } from 'vue'
+import { Mic, Play, Square, Volume2 } from 'lucide-vue-next'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { useVoiceRecorder } from '../composables/useVoiceRecorder'
 
@@ -44,15 +45,16 @@ function playTake() {
       :class="{ recording }"
       @click="recording ? stop() : start()"
     >
-      {{ recording ? '⏹ Stop' : '🎙 Record yourself' }}
+      <template v-if="recording"><Square class="sc-ico" aria-hidden="true" /> Stop</template>
+      <template v-else><Mic class="sc-ico" aria-hidden="true" /> Record yourself</template>
     </button>
 
     <template v-if="takeUrl && !recording">
       <button class="ab-btn" :class="{ active: playingTake }" @click="playTake">
-        ▶ Your take
+        <Play class="sc-ico" aria-hidden="true" /> Your take
       </button>
       <button class="ab-btn" @click="playSentence(text, audioUrl)">
-        🔊 Native
+        <Volume2 class="sc-ico" aria-hidden="true" /> Native
       </button>
     </template>
 
@@ -74,7 +76,11 @@ function playTake() {
   padding: 8px 14px;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+.sc-ico { width: 13px; height: 13px; flex-shrink: 0; }
 .rec-btn:hover,
 .ab-btn:hover { border-color: var(--accent); color: var(--accent); }
 .rec-btn.recording {

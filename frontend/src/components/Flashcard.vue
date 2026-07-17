@@ -2,6 +2,7 @@
 // Anki-style flip card. Front prompts recall; tap/space flips to the answer.
 // direction 'fi-en' = see Finnish, recall meaning; 'en-fi' = see meaning, recall Finnish.
 import { computed, watch } from 'vue'
+import { Volume2 } from 'lucide-vue-next'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const props = defineProps({
@@ -42,13 +43,13 @@ watch(
       <div class="fc-face fc-front">
         <span class="fc-lang">{{ frontLang }}</span>
         <p class="fc-word">{{ frontText }}</p>
-        <button v-if="dir === 'fi-en'" class="fc-audio" @click.stop="play" aria-label="Play word">🔊</button>
+        <button v-if="dir === 'fi-en'" class="fc-audio" @click.stop="play" aria-label="Play word"><Volume2 class="fc-ico" aria-hidden="true" /></button>
         <span class="fc-hint">Tap to reveal</span>
       </div>
 
       <!-- back: the answer -->
       <div class="fc-face fc-back">
-        <button class="fc-audio" @click.stop="play" aria-label="Play word">🔊</button>
+        <button class="fc-audio" @click.stop="play" aria-label="Play word"><Volume2 class="fc-ico" aria-hidden="true" /></button>
         <p class="fc-word">{{ backWord }}</p>
         <p v-if="backGloss" class="fc-gloss">{{ backGloss }}</p>
       </div>
@@ -106,7 +107,9 @@ watch(
   border-radius: var(--radius-pill);
   width: 42px;
   height: 42px;
-  font-size: 18px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
+.fc-ico { width: 18px; height: 18px; }
 </style>

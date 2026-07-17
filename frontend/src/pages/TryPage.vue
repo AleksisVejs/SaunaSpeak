@@ -3,6 +3,7 @@
 // listen + reveal (plus the textbook form for contrast), then invites signup.
 // Self-contained sample content so it works without the backend/auth.
 import { ref, computed, onMounted } from 'vue'
+import { BookOpen, Eye, Flame, Lightbulb, Mic, Turtle, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
@@ -79,14 +80,14 @@ function next() {
         <router-link to="/register" class="skip">Skip</router-link>
       </div>
 
-      <p class="kicker">Try a real sentence 🔥</p>
+      <p class="kicker">Try a real sentence <Flame class="kicker-ico" aria-hidden="true" /></p>
 
       <div class="card sample-card">
         <div class="audio-row">
-          <button class="audio" @click="play()" aria-label="Play audio">🔊 Listen</button>
-          <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly">🐢 Slow</button>
+          <button class="audio" @click="play()" aria-label="Play audio"><Volume2 class="audio-ico" aria-hidden="true" /> Listen</button>
+          <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly"><Turtle class="audio-ico" aria-hidden="true" /> Slow</button>
         </div>
-        <p v-if="nativeAudio" class="native-note">🎙 recorded by a native Finnish speaker</p>
+        <p v-if="nativeAudio" class="native-note"><Mic class="note-ico" aria-hidden="true" /> recorded by a native Finnish speaker</p>
         <p class="fi">{{ current.fi }}</p>
 
         <!-- :duration guarantees the leave element is removed even if the tab
@@ -97,13 +98,13 @@ function next() {
             <p class="en">{{ current.en }}</p>
             <!-- Plain text, no strikethrough: the written form isn't wrong, it's
                  the register of every sign, email and form - you need both. -->
-            <p v-if="current.book" class="book">📖 In writing: {{ current.book }}</p>
-            <p class="note">💡 {{ current.note }}</p>
+            <p v-if="current.book" class="book"><BookOpen class="note-ico" aria-hidden="true" /> In writing: {{ current.book }}</p>
+            <p class="note"><Lightbulb class="note-ico" aria-hidden="true" /> {{ current.note }}</p>
           </div>
         </transition>
       </div>
 
-      <button v-if="!revealed" class="btn btn-ghost btn-block" @click="reveal">👁 Show meaning</button>
+      <button v-if="!revealed" class="btn btn-ghost btn-block reveal-btn" @click="reveal"><Eye class="audio-ico" aria-hidden="true" /> Show meaning</button>
       <button v-else class="btn btn-primary btn-block" @click="next">
         {{ isLast ? 'See how it works →' : 'Next sentence →' }}
       </button>
@@ -140,11 +141,18 @@ function next() {
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s ease; }
 .dot.active { background: var(--accent); }
 
-.kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.kicker { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.kicker-ico { width: 14px; height: 14px; }
+.audio-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.note-ico { width: 12px; height: 12px; vertical-align: -2px; }
+.reveal-btn { display: flex; align-items: center; justify-content: center; gap: 7px; }
 
 .sample-card { text-align: center; margin-bottom: 16px; }
 .audio-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
 .audio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: var(--accent-soft);
   color: var(--accent);
   border: none;

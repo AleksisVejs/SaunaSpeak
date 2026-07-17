@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Eye } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 import GoogleAuthButton from '../components/GoogleAuthButton.vue'
 
@@ -80,7 +81,7 @@ async function submit() {
     <p class="muted switch">
       New here? <router-link to="/register">Create a free account</router-link>
     </p>
-    <router-link to="/try" class="btn btn-ghost btn-block try-link">👀 Try a sentence first - no signup</router-link>
+    <router-link to="/try" class="btn btn-ghost btn-block try-link"><Eye class="try-ico" aria-hidden="true" /> Try a sentence first - no signup</router-link>
   </div>
 </template>
 
@@ -95,7 +96,8 @@ async function submit() {
 .hero-logo { width: 76px; height: 76px; border-radius: 18px; margin-bottom: 10px; }
 .hero h1 { font-size: 30px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }
-.try-link { margin-top: 14px; }
+.try-link { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.try-ico { width: 15px; height: 15px; flex-shrink: 0; }
 
 .pw-wrap { position: relative; }
 .pw-wrap input { width: 100%; padding-right: 62px; }

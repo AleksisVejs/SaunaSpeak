@@ -1,5 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { BookOpen, Drama, Flame, MessageCircle, Pencil, Smartphone, Snowflake, Zap } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useAuthStore } from '../stores/auth'
 import { usePwaInstall } from '../composables/usePwaInstall'
 import { usePrefs } from '../composables/usePrefs'
@@ -152,23 +154,23 @@ async function sendFeedback() {
     <div v-else class="dashboard">
       <!-- greeting + compact stat chips -->
       <header class="top">
-        <h2 class="greeting">Hei, {{ auth.user?.name }}! 👋</h2>
+        <h2 class="greeting">Hei, {{ auth.user?.name }}!</h2>
         <div class="chips">
           <span class="chip" title="XP — points earned from every completed exercise" aria-label="Experience points">
-            <span class="chip-icon">⚡</span>{{ auth.user?.xp ?? 0 }}
+            <Zap class="chip-icon" aria-hidden="true" />{{ auth.user?.xp ?? 0 }}
             <span class="chip-label">XP</span>
           </span>
           <span class="chip" :title="streakTitle" aria-label="Day streak">
-            <span class="chip-icon">🔥</span>{{ auth.user?.streak ?? 0 }}
+            <Flame class="chip-icon" aria-hidden="true" />{{ auth.user?.streak ?? 0 }}
             <span class="chip-label">day streak</span>
-            <span v-if="auth.user?.streak_freezes" class="chip-freeze">❄️{{ auth.user.streak_freezes }}</span>
+            <span v-if="auth.user?.streak_freezes" class="chip-freeze"><Snowflake class="freeze-ico" aria-hidden="true" />{{ auth.user.streak_freezes }}</span>
           </span>
         </div>
       </header>
 
       <!-- hero: today's session, with today's goal on the button -->
       <router-link to="/session" class="btn btn-primary btn-block session-btn">
-        <span>🧖 Start Sauna Session</span>
+        <span class="session-label"><LoylyIcon class="session-ico" aria-hidden="true" /> Start Sauna Session</span>
         <svg
           class="goal-ring"
           :class="{ met: goalMet }"
@@ -191,13 +193,13 @@ async function sendFeedback() {
       <p class="muted session-hint">
         <template v-if="nextLesson">Next up: <b class="hint-lesson">{{ nextLesson.title }}</b> ({{ nextLesson.level }}) · </template>
         <template v-if="dueCount">{{ dueCount }} due · </template>
-        today {{ todayDone }}/{{ goal }}{{ goalMet ? ' — goal met! 🔥' : '' }}
+        today {{ todayDone }}/{{ goal }}{{ goalMet ? ' — goal met!' : '' }}
       </p>
 
       <!-- a recently broken streak can be relit for XP -->
       <div v-if="auth.user?.streak_repairable" class="card repair-card">
         <div class="repair-info">
-          <p class="repair-title">🥶 Your {{ auth.user.broken_streak }}-day streak went cold</p>
+          <p class="repair-title"><Snowflake class="repair-ico" aria-hidden="true" /> Your {{ auth.user.broken_streak }}-day streak went cold</p>
           <p class="repair-sub muted">Relight it within 3 days and the chain continues like you never missed.</p>
           <p v-if="repairError" class="repair-error">{{ repairError }}</p>
         </div>
@@ -206,18 +208,20 @@ async function sendFeedback() {
           :disabled="repairing || (auth.user?.xp ?? 0) < REPAIR_COST"
           @click="repairStreak"
         >
-          {{ (auth.user?.xp ?? 0) < REPAIR_COST ? `Need ${REPAIR_COST} XP` : `🔥 Relight — ${REPAIR_COST} XP` }}
+          <template v-if="(auth.user?.xp ?? 0) < REPAIR_COST">Need {{ REPAIR_COST }} XP</template>
+          <template v-else><Flame class="relight-ico" aria-hidden="true" /> Relight — {{ REPAIR_COST }} XP</template>
         </button>
       </div>
 
       <!-- rank: one slim strip instead of a full card -->
       <div class="card rank-strip" :title="`${rank.title} — sauna rank grows with XP`">
-        <span class="rank-icon">{{ rank.icon }}</span>
+        <component :is="rank.icon" class="rank-icon" aria-hidden="true" />
         <div class="rank-mid">
           <div class="rank-row">
             <span class="rank-title">{{ rank.title }}</span>
             <span class="rank-next muted">
-              {{ rank.next ? `${rank.next.xp - (auth.user?.xp ?? 0)} XP to ${rank.next.icon}` : 'legenda!' }}
+              <template v-if="rank.next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</template>
+              <template v-else>legenda!</template>
             </span>
           </div>
           <div class="progress-track slim">
@@ -288,28 +292,28 @@ async function sendFeedback() {
       <!-- the rest of the sauna: talk, roleplay, your own words -->
       <div class="quick-row">
         <router-link to="/chat" class="quick">
-          <span class="quick-icon">💬</span>
+          <MessageCircle class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Sauna Chat</span>
         </router-link>
         <router-link to="/scenarios" class="quick">
-          <span class="quick-icon">🎭</span>
+          <Drama class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Situations</span>
         </router-link>
         <router-link to="/words" class="quick">
-          <span class="quick-icon">📚</span>
+          <BookOpen class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Word bank</span>
           <span v-if="auth.stats?.words_due" class="quick-badge">{{ auth.stats.words_due }} due</span>
         </router-link>
         <!-- appears only once chat corrections have piled up into due cards -->
         <router-link v-if="auth.stats?.mistakes_due" to="/mistakes/review" class="quick">
-          <span class="quick-icon">✏️</span>
+          <Pencil class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Chat mistakes</span>
           <span class="quick-badge">{{ auth.stats.mistakes_due }} due</span>
         </router-link>
       </div>
 
       <button v-if="installPrompt" class="btn btn-ghost btn-block install-btn" @click="install">
-        📲 Install SaunaSpeak on this device
+        <Smartphone class="install-ico" aria-hidden="true" /> Install SaunaSpeak on this device
       </button>
 
       <!-- the journey -->
@@ -322,10 +326,10 @@ async function sendFeedback() {
       <!-- feedback: complaints belong here, where they get fixed -->
       <div class="card feedback">
         <button v-if="!fbOpen && !fbSent" class="fb-toggle" @click="fbOpen = true">
-          💬 Something confusing, broken, or missing? Tell me
+          <MessageCircle class="fb-ico" aria-hidden="true" /> Something confusing, broken, or missing? Tell me
         </button>
         <template v-else-if="!fbSent">
-          <p class="fb-title">💬 Feedback</p>
+          <p class="fb-title"><MessageCircle class="fb-ico" aria-hidden="true" /> Feedback</p>
           <p class="fb-sub muted">Goes straight to the maker. Rough honesty welcome.</p>
           <textarea
             v-model="fbText"
@@ -342,7 +346,7 @@ async function sendFeedback() {
             </button>
           </div>
         </template>
-        <p v-else class="fb-thanks">Kiitos! 🙏 Read by a human, promise.</p>
+        <p v-else class="fb-thanks">Kiitos! Read by a human, promise.</p>
       </div>
     </div>
   </div>
@@ -386,7 +390,7 @@ async function sendFeedback() {
   font-weight: 800;
   font-size: 15px;
 }
-.chip-icon { font-size: 15px; }
+.chip-icon { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
 .chip-label {
   font-size: 10px;
   font-weight: 700;
@@ -402,7 +406,11 @@ async function sendFeedback() {
   padding-left: 7px;
   margin-left: 3px;
   border-left: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
+.freeze-ico { width: 11px; height: 11px; }
 
 /* ---- hero ---- */
 .session-btn {
@@ -413,6 +421,8 @@ async function sendFeedback() {
   align-items: center;
   justify-content: center;
 }
+.session-label { display: inline-flex; align-items: center; gap: 8px; }
+.session-ico { width: 19px; height: 19px; flex-shrink: 0; }
 .goal-ring {
   position: absolute;
   right: 15px;
@@ -453,7 +463,9 @@ async function sendFeedback() {
   margin-bottom: 14px;
   border-color: var(--accent-2);
 }
-.repair-title { font-weight: 800; font-size: 15px; }
+.repair-title { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+.repair-ico { width: 15px; height: 15px; color: var(--text-dim); flex-shrink: 0; }
+.relight-ico { width: 14px; height: 14px; vertical-align: -2px; margin-right: 2px; }
 .repair-sub { font-size: 13px; margin-top: 2px; }
 .repair-error { font-size: 13px; color: var(--red); margin-top: 4px; }
 .repair-btn { flex-shrink: 0; white-space: nowrap; }
@@ -466,7 +478,7 @@ async function sendFeedback() {
   padding: 10px 14px;
   margin-bottom: 14px;
 }
-.rank-icon { font-size: 24px; flex-shrink: 0; }
+.rank-icon { width: 24px; height: 24px; flex-shrink: 0; color: var(--accent); }
 .rank-mid { flex: 1; min-width: 0; }
 .rank-row {
   display: flex;
@@ -581,7 +593,7 @@ async function sendFeedback() {
 }
 .quick:hover { background: var(--card-hover); border-color: var(--accent); }
 .quick:active { transform: scale(0.98); }
-.quick-icon { font-size: 22px; line-height: 1; }
+.quick-icon { width: 22px; height: 22px; color: var(--accent); }
 .quick-name { font-size: 12px; font-weight: 700; }
 .quick-badge {
   font-size: 10px;
@@ -592,7 +604,8 @@ async function sendFeedback() {
   padding: 2px 8px;
 }
 
-.install-btn { margin-bottom: 22px; font-size: 15px; }
+.install-btn { margin-bottom: 22px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.install-ico { width: 16px; height: 16px; flex-shrink: 0; }
 
 /* ---- feedback box ---- */
 .feedback { margin-top: 22px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -608,7 +621,8 @@ async function sendFeedback() {
   text-align: center;
 }
 .fb-toggle:hover { color: var(--accent); }
-.fb-title { font-size: 15px; font-weight: 800; }
+.fb-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.fb-ico { width: 14px; height: 14px; vertical-align: -2px; flex-shrink: 0; }
 .fb-sub { font-size: 12.5px; margin-top: -6px; }
 .fb-input {
   background: var(--bg-soft);

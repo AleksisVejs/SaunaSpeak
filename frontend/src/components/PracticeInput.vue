@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeUnmount, ref, watch } from 'vue'
+import { Check, Ear, Mic, Pencil } from 'lucide-vue-next'
 import api from '../api'
 import { typoDistance } from '../utils/practice'
 
@@ -86,7 +87,7 @@ async function check() {
     feedback.value = {
       correct: true,
       corrected: props.expected,
-      explanation: 'Täydellistä! Exactly how a Finn says it. 🔥',
+      explanation: 'Täydellistä! Exactly how a Finn says it.',
       tokens: null,
       accentsOnly: false
     }
@@ -102,7 +103,7 @@ async function check() {
     feedback.value = {
       correct: true,
       corrected: props.expected,
-      explanation: 'Right! Just a tiny typo - the exact spelling is above. 👌',
+      explanation: 'Right! Just a tiny typo - the exact spelling is above.',
       tokens: null,
       accentsOnly: false
     }
@@ -163,13 +164,14 @@ onBeforeUnmount(stopListening)
         :title="listening ? 'Listening… tap to stop' : 'Say it in Finnish'"
         @click="listening ? stopListening() : startListening()"
       >
-        {{ listening ? '👂' : '🎤' }}
+        <Ear v-if="listening" class="mic-ico" aria-hidden="true" />
+        <Mic v-else class="mic-ico" aria-hidden="true" />
       </button>
       <input
         v-model="attempt"
         type="text"
         class="attempt-input"
-        :placeholder="listening ? 'Listening…' : placeholder || (micSupported ? 'Speak 🎤 or type in Finnish' : 'Type it in Finnish')"
+        :placeholder="listening ? 'Listening…' : placeholder || (micSupported ? 'Speak or type in Finnish' : 'Type it in Finnish')"
         autocapitalize="none"
         autocomplete="off"
         spellcheck="false"
@@ -183,7 +185,11 @@ onBeforeUnmount(stopListening)
     <transition name="fade">
       <div v-if="feedback" class="feedback" :class="feedback.correct ? 'good' : (feedback.accentsOnly ? 'accents' : 'close')">
         <p class="corrected">
-          <span class="mark">{{ feedback.correct ? '✓' : (feedback.accentsOnly ? '＾' : '✏️') }}</span>
+          <span class="mark">
+            <Check v-if="feedback.correct" class="mark-ico" aria-hidden="true" />
+            <template v-else-if="feedback.accentsOnly">＾</template>
+            <Pencil v-else class="mark-ico" aria-hidden="true" />
+          </span>
           <template v-if="feedback.tokens">
             <span
               v-for="(t, i) in feedback.tokens"
@@ -202,7 +208,8 @@ onBeforeUnmount(stopListening)
 <style scoped>
 .practice { display: flex; flex-direction: column; gap: 10px; }
 .input-row { display: flex; gap: 8px; }
-.mic-btn { padding: 12px 14px; font-size: 17px; flex-shrink: 0; }
+.mic-btn { padding: 12px 14px; flex-shrink: 0; display: inline-flex; align-items: center; }
+.mic-ico { width: 17px; height: 17px; }
 .mic-btn.listening {
   border-color: var(--accent);
   color: var(--accent);
@@ -237,6 +244,7 @@ onBeforeUnmount(stopListening)
 .feedback.accents { background: var(--blue-soft); border-color: rgba(96, 165, 250, 0.35); }
 .corrected { font-weight: 700; font-size: 16px; }
 .corrected .mark { margin-right: 4px; }
+.mark-ico { width: 14px; height: 14px; vertical-align: -2px; }
 .corrected .changed {
   color: var(--accent);
   background: var(--accent-soft);

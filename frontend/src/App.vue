@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { CircleCheck, Clock, Compass, Drama, LogOut, Mail, MessageCircle, Mic, Moon, Star, Sun } from 'lucide-vue-next'
 import api from './api'
+import LoylyIcon from './components/icons/LoylyIcon.vue'
 import { useAuthStore } from './stores/auth'
 import { useTheme } from './composables/useTheme'
 
@@ -56,14 +58,14 @@ const showShell = computed(() => auth.isLoggedIn && !FOCUS_ROUTES.includes(route
 // The Studio tab only exists for accounts with recording rights - everyone
 // else never sees it.
 const navItems = computed(() => [
-  { name: 'dashboard', to: '/dashboard', icon: '🧭', label: 'Learn' },
-  { name: 'chat', to: '/chat', icon: '💬', label: 'Chat' },
-  { name: 'scenarios', to: '/scenarios', icon: '🎭', label: 'Situations' },
-  { name: 'words', to: '/words', icon: '⭐', label: 'Words' },
+  { name: 'dashboard', to: '/dashboard', icon: Compass, label: 'Learn' },
+  { name: 'chat', to: '/chat', icon: MessageCircle, label: 'Chat' },
+  { name: 'scenarios', to: '/scenarios', icon: Drama, label: 'Situations' },
+  { name: 'words', to: '/words', icon: Star, label: 'Words' },
   ...(auth.user?.is_recorder || auth.user?.is_admin
-    ? [{ name: 'record', to: '/record', icon: '🎙', label: 'Studio' }]
+    ? [{ name: 'record', to: '/record', icon: Mic, label: 'Studio' }]
     : []),
-  { name: 'profile', to: '/profile', icon: '🧖', label: 'Profile' }
+  { name: 'profile', to: '/profile', icon: LoylyIcon, label: 'Profile' }
 ])
 
 async function logout() {
@@ -89,18 +91,19 @@ async function logout() {
           class="nav-link"
           :class="{ active: route.name === item.name }"
         >
-          <span class="nav-icon">{{ item.icon }}</span>
+          <component :is="item.icon" class="nav-icon" aria-hidden="true" />
           <span class="nav-label">{{ item.label }}</span>
         </router-link>
       </nav>
 
       <div class="sidebar-foot">
         <button class="foot-btn" @click="toggleTheme" :title="theme === 'dark' ? 'Light mode' : 'Dark mode'">
-          <span class="nav-icon">{{ theme === 'dark' ? '☀️' : '🌙' }}</span>
+          <Sun v-if="theme === 'dark'" class="nav-icon" aria-hidden="true" />
+          <Moon v-else class="nav-icon" aria-hidden="true" />
           <span class="nav-label">{{ theme === 'dark' ? 'Light' : 'Dark' }}</span>
         </button>
         <button class="foot-btn" @click="logout">
-          <span class="nav-icon">↩︎</span>
+          <LogOut class="nav-icon" aria-hidden="true" />
           <span class="nav-label">Log out</span>
         </button>
       </div>
@@ -108,11 +111,11 @@ async function logout() {
 
     <main class="content" :class="{ 'content--wide': route.meta.wide }">
       <div v-if="justVerified" class="verify-banner verified">
-        ✅ Email confirmed - kiitos!
+        <CircleCheck class="vb-ico" aria-hidden="true" /> Email confirmed - kiitos!
       </div>
       <div v-else-if="showShell && needsVerification" class="verify-banner">
-        <span v-if="linkExpired" class="vb-text">⏳ That confirmation link had expired - tap Resend and we'll send a fresh one to <b>{{ auth.user.email }}</b></span>
-        <span v-else class="vb-text">📧 Confirm your email - we sent a link to <b>{{ auth.user.email }}</b></span>
+        <span v-if="linkExpired" class="vb-text"><Clock class="vb-ico" aria-hidden="true" /> That confirmation link had expired - tap Resend and we'll send a fresh one to <b>{{ auth.user.email }}</b></span>
+        <span v-else class="vb-text"><Mail class="vb-ico" aria-hidden="true" /> Confirm your email - we sent a link to <b>{{ auth.user.email }}</b></span>
         <button class="vb-btn" :disabled="resendState === 'sending' || resendState === 'sent'" @click="resendVerification">
           {{ resendState === 'sent' ? 'Sent!' : resendState === 'sending' ? 'Sending…' : resendState === 'error' ? 'Try again' : 'Resend' }}
         </button>
@@ -132,7 +135,7 @@ async function logout() {
         class="tab"
         :class="{ active: route.name === item.name }"
       >
-        <span class="tab-icon">{{ item.icon }}</span>
+        <component :is="item.icon" class="tab-icon" aria-hidden="true" />
         <span class="tab-label">{{ item.label }}</span>
       </router-link>
     </nav>
@@ -159,6 +162,7 @@ async function logout() {
 }
 .verify-banner.verified { background: var(--green-soft); border-color: var(--green); font-weight: 700; }
 .vb-text { min-width: 0; overflow-wrap: anywhere; }
+.vb-ico { width: 15px; height: 15px; vertical-align: -2px; margin-right: 3px; flex-shrink: 0; }
 .vb-btn {
   flex-shrink: 0;
   background: none;
@@ -229,7 +233,7 @@ async function logout() {
 .nav-link:hover,
 .foot-btn:hover { background: var(--card); color: var(--text); }
 .nav-link.active { background: var(--accent-soft); color: var(--accent); }
-.nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.nav-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
 /* ---------- tab bar (mobile) ---------- */
 .tabbar {
@@ -261,7 +265,7 @@ async function logout() {
   cursor: pointer;
 }
 .tab.active { color: var(--accent); }
-.tab-icon { font-size: 20px; }
+.tab-icon { width: 22px; height: 22px; }
 
 /* ---------- desktop layout ---------- */
 @media (min-width: 900px) {

@@ -3,6 +3,8 @@
 // drops the learner straight into their first session (value in session one).
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { BicepsFlexed, BookOpen, Check, Coffee, Egg, Flame, Heart, Home, Plane, RotateCcw, Sprout } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { usePrefs } from '../composables/usePrefs'
 
 const router = useRouter()
@@ -15,7 +17,7 @@ const questions = [
   {
     key: 'intro',
     kind: 'intro',
-    icon: '🧖',
+    icon: LoylyIcon,
     title: 'Tervetuloa!',
     text: "Three quick questions and we'll tune SaunaSpeak to you. You'll learn real spoken Finnish - what people actually say in shops, buses and saunas."
   },
@@ -24,10 +26,10 @@ const questions = [
     kind: 'choice',
     title: 'Why are you learning Finnish?',
     options: [
-      { value: 'move', icon: '🏡', label: 'Moving to Finland' },
-      { value: 'travel', icon: '✈️', label: 'Travel & visits' },
-      { value: 'family', icon: '❤️', label: 'Family & friends' },
-      { value: 'casual', icon: '🌱', label: 'Just curious' }
+      { value: 'move', icon: Home, label: 'Moving to Finland' },
+      { value: 'travel', icon: Plane, label: 'Travel & visits' },
+      { value: 'family', icon: Heart, label: 'Family & friends' },
+      { value: 'casual', icon: Sprout, label: 'Just curious' }
     ]
   },
   {
@@ -35,9 +37,9 @@ const questions = [
     kind: 'choice',
     title: 'How much Finnish do you know?',
     options: [
-      { value: 'none', icon: '🐣', label: 'Absolute beginner' },
-      { value: 'some', icon: '📖', label: 'A few words' },
-      { value: 'rusty', icon: '🔁', label: 'Rusty - brushing up' }
+      { value: 'none', icon: Egg, label: 'Absolute beginner' },
+      { value: 'some', icon: BookOpen, label: 'A few words' },
+      { value: 'rusty', icon: RotateCcw, label: 'Rusty - brushing up' }
     ]
   },
   {
@@ -45,9 +47,9 @@ const questions = [
     kind: 'choice',
     title: 'How much time per day?',
     options: [
-      { value: 2, icon: '☕', label: '2 min - a taste' },
-      { value: 5, icon: '🔥', label: '5 min - steady' },
-      { value: 15, icon: '💪', label: '15 min - serious' }
+      { value: 2, icon: Coffee, label: '2 min - a taste' },
+      { value: 5, icon: Flame, label: '5 min - steady' },
+      { value: 15, icon: BicepsFlexed, label: '15 min - serious' }
     ]
   }
 ]
@@ -99,7 +101,7 @@ function finish() {
     <transition name="fade" mode="out-in">
       <div :key="current.key" class="onb-step">
         <template v-if="current.kind === 'intro'">
-          <div class="intro-icon">{{ current.icon }}</div>
+          <div class="intro-icon"><component :is="current.icon" class="intro-ico" aria-hidden="true" /></div>
           <h1>{{ current.title }}</h1>
           <p class="onb-text">{{ current.text }}</p>
         </template>
@@ -114,9 +116,9 @@ function finish() {
               :class="{ selected: answers[current.key] === opt.value }"
               @click="choose(current.key, opt.value)"
             >
-              <span class="opt-icon">{{ opt.icon }}</span>
+              <span class="opt-icon"><component :is="opt.icon" class="opt-ico" aria-hidden="true" /></span>
               <span class="opt-label">{{ opt.label }}</span>
-              <span class="opt-check">✓</span>
+              <span class="opt-check"><Check class="check-ico" aria-hidden="true" /></span>
             </button>
           </div>
         </template>
@@ -124,7 +126,7 @@ function finish() {
     </transition>
 
     <button class="btn btn-primary btn-block onb-cta" :disabled="!canAdvance" @click="next">
-      {{ current.kind === 'intro' ? "Let's go 🧖" : isLast ? 'Start my first session' : 'Continue' }}
+      {{ current.kind === 'intro' ? "Let's go" : isLast ? 'Start my first session' : 'Continue' }}
     </button>
   </div>
 </template>
@@ -149,7 +151,8 @@ function finish() {
 .onb-progress { flex: 1; }
 
 .onb-step { flex: 1; display: flex; flex-direction: column; }
-.intro-icon { font-size: 56px; text-align: center; margin-bottom: 14px; }
+.intro-icon { text-align: center; margin-bottom: 14px; color: var(--accent); }
+.intro-ico { width: 56px; height: 56px; stroke-width: 1.5; }
 .onb h1 { font-size: 26px; margin-bottom: 12px; }
 .q-title { text-align: left; }
 .onb-text { color: var(--text-dim); font-size: 16px; line-height: 1.55; }
@@ -174,7 +177,9 @@ function finish() {
 .option:hover { background: var(--card-hover); }
 .option:active { transform: scale(0.99); }
 .option.selected { border-color: var(--accent); background: var(--accent-soft); }
-.opt-icon { font-size: 24px; }
+.opt-icon { display: grid; place-items: center; color: var(--accent); }
+.opt-ico { width: 22px; height: 22px; }
+.check-ico { width: 16px; height: 16px; display: block; }
 .opt-label { flex: 1; }
 .opt-check { color: var(--accent); font-weight: 800; opacity: 0; transition: opacity 0.15s ease; }
 .option.selected .opt-check { opacity: 1; }

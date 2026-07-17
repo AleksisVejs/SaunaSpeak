@@ -2,6 +2,8 @@
 // Public pricing: the answer to "what's the catch?" before anyone signs up.
 // Free column is the product; Löyly+ is the AI layer on top.
 import { computed, ref } from 'vue'
+import { Check } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 
 const FREE = [
   'The full lesson path (starts at zero, growing)',
@@ -100,19 +102,19 @@ const FAQ = [
         <p class="plan-price">€0<span class="per"> forever</span></p>
         <p class="plan-note muted">no card needed</p>
         <ul>
-          <li v-for="f in FREE" :key="f">✓ {{ f }}</li>
+          <li v-for="f in FREE" :key="f"><Check class="li-ico" aria-hidden="true" /> {{ f }}</li>
         </ul>
         <router-link to="/register" class="btn btn-ghost btn-block">Create free account</router-link>
       </div>
 
       <div class="card plan plus">
-        <p class="plan-badge">♨️ Löyly+</p>
+        <p class="plan-badge"><LoylyIcon class="badge-ico" :stroke-width="2.5" /> Löyly+</p>
         <p class="plan-name">Löyly+</p>
         <p class="plan-price">{{ plusPrice.price }}<span class="per"> / month</span></p>
         <p class="plan-note muted">{{ plusPrice.note }}</p>
         <ul>
-          <li>✓ Everything in Free, plus:</li>
-          <li v-for="f in PLUS" :key="f">✓ {{ f }}</li>
+          <li><Check class="li-ico" aria-hidden="true" /> Everything in Free, plus:</li>
+          <li v-for="f in PLUS" :key="f"><Check class="li-ico" aria-hidden="true" /> {{ f }}</li>
         </ul>
         <router-link to="/register" class="btn btn-primary btn-block">Start free, upgrade inside</router-link>
         <p class="plan-trial muted">First subscription starts with 3 free days</p>
@@ -197,14 +199,17 @@ const FAQ = [
   background: var(--accent); color: #1a1204;
   font-size: 12px; font-weight: 800;
   border-radius: var(--radius-pill); padding: 3px 12px; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 4px;
 }
+.badge-ico { width: 13px; height: 13px; flex-shrink: 0; }
 .plan-name { font-weight: 800; font-size: 15px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
 .plan-price { font-size: 32px; font-weight: 800; }
 .plan-price .per { font-size: 14px; font-weight: 600; color: var(--text-dim); }
 .plan-note { font-size: 13px; margin-top: -4px; }
 .plan-trial { font-size: 12.5px; text-align: center; margin-top: 8px; }
 .plan ul { list-style: none; padding: 0; margin: 10px 0 16px; display: flex; flex-direction: column; gap: 8px; }
-.plan li { font-size: 14px; line-height: 1.45; color: var(--text-dim); }
+.plan li { font-size: 14px; line-height: 1.45; color: var(--text-dim); display: flex; align-items: flex-start; gap: 7px; }
+.li-ico { width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px; color: var(--accent); }
 .plan .btn { margin-top: auto; }
 
 .faq { display: flex; flex-direction: column; gap: 10px; margin-top: 26px; }

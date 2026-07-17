@@ -2,6 +2,8 @@
 // Profile & settings: identity, stats, rank, learning preferences, appearance.
 import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { ChartLine, Mic, Moon, Package, Pencil, Sun, Trash2, Wrench } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { usePrefs } from '../composables/usePrefs'
@@ -143,7 +145,7 @@ async function deleteAccount() {
 
     <div v-else class="profile">
       <div class="identity">
-        <div class="avatar">{{ rank.icon }}</div>
+        <div class="avatar"><component :is="rank.icon" class="avatar-ico" aria-hidden="true" /></div>
         <div>
           <h2>{{ auth.user?.name }}</h2>
           <p class="muted">{{ rank.title }}</p>
@@ -191,7 +193,7 @@ async function deleteAccount() {
         </div>
         <!-- the Löyly+ side of the same week -->
         <div v-if="plusWeek" class="plus-week">
-          <p class="plus-week-title">♨️ Löyly+ this week</p>
+          <p class="plus-week-title"><LoylyIcon class="pw-ico" aria-hidden="true" /> Löyly+ this week</p>
           <div class="week-stats">
             <div class="wstat"><span class="wv">{{ insights.chat_messages ?? 0 }}</span><span class="wl">chat messages</span></div>
             <div class="wstat"><span class="wv">{{ insights.scenarios_week ?? 0 }}</span><span class="wl">situations</span></div>
@@ -199,26 +201,26 @@ async function deleteAccount() {
             <div class="wstat"><span class="wv">{{ insights.mistakes_cleared ?? 0 }}</span><span class="wl">cleared</span></div>
           </div>
           <router-link v-if="insights.mistakes_due" to="/mistakes/review" class="plus-week-cta">
-            ✏️ Review {{ insights.mistakes_due }} chat {{ insights.mistakes_due === 1 ? 'mistake' : 'mistakes' }} ›
+            <Pencil class="row-ico" aria-hidden="true" /> Review {{ insights.mistakes_due }} chat {{ insights.mistakes_due === 1 ? 'mistake' : 'mistakes' }} ›
           </router-link>
         </div>
-        <p v-if="insights.reviews === 0" class="muted week-empty">No reviews yet this week - a Sauna Session fixes that. 🧖</p>
+        <p v-if="insights.reviews === 0" class="muted week-empty">No reviews yet this week - a Sauna Session fixes that.</p>
       </div>
       <router-link v-else to="/upgrade" class="card row-link">
-        <span>📈 Weekly insights</span>
+        <span class="row-label"><ChartLine class="row-ico" aria-hidden="true" /> Weekly insights</span>
         <span class="chev">Löyly+ ›</span>
       </router-link>
 
       <h3 class="section">Subscription</h3>
       <router-link to="/upgrade" class="card row-link">
-        <span>{{ premium ? '♨️ Löyly+ active' : 'Free plan' }}</span>
+        <span class="row-label"><template v-if="premium"><LoylyIcon class="row-ico" aria-hidden="true" /> Löyly+ active</template><template v-else>Free plan</template></span>
         <span class="chev">{{ premium ? 'Manage ›' : 'Upgrade ›' }}</span>
       </router-link>
 
       <template v-if="auth.user?.is_admin">
         <h3 class="section">Admin</h3>
         <router-link to="/admin" class="card row-link">
-          <span>🛠 Admin panel</span>
+          <span class="row-label"><Wrench class="row-ico" aria-hidden="true" /> Admin panel</span>
           <span class="chev">Open ›</span>
         </router-link>
       </template>
@@ -226,7 +228,7 @@ async function deleteAccount() {
       <template v-if="auth.user?.is_recorder || auth.user?.is_admin">
         <h3 class="section">Recording studio</h3>
         <router-link to="/record" class="card row-link">
-          <span>🎙 Record course audio</span>
+          <span class="row-label"><Mic class="row-ico" aria-hidden="true" /> Record course audio</span>
           <span class="chev">Open ›</span>
         </router-link>
       </template>
@@ -262,8 +264,8 @@ async function deleteAccount() {
       <h3 class="section">Appearance</h3>
       <div class="card">
         <div class="seg">
-          <button :class="{ on: theme === 'dark' }" @click="setTheme('dark')">🌙 Dark</button>
-          <button :class="{ on: theme === 'light' }" @click="setTheme('light')">☀️ Light</button>
+          <button :class="{ on: theme === 'dark' }" @click="setTheme('dark')"><Moon class="seg-ico" aria-hidden="true" /> Dark</button>
+          <button :class="{ on: theme === 'light' }" @click="setTheme('light')"><Sun class="seg-ico" aria-hidden="true" /> Light</button>
         </div>
       </div>
 
@@ -285,7 +287,7 @@ async function deleteAccount() {
 
       <h3 class="section">Your data</h3>
       <button class="card row-link data-btn" :disabled="exporting" @click="downloadData">
-        <span>📦 Download my data</span>
+        <span class="row-label"><Package class="row-ico" aria-hidden="true" /> Download my data</span>
         <span class="chev">{{ exporting ? '…' : 'JSON ›' }}</span>
       </button>
 
@@ -326,7 +328,7 @@ async function deleteAccount() {
         </div>
       </div>
       <button v-else class="card row-link danger-btn" @click="confirmingDelete = true">
-        <span>🗑 Delete account</span>
+        <span class="row-label"><Trash2 class="row-ico" aria-hidden="true" /> Delete account</span>
         <span class="chev danger-chev">›</span>
       </button>
 
@@ -343,9 +345,10 @@ async function deleteAccount() {
 .identity { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
 .avatar {
   width: 60px; height: 60px; border-radius: 50%;
-  display: grid; place-items: center; font-size: 30px;
+  display: grid; place-items: center; color: var(--accent);
   background: var(--accent-soft); border: 1px solid var(--border);
 }
+.avatar-ico { width: 28px; height: 28px; }
 .identity h2 { font-size: 22px; }
 
 .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
@@ -368,7 +371,12 @@ async function deleteAccount() {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
+.seg-ico { width: 14px; height: 14px; flex-shrink: 0; }
 .seg button.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
 .week { display: flex; flex-direction: column; gap: 14px; }
@@ -401,13 +409,20 @@ async function deleteAccount() {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
+.pw-ico { width: 12px; height: 12px; flex-shrink: 0; }
 .plus-week-cta {
   font-size: 13px;
   font-weight: 700;
   color: var(--accent);
   text-align: center;
 }
+.row-label { display: inline-flex; align-items: center; gap: 8px; }
+.row-ico { width: 15px; height: 15px; color: var(--text-dim); flex-shrink: 0; vertical-align: -3px; }
+.plus-week-cta .row-ico { color: var(--accent); width: 13px; height: 13px; }
 
 .rate-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .rate-value { color: var(--accent); font-size: 18px; }

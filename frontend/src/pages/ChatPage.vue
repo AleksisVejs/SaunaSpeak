@@ -9,6 +9,8 @@
 // when the backend reports goal_reached.
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { BookmarkCheck, Brain, CircleCheck, Drama, Ear, Languages, Lightbulb, Lock, MessageCircle, Mic, RotateCcw, Send, Sparkles, Target, Turtle, Volume2 } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -53,6 +55,8 @@ async function enterScene() {
 onMounted(() => {
   if (!auth.user) auth.fetchUser()
   enterScene()
+  // Desktop: land ready to type. On touch, focusing would pop the keyboard.
+  if (window.matchMedia('(pointer: fine)').matches) inputRef.value?.focus()
 })
 watch(() => route.query.scenario, () => {
   if (route.name === 'chat') enterScene()
@@ -113,6 +117,7 @@ const showHints = ref(false)
 function useHint(h) {
   draft.value = h.fi
   showHints.value = false
+  inputRef.value?.focus()
 }
 
 // Scenario mode: metadata for the situation named in ?scenario=, or null for
@@ -141,10 +146,10 @@ function portraitFailed() {
 
 // The scene backdrop: each scenario brings its own artwork, and Väinö's
 // free-form bench gets the sauna interior. The dark gradient keeps the
-// bubbles readable on top of any artwork; if the image ever fails to load,
+// panel readable on top of any artwork; if the image ever fails to load,
 // the CSS plank gradient underneath still gives a sauna-dark room.
 const sceneStyle = computed(() => ({
-  backgroundImage: `linear-gradient(rgba(20, 12, 6, 0.45), rgba(20, 12, 6, 0.72)), url('${art.value?.background ?? '/scenes/sauna.jpg'}')`,
+  backgroundImage: `linear-gradient(rgba(16, 9, 5, 0.5), rgba(14, 8, 4, 0.78)), url('${art.value?.background ?? '/scenes/sauna.jpg'}')`,
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 }))
@@ -154,9 +159,43 @@ const draft = ref('')
 const sending = ref(false)
 // Re-keyed on every Väinö reply → one steam burst per reply (löyly!).
 const burst = ref(0)
-const showTranslation = ref({}) // index → bool
+const showTranslation = ref({}) // index → bool (explicit per-message override)
 const listening = ref(false)
 const listRef = ref(null)
+const inputRef = ref(null)
+
+// Beginner mode: show the English under every one of Väinö's lines without
+// tapping. Sticky across visits - a learner who needs it, needs it every day.
+const AUTO_EN_STORE = 'ss_chat_auto_en'
+const autoTranslate = ref(localStorage.getItem(AUTO_EN_STORE) === '1')
+watch(autoTranslate, (v) => {
+  try {
+    localStorage.setItem(AUTO_EN_STORE, v ? '1' : '0')
+  } catch {
+    // storage blocked - the toggle just won't persist
+  }
+})
+
+// A message shows its English when auto-translate says so, unless the learner
+// explicitly toggled that message the other way.
+function enShown(i) {
+  return autoTranslate.value ? showTranslation.value[i] !== false : showTranslation.value[i] === true
+}
+function toggleEn(i) {
+  showTranslation.value[i] = !enShown(i)
+}
+
+// Tap-a-word: every word in Väinö's bubbles is speakable on its own -
+// hearing the pieces is how a sentence stops being a wall of sound.
+const tokenize = (text) => text.split(/(\s+)/)
+const isWord = (t) => /\p{L}/u.test(t)
+function speakWord(token) {
+  const clean = token.replace(/[^\p{L}\p{N}'\-]+/gu, '')
+  if (clean) playSpoken(clean)
+}
+
+// Slow playback for shadowing: same native voice, unhurried.
+const SLOW_RATE = 0.65
 
 // Väinö's portrait: drop an image at public/vaino.png (frontend) to replace
 // the emoji fallback everywhere it appears. Bound dynamically so Vite doesn't
@@ -253,9 +292,33 @@ function reset() {
     : [randomOpener()]
 }
 
+// New-chat button: a real conversation deserves a second tap before it's
+// wiped (no dialog - the button itself turns into the confirmation).
+const confirmReset = ref(false)
+let confirmTimer = null
+function newChat() {
+  if (messages.value.length <= 1) {
+    reset()
+    return
+  }
+  if (!confirmReset.value) {
+    confirmReset.value = true
+    clearTimeout(confirmTimer)
+    confirmTimer = setTimeout(() => (confirmReset.value = false), 2500)
+    return
+  }
+  clearTimeout(confirmTimer)
+  confirmReset.value = false
+  reset()
+}
+onBeforeUnmount(() => clearTimeout(confirmTimer))
+
 watch(messages, saveChat, { deep: true })
 
 const full = () => messages.value.length >= MAX_TURNS
+// A quiet heads-up when the conversation is close to its cap.
+const turnsLeft = computed(() => MAX_TURNS - messages.value.length)
+const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 </script>
 
 <template>
@@ -269,7 +332,7 @@ const full = () => messages.value.length >= MAX_TURNS
       </div>
 
       <div class="locked-body">
-        <span class="locked-badge">🔒 Löyly+</span>
+        <span class="locked-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
         <h1>Väinö's bench</h1>
         <p class="muted locked-lead">
           Free-form chatting with a patient old Finn - the fastest way to find the
@@ -277,13 +340,13 @@ const full = () => messages.value.length >= MAX_TURNS
         </p>
 
         <ul class="locked-perks">
-          <li><span class="lp-icon">💬</span><span>Real puhekieli, kept at your level</span></li>
-          <li><span class="lp-icon">🧠</span><span>Gentle corrections that explain the why</span></li>
-          <li><span class="lp-icon">🎭</span><span>Situations: real-life missions like buying groceries</span></li>
+          <li><MessageCircle class="lp-icon" aria-hidden="true" /><span>Real puhekieli, kept at your level</span></li>
+          <li><Brain class="lp-icon" aria-hidden="true" /><span>Gentle corrections that explain the why</span></li>
+          <li><Drama class="lp-icon" aria-hidden="true" /><span>Situations: real-life missions like buying groceries</span></li>
         </ul>
 
         <div class="locked-actions">
-          <router-link to="/upgrade" class="btn btn-primary">♨️ See Löyly+</router-link>
+          <router-link to="/upgrade" class="btn btn-primary loyly-btn"><LoylyIcon class="lb-ico" aria-hidden="true" /> See Löyly+</router-link>
           <router-link to="/dashboard" class="btn btn-ghost">Back to learning</router-link>
         </div>
 
@@ -310,22 +373,23 @@ const full = () => messages.value.length >= MAX_TURNS
 
     <!-- The character beside the chat (desktop): Väinö on his bench, or the
          scenario persona as their scene emoji -->
-    <aside class="vaino-side">
+    <aside class="stage">
       <img
         v-if="portraitOk"
-        class="vaino-big"
+        class="stage-portrait"
         :src="portraitSrc"
         :alt="scenario ? personaName : 'Väinö sitting on the sauna bench with a ladle'"
         @error="portraitFailed"
       />
-      <span v-else class="scene-big">{{ personaEmoji }}</span>
-      <p class="who">{{ personaName }}</p>
-      <p class="who-sub">{{ scenario ? scenario.title : 'speaks puhekieli · tap his bubbles for English' }}</p>
+      <span v-else class="stage-emoji">{{ personaEmoji }}</span>
+      <p class="stage-name">{{ personaName }}</p>
+      <p class="stage-sub">{{ scenario ? scenario.title : 'speaks real puhekieli' }}</p>
+      <p v-if="!scenario" class="stage-tip">tap a word in his bubbles to hear it</p>
     </aside>
 
-    <!-- the chat, a panel beside him -->
+    <!-- the chat panel -->
     <section class="chat-panel">
-      <header class="scene-head">
+      <header class="panel-head">
         <span class="avatar">
           <img
             v-if="portraitOk"
@@ -335,110 +399,169 @@ const full = () => messages.value.length >= MAX_TURNS
           />
           <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
         </span>
-        <div>
+        <div class="head-id">
           <p class="who">{{ personaName }}</p>
-          <p class="who-sub">{{ scenario ? scenario.title : 'on the bench · speaks puhekieli · tap his bubbles for English' }}</p>
+          <p class="who-sub">{{ scenario ? scenario.title : 'puhekieli · tap a word to hear it' }}</p>
+        </div>
+        <div class="head-actions">
+          <button
+            class="hbtn"
+            :class="{ on: autoTranslate }"
+            :title="autoTranslate ? 'Hide English (tap 文A under a message for one-offs)' : 'Always show English under replies'"
+            :aria-pressed="autoTranslate"
+            aria-label="Always show English translations"
+            @click="autoTranslate = !autoTranslate"
+          ><Languages class="hbtn-ico" aria-hidden="true" /></button>
+          <button
+            class="hbtn"
+            :class="{ warn: confirmReset }"
+            :title="confirmReset ? 'Tap again to start over' : 'Start a new chat'"
+            aria-label="Start a new chat"
+            @click="newChat"
+          ><RotateCcw class="hbtn-ico" aria-hidden="true" /></button>
         </div>
       </header>
 
       <!-- The mission strip: what to accomplish, flipping to done. -->
       <div v-if="scenario" class="mission" :class="{ done: missionDone }">
-        <span class="mission-icon">{{ missionDone ? '✅' : '🎯' }}</span>
+        <span class="mission-icon">
+          <CircleCheck v-if="missionDone" class="mi-ico" aria-hidden="true" />
+          <Target v-else class="mi-ico" aria-hidden="true" />
+        </span>
         <p class="mission-text">{{ missionDone ? 'Mission accomplished!' : scenario.mission }}</p>
         <span v-if="missionDone && xpGained" class="mission-xp">+{{ xpGained }} XP</span>
         <router-link v-if="missionDone" to="/scenarios" class="mission-next">Next situation ›</router-link>
       </div>
 
       <div ref="listRef" class="bubbles">
-      <div
-        v-for="(m, i) in messages"
-        :key="i"
-        class="row"
-        :class="m.role"
-      >
-        <span v-if="m.role === 'assistant'" class="avatar small">
-          <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
-          <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
-        </span>
-        <div
-          class="bubble"
-          :class="m.role"
-          @click="m.role === 'assistant' && (showTranslation[i] = !showTranslation[i])"
-        >
-          <p class="bubble-text">{{ m.content }}</p>
-          <p v-if="m.role === 'assistant' && showTranslation[i]" class="bubble-translation">
-            {{ m.translation }}
-          </p>
-          <p v-if="m.correction" class="bubble-correction">
-            ✏️ {{ m.correction }}
-            <button
-              class="corr-speak"
-              aria-label="Hear the corrected sentence"
-              title="Hear how it sounds"
-              @click.stop="playSpoken(m.correction)"
-            >🔊</button>
-            <span class="corr-saved" title="This correction is now a flashcard - it comes back for review before you'd slip again">saved for review</span>
-          </p>
-        </div>
-        <button
-          v-if="m.role === 'assistant'"
-          class="speak"
-          aria-label="Play"
-          @click="playSpoken(m.content)"
-        >🔊</button>
-      </div>
+        <template v-for="(m, i) in messages" :key="i">
+          <div class="row" :class="m.role">
+            <span v-if="m.role === 'assistant'" class="avatar small">
+              <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
+              <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
+            </span>
 
-      <div v-if="sending" class="row assistant">
-        <span class="avatar small">
-          <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
-          <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
-        </span>
-        <div class="bubble assistant typing">
-          {{ personaName }} miettii
-          <span class="tdots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span>
+            <div class="msg" :class="m.role">
+              <div class="bubble" :class="m.role">
+                <!-- Väinö's words, one tappable piece at a time -->
+                <p v-if="m.role === 'assistant'" class="bubble-text">
+                  <template v-for="(t, wi) in tokenize(m.content)" :key="wi">
+                    <button
+                      v-if="isWord(t)"
+                      class="w"
+                      type="button"
+                      :title="`Hear “${t}”`"
+                      @click.stop="speakWord(t)"
+                    >{{ t }}</button>
+                    <template v-else>{{ t }}</template>
+                  </template>
+                </p>
+                <p v-else class="bubble-text">{{ m.content }}</p>
+
+                <p v-if="m.role === 'assistant' && enShown(i) && m.translation" class="bubble-translation">
+                  {{ m.translation }}
+                </p>
+              </div>
+
+              <!-- listen / listen slowly / English - the teaching toolbar -->
+              <div v-if="m.role === 'assistant'" class="msg-tools">
+                <button class="tool" title="Listen" aria-label="Listen" @click="playSpoken(m.content)">
+                  <Volume2 class="tool-ico" aria-hidden="true" />
+                </button>
+                <button class="tool" title="Listen slowly" aria-label="Listen slowly" @click="playSpoken(m.content, SLOW_RATE)">
+                  <Turtle class="tool-ico" aria-hidden="true" />
+                </button>
+                <button
+                  v-if="m.translation"
+                  class="tool"
+                  :class="{ on: enShown(i) }"
+                  :title="enShown(i) ? 'Hide English' : 'Show English'"
+                  :aria-pressed="enShown(i)"
+                  aria-label="Toggle English translation"
+                  @click="toggleEn(i)"
+                >
+                  <Languages class="tool-ico" aria-hidden="true" />
+                </button>
+              </div>
+
+              <!-- the coach card: their sentence, said better -->
+              <div v-if="m.correction" class="coach">
+                <p class="coach-head"><Sparkles class="coach-ico" aria-hidden="true" /> A better way to say it</p>
+                <p class="coach-text">{{ m.correction }}</p>
+                <div class="coach-foot">
+                  <button class="coach-listen" @click="playSpoken(m.correction)">
+                    <Volume2 class="coach-listen-ico" aria-hidden="true" /> Listen
+                  </button>
+                  <span class="coach-saved" title="This correction is now a flashcard - it comes back for review before you'd slip again">
+                    <BookmarkCheck class="coach-ico" aria-hidden="true" /> Saved for review
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div v-if="sending" class="row assistant">
+          <span class="avatar small">
+            <img v-if="portraitOk" :src="portraitSrc" alt="" @error="portraitFailed" />
+            <span v-else class="avatar-fallback">{{ personaEmoji }}</span>
+          </span>
+          <div class="msg assistant">
+            <div class="bubble assistant typing">
+              {{ personaName }} miettii
+              <span class="tdots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
       <div v-if="full()" class="full-note">
-        <p class="muted">The löyly ran out - great chat! 🧖</p>
-        <button class="btn btn-ghost" @click="reset">Start a fresh chat</button>
+        <p>The löyly ran out - great chat! 🧖</p>
+        <button class="scene-btn" @click="reset"><RotateCcw class="scene-btn-ico" aria-hidden="true" /> Start a fresh chat</button>
       </div>
 
-      <div v-if="!full() && showHints" class="hint-row">
-        <button v-for="h in hints" :key="h.fi" class="hint-chip" @click="useHint(h)">
-          <span class="hint-fi">{{ h.fi }}</span>
-          <span class="hint-en">{{ h.en }}</span>
-        </button>
-      </div>
+      <div v-else class="dock">
+        <p v-if="lowTurns" class="turns-note">The löyly is running low - {{ turnsLeft }} messages left</p>
 
-      <div v-if="!full()" class="composer">
-        <button
-          class="btn btn-ghost mic hint-btn"
-          :class="{ on: showHints }"
-          :title="showHints ? 'Hide hints' : 'Stuck? Get a line to say'"
-          aria-label="Toggle reply hints"
-          @click="showHints = !showHints"
-        >💡</button>
-        <button
-          v-if="micSupported"
-          class="btn btn-ghost mic"
-          :class="{ listening }"
-          :title="listening ? 'Listening… tap to stop' : 'Say it in Finnish'"
-          @click="listening ? stopListening() : startListening()"
-        >{{ listening ? '👂' : '🎤' }}</button>
-        <input
-          v-model="draft"
-          type="text"
-          class="chat-input"
-          :placeholder="listening ? 'Listening…' : 'Sano jotain suomeks…'"
-          autocapitalize="none"
-          autocomplete="off"
-          spellcheck="false"
-          :disabled="sending"
-          @keyup.enter="send"
-        />
-        <button class="btn btn-primary send" :disabled="!draft.trim() || sending" @click="send">➤</button>
+        <div v-if="showHints" class="hint-row">
+          <button v-for="h in hints" :key="h.fi" class="hint-chip" @click="useHint(h)">
+            <span class="hint-fi">{{ h.fi }}</span>
+            <span class="hint-en">{{ h.en }}</span>
+          </button>
+        </div>
+
+        <div class="composer">
+          <button
+            class="cbtn"
+            :class="{ on: showHints }"
+            :title="showHints ? 'Hide hints' : 'Stuck? Get a line to say'"
+            :aria-pressed="showHints"
+            aria-label="Toggle reply hints"
+            @click="showHints = !showHints"
+          ><Lightbulb class="cbtn-ico" aria-hidden="true" /></button>
+          <button
+            v-if="micSupported"
+            class="cbtn"
+            :class="{ listening }"
+            :title="listening ? 'Listening… tap to stop' : 'Say it in Finnish'"
+            :aria-label="listening ? 'Stop listening' : 'Speak in Finnish'"
+            @click="listening ? stopListening() : startListening()"
+          ><Ear v-if="listening" class="cbtn-ico" aria-hidden="true" /><Mic v-else class="cbtn-ico" aria-hidden="true" /></button>
+          <input
+            ref="inputRef"
+            v-model="draft"
+            type="text"
+            class="chat-input"
+            :placeholder="listening ? 'Listening…' : 'Sano jotain suomeks…'"
+            autocapitalize="none"
+            autocomplete="off"
+            spellcheck="false"
+            @keyup.enter="send"
+          />
+          <button class="send" :disabled="!draft.trim() || sending" aria-label="Send" @click="send">
+            <Send class="send-ico" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </section>
   </div>
@@ -509,6 +632,9 @@ const full = () => messages.value.length >= MAX_TURNS
   border: 1px solid rgba(245, 158, 11, 0.28);
   border-radius: var(--radius-pill);
   padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .chat-locked h1 { font-size: 22px; }
 .locked-lead { font-size: 14px; line-height: 1.5; }
@@ -535,7 +661,9 @@ const full = () => messages.value.length >= MAX_TURNS
   border-radius: var(--radius-sm);
   padding: 8px 10px;
 }
-.lp-icon { font-size: 17px; line-height: 1; flex-shrink: 0; }
+.lp-icon { width: 17px; height: 17px; color: var(--accent); flex-shrink: 0; }
+.lb-ico { width: 13px; height: 13px; flex-shrink: 0; }
+.loyly-btn { display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
 
 .locked-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 .locked-free { font-size: 12px; margin-top: 2px; }
@@ -548,12 +676,26 @@ const full = () => messages.value.length >= MAX_TURNS
   .locked-actions .btn { flex: 1; }
 }
 
-/* ---- the sauna room (fills the viewport, edge to edge) ---- */
+/* ============================================================
+   The sauna room. Always dusk in here regardless of app theme:
+   the scene photography is dark, so the panel styles below use
+   scene-local colors, not the app tokens.
+   ============================================================ */
 .sauna-scene {
+  /* scene-local palette */
+  --scene-ink: #f5ead8;
+  --scene-ink-dim: rgba(245, 234, 216, 0.62);
+  --scene-ink-faint: rgba(245, 234, 216, 0.42);
+  --scene-line: rgba(245, 234, 216, 0.13);
+  --scene-glass: rgba(15, 9, 5, 0.68);
+  --scene-glass-deep: rgba(10, 6, 3, 0.6);
+  --bubble-ink: #2b1c10;
+
   position: relative;
   overflow: hidden;
-  padding: 14px;
-  /* dim cedar interior: warm dark planks */
+  padding: 12px;
+  justify-content: center;
+  /* dim cedar interior: warm dark planks (shows if the photo fails) */
   background:
     repeating-linear-gradient(
       180deg,
@@ -563,22 +705,28 @@ const full = () => messages.value.length >= MAX_TURNS
     linear-gradient(180deg, #241812 0%, #2d1c12 55%, #38200f 100%);
 }
 
-/* ---- Väinö on his bench (left side, desktop only) ---- */
-.vaino-side {
+/* ---- the character on stage (left side, desktop only) ---- */
+.stage {
   display: none;
   position: relative;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  width: 250px;
+  width: 270px;
   flex-shrink: 0;
-  padding: 0 8px 18px;
+  padding: 0 12px 26px;
   text-align: center;
 }
-.vaino-big {
-  width: 210px;
-  height: 210px;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
+.stage-portrait {
+  width: 220px;
+  height: 220px;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.55));
+  animation: breathe 5s ease-in-out infinite;
+}
+.stage-emoji {
+  font-size: 130px;
+  line-height: 1;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.55));
   animation: breathe 5s ease-in-out infinite;
 }
 @keyframes breathe {
@@ -586,42 +734,69 @@ const full = () => messages.value.length >= MAX_TURNS
   50% { transform: translateY(-4px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vaino-big { animation: none; }
+  .stage-portrait, .stage-emoji { animation: none; }
 }
-.vaino-side .who { margin-top: 10px; font-size: 18px; }
-.vaino-side .who-sub { margin-top: 2px; max-width: 210px; line-height: 1.4; }
+.stage-name {
+  margin-top: 14px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--scene-ink);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.stage-sub {
+  margin-top: 3px;
+  max-width: 220px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--scene-ink-dim);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+.stage-tip {
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--scene-ink-faint);
+  background: var(--scene-glass-deep);
+  border: 1px solid var(--scene-line);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  backdrop-filter: blur(6px);
+}
 
-/* ---- the chat panel (the small box) ---- */
+/* ---- the chat panel ---- */
 .chat-panel {
   position: relative;
   flex: 1;
   min-width: 0;
+  max-width: 820px;
   /* Without this the panel refuses to shrink below its content in the
      mobile column layout, so .bubbles never scrolls and the composer
      gets clipped by the scene's overflow: hidden. */
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(18, 10, 5, 0.55);
-  border: 1px solid rgba(243, 231, 211, 0.14);
-  border-radius: 16px;
-  padding: 12px;
+  background: var(--scene-glass);
+  border: 1px solid var(--scene-line);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
 }
 
-/* side-by-side once there's room; Väinö steps out of the header */
+/* side-by-side once there's room */
 @media (min-width: 760px) {
-  .sauna-scene { flex-direction: row; gap: 10px; padding: 18px; }
-  .vaino-side { display: flex; }
-  .chat-panel .scene-head { display: none; }
+  .sauna-scene { flex-direction: row; gap: 14px; padding: 20px; }
+  .stage { display: flex; }
 }
 
 /* Below 900px the fixed tab bar overlays the bottom edge: pad the scene so
    the composer clears it (the sauna glow still shows through the bar's blur).
-   The scene now starts at the very top, so clear the notch too. */
+   The scene starts at the very top, so clear the notch too. */
 @media (max-width: 899px) {
   .sauna-scene {
-    padding-top: calc(14px + env(safe-area-inset-top, 0px));
-    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -739,24 +914,24 @@ const full = () => messages.value.length >= MAX_TURNS
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wisp, .kiuas-glow, .fog, .bubble, .vaino-big { animation: none; }
+  .wisp, .kiuas-glow, .fog, .bubble { animation: none; }
   .loyly { display: none; }
 }
 
-/* ---- Väinö ---- */
-.scene-head {
-  position: relative;
+/* ---- panel header ---- */
+.panel-head {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
-  margin-bottom: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--scene-line);
+  background: rgba(0, 0, 0, 0.18);
 }
+.head-id { flex: 1; min-width: 0; }
 .avatar {
-  width: 52px;
-  height: 52px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -766,42 +941,85 @@ const full = () => messages.value.length >= MAX_TURNS
   place-items: center;
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-fallback { font-size: 26px; }
+.avatar-fallback { font-size: 22px; }
 .avatar.small { width: 30px; height: 30px; border-width: 1px; align-self: flex-end; }
 .avatar.small .avatar-fallback { font-size: 15px; }
-.who { font-weight: 800; font-size: 16px; color: #f3e7d3; }
-.who-sub { font-size: 12px; color: rgba(243, 231, 211, 0.55); }
+.who {
+  font-weight: 800;
+  font-size: 15.5px;
+  color: var(--scene-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.who-sub {
+  font-size: 12px;
+  color: var(--scene-ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-/* scenario persona on the desktop side panel: the scene emoji, big */
-.scene-big {
-  font-size: 120px;
-  line-height: 1;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
-  animation: breathe 5s ease-in-out infinite;
+.head-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.hbtn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: rgba(245, 234, 216, 0.07);
+  border: 1px solid var(--scene-line);
+  border-radius: 10px;
+  color: var(--scene-ink-dim);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
-@media (prefers-reduced-motion: reduce) {
-  .scene-big { animation: none; }
+.hbtn:hover { color: var(--scene-ink); border-color: rgba(245, 234, 216, 0.3); }
+.hbtn.on {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: rgba(245, 158, 11, 0.45);
 }
+.hbtn.warn {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.5);
+  animation: warn-pulse 1.2s ease-in-out infinite;
+}
+@keyframes warn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(248, 113, 113, 0); }
+}
+.hbtn-ico { width: 17px; height: 17px; }
 
 /* ---- the mission strip ---- */
 .mission {
-  position: relative;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(245, 158, 11, 0.14);
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  gap: 10px;
+  background: rgba(245, 158, 11, 0.13);
+  border: 1px solid rgba(245, 158, 11, 0.32);
   border-radius: 12px;
   padding: 8px 12px;
-  margin-bottom: 10px;
+  margin: 10px 12px 0;
 }
 .mission.done {
-  background: rgba(52, 211, 153, 0.16);
+  background: rgba(52, 211, 153, 0.15);
   border-color: rgba(52, 211, 153, 0.45);
 }
-.mission-icon { font-size: 15px; flex-shrink: 0; }
-.mission-text { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: #f3e7d3; line-height: 1.35; }
+.mission-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf58;
+}
+.mission.done .mission-icon { background: rgba(52, 211, 153, 0.22); color: #7ce6b8; }
+.mi-ico { width: 14px; height: 14px; }
+.mission-text { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: var(--scene-ink); line-height: 1.35; }
 .mission-xp {
   flex-shrink: 0;
   font-size: 12px;
@@ -836,119 +1054,164 @@ const full = () => messages.value.length >= MAX_TURNS
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 4px 2px 12px;
+  gap: 14px;
+  padding: 14px 14px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 234, 216, 0.2) transparent;
 }
-.row { display: flex; align-items: flex-end; gap: 6px; }
+.row { display: flex; align-items: flex-end; gap: 8px; }
 .row.user { justify-content: flex-end; }
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 82%;
+  min-width: 0;
+  align-items: flex-start;
+}
+.msg.user { align-items: flex-end; }
 
 .bubble {
   position: relative;
-  max-width: 80%;
-  padding: 12px 16px;
-  line-height: 1.45;
-  animation: puff-in 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  padding: 11px 14px;
+  line-height: 1.5;
+  animation: msg-in 0.3s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
-/* messages materialize like a puff of steam */
-@keyframes puff-in {
-  from { opacity: 0; transform: scale(0.82) translateY(8px); filter: blur(5px); }
-  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .bubble.assistant {
-  /* Väinö's words arrive as steam clouds */
-  background: radial-gradient(130% 160% at 30% 15%, rgba(255, 255, 255, 0.97), rgba(230, 233, 238, 0.88));
-  color: #2b1c10;
-  border-radius: 26px 22px 24px 10px;
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.3),
-    inset 0 2px 6px rgba(255, 255, 255, 0.9),
-    inset 0 -4px 10px rgba(160, 170, 185, 0.28);
-  cursor: pointer;
+  background: #fbf8f2;
+  color: var(--bubble-ink);
+  border-radius: 18px 18px 18px 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
-/* cloud lumps along the top edge */
-.bubble.assistant::before,
-.bubble.assistant::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: inherit;
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.85);
-  z-index: -1;
-}
-.bubble.assistant::before { width: 26px; height: 26px; top: -9px; left: 18px; }
-.bubble.assistant::after { width: 18px; height: 18px; top: -6px; left: 48px; }
-
 .bubble.user {
-  /* the learner's löyly: warm amber steam */
-  background: radial-gradient(130% 160% at 70% 15%, rgba(252, 200, 96, 0.96), rgba(245, 145, 30, 0.92));
-  color: #1a1204;
-  border-radius: 22px 26px 10px 24px;
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.3),
-    inset 0 2px 6px rgba(255, 226, 170, 0.85),
-    inset 0 -4px 10px rgba(160, 80, 10, 0.3);
+  background: linear-gradient(135deg, #fcc356, #f0900d);
+  color: #201302;
+  border-radius: 18px 18px 6px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
-.bubble.user::before {
-  content: '';
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  top: -8px;
-  right: 22px;
-  border-radius: 50%;
-  background: inherit;
-  box-shadow: inset 0 2px 4px rgba(255, 226, 170, 0.8);
-  z-index: -1;
+
+.bubble-text { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+
+/* tappable words inside Väinö's bubbles */
+.w {
+  background: none;
+  border: none;
+  padding: 0 1px;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.12s ease;
 }
-.bubble-text { font-size: 15px; font-weight: 600; }
+.w:hover { background: rgba(240, 144, 13, 0.2); }
+.w:active { background: rgba(240, 144, 13, 0.35); }
+.w:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 .bubble-translation {
   font-size: 13px;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(43, 28, 16, 0.3);
-  color: rgba(43, 28, 16, 0.75);
+  font-weight: 500;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px dashed rgba(43, 28, 16, 0.28);
+  color: rgba(43, 28, 16, 0.72);
 }
-.bubble-correction {
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 6px;
-  color: #7a3b00;
-}
-/* hear the corrected form right where it's shown (shadow it back) */
-.corr-speak {
-  background: rgba(122, 59, 0, 0.12);
-  border: 1px solid rgba(122, 59, 0, 0.35);
-  color: #7a3b00;
-  border-radius: 6px;
-  padding: 1px 6px;
-  font-size: 11px;
+
+/* listen / slow / English under each of Väinö's bubbles */
+.msg-tools { display: flex; gap: 5px; padding-left: 4px; }
+.tool {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: rgba(245, 234, 216, 0.08);
+  border: 1px solid var(--scene-line);
+  border-radius: 9px;
+  color: var(--scene-ink-dim);
   cursor: pointer;
-  margin-left: 4px;
-  vertical-align: middle;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
-.corr-speak:hover { border-color: #7a3b00; }
-.corr-saved {
-  display: inline-block;
-  font-size: 10.5px;
+.tool:hover { color: var(--scene-ink); border-color: rgba(245, 234, 216, 0.32); }
+.tool.on {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+.tool-ico { width: 14px; height: 14px; }
+
+/* ---- the coach card (a correction, said kindly) ---- */
+.coach {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  border-radius: 14px;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  animation: msg-in 0.3s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.coach-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fbbf58;
+}
+.coach-ico { width: 13px; height: 13px; flex-shrink: 0; }
+.coach-text { font-size: 14.5px; font-weight: 700; line-height: 1.45; color: var(--scene-ink); overflow-wrap: anywhere; }
+.coach-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.coach-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf58;
+  border-radius: var(--radius-pill);
+  padding: 4px 11px;
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 700;
-  color: rgba(122, 59, 0, 0.65);
-  margin-left: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.coach-listen:hover { background: rgba(245, 158, 11, 0.3); }
+.coach-listen-ico { width: 12px; height: 12px; }
+.coach-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--scene-ink-faint);
   white-space: nowrap;
 }
+
+/* ---- typing indicator ---- */
 .bubble.typing {
   font-style: italic;
   font-size: 14px;
   color: rgba(43, 28, 16, 0.6);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 /* thinking = little steam puffs rising */
 .tdots { display: inline-flex; gap: 4px; align-items: flex-end; }
 .tdot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: rgba(43, 28, 16, 0.45);
   animation: tdot-rise 1.2s ease-in-out infinite;
@@ -960,74 +1223,138 @@ const full = () => messages.value.length >= MAX_TURNS
   40% { transform: translateY(-5px); opacity: 1; }
 }
 
-.speak {
-  background: rgba(243, 231, 211, 0.12);
-  border: 1px solid rgba(243, 231, 211, 0.3);
-  color: #f3e7d3;
-  border-radius: 8px;
-  padding: 6px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.speak:hover { border-color: var(--accent); }
-
+/* ---- end of chat ---- */
 .full-note {
-  position: relative;
+  flex-shrink: 0;
   text-align: center;
-  padding: 12px 0;
+  padding: 14px 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  border-top: 1px solid var(--scene-line);
 }
-.full-note .muted { color: rgba(243, 231, 211, 0.7); }
+.full-note p { font-size: 14px; font-weight: 600; color: var(--scene-ink-dim); }
+.scene-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(245, 234, 216, 0.1);
+  border: 1px solid rgba(245, 234, 216, 0.28);
+  color: var(--scene-ink);
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.scene-btn:hover { background: rgba(245, 234, 216, 0.18); border-color: var(--accent); }
+.scene-btn-ico { width: 15px; height: 15px; }
 
-/* ---- reply hints ---- */
-.hint-row { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; flex-shrink: 0; }
+/* ---- the dock: hints + composer ---- */
+.dock { flex-shrink: 0; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.turns-note {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--scene-ink-faint);
+}
+
+.hint-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+  animation: msg-in 0.25s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
 .hint-chip {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
   text-align: left;
-  background: rgba(10, 6, 3, 0.55);
-  border: 1px solid rgba(243, 231, 211, 0.22);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  background: var(--scene-glass-deep);
+  border: 1px solid rgba(245, 234, 216, 0.2);
+  border-radius: 12px;
+  padding: 9px 12px;
   cursor: pointer;
   font-family: inherit;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-.hint-chip:hover { border-color: var(--accent); }
-.hint-fi { color: #f3e7d3; font-size: 14px; font-weight: 700; }
-.hint-en { color: rgba(243, 231, 211, 0.55); font-size: 12px; }
+.hint-chip:hover { border-color: var(--accent); background: rgba(20, 12, 6, 0.75); }
+.hint-fi { color: var(--scene-ink); font-size: 13.5px; font-weight: 700; }
+.hint-en { color: var(--scene-ink-dim); font-size: 11.5px; }
 
-/* ---- composer ---- */
-.composer { position: relative; display: flex; gap: 8px; padding-top: 10px; flex-shrink: 0; }
-.hint-btn.on { border-color: var(--accent); color: var(--accent); }
-.mic { padding: 12px 14px; font-size: 17px; flex-shrink: 0; }
-.mic.listening {
-  border-color: var(--accent);
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--scene-glass-deep);
+  border: 1px solid rgba(245, 234, 216, 0.18);
+  border-radius: var(--radius-pill);
+  padding: 6px;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.15s ease;
+}
+.composer:focus-within { border-color: rgba(245, 158, 11, 0.55); }
+
+.cbtn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--scene-ink-dim);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.cbtn:hover { color: var(--scene-ink); background: rgba(245, 234, 216, 0.08); }
+.cbtn.on { color: var(--accent); background: var(--accent-soft); }
+.cbtn.listening {
   color: var(--accent);
+  background: var(--accent-soft);
   animation: mic-pulse 1.2s ease-in-out infinite;
 }
 @keyframes mic-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35); }
   50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
 }
+.cbtn-ico { width: 18px; height: 18px; }
+
 .chat-input {
   flex: 1;
   min-width: 0;
-  background: rgba(20, 12, 6, 0.6);
-  border: 1px solid rgba(243, 231, 211, 0.25);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
+  background: none;
+  border: none;
+  padding: 9px 6px;
   font-size: 16px;
   font-family: inherit;
-  color: #f3e7d3;
+  color: var(--scene-ink);
   outline: none;
 }
-.chat-input::placeholder { color: rgba(243, 231, 211, 0.4); }
-.chat-input:focus { border-color: var(--accent); }
-.send { padding: 12px 18px; flex-shrink: 0; }
+.chat-input::placeholder { color: var(--scene-ink-faint); }
+
+.send {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  border-radius: 50%;
+  color: var(--accent-contrast);
+  cursor: pointer;
+  box-shadow: var(--shadow-accent);
+  transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+.send:hover:not(:disabled) { filter: brightness(1.08); }
+.send:active:not(:disabled) { transform: scale(0.94); }
+.send:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+.send-ico { width: 17px; height: 17px; margin-left: -1px; }
 </style>

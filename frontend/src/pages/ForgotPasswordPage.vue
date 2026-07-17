@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { Inbox } from 'lucide-vue-next'
 import api from '../api'
 
 const email = ref('')
@@ -36,7 +37,7 @@ async function submit() {
     </div>
 
     <div v-if="sent" class="card sent">
-      <p class="sent-title">📬 Check your inbox</p>
+      <p class="sent-title"><Inbox class="sent-ico" aria-hidden="true" /> Check your inbox</p>
       <p class="muted">
         If <b>{{ email }}</b> has an account, a reset link is on its way.
         The link works for 60 minutes.
@@ -70,6 +71,7 @@ async function submit() {
 .hero h1 { font-size: 26px; margin-bottom: 6px; }
 .switch { text-align: center; margin-top: 18px; }
 .sent { text-align: center; }
-.sent-title { font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+.sent-title { font-weight: 800; font-size: 17px; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+.sent-ico { width: 17px; height: 17px; color: var(--accent); flex-shrink: 0; }
 .back-btn { margin-top: 16px; }
 </style>

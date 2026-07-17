@@ -4,6 +4,7 @@
 // comes from the backend, ordered so situations matching the learner's
 // intake goal float to the top.
 import { computed, onMounted, ref } from 'vue'
+import { Check, Lock, Medal, Target } from 'lucide-vue-next'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { SCENE_ART } from '../utils/sceneArt'
@@ -39,7 +40,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
     <header class="head">
       <h1>
         Situations
-        <span v-if="doneCount" class="done-count">🏅 {{ doneCount }}/{{ scenarios.length }} completed</span>
+        <span v-if="doneCount" class="done-count"><Medal class="dc-ico" aria-hidden="true" /> {{ doneCount }}/{{ scenarios.length }} completed</span>
       </h1>
       <p class="muted lead">
         Real-life missions, played out in spoken Finnish. Walk into the scene,
@@ -52,7 +53,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
 
     <template v-else>
       <div v-if="!premium" class="card lock-note">
-        <span class="lock-badge">🔒 Löyly+</span>
+        <span class="lock-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
         <p>
           Situations are part of <b>Löyly+</b> - browse them freely, and
           <router-link to="/upgrade">upgrade</router-link> to step into one.
@@ -82,12 +83,12 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
             <div class="scene-body">
               <p class="scene-title">{{ s.title }}</p>
               <p class="scene-tagline muted">{{ s.tagline }}</p>
-              <p class="scene-mission">🎯 {{ s.mission }}</p>
+              <p class="scene-mission"><Target class="sm-ico" aria-hidden="true" /> {{ s.mission }}</p>
             </div>
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
-              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
-              <span v-else-if="!premium" class="scene-lock">🔒</span>
+              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time"><Check class="sd-ico" aria-hidden="true" /></span>
+              <span v-else-if="!premium" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
               <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
@@ -117,12 +118,12 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
             <div class="scene-body">
               <p class="scene-title">{{ s.title }}</p>
               <p class="scene-tagline muted">{{ s.tagline }}</p>
-              <p class="scene-mission">🎯 {{ s.mission }}</p>
+              <p class="scene-mission"><Target class="sm-ico" aria-hidden="true" /> {{ s.mission }}</p>
             </div>
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
-              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time">✓</span>
-              <span v-else-if="!premium" class="scene-lock">🔒</span>
+              <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time"><Check class="sd-ico" aria-hidden="true" /></span>
+              <span v-else-if="!premium" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
               <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
@@ -147,7 +148,14 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
   border: 1px solid var(--green);
   border-radius: var(--radius-pill);
   padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.dc-ico { width: 13px; height: 13px; flex-shrink: 0; }
+.sd-ico { width: 12px; height: 12px; }
+.sm-ico { width: 12px; height: 12px; vertical-align: -1px; }
+.lb-ico { width: 12px; height: 12px; flex-shrink: 0; }
 .scene-done {
   width: 22px;
   height: 22px;
@@ -172,6 +180,9 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
   background: var(--accent-soft);
   border-radius: var(--radius-pill);
   padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .lock-note a { color: var(--accent); font-weight: 700; }
 
@@ -213,7 +224,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
 }
 .pill.easy { background: var(--green-soft); border-color: var(--green); color: var(--green); }
 .pill.hard { background: var(--red-soft); border-color: var(--red); color: var(--red); }
-.scene-lock { font-size: 13px; }
+.scene-lock { color: var(--text-dim); display: inline-flex; }
 .scene-xp { font-size: 11px; font-weight: 800; color: var(--accent); white-space: nowrap; }
 
 .free-chat { text-align: center; font-size: 13px; }

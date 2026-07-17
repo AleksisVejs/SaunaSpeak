@@ -5,6 +5,7 @@
 // "onks meaning Finnish") and funnels into /try and /register.
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { Mic, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { setPageHead } from '../composables/usePageHead'
@@ -103,7 +104,7 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
         <h1>{{ lesson.title }}</h1>
         <p class="muted lede">
           {{ lesson.sentences.length }} sentences of real spoken Finnish (puhekieli),
-          each with the written form and what every word means. Tap 🔊 to hear it.
+          each with the written form and what every word means. Tap the speaker to hear it.
         </p>
       </header>
 
@@ -124,13 +125,13 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
               class="play"
               :aria-label="`Play '${s.finnish_text}'`"
               @click="playSentence(s.finnish_text, s.audio_url)"
-            >🔊</button>
+            ><Volume2 class="play-ico" aria-hidden="true" /></button>
             <h2 class="fi-text">{{ s.finnish_text }}</h2>
             <span
               v-if="s.audio_url?.startsWith('/audio/human/')"
               class="native-pill"
               title="Recorded by a native Finnish speaker"
-            >🎙 native</span>
+            ><Mic class="pill-ico" aria-hidden="true" /> native</span>
           </div>
           <p class="english">{{ s.english_text }}</p>
           <p v-if="s.written_text && s.written_text !== s.finnish_text" class="written muted">
@@ -207,8 +208,11 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
 }
 .play {
   flex: 0 0 auto; background: var(--accent-soft); border: none; cursor: pointer;
-  font-size: 16px; border-radius: 50%; width: 38px; height: 38px;
+  color: var(--accent); border-radius: 50%; width: 38px; height: 38px;
+  display: grid; place-items: center;
 }
+.play-ico { width: 16px; height: 16px; }
+.pill-ico { width: 10px; height: 10px; vertical-align: -1px; }
 .play:hover { outline: 2px solid var(--accent); }
 .fi-text { font-size: 19px; line-height: 1.35; }
 .english { margin-top: 6px; font-size: 14.5px; }

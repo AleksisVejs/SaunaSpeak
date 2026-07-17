@@ -4,6 +4,8 @@
 // explicitly fine and retakes are always open.
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Brain, Check, Eye, Rocket, Volume2, X } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -112,7 +114,7 @@ function onKey(e) {
         The {{ level }} checkpoint opens after you've studied {{ needed }} sentences -
         you're at {{ studied }}. A Sauna Session or two will get you there.
       </p>
-      <router-link to="/session" class="btn btn-primary btn-block">🧖 Start a session</router-link>
+      <router-link to="/session" class="btn btn-primary btn-block loyly-cta"><LoylyIcon class="cta-ico" aria-hidden="true" /> Start a session</router-link>
       <button class="btn btn-ghost btn-block" @click="router.push('/dashboard')">Back</button>
     </div>
 
@@ -141,34 +143,33 @@ function onKey(e) {
     <!-- Active quiz -->
     <div v-else class="quiz">
       <div class="quiz-top">
-        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit">✕</button>
+        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit"><X class="quit-ico" aria-hidden="true" /></button>
         <div class="progress-track"><div class="progress-fill" :style="{ width: progressPct + '%' }"></div></div>
         <span class="counter">{{ index + 1 }}/{{ total }}</span>
       </div>
 
       <p class="stakes-note">
-        {{ placement
-          ? `🚀 Placement: score 80% and skip straight past ${level}.`
-          : '🧘 Low stakes: taking this quiz is itself practice. Say each one out loud.' }}
+        <template v-if="placement"><Rocket class="sn-ico" aria-hidden="true" /> Placement: score 80% and skip straight past {{ level }}.</template>
+        <template v-else>Low stakes: taking this quiz is itself practice. Say each one out loud.</template>
       </p>
 
       <div class="card quiz-card">
-        <p class="hint">🧠 {{ level }} {{ placement ? 'placement' : 'checkpoint' }} - say it in Finnish</p>
+        <p class="hint"><Brain class="hint-ico" aria-hidden="true" /> {{ level }} {{ placement ? 'placement' : 'checkpoint' }} - say it in Finnish</p>
         <p class="prompt">{{ current.english_text }}</p>
 
         <template v-if="revealed">
           <p class="answer">{{ current.finnish_text }}</p>
-          <button class="replay" @click="playSentence(current.finnish_text, current.audio_url)">🔊 Hear it again</button>
+          <button class="replay" @click="playSentence(current.finnish_text, current.audio_url)"><Volume2 class="sn-ico" aria-hidden="true" /> Hear it again</button>
         </template>
-        <button v-else class="btn btn-ghost reveal-btn" @click="reveal">👁 Show the Finnish</button>
+        <button v-else class="btn btn-ghost reveal-btn" @click="reveal"><Eye class="sn-ico" aria-hidden="true" /> Show the Finnish</button>
       </div>
 
       <div v-if="revealed" class="marks">
         <button class="mark miss" :disabled="submitting" @click="mark(false)">
-          ✗ Missed it <span class="key">1</span>
+          <X class="mk-ico" aria-hidden="true" /> Missed it <span class="key">1</span>
         </button>
         <button class="mark got" :disabled="submitting" @click="mark(true)">
-          ✓ Got it <span class="key">2</span>
+          <Check class="mk-ico" aria-hidden="true" /> Got it <span class="key">2</span>
         </button>
       </div>
     </div>
@@ -189,11 +190,16 @@ function onKey(e) {
 
 .quiz { display: flex; flex-direction: column; gap: 16px; flex: 1; }
 .quiz-top { display: flex; align-items: center; gap: 12px; }
-.quit { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; font-family: inherit; }
+.quit { background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: inherit; display: inline-flex; }
+.quit-ico { width: 19px; height: 19px; }
 .quiz-top .progress-track { flex: 1; }
 .counter { font-size: 13px; color: var(--text-dim); font-weight: 600; }
 
 .stakes-note { text-align: center; color: var(--text-dim); font-size: 13px; }
+.sn-ico { width: 13px; height: 13px; vertical-align: -2px; }
+.mk-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.loyly-cta { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.cta-ico { width: 16px; height: 16px; flex-shrink: 0; }
 
 .quiz-card { display: flex; flex-direction: column; gap: 16px; padding: 26px 22px; }
 .quiz-card .hint {
@@ -202,7 +208,11 @@ function onKey(e) {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.hint-ico { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
 .prompt { font-size: 22px; font-weight: 700; line-height: 1.4; }
 .answer { font-size: 26px; font-weight: 800; line-height: 1.35; color: var(--accent); }
 .replay {

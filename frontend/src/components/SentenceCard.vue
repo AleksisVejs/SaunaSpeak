@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
+import { BookOpen, Brain, CircleHelp, CircleUserRound, Eye, Headphones, MessageCircle, Mic, PenLine, Puzzle, Sparkles, Volume2 } from 'lucide-vue-next'
 import AudioButton from './AudioButton.vue'
 import ShadowCompare from './ShadowCompare.vue'
 import TappableSentence from './TappableSentence.vue'
@@ -28,11 +29,11 @@ const quiz = computed(() => ['cloze', 'dictation', 'recall'].includes(kind.value
 const pretest = computed(() => kind.value === 'study' && !guessed.value)
 
 const kindLabels = {
-  study: '✨ New - listen & shadow',
-  pretest: '🤔 New - guess it first, even wildly',
-  cloze: '🧩 Fill the gap - catch the missing word',
-  dictation: '✍️ Dictation - what do you hear?',
-  recall: '🧠 Recall - say it in Finnish, out loud'
+  study: { icon: Sparkles, text: 'New - listen & shadow' },
+  pretest: { icon: CircleHelp, text: 'New - guess it first, even wildly' },
+  cloze: { icon: Puzzle, text: 'Fill the gap - catch the missing word' },
+  dictation: { icon: PenLine, text: 'Dictation - what do you hear?' },
+  recall: { icon: Brain, text: 'Recall - say it in Finnish, out loud' }
 }
 
 const hintLabel = computed(() => kindLabels[pretest.value ? 'pretest' : kind.value])
@@ -94,11 +95,11 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
       {{ statusLabels[status] ?? status }}
     </span>
 
-    <p v-if="kind !== 'browse'" class="hint">{{ hintLabel }}</p>
-    <p v-else-if="sentence.speaker" class="hint">🧖 Speaker {{ sentence.speaker }}</p>
+    <p v-if="kind !== 'browse'" class="hint"><component :is="hintLabel.icon" class="hint-ico" aria-hidden="true" /> {{ hintLabel.text }}</p>
+    <p v-else-if="sentence.speaker" class="hint"><CircleUserRound class="hint-ico" aria-hidden="true" /> Speaker {{ sentence.speaker }}</p>
 
     <!-- Dialogue context: the line this sentence replies to -->
-    <p v-if="sentence.context_text" class="context">💬 "{{ sentence.context_text }}"</p>
+    <p v-if="sentence.context_text" class="context"><MessageCircle class="ctx-ico" aria-hidden="true" /> "{{ sentence.context_text }}"</p>
 
     <!-- Pretest: English shown, learner attempts the Finnish before seeing it -->
     <template v-if="pretest">
@@ -106,7 +107,7 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
       <p class="finnish">{{ sentence.english_text }}</p>
       <p class="pretest-nudge">A wrong guess still primes your memory - say something!</p>
       <button class="btn btn-ghost reveal-btn" @click="reveal">
-        👁 Show the Finnish
+        <Eye class="eye-ico" aria-hidden="true" /> Show the Finnish
       </button>
     </template>
 
@@ -120,12 +121,12 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
       </template>
 
       <template v-else>
-        <p class="dictation-icon">🎧</p>
+        <p class="dictation-icon"><Headphones class="dict-ico" aria-hidden="true" /></p>
         <AudioButton ref="audio" :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
       </template>
 
       <button class="btn btn-ghost reveal-btn" @click="reveal">
-        👁 {{ kind === 'recall' ? 'Show the Finnish' : 'Show the answer' }}
+        <Eye class="eye-ico" aria-hidden="true" /> {{ kind === 'recall' ? 'Show the Finnish' : 'Show the answer' }}
       </button>
     </template>
 
@@ -141,16 +142,16 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
       />
 
       <p v-if="sentence.written_text" class="written" title="Kirjakieli - how it's written in books and news">
-        📖 {{ sentence.written_text }}
+        <BookOpen class="written-ico" aria-hidden="true" /> {{ sentence.written_text }}
       </p>
 
       <div class="audio-line">
         <AudioButton ref="audio" :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
-        <span v-if="nativeAudio" class="native-pill" title="Recorded by a native Finnish speaker">🎙 native</span>
+        <span v-if="nativeAudio" class="native-pill" title="Recorded by a native Finnish speaker"><Mic class="pill-ico" aria-hidden="true" /> native</span>
       </div>
 
       <template v-if="kind === 'study'">
-        <p class="hint">🗣 Listen, then say it out loud - twice</p>
+        <p class="hint"><Volume2 class="hint-ico" aria-hidden="true" /> Listen, then say it out loud - twice</p>
         <ShadowCompare :text="sentence.finnish_text" :audio-url="sentence.audio_url" />
       </template>
 
@@ -161,7 +162,7 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
         <transition name="fade" mode="out-in">
           <p v-if="revealed" class="english">{{ sentence.english_text }}</p>
           <button v-else class="btn btn-ghost reveal-btn" @click="revealed = true">
-            👁 Show translation
+            <Eye class="eye-ico" aria-hidden="true" /> Show translation
           </button>
         </transition>
       </div>
@@ -211,7 +212,8 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
 /* keep the sentence text clear of the status pill, but let the gloss panel span full width */
 p.finnish,
 .finnish :deep(.sentence) { padding-right: 70px; }
-.dictation-icon { font-size: 42px; text-align: center; padding: 8px 0; }
+.dictation-icon { text-align: center; padding: 8px 0; color: var(--text-dim); }
+.dict-ico { width: 42px; height: 42px; }
 .context {
   color: var(--text-dim);
   font-size: 15px;
@@ -231,7 +233,15 @@ p.finnish,
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding-right: 70px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.hint-ico { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
+.ctx-ico { width: 14px; height: 14px; vertical-align: -2px; }
+.eye-ico { width: 15px; height: 15px; flex-shrink: 0; }
+.written-ico { width: 14px; height: 14px; vertical-align: -2px; }
+.pill-ico { width: 11px; height: 11px; vertical-align: -1px; }
 .sentence-img {
   width: 68px;
   height: 68px;
@@ -243,5 +253,5 @@ p.finnish,
 .pretest-nudge { color: var(--text-dim); font-size: 14px; font-style: italic; }
 .translation-zone { min-height: 48px; display: flex; align-items: center; }
 .english { color: var(--text-dim); font-size: 17px; line-height: 1.4; }
-.reveal-btn { padding: 10px 16px; font-size: 14px; color: var(--text-dim); align-self: flex-start; }
+.reveal-btn { padding: 10px 16px; font-size: 14px; color: var(--text-dim); align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; }
 </style>

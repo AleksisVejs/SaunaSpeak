@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { Headphones, Square } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import SentenceCard from '../components/SentenceCard.vue'
 import PatternNote from '../components/PatternNote.vue'
@@ -66,7 +68,8 @@ onUnmounted(stopPlayAll)
     </div>
 
     <button class="btn btn-ghost btn-block listen-all" @click="playingId ? stopPlayAll() : playAll()">
-      {{ playingId ? '⏹ Stop listening' : '🎧 Listen to the whole lesson' }}
+      <template v-if="playingId"><Square class="btn-ico" aria-hidden="true" /> Stop listening</template>
+      <template v-else><Headphones class="btn-ico" aria-hidden="true" /> Listen to the whole lesson</template>
     </button>
 
     <PatternNote v-if="lesson.pattern" :pattern="lesson.pattern" class="lesson-pattern" />
@@ -84,7 +87,7 @@ onUnmounted(stopPlayAll)
 
     <!-- Reading is the intro; retrieval is the learning. Close the loop. -->
     <router-link to="/session" class="btn btn-primary btn-block practice-cta">
-      🧖 Practice these in a session
+      <LoylyIcon class="btn-ico" aria-hidden="true" /> Practice these in a session
     </router-link>
   </div>
   </div>
@@ -92,6 +95,7 @@ onUnmounted(stopPlayAll)
 
 <style scoped>
 .back { display: inline-block; color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
+.btn-ico { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; }
 .back:hover { color: var(--text); }
 .lesson-head { margin-bottom: 20px; }
 .lesson-head h2 { font-size: 24px; margin: 8px 0 4px; }

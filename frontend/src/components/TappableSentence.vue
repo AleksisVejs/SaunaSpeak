@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { Star, Volume2, X } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
@@ -77,12 +78,12 @@ async function collect(word, gloss) {
 
     <transition name="fade">
       <div v-if="selected" class="gloss-panel">
-        <button class="gloss-word" @click="playWord(selected.word)">🔊 {{ selected.word }}</button>
+        <button class="gloss-word" @click="playWord(selected.word)"><Volume2 class="gw-ico" aria-hidden="true" /> {{ selected.word }}</button>
         <p class="gloss-text">
           {{ selected.gloss }}
-          <span v-if="selected.saved" class="saved-note">⭐ in your word bank</span>
+          <span v-if="selected.saved" class="saved-note"><Star class="saved-ico" aria-hidden="true" /> in your word bank</span>
         </p>
-        <button class="gloss-close" @click="selected = null">✕</button>
+        <button class="gloss-close" aria-label="Close" @click="selected = null"><X class="close-ico" aria-hidden="true" /></button>
       </div>
     </transition>
   </div>
@@ -129,16 +130,21 @@ async function collect(word, gloss) {
   color: var(--accent);
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.gw-ico { width: 14px; height: 14px; flex-shrink: 0; }
 .gloss-text { flex: 1; color: var(--text-dim); font-size: 14px; line-height: 1.45; }
-.saved-note { display: block; color: var(--accent); font-size: 12px; font-weight: 600; margin-top: 3px; }
+.saved-note { display: flex; align-items: center; gap: 4px; color: var(--accent); font-size: 12px; font-weight: 600; margin-top: 3px; }
+.saved-ico { width: 12px; height: 12px; flex-shrink: 0; }
 .gloss-close {
   background: none;
   border: none;
   color: var(--text-dim);
-  font-size: 13px;
   cursor: pointer;
   padding: 2px;
 }
+.close-ico { width: 14px; height: 14px; display: block; }
 .gloss-close:hover { color: var(--text); }
 </style>

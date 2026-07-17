@@ -3,6 +3,7 @@
 // backend reschedules each card with spaced repetition.
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { X } from 'lucide-vue-next'
 import api from '../api'
 import Flashcard from '../components/Flashcard.vue'
 
@@ -84,7 +85,7 @@ function onKey(e) {
     <!-- active review -->
     <div v-else class="deck">
       <div class="review-top">
-        <button class="quit" @click="router.push('/words')" aria-label="Quit">✕</button>
+        <button class="quit" @click="router.push('/words')" aria-label="Quit"><X class="quit-ico" aria-hidden="true" /></button>
         <div class="progress-track"><div class="progress-fill" :style="{ width: progressPct + '%' }"></div></div>
         <span class="counter">{{ index + 1 }}/{{ cards.length }}</span>
       </div>
@@ -118,7 +119,8 @@ function onKey(e) {
 .review { min-height: 100vh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
 
 .review-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.quit { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; font-family: inherit; }
+.quit { background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: inherit; display: inline-flex; }
+.quit-ico { width: 19px; height: 19px; }
 .review-top .progress-track { flex: 1; }
 .counter { font-size: 13px; color: var(--text-dim); font-weight: 600; white-space: nowrap; }
 

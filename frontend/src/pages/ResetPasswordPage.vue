@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { CircleCheck } from 'lucide-vue-next'
 import api from '../api'
 
 const route = useRoute()
@@ -53,7 +54,7 @@ async function submit() {
     </div>
 
     <div v-else-if="done" class="card center">
-      <p class="done-title">✅ Password updated</p>
+      <p class="done-title"><CircleCheck class="done-ico" aria-hidden="true" /> Password updated</p>
       <p class="muted">Your streak and progress are exactly where you left them.</p>
       <router-link to="/login" class="btn btn-primary btn-block top-gap">Log in</router-link>
     </div>
@@ -83,6 +84,7 @@ async function submit() {
 .hero-vaino { width: 96px; height: 96px; margin-bottom: 6px; }
 .hero h1 { font-size: 26px; }
 .center { text-align: center; }
-.done-title { font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+.done-title { font-weight: 800; font-size: 17px; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+.done-ico { width: 17px; height: 17px; color: var(--green, #4ade80); flex-shrink: 0; }
 .top-gap { margin-top: 16px; }
 </style>

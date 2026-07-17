@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue'
+import { Play, Volume2 } from 'lucide-vue-next'
 import { usePrefs } from '../composables/usePrefs'
 
 const props = defineProps({
@@ -45,8 +46,8 @@ defineExpose({ play })
 <template>
   <div class="audio-row">
     <button class="btn btn-ghost play-btn" :class="{ speaking }" :disabled="!supported" @click="play">
-      <span v-if="speaking">🔊</span>
-      <span v-else>▶</span>
+      <Volume2 v-if="speaking" class="play-ico" aria-hidden="true" />
+      <Play v-else class="play-ico" aria-hidden="true" />
       {{ speaking ? 'Playing…' : 'Play audio' }}
     </button>
   </div>
@@ -61,7 +62,8 @@ defineExpose({ play })
   gap: 12px;
   flex-wrap: wrap;
 }
-.play-btn { padding: 11px 18px; font-size: 15px; }
+.play-btn { padding: 11px 18px; font-size: 15px; display: inline-flex; align-items: center; gap: 7px; }
+.play-ico { width: 16px; height: 16px; flex-shrink: 0; }
 .play-btn.speaking { border-color: var(--accent); color: var(--accent); }
 .speed { display: flex; gap: 6px; }
 .speed-chip {

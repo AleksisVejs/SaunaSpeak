@@ -12,7 +12,7 @@ const slides = [
     image: '/vaino-wave.png',
     alt: 'Väinö waving hello',
     title: 'Learn the Finnish Finns speak',
-    text: 'You\'ll learn "Mä oon" - what people say in shops, buses and saunas - not just textbook "Minä olen". The book form stays visible as a 📖 reference.',
+    text: 'You\'ll learn "Mä oon" - what people say in shops, buses and saunas - not just textbook "Minä olen". The written form stays visible as a reference on every card.',
     why: 'Learners who study only written Finnish famously can\'t follow real conversations. Starting with speech fixes that from day one.'
   },
   {
@@ -65,7 +65,7 @@ function next() {
       </div>
 
       <button class="btn btn-primary btn-block" @click="next">
-        {{ slide < slides.length - 1 ? 'Next' : 'Start learning 🧖' }}
+        {{ slide < slides.length - 1 ? 'Next' : 'Start learning' }}
       </button>
       <button v-if="slide < slides.length - 1" class="skip" @click="emit('done')">Skip intro</button>
     </div>

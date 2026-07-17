@@ -5,6 +5,8 @@
 // audio. Retrieval practice on your own errors - the strongest kind.
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { Check, Pencil, Volume2, X } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
@@ -95,14 +97,14 @@ function onKey(e) {
           ? `You reworked ${reviewed} ${reviewed === 1 ? 'sentence' : 'sentences'} from your chats. Each one comes back right before you'd slip again.`
           : 'When Väinö or a Situation character corrects you in chat, the fix lands here as a flashcard.' }}
       </p>
-      <router-link to="/chat" class="btn btn-primary btn-block">🧖 To the sauna bench</router-link>
+      <router-link to="/chat" class="btn btn-primary btn-block loyly-cta"><LoylyIcon class="cta-ico" aria-hidden="true" /> To the sauna bench</router-link>
       <button class="btn btn-ghost btn-block" @click="router.push('/dashboard')">Home</button>
     </div>
 
     <!-- active review -->
     <div v-else class="deck">
       <div class="review-top">
-        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit">✕</button>
+        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit"><X class="quit-ico" aria-hidden="true" /></button>
         <div class="progress-track"><div class="progress-fill" :style="{ width: progressPct + '%' }"></div></div>
         <span class="counter">{{ index + 1 }}/{{ cards.length }}</span>
       </div>
@@ -111,7 +113,7 @@ function onKey(e) {
         <div class="mc-inner">
           <!-- front: your own words, the challenge is producing the fix -->
           <div class="mc-face mc-front">
-            <span class="mc-label">✏️ You said</span>
+            <span class="mc-label"><Pencil class="mc-ico" aria-hidden="true" /> You said</span>
             <p class="mc-attempt">“{{ current.attempt }}”</p>
             <p class="mc-task">How would a Finn say it?</p>
             <span class="mc-hint">Say it out loud, then tap to check</span>
@@ -119,9 +121,9 @@ function onKey(e) {
 
           <!-- back: the natural spoken form, with audio -->
           <div class="mc-face mc-back">
-            <span class="mc-label good">✓ The natural way</span>
+            <span class="mc-label good"><Check class="mc-ico" aria-hidden="true" /> The natural way</span>
             <p class="mc-corrected">{{ current.corrected }}</p>
-            <button class="mc-audio" aria-label="Play the corrected sentence" @click.stop="playSpoken(current.corrected)">🔊</button>
+            <button class="mc-audio" aria-label="Play the corrected sentence" @click.stop="playSpoken(current.corrected)"><Volume2 class="mca-ico" aria-hidden="true" /></button>
             <p class="mc-yours muted">you said: “{{ current.attempt }}”</p>
           </div>
         </div>
@@ -152,7 +154,8 @@ function onKey(e) {
 .review { min-height: 100vh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
 
 .review-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.quit { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; font-family: inherit; }
+.quit { background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: inherit; display: inline-flex; }
+.quit-ico { width: 19px; height: 19px; }
 .review-top .progress-track { flex: 1; }
 .counter { font-size: 13px; color: var(--text-dim); font-weight: 600; white-space: nowrap; }
 
@@ -191,7 +194,13 @@ function onKey(e) {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.mc-ico { width: 12px; height: 12px; flex-shrink: 0; }
+.loyly-cta { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.cta-ico { width: 16px; height: 16px; flex-shrink: 0; }
 .mc-label.good { color: var(--green); }
 .mc-attempt { font-size: 22px; font-weight: 700; line-height: 1.35; color: var(--text-dim); }
 .mc-task { font-size: 15px; font-weight: 700; color: var(--accent); }
@@ -205,9 +214,11 @@ function onKey(e) {
   border-radius: var(--radius-pill);
   width: 42px;
   height: 42px;
-  font-size: 18px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
+.mca-ico { width: 18px; height: 18px; }
 
 /* ---- grading ---- */
 .controls { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
