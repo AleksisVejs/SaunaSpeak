@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Sentence;
+use App\Models\User;
 use App\Services\ElevenLabs;
 use App\Support\Listening;
 use App\Support\Transforms;
@@ -11,6 +12,7 @@ use Database\Seeders\LessonSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 /**
@@ -263,5 +265,45 @@ class ElevenLabsAudioTest extends TestCase
         $this->artisan('audio:eleven --only=nonsense')
             ->expectsOutputToContain('Unknown --only value')
             ->assertFailed();
+    }
+
+    public function test_studio_hides_elevenlabs_clips_by_default_but_counts_them(): void
+    {
+        $this->seed(LessonSeeder::class);
+        $this->fakeApi();
+        $this->artisan('audio:eleven --only=sentences --limit=2')->assertSuccessful();
+
+        $recorder = User::create([
+            'name' => 'Voice', 'email' => 'voice@example.com',
+            'password' => bcrypt('password'), 'is_recorder' => true,
+        ]);
+        Sanctum::actingAs($recorder);
+
+        // Default queue (robot-first): the 2 ElevenLabs sentences are hidden...
+        $queue = $this->getJson('/api/record/queue')->assertOk()->json();
+        foreach ($queue['sentences'] as $s) {
+            $this->assertSame('tts', $s['tier'], 'A robot-first queue must not offer an ElevenLabs clip.');
+        }
+        // ...but still counted, so the studio can say "2 already on ElevenLabs".
+        $this->assertSame(2, $queue['sentence_eleven']);
+    }
+
+    public function test_turning_the_filter_off_shows_the_elevenlabs_clips(): void
+    {
+        $this->seed(LessonSeeder::class);
+        $this->fakeApi();
+        $this->artisan('audio:eleven --only=sentences --limit=2')->assertSuccessful();
+
+        $recorder = User::create([
+            'name' => 'Voice', 'email' => 'voice@example.com',
+            'password' => bcrypt('password'), 'is_recorder' => true,
+        ]);
+        Sanctum::actingAs($recorder);
+
+        $all = $this->getJson('/api/record/queue?robot_first=0')->assertOk()->json();
+        $tiers = array_column($all['sentences'], 'tier');
+
+        $this->assertContains('eleven', $tiers, 'With the filter off, ElevenLabs clips must be offered.');
+        $this->assertContains('tts', $tiers);
     }
 }

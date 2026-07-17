@@ -78,6 +78,13 @@ class RecordController extends Controller
             fn ($f) => mb_stripos($f, $q) !== false,
         ) !== [];
 
+        // "Robot first": a clip already voiced by ElevenLabs sounds decent, so
+        // a native's time is better spent replacing the plain edge-tts ones.
+        // On by default; the recorder can switch it off to also see the
+        // ElevenLabs clips (which a human take still improves on).
+        $robotFirst = $request->boolean('robot_first', true);
+        $isEleven = fn (?string $url) => str_starts_with((string) $url, '/audio/eleven/');
+
         $pendingSentenceIds = array_keys($this->pendingSentences());
         $pendingWordBases = array_keys($this->pendingWords());
         $pendingPhraseBases = array_keys($this->pendingPhrases());
@@ -92,6 +99,7 @@ class RecordController extends Controller
                 'finnish_text' => $s->finnish_text,
                 'english_text' => $s->english_text,
                 'audio_url' => $s->audio_url,
+                'tier' => $isEleven($s->audio_url) ? 'eleven' : 'tts',
             ]);
 
         $phrases = collect(Transforms::ownPhrases())->map(fn (array $p) => [
@@ -100,6 +108,7 @@ class RecordController extends Controller
             'finnish_text' => $p['text'],
             'english_text' => 'Taivutus drill',
             'audio_url' => $p['audio_url'],
+            'tier' => $isEleven($p['audio_url']) ? 'eleven' : 'tts',
         ]);
 
         // Phrases first: the queue is sliced at 100, and behind 550-odd course
@@ -113,13 +122,28 @@ class RecordController extends Controller
                 || ($s['kind'] === 'phrase' && in_array($s['id'], $pendingPhraseBases, true)))
             ->values();
 
+        // How much of what's left is still robot vs already ElevenLabs - lets
+        // the studio show "40 robot · 12 ElevenLabs" and hide the toggle when
+        // there's no ElevenLabs coverage to filter.
+        $sentenceEleven = $open->filter(fn (array $s) => $s['tier'] === 'eleven')->count();
+
+        $openSentences = $robotFirst
+            ? $open->filter(fn (array $s) => $s['tier'] === 'tts')->values()
+            : $open;
+
         $manifest = $this->manifest();
-        $openWords = collect($manifest)
+        $openWordEntries = collect($manifest)
             ->reject(fn ($url, $word) => str_starts_with($url, '/audio/human/')
                 || in_array($this->wordBase($word), $pendingWordBases, true))
-            ->keys()
-            ->sort()
+            ->map(fn ($url, $word) => ['word' => $word, 'audio_url' => $url, 'tier' => $isEleven($url) ? 'eleven' : 'tts'])
+            ->sortKeys()
             ->values();
+
+        $wordEleven = $openWordEntries->filter(fn (array $w) => $w['tier'] === 'eleven')->count();
+
+        $openWords = $robotFirst
+            ? $openWordEntries->filter(fn (array $w) => $w['tier'] === 'tts')->values()
+            : $openWordEntries;
 
         // Counts describe the whole corpus; only the returned slice is filtered,
         // so searching never makes the progress bar lie.
@@ -127,20 +151,21 @@ class RecordController extends Controller
             'sentence_total' => $all->count(),
             'sentence_done' => $all->count() - $open->count(),
             'sentence_pending' => count($pendingSentenceIds) + count($pendingPhraseBases),
-            'sentences' => $open
+            'sentence_eleven' => $sentenceEleven,
+            'sentences' => $openSentences
                 ->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))
                 ->take(100)
                 ->values(),
-            'sentence_matches' => $open->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))->count(),
+            'sentence_matches' => $openSentences->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))->count(),
             'word_total' => count($manifest),
-            'word_done' => count($manifest) - $openWords->count(),
+            'word_done' => count($manifest) - $openWordEntries->count(),
             'word_pending' => count($pendingWordBases),
+            'word_eleven' => $wordEleven,
             'words' => $openWords
-                ->filter(fn ($w) => $matches($w))
-                ->map(fn ($w) => ['word' => $w, 'audio_url' => $manifest[$w]])
+                ->filter(fn (array $w) => $matches($w['word']))
                 ->take(200)
                 ->values(),
-            'word_matches' => $openWords->filter(fn ($w) => $matches($w))->count(),
+            'word_matches' => $openWords->filter(fn (array $w) => $matches($w['word']))->count(),
         ]);
     }
 

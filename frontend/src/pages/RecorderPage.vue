@@ -127,15 +127,39 @@ function clearSearch() {
   onSearch()
 }
 
+// Robot-first: a clip already upgraded to ElevenLabs sounds decent, so a
+// native's takes are better spent on the plain edge-tts ones first. On by
+// default; the toggle only appears once there's ElevenLabs coverage to skip.
+const robotFirst = ref(true)
+const elevenLeft = computed(() =>
+  mode.value === 'words' ? queue.value.word_eleven ?? 0 : queue.value.sentence_eleven ?? 0
+)
+// The toggle is worth showing whenever either queue has ElevenLabs clips -
+// switching tabs shouldn't make it vanish mid-session.
+const hasEleven = computed(() => (queue.value.sentence_eleven ?? 0) + (queue.value.word_eleven ?? 0) > 0)
+
 async function loadQueue() {
   try {
-    const { data } = await api.get('/record/queue', { params: q.value.trim() ? { q: q.value.trim() } : {} })
+    const params = {}
+    if (q.value.trim()) params.q = q.value.trim()
+    // Only send when off - default true matches the server, so the common
+    // case sends nothing.
+    if (!robotFirst.value) params.robot_first = 0
+    const { data } = await api.get('/record/queue', { params })
     queue.value = data
   } catch (e) {
     error.value = e.response?.status === 403 ? 'This account has no recording rights.' : 'Could not load the queue.'
   } finally {
     loading.value = false
   }
+}
+
+function toggleRobotFirst() {
+  robotFirst.value = !robotFirst.value
+  discardTake()
+  if (state.value === 'recording') recorder?.stop()
+  state.value = 'idle'
+  loadQueue()
 }
 
 async function loadListeningQueue() {
@@ -549,6 +573,20 @@ onBeforeUnmount(() => {
         <template v-else>{{ matchCount }} to record matching "{{ q }}"</template>
       </p>
 
+      <!-- Robot-first: hide the clips ElevenLabs already voiced, so a native's
+           takes land on the plain-robot ones first. Only shown when there's
+           ElevenLabs coverage to skip. -->
+      <label v-if="(mode === 'sentences' || mode === 'words') && hasEleven && !override" class="robot-first">
+        <input type="checkbox" :checked="robotFirst" @change="toggleRobotFirst" />
+        <span class="rf-text">
+          Replace robot voices first
+          <span class="rf-sub muted">
+            <template v-if="robotFirst">{{ elevenLeft }} already on ElevenLabs — hidden. Uncheck to include them.</template>
+            <template v-else>Showing ElevenLabs clips too — a human take still improves them.</template>
+          </span>
+        </span>
+      </label>
+
       <template v-if="mode !== 'submitted' && (mode !== 'conversations' || speaker || override)">
         <div class="progress-track studio-progress">
           <div class="progress-fill" :style="{ width: pct + '%' }"></div>
@@ -569,6 +607,8 @@ onBeforeUnmount(() => {
             {{ override ? 'New take' : `${done + 1} of ${total}` }} · read this out loud
             <span v-if="kind === 'listening' && current.speaker" class="take-as">as {{ current.speaker }}</span>
             <span v-else-if="kind === 'phrase'" class="take-as">Taivutus drill</span>
+            <span v-if="current.tier === 'eleven'" class="take-tier eleven">replacing ElevenLabs</span>
+            <span v-else-if="current.tier === 'tts'" class="take-tier">replacing robot</span>
           </p>
           <p class="take-fi">{{ currentText }}</p>
           <p v-if="currentEn" class="take-en muted">{{ currentEn }}</p>
@@ -622,6 +662,16 @@ onBeforeUnmount(() => {
           - a different voice has to record that part.
         </p>
         <button class="btn btn-ghost done-btn" @click="leaveConv">Back to the scene</button>
+      </div>
+
+      <!-- Robot-first cleared the plain-TTS clips but ElevenLabs ones remain:
+           don't claim it's finished - offer them. -->
+      <div v-else-if="mode !== 'submitted' && mode !== 'conversations' && robotFirst && elevenLeft" class="card all-done">
+        <PartyPopper class="sm-ico" aria-hidden="true" /> Every robot clip here has your voice now!
+        <p class="muted done-next">
+          {{ elevenLeft }} more {{ elevenLeft === 1 ? 'is' : 'are' }} on ElevenLabs - a decent voice, but a human take still beats it.
+        </p>
+        <button class="btn btn-ghost done-btn" @click="toggleRobotFirst">Record those too</button>
       </div>
 
       <div v-else-if="mode !== 'submitted' && mode !== 'conversations'" class="card all-done">
@@ -751,6 +801,38 @@ onBeforeUnmount(() => {
 }
 .q-clear:hover { color: var(--text); }
 .q-note { font-size: 12px; margin-bottom: 10px; }
+
+/* ---- robot-first toggle ---- */
+.robot-first {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.robot-first input { margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+.rf-text { display: flex; flex-direction: column; gap: 2px; }
+.rf-sub { font-size: 11.5px; font-weight: 500; line-height: 1.4; }
+
+.take-tier {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  margin-left: 6px;
+  color: var(--text-dim);
+  background: var(--bg-soft);
+}
+.take-tier.eleven { color: #a78bfa; background: color-mix(in srgb, #a78bfa 16%, transparent); }
 
 /* ---- conversations: scene → speaker ---- */
 .conv-lede { font-size: 13px; line-height: 1.55; margin-bottom: 12px; }
