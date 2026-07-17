@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\StashesElevenAudio;
 use Tests\TestCase;
 
 /**
@@ -21,6 +22,7 @@ use Tests\TestCase;
 class TransformAudioTest extends TestCase
 {
     use RefreshDatabase;
+    use StashesElevenAudio;
 
     private User $recorder;
 
@@ -45,12 +47,16 @@ class TransformAudioTest extends TestCase
             'password' => bcrypt('password'), 'is_admin' => true,
         ]);
 
+        // Assertions here expect the edge-tts tier (/audio/transforms/); the
+        // real ElevenLabs clips on disk would otherwise win and break them.
+        $this->stashElevenClips();
         $this->cleanUp();
     }
 
     protected function tearDown(): void
     {
         $this->cleanUp();
+        $this->restoreElevenClips();
         parent::tearDown();
     }
 

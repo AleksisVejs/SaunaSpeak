@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\StashesElevenAudio;
 use Tests\TestCase;
 
 /**
@@ -18,6 +19,7 @@ use Tests\TestCase;
 class ListeningRecordTest extends TestCase
 {
     use RefreshDatabase;
+    use StashesElevenAudio;
 
     private User $recorder;
 
@@ -36,12 +38,16 @@ class ListeningRecordTest extends TestCase
             'password' => bcrypt('password'), 'is_admin' => true,
         ]);
 
+        // Revert-to-tts assertions expect /audio/listening/; the real
+        // ElevenLabs clips on disk would otherwise be the fallback.
+        $this->stashElevenClips();
         $this->cleanUp();
     }
 
     protected function tearDown(): void
     {
         $this->cleanUp();
+        $this->restoreElevenClips();
         parent::tearDown();
     }
 

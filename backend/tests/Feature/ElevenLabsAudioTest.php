@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\StashesElevenAudio;
 use Tests\TestCase;
 
 /**
@@ -24,6 +25,7 @@ use Tests\TestCase;
 class ElevenLabsAudioTest extends TestCase
 {
     use RefreshDatabase;
+    use StashesElevenAudio;
 
     /**
      * These tests run `audio:generate` for real, and that command rewrites the
@@ -47,6 +49,7 @@ class ElevenLabsAudioTest extends TestCase
         $path = public_path('audio/words.json');
         $this->manifestBackup = File::exists($path) ? File::get($path) : null;
 
+        $this->stashElevenClips();
         $this->cleanUp();
     }
 
@@ -61,14 +64,14 @@ class ElevenLabsAudioTest extends TestCase
             File::delete($path);
         }
 
+        $this->restoreElevenClips();
+
         parent::tearDown();
     }
 
+    /** The suite's own leftover human takes; the eleven dir is handled by the trait. */
     private function cleanUp(): void
     {
-        foreach (File::glob(public_path('audio/eleven/*')) as $path) {
-            File::isDirectory($path) ? File::deleteDirectory($path) : File::delete($path);
-        }
         foreach (File::glob(public_path('audio/human/sentence-*.*')) as $path) {
             File::delete($path);
         }
