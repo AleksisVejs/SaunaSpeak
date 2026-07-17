@@ -21,11 +21,29 @@ onMounted(async () => {
   } catch {
     /* stats band simply keeps its static items */
   }
+
+  // Upgrade each sample to whatever voice the course currently plays for it -
+  // ElevenLabs where it exists, a human take once one is approved. This is the
+  // first Finnish a visitor hears, so it must not be the plain robot when a
+  // better voice is already on disk. The committed paths below are the
+  // fallback if the lookup is offline. Same endpoint /try uses.
+  try {
+    const { data } = await api.get('/public/try-audio', {
+      params: { texts: SAMPLES.map((s) => s.fi) }
+    })
+    for (const s of SAMPLES) {
+      if (data.audio?.[s.fi]) s.audio = data.audio[s.fi]
+    }
+  } catch {
+    /* offline: the committed sentence MP3s below still play */
+  }
 })
 
 // Spoken-vs-textbook contrast is the product in one glance. These are real
 // course sentences, so their pre-generated MP3s exist (this app never falls
-// back to browser TTS - without a URL the buttons would be silent).
+// back to browser TTS - without a URL the buttons would be silent). The audio
+// path is the committed edge-tts clip; onMounted upgrades it to the current
+// best voice for that sentence.
 const SAMPLES = [
   { fi: 'Puhuksä englantia?', book: 'Puhutko sinä englantia?', en: 'Do you speak English?', audio: '/audio/sentence-7.mp3' },
   { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', audio: '/audio/sentence-14.mp3' },
