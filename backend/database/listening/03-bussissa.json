@@ -1,0 +1,22 @@
+{
+    "title": "Taking the bus",
+    "emoji": "🚌",
+    "level": "A1",
+    "tagline": "A ticket to the centre and the right stop to get off.",
+    "speakers": {
+        "A": { "name": "Anna", "voice": "female", "role": "passenger" },
+        "B": { "name": "Pekka", "voice": "male", "role": "bus driver" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi! Meneeks tää bussi keskustaan?", "en": "Hi! Does this bus go to the centre?" },
+        { "who": "B", "fi": "Joo, menee. Rautatientorille asti.", "en": "Yeah, it does. All the way to Railway Square." },
+        { "who": "A", "fi": "Hyvä. Yks aikuinen, kiitos.", "en": "Good. One adult, please." },
+        { "who": "B", "fi": "Kolme euroo.", "en": "Three euros." },
+        { "who": "A", "fi": "Voiks maksaa kortilla?", "en": "Can I pay by card?" },
+        { "who": "B", "fi": "Joo, lätkäse siihen lukijaan.", "en": "Yeah, tap it on the reader." },
+        { "who": "A", "fi": "Mis kohtaa mun kannattaa jäädä pois, jos mä meen torille?", "en": "Where should I get off if I'm going to the market square?" },
+        { "who": "B", "fi": "Jää viimesellä pysäkillä. Mä voin huikata.", "en": "Get off at the last stop. I can give you a shout." },
+        { "who": "A", "fi": "Kiitti tosi paljon!", "en": "Thanks so much!" },
+        { "who": "B", "fi": "Eipä kestä.", "en": "No problem." }
+    ]
+}

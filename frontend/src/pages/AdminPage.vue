@@ -180,14 +180,24 @@ const recBusy = ref(false)
 
 const pendingItems = () => [
   ...(recordings.value?.sentences ?? []).map((s) => ({ ...s, type: 'sentence', key: String(s.id), label: s.finnish_text })),
-  ...(recordings.value?.words ?? []).map((w) => ({ ...w, type: 'word', key: w.word, label: w.word }))
+  ...(recordings.value?.words ?? []).map((w) => ({ ...w, type: 'word', key: w.word, label: w.word })),
+  // A conversation take is only reviewable against its character: the take
+  // has to sound like the person it belongs to, and two lines from opposite
+  // speakers arriving in the same voice is the thing to catch here.
+  ...(recordings.value?.listening ?? []).map((l) => ({
+    ...l,
+    type: 'listening',
+    key: `${l.scene}:${l.index}`,
+    label: l.fi,
+    english_text: `${l.speaker} (${l.voice}) · ${l.scene_title}`
+  }))
 ]
 
 const pendingOf = (type) => pendingItems().filter((i) => i.type === type)
 
 // The recordings manager lives inside the content-health card: each
 // "Human-voiced …" row expands into its review + live lists.
-const openAudio = ref(null) // 'sentence' | 'word' | null
+const openAudio = ref(null) // 'sentence' | 'word' | 'listening' | null
 function toggleAudio(type) {
   openAudio.value = openAudio.value === type ? null : type
   liveQ.value = ''
@@ -195,12 +205,20 @@ function toggleAudio(type) {
 
 const AUDIO_SECTIONS = [
   { type: 'sentence', label: 'Human-voiced sentences' },
-  { type: 'word', label: 'Human-voiced words' }
+  { type: 'word', label: 'Human-voiced words' },
+  { type: 'listening', label: 'Human-voiced conversations' }
 ]
 
 function audioNums(type) {
   const a = stats.value?.audio
   if (!a) return { done: 0, total: 0, pct: 0 }
+  if (type === 'listening') {
+    // Conversation lines aren't in the sentences table, so their counts come
+    // from the recordings payload rather than the audio stats.
+    const done = recordings.value?.live_listening?.length ?? 0
+    const total = a.listening_total ?? 0
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
+  }
   const done = type === 'sentence' ? a.sentences_human : a.words_human
   const total = type === 'sentence' ? a.sentences_total : a.words_total
   return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
@@ -226,6 +244,10 @@ async function review(item, action) {
       // The take moved from pending to live - refetch for the fresh picture.
       const { data } = await api.get('/admin/recordings')
       recordings.value = data
+    } else if (item.type === 'listening') {
+      const list = recordings.value.listening
+      const idx = list.findIndex((x) => x.scene === item.scene && x.index === item.index)
+      if (idx !== -1) list.splice(idx, 1)
     } else {
       const list = item.type === 'sentence' ? recordings.value.sentences : recordings.value.words
       const idx = list.findIndex((x) => (item.type === 'sentence' ? x.id === item.id : x.word === item.word))
@@ -261,7 +283,13 @@ const liveItems = computed(() => {
     })),
     ...(recordings.value?.live_words ?? []).filter((w) => hit(w.word)).map((w) => ({
       type: 'word', keyId: `w-${w.word}`, word: w.word, label: w.word, note: '', url: w.audio_url
-    }))
+    })),
+    ...(recordings.value?.live_listening ?? [])
+      .filter((l) => hit(l.fi) || hit(l.speaker) || hit(l.scene_title))
+      .map((l) => ({
+        type: 'listening', keyId: `l-${l.scene}-${l.index}`, scene: l.scene, index: l.index,
+        label: l.fi, note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.audio_url
+      }))
   ]
 })
 
@@ -274,6 +302,10 @@ async function removeLive(item) {
       await api.delete(`/record/sentence/${item.id}`)
       const idx = recordings.value.live_sentences.findIndex((s) => s.id === item.id)
       if (idx !== -1) recordings.value.live_sentences.splice(idx, 1)
+    } else if (item.type === 'listening') {
+      await api.delete(`/record/listening/${item.scene}/${item.index}`)
+      const idx = recordings.value.live_listening.findIndex((l) => l.scene === item.scene && l.index === item.index)
+      if (idx !== -1) recordings.value.live_listening.splice(idx, 1)
     } else {
       await api.delete('/record/word', { params: { word: item.word } })
       const idx = recordings.value.live_words.findIndex((w) => w.word === item.word)
@@ -607,7 +639,9 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                     <div v-for="item in pendingOf(sec.type)" :key="item.type + item.key" class="rec-row pending">
                       <div class="rec-main">
                         <p class="rec-text">{{ item.label }}</p>
-                        <p v-if="item.type === 'sentence' && item.english_text" class="rec-en muted">{{ item.english_text }}</p>
+                        <!-- For a conversation take this line names the speaker
+                             and their voice - the thing being reviewed. -->
+                        <p v-if="item.english_text" class="rec-en muted">{{ item.english_text }}</p>
                       </div>
                       <div class="rec-actions">
                         <button class="rec-btn play" title="Play the new human take" @click="playClip(item.pending_url)">▶ New take</button>

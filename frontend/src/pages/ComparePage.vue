@@ -39,15 +39,24 @@ const ROWS = [
   {
     label: 'Grammar depth',
     cells: [
-      'Patterns taught when you need them',
+      'Patterns in context + inflection drills (Taivutus)',
       'Light',
       'Light - audio only',
       'Deepest - drills all 15 noun cases'
     ]
   },
   {
+    label: 'Extensive listening',
+    cells: [
+      'Whole conversations at natural speed (Kuuntelu)',
+      'Single sentences',
+      'Audio-only course',
+      'Single sentences'
+    ]
+  },
+  {
     label: 'How far it takes you',
-    cells: ['Zero → confident everyday speech (~B1), upper lessons growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
+    cells: ['Zero → solid everyday speech (A2 done properly), upper lessons growing', 'Around A2', 'Beginner course', 'Advertises A1 → C1']
   },
   {
     label: 'Built only for Finnish',
@@ -76,7 +85,7 @@ const VERDICTS = [
     app: 'SuomiSpeak',
     icon: '📚',
     pick: 'Pick it if you want systematic grammar drills - it goes deeper into the 15 noun cases than anyone.',
-    but: 'But it\'s grammar-first: you\'ll know the case tables before you understand a Finn saying "emmä tiiä".'
+    but: 'But it\'s grammar-first: you\'ll know the case tables before you understand a Finn saying "emmä tiiä". (SaunaSpeak now drills the endings too, in Taivutus - just in spoken forms and in context.)'
   },
   {
     app: 'SaunaSpeak',

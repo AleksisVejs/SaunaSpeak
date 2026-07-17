@@ -9,15 +9,30 @@ const props = defineProps({
   // English meaning of the expected sentence - anchors the AI correction
   // to the exercise instead of whatever the attempt happened to resemble.
   translation: { type: String, default: '' },
+  // The kirjakieli form of a puhekieli target. Speech recognition (and many
+  // learners) normalize spoken forms to written Finnish - "emmä tiiä" comes
+  // back as "en minä tiedä" - and that must count as correct, not wrong.
+  written: { type: String, default: '' },
+  // Alternate answers that are just as correct as `expected` (word-order
+  // variants, kirjakieli phrasings) - used by transform drills.
+  accepts: { type: Array, default: () => [] },
+  // Answers that must never be waved through, however close they look. A
+  // transform drill's starting sentence lives here: "Mä otan kahvin" is one
+  // edit from "Mä otin kahvin", so without this the typo tolerance below
+  // would congratulate a learner for changing nothing at all.
+  rejects: { type: Array, default: () => [] },
   placeholder: { type: String, default: '' }
 })
 
-const emit = defineEmits(['checked'])
+const emit = defineEmits(['checked', 'confirm'])
 
 const attempt = ref('')
 const listening = ref(false)
 const checking = ref(false)
 const feedback = ref(null) // { correct, corrected, explanation, tokens, accentsOnly }
+// What the last check() graded - Enter on an unchanged attempt confirms the
+// grade instead of re-checking (and re-spending an AI call) on the same text.
+let lastChecked = null
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const micSupported = !!SpeechRecognition
@@ -28,6 +43,7 @@ watch(
   () => {
     attempt.value = ''
     feedback.value = null
+    lastChecked = null
     stopListening()
   }
 )
@@ -79,15 +95,68 @@ function stopListening() {
   listening.value = false
 }
 
+// Does the attempt match this alternate answer, exactly or give-or-take a
+// typo? Same diacritic guard as the main path: missing ä/ö dots are never
+// waved through as typos.
+function matchesAlt(alt) {
+  const a = normalize(attempt.value)
+  const e = normalize(alt)
+  if (a === e) return true
+  return stripDiacritics(attempt.value) !== stripDiacritics(alt) && typoDistance(a, e) !== null
+}
+
+// Enter: check a new attempt, confirm an already-checked one (the parent
+// maps that to the suggested self-grade).
+function onEnter() {
+  if (checking.value) return
+  if (feedback.value && attempt.value === lastChecked) emit('confirm')
+  else check()
+}
+
 async function check() {
   if (!attempt.value.trim() || checking.value) return
   checking.value = true
 
-  if (normalize(attempt.value) === normalize(props.expected)) {
+  // Handed back the sentence unchanged. Checked before anything else: on a
+  // one-letter transformation (otan → otin) the typo tolerance would
+  // otherwise call the untouched original "a tiny typo" and pass it.
+  const rejected = props.rejects.some((r) => r && normalize(attempt.value) === normalize(r))
+
+  // The written form of a puhekieli target counts as correct: speech
+  // recognition normalizes spoken forms to standard Finnish, and a learner
+  // who produced valid kirjakieli hasn't made a mistake.
+  const writtenMatch = !rejected && props.written && normalize(attempt.value) !== normalize(props.expected) && matchesAlt(props.written)
+  const acceptMatch = !rejected && !writtenMatch && props.accepts.some((alt) => alt && matchesAlt(alt))
+
+  if (rejected) {
+    feedback.value = {
+      correct: false,
+      corrected: props.expected,
+      explanation: "That's the sentence you started with - this one needs changing.",
+      tokens: null,
+      accentsOnly: false
+    }
+  } else if (normalize(attempt.value) === normalize(props.expected)) {
     feedback.value = {
       correct: true,
       corrected: props.expected,
       explanation: 'Täydellistä! Exactly how a Finn says it.',
+      tokens: null,
+      accentsOnly: false
+    }
+  } else if (writtenMatch) {
+    feedback.value = {
+      correct: true,
+      corrected: props.expected,
+      explanation: "Correct! You gave the written form (kirjakieli) - out loud a Finn says it like the version above.",
+      tokens: null,
+      accentsOnly: false
+    }
+  } else if (acceptMatch) {
+    feedback.value = {
+      correct: true,
+      corrected: props.expected,
+      explanation: 'Correct! Your version works too - the card\'s form is above.',
       tokens: null,
       accentsOnly: false
     }
@@ -148,6 +217,7 @@ async function check() {
   }
 
   checking.value = false
+  lastChecked = attempt.value
   emit('checked', feedback.value.correct)
 }
 
@@ -175,7 +245,7 @@ onBeforeUnmount(stopListening)
         autocapitalize="none"
         autocomplete="off"
         spellcheck="false"
-        @keyup.enter="check"
+        @keyup.enter="onEnter"
       />
       <button class="btn btn-ghost check-btn" :disabled="!attempt.trim() || checking" @click="check">
         {{ checking ? '…' : 'Check' }}

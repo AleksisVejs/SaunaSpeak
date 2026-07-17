@@ -8,6 +8,7 @@ use App\Models\ReviewLog;
 use App\Models\Sentence;
 use App\Models\User;
 use App\Models\UserProgress;
+use App\Support\Listening;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -61,6 +62,11 @@ class AdminController extends Controller
                 'sentences_human' => Sentence::where('audio_url', 'like', '/audio/human/%')->count(),
                 'words_total' => count($manifest),
                 'words_human' => $wordsHuman,
+                // Conversation lines live in JSON, not the sentences table.
+                'listening_total' => array_sum(array_map(
+                    fn (array $s) => count($s['lines']),
+                    Listening::all(),
+                )),
             ],
         ]);
     }

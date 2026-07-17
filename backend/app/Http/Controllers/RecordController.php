@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sentence;
+use App\Support\Listening;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -107,6 +108,116 @@ class RecordController extends Controller
         return response()->json(['sentence_id' => $id, 'pending_url' => "/audio/pending/{$stored}"]);
     }
 
+    /**
+     * GET /api/record/listening - the conversation queue, grouped by scene and
+     * then by SPEAKER.
+     *
+     * The grouping is the point. A scene is two people talking, so its lines
+     * must be recorded by two different voices - a flat list of lines is how
+     * you end up with a "dialogue" where both speakers are the same person.
+     * Each speaker block carries its own name, voice and progress so it's
+     * obvious at a glance who still needs recording, and by whom.
+     */
+    public function listeningQueue(Request $request): JsonResponse
+    {
+        $this->ensureRecorder($request);
+
+        $pending = $this->pendingListening();
+        $scenes = [];
+
+        foreach (Listening::all() as $scene) {
+            $speakers = [];
+
+            foreach ($scene['lines'] as $index => $line) {
+                $key = $line['who'];
+                $meta = $scene['speakers'][$key] ?? ['name' => $key, 'voice' => 'male'];
+                $base = Listening::baseName($scene['id'], $index);
+
+                // Three states, and they must be distinguishable: live (an
+                // approved human take is playing), pending (recorded, waiting
+                // for review) and tts (still the synthetic voice).
+                $live = str_starts_with((string) $line['audio_url'], '/audio/human/');
+                $state = $live ? 'live' : (isset($pending[$base]) ? 'pending' : 'tts');
+
+                $speakers[$key] ??= [
+                    'key' => $key,
+                    'name' => $meta['name'] ?? $key,
+                    'voice' => $meta['voice'] ?? 'male',
+                    'role' => $meta['role'] ?? '',
+                    'lines' => [],
+                    'total' => 0,
+                    'done' => 0,
+                    'pending' => 0,
+                ];
+
+                $speakers[$key]['lines'][] = [
+                    'index' => $index,
+                    'fi' => $line['fi'],
+                    'en' => $line['en'],
+                    'current_url' => $line['audio_url'],
+                    'pending_url' => isset($pending[$base]) ? '/audio/pending/'.basename($pending[$base]) : null,
+                    'state' => $state,
+                ];
+                $speakers[$key]['total']++;
+                if ($state === 'live') {
+                    $speakers[$key]['done']++;
+                } elseif ($state === 'pending') {
+                    $speakers[$key]['pending']++;
+                }
+            }
+
+            $scenes[] = [
+                'id' => $scene['id'],
+                'emoji' => $scene['emoji'] ?? '🎧',
+                'title' => $scene['title'],
+                'level' => $scene['level'] ?? 'A1',
+                'speakers' => array_values($speakers),
+                'total' => count($scene['lines']),
+                'done' => array_sum(array_column($speakers, 'done')),
+            ];
+        }
+
+        return response()->json([
+            'scenes' => $scenes,
+            'line_total' => array_sum(array_column($scenes, 'total')),
+            'line_done' => array_sum(array_column($scenes, 'done')),
+        ]);
+    }
+
+    /** POST /api/record/listening/{scene}/{index} - submit a take for review. */
+    public function storeListening(Request $request, string $scene, int $index): JsonResponse
+    {
+        $this->ensureRecorder($request);
+        abort_unless(Listening::hasLine($scene, $index), 404, 'Unknown line.');
+
+        $file = $this->validAudio($request);
+        $stored = $this->store($file, public_path('audio/pending'), Listening::baseName($scene, $index));
+
+        return response()->json([
+            'scene' => $scene,
+            'index' => $index,
+            'pending_url' => "/audio/pending/{$stored}",
+        ]);
+    }
+
+    /** DELETE /api/record/listening/{scene}/{index} - retire a LIVE take, back to TTS. */
+    public function revertListening(Request $request, string $scene, int $index): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        abort_unless(Listening::hasLine($scene, $index), 404, 'Unknown line.');
+
+        $base = Listening::baseName($scene, $index);
+        foreach (File::glob(public_path("audio/human/{$base}.*")) as $old) {
+            File::delete($old);
+        }
+
+        return response()->json([
+            'scene' => $scene,
+            'index' => $index,
+            'audio_url' => Listening::audioUrl($scene, $index),
+        ]);
+    }
+
     /** POST /api/record/word - submit a word take for review. */
     public function storeWord(Request $request): JsonResponse
     {
@@ -189,12 +300,59 @@ class RecordController extends Controller
             ->map(fn ($url, $word) => ['word' => $word, 'audio_url' => $url])
             ->values();
 
+        [$pendingListening, $liveListening] = $this->listeningSubmissionState();
+
         return [
             'sentences' => $pendingSentences,
             'words' => $pendingWords,
+            'listening' => $pendingListening,
             'live_sentences' => $liveSentences,
             'live_words' => $liveWords,
+            'live_listening' => $liveListening,
         ];
+    }
+
+    /**
+     * Conversation lines waiting for review, and the ones already live. Each
+     * carries its speaker so a reviewer can hear whether the voice actually
+     * matches the character - a scene recorded by one person for both parts
+     * is the failure this whole split exists to prevent.
+     *
+     * @return array{0: array, 1: array} [pending, live]
+     */
+    private function listeningSubmissionState(): array
+    {
+        $pendingFiles = $this->pendingListening();
+        $pending = [];
+        $live = [];
+
+        foreach (Listening::all() as $scene) {
+            foreach ($scene['lines'] as $index => $line) {
+                $meta = $scene['speakers'][$line['who']] ?? [];
+                $base = Listening::baseName($scene['id'], $index);
+
+                $row = [
+                    'scene' => $scene['id'],
+                    'scene_title' => $scene['title'],
+                    'index' => $index,
+                    'fi' => $line['fi'],
+                    'en' => $line['en'],
+                    'speaker' => $meta['name'] ?? $line['who'],
+                    'voice' => $meta['voice'] ?? 'male',
+                ];
+
+                if (isset($pendingFiles[$base])) {
+                    $pending[] = $row + [
+                        'current_url' => $line['audio_url'],
+                        'pending_url' => '/audio/pending/'.basename($pendingFiles[$base]),
+                    ];
+                } elseif (str_starts_with((string) $line['audio_url'], '/audio/human/')) {
+                    $live[] = $row + ['audio_url' => $line['audio_url']];
+                }
+            }
+        }
+
+        return [$pending, $live];
     }
 
     /**
@@ -212,12 +370,20 @@ class RecordController extends Controller
             foreach (array_keys($this->pendingWords()) as $base) {
                 $this->approveWordBase($base);
             }
+            foreach (array_keys($this->pendingListening()) as $base) {
+                $this->approveListeningBase($base);
+            }
 
             return response()->json(['ok' => true]);
         }
 
         [$type, $key] = $this->validReviewTarget($request);
-        $type === 'sentence' ? $this->approveSentence((int) $key) : $this->approveWordBase($this->wordBase($key));
+
+        match ($type) {
+            'sentence' => $this->approveSentence((int) $key),
+            'listening' => $this->approveListeningBase($this->listeningBaseFromKey($key)),
+            default => $this->approveWordBase($this->wordBase($key)),
+        };
 
         return response()->json(['ok' => true]);
     }
@@ -228,15 +394,28 @@ class RecordController extends Controller
         $this->ensureAdmin($request);
 
         [$type, $key] = $this->validReviewTarget($request);
-        $glob = $type === 'sentence'
-            ? public_path("audio/pending/sentence-{$key}.*")
-            : public_path('audio/pending/words/'.$this->wordBase($key).'.*');
+
+        $glob = match ($type) {
+            'sentence' => public_path("audio/pending/sentence-{$key}.*"),
+            'listening' => public_path('audio/pending/'.$this->listeningBaseFromKey($key).'.*'),
+            default => public_path('audio/pending/words/'.$this->wordBase($key).'.*'),
+        };
 
         foreach (File::glob($glob) as $file) {
             File::delete($file);
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    /** Review key "kahvilassa:3" → the shared base name for that line. */
+    private function listeningBaseFromKey(string $key): string
+    {
+        [$scene, $index] = array_pad(explode(':', $key, 2), 2, null);
+        abort_unless($scene !== null && $index !== null && ctype_digit($index), 422, 'Bad listening key.');
+        abort_unless(Listening::hasLine($scene, (int) $index), 404, 'Unknown line.');
+
+        return Listening::baseName($scene, (int) $index);
     }
 
     /** DELETE /api/record/sentence/{id} - retire a LIVE human take, back to TTS. */
@@ -340,7 +519,7 @@ class RecordController extends Controller
     private function validReviewTarget(Request $request): array
     {
         $data = $request->validate([
-            'type' => ['required', 'in:sentence,word'],
+            'type' => ['required', 'in:sentence,word,listening'],
             'key' => ['required', 'string', 'max:64'],
         ]);
 
@@ -369,6 +548,47 @@ class RecordController extends Controller
         }
 
         return $map;
+    }
+
+    /**
+     * @return array<string, string> listening base ("listening-{scene}-{i}") → pending path
+     *
+     * Conversation takes share the pending/ directory with sentence takes;
+     * the "listening-" prefix is what keeps the two globs from colliding.
+     */
+    private function pendingListening(): array
+    {
+        $map = [];
+        foreach (File::glob(public_path('audio/pending/listening-*.*')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = $path;
+        }
+
+        return $map;
+    }
+
+    private function approveListeningBase(string $base): void
+    {
+        $pending = $this->pendingListening()[$base] ?? null;
+        if ($pending === null) {
+            return;
+        }
+
+        $parsed = Listening::parseBaseName($base);
+        if ($parsed === null || ! Listening::hasLine($parsed[0], $parsed[1])) {
+            File::delete($pending); // orphaned take for a line that no longer exists
+
+            return;
+        }
+
+        $dir = public_path('audio/human');
+        File::ensureDirectoryExists($dir);
+        foreach (File::glob("{$dir}/{$base}.*") as $old) {
+            File::delete($old);
+        }
+
+        // No DB write needed: Listening::audioUrl() prefers audio/human/ on
+        // sight, so moving the file IS the approval.
+        File::move($pending, "{$dir}/".basename($pending));
     }
 
     /** Same slug+hash scheme audio:generate uses - the files pair up. */

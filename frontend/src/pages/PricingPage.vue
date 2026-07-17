@@ -9,6 +9,8 @@ const FREE = [
   'The full lesson path (starts at zero, growing)',
   'Daily Sauna Sessions with spaced repetition',
   'Audio on every sentence and word',
+  'Kuuntelu - whole conversations at natural speed',
+  'Taivutus - Finnish inflection drills',
   'Word bank + flashcard reviews',
   'Level checkpoints and streaks'
 ]

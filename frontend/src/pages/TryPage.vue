@@ -117,7 +117,7 @@ function next() {
         <p class="finish-text">
           SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
           then say it from memory - so it actually sticks. The lessons run from your first
-          words to confident everyday conversation - and the path keeps growing. It's free.
+          words to real everyday conversations - and the path keeps growing. It's free.
           Already know some Finnish? Placement tests let you skip ahead.
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>

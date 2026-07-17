@@ -1,0 +1,25 @@
+{
+    "title": "Booking a doctor's appointment",
+    "emoji": "📞",
+    "level": "A2",
+    "tagline": "A phone call: no faces, no pointing - words only.",
+    "speakers": {
+        "A": { "name": "Sirpa", "voice": "female", "role": "receptionist" },
+        "B": { "name": "Tomi", "voice": "male", "role": "caller" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Terveysasema, Sirpa puhelimessa. Miten voin auttaa?", "en": "Health center, Sirpa speaking. How can I help?" },
+        { "who": "B", "fi": "Moi! Mä haluisin varata ajan lääkärille.", "en": "Hi! I'd like to book a doctor's appointment." },
+        { "who": "A", "fi": "Selvä. Mikä sul on vaivana?", "en": "Alright. What's the problem?" },
+        { "who": "B", "fi": "Mul on ollu kurkku kipee ja vähän kuumetta.", "en": "I've had a sore throat and a bit of a fever." },
+        { "who": "A", "fi": "Okei. Kauanks se on kestäny?", "en": "Okay. How long has it lasted?" },
+        { "who": "B", "fi": "Kolme päivää suunnilleen.", "en": "About three days." },
+        { "who": "A", "fi": "Katsotaanpa... Torstaina ois aika kello kymmenen neljäkyt. Käyks se?", "en": "Let's see... There's a slot on Thursday at ten forty. Does that work?" },
+        { "who": "B", "fi": "Joo, käy hyvin.", "en": "Yes, that works well." },
+        { "who": "A", "fi": "Hyvä. Saanks mä viel sun nimen?", "en": "Good. Can I get your name?" },
+        { "who": "B", "fi": "Tomi Virtanen.", "en": "Tomi Virtanen." },
+        { "who": "A", "fi": "Kiitos. Eli torstaina kymmenen neljäkyt, lääkäri Mäkinen. Tuu vartti etuajassa.", "en": "Thanks. So Thursday at ten forty, Doctor Mäkinen. Come fifteen minutes early." },
+        { "who": "B", "fi": "Selvä, kiitti paljon. Moi!", "en": "Got it, thanks a lot. Bye!" },
+        { "who": "A", "fi": "Kiitos soitosta, moi moi!", "en": "Thanks for calling, bye bye!" }
+    ]
+}

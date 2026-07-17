@@ -1,0 +1,22 @@
+{
+    "title": "Meeting the neighbor",
+    "emoji": "🏡",
+    "level": "A2",
+    "tagline": "Stairwell small talk with the retiree next door.",
+    "speakers": {
+        "A": { "name": "Ritva", "voice": "female", "role": "neighbor" },
+        "B": { "name": "Tomi", "voice": "male", "role": "new tenant" }
+    },
+    "lines": [
+        { "who": "A", "fi": "No hei! Sähän oot se uus naapuri kolmosesta?", "en": "Well hello! You must be the new neighbor from number three?" },
+        { "who": "B", "fi": "Joo, moi! Mä oon Tomi. Me muutettiin viime viikolla.", "en": "Yeah, hi! I'm Tomi. We moved in last week." },
+        { "who": "A", "fi": "Mä oon Ritva. Tervetuloa taloon! Mistä te tulitte?", "en": "I'm Ritva. Welcome to the building! Where did you move from?" },
+        { "who": "B", "fi": "Kiitos! Tampereelta. Työt toi meiät tänne.", "en": "Thanks! From Tampere. Work brought us here." },
+        { "who": "A", "fi": "Ai jaa. No, miten te ootte viihtyny?", "en": "Oh really. Well, how have you been settling in?" },
+        { "who": "B", "fi": "Tosi hyvin. Tää vaikuttaa rauhalliselta talolta.", "en": "Really well. This seems like a peaceful building." },
+        { "who": "A", "fi": "Joo, tää on kiva talo. Ai niin - saunavuorot varataan siitä alakerran listasta.", "en": "Yeah, it's a nice building. Oh right - sauna slots are booked on the list downstairs." },
+        { "who": "B", "fi": "Ai, hyvä tietää! Kiitti vinkistä.", "en": "Oh, good to know! Thanks for the tip." },
+        { "who": "A", "fi": "Eipä mitään. Huikkaa jos te tarviitte jotain!", "en": "Don't mention it. Give a shout if you need anything!" },
+        { "who": "B", "fi": "Kiitti, nähään!", "en": "Thanks, see you around!" }
+    ]
+}

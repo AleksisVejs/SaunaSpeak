@@ -1,0 +1,63 @@
+{
+    "title": "Say it about yesterday",
+    "emoji": "⏪",
+    "level": "A1",
+    "rule": "Past tense: the -i- that moves it backwards",
+    "summary": "The past tense slips an -i- in before the ending: otan → otin, soittaa → soitti. Some verbs bend around it (meen → menin, tuut → tulit), and the spoken we-form has its own shape: syödään → syötiin.",
+    "items": [
+        {
+            "prompt": "Say you took one earlier",
+            "from": "Mä otan kahvin.",
+            "from_en": "I'll take a coffee.",
+            "to": "Mä otin kahvin.",
+            "to_en": "I took a coffee.",
+            "accepts": ["Otin kahvin.", "Minä otin kahvin."],
+            "note": "otan → otin. The -i- is the past tense; the person ending stays."
+        },
+        {
+            "prompt": "Say you went there yesterday",
+            "from": "Mä meen kauppaan.",
+            "from_en": "I'm going to the shop.",
+            "to": "Mä menin kauppaan.",
+            "to_en": "I went to the shop.",
+            "accepts": ["Menin kauppaan.", "Minä menin kauppaan."],
+            "note": "meen (spoken 'menen') → menin. Irregular-looking, but it's the same -i- underneath."
+        },
+        {
+            "prompt": "Say they were late yesterday",
+            "from": "Sä tuut myöhässä.",
+            "from_en": "You're coming late.",
+            "to": "Sä tulit myöhässä.",
+            "to_en": "You came late.",
+            "accepts": ["Tulit myöhässä.", "Sinä tulit myöhässä."],
+            "note": "tuut (spoken 'tulet') → tulit. The full 'tul-' stem comes back in the past."
+        },
+        {
+            "prompt": "Say you ate it last night",
+            "from": "Me syödään pitsaa.",
+            "from_en": "We're eating pizza.",
+            "to": "Me syötiin pitsaa.",
+            "to_en": "We ate pizza.",
+            "accepts": ["Syötiin pitsaa.", "Me söimme pitsaa."],
+            "note": "The spoken we-form does its past with -tiin: syödään → syötiin. (Textbook: me söimme.)"
+        },
+        {
+            "prompt": "Say they called earlier",
+            "from": "Se soittaa mulle.",
+            "from_en": "They're calling me.",
+            "to": "Se soitti mulle.",
+            "to_en": "They called me.",
+            "accepts": ["Soitti mulle.", "Hän soitti minulle.", "Se soitti mulle."],
+            "note": "soittaa → soitti. Double -tt- thins to -t- before the -i (consonant gradation)."
+        },
+        {
+            "prompt": "Say you were tired yesterday",
+            "from": "Mä oon väsyny.",
+            "from_en": "I'm tired.",
+            "to": "Mä olin väsyny.",
+            "to_en": "I was tired.",
+            "accepts": ["Olin väsyny.", "Mä olin väsynyt.", "Olin väsynyt.", "Minä olin väsynyt."],
+            "note": "oon (spoken 'olen') → olin. The one verb you'll put in the past most often."
+        }
+    ]
+}

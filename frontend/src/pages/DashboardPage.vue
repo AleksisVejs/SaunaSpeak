@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
-import { BookOpen, Drama, Flame, MessageCircle, Pencil, Smartphone, Snowflake, Zap } from 'lucide-vue-next'
+import { BookOpen, Drama, Flame, Headphones, MessageCircle, Pencil, Smartphone, Snowflake, Wrench, Zap } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useAuthStore } from '../stores/auth'
 import { usePwaInstall } from '../composables/usePwaInstall'
@@ -289,8 +289,16 @@ async function sendFeedback() {
         </template>
       </div>
 
-      <!-- the rest of the sauna: talk, roleplay, your own words -->
+      <!-- the rest of the sauna: listen, talk, roleplay, your own words -->
       <div class="quick-row">
+        <router-link to="/listening" class="quick">
+          <Headphones class="quick-icon" aria-hidden="true" />
+          <span class="quick-name">Kuuntelu</span>
+        </router-link>
+        <router-link to="/transforms" class="quick">
+          <Wrench class="quick-icon" aria-hidden="true" />
+          <span class="quick-name">Taivutus</span>
+        </router-link>
         <router-link to="/chat" class="quick">
           <MessageCircle class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Sauna Chat</span>

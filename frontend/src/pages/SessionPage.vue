@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { BookOpen, Check, Flame, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
 import { useSessionStore } from '../stores/session'
 import { useAuthStore } from '../stores/auth'
@@ -17,13 +17,20 @@ const card = ref(null)
 const revealed = ref(false)
 const submitting = ref(false)
 const error = ref('')
+// The self-grade the check result points at: correct → Good, wrong → Again.
+// One press of Enter (or the highlighted button) applies it; Again/Easy stay
+// one tap away as the manual override.
+const suggested = ref(null)
 
 // Load in setup (not onMounted) so the reset state is in place before the first render.
 session.loadToday()
 
 watch(
   () => session.index,
-  () => (revealed.value = false)
+  () => {
+    revealed.value = false
+    suggested.value = null
+  }
 )
 
 // study | cloze | dictation | recall - the exercise gets harder as the SRS stage rises.
@@ -44,6 +51,13 @@ const practiceTranslation = computed(() =>
   kind.value === 'cloze' ? '' : session.current.english_text || ''
 )
 
+// The kirjakieli form also counts as correct (speech recognition normalizes
+// puhekieli to written Finnish). Whole-sentence kinds only - there's no
+// word-level written mapping for a cloze gap.
+const practiceWritten = computed(() =>
+  kind.value === 'cloze' ? '' : session.current.written_text || ''
+)
+
 const practiceHints = {
   study: 'Your guess - say or type it in Finnish',
   cloze: 'The missing word',
@@ -51,10 +65,28 @@ const practiceHints = {
   recall: 'Say or type it in Finnish'
 }
 
-function onChecked() {
-  // Checking an attempt shows the answer, so reveal the card too.
+function onChecked(correct) {
+  // Checking an attempt shows the answer, so reveal the card too - and the
+  // result picks the suggested grade (override stays one tap away).
+  suggested.value = correct ? 'good' : 'again'
   card.value?.reveal()
 }
+
+// Enter from the practice input (on an already-checked attempt) or anywhere
+// else on the page applies the suggested grade.
+function confirmSuggested() {
+  if (canGrade.value && suggested.value) grade(suggested.value)
+}
+
+function onKey(e) {
+  // The input's own Enter emits 'confirm'; this catches Enter after mic use
+  // or button clicks, when focus is not in the input.
+  if (e.key === 'Enter' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+    confirmSuggested()
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKey))
+onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 async function grade(g) {
   if (submitting.value) return
@@ -221,20 +253,34 @@ function confettiStyle(i) {
       :key="`practice-${session.index}`"
       :expected="practiceExpected"
       :translation="practiceTranslation"
+      :written="practiceWritten"
       :placeholder="practiceHints[kind]"
       @checked="onChecked"
+      @confirm="confirmSuggested"
     />
 
     <div v-if="error" class="error-msg">{{ error }}</div>
 
     <div class="grade-zone">
       <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
+      <!-- The check result pre-picks a grade (correct → Good, miss → Again):
+           Enter or the highlighted button confirms it, the others override. -->
       <div v-else class="grade-row">
-        <button class="btn btn-ghost grade-btn again" :disabled="submitting" @click="grade('again')">
-          <RotateCcw class="grade-ico" aria-hidden="true" /> Again
+        <button
+          class="grade-btn again"
+          :class="suggested === 'again' ? 'btn btn-primary suggested-again' : 'btn btn-ghost'"
+          :disabled="submitting"
+          @click="grade('again')"
+        >
+          <RotateCcw class="grade-ico" aria-hidden="true" /> Again<kbd v-if="suggested === 'again'" class="key-hint">↵</kbd>
         </button>
-        <button class="btn btn-primary grade-btn" :disabled="submitting" @click="grade('good')">
-          <Check class="grade-ico" aria-hidden="true" /> Good
+        <button
+          class="grade-btn"
+          :class="suggested !== 'again' ? 'btn btn-primary' : 'btn btn-ghost'"
+          :disabled="submitting"
+          @click="grade('good')"
+        >
+          <Check class="grade-ico" aria-hidden="true" /> Good<kbd v-if="suggested === 'good'" class="key-hint">↵</kbd>
         </button>
         <button class="btn btn-ghost grade-btn easy" :disabled="submitting" @click="grade('easy')">
           <Zap class="grade-ico" aria-hidden="true" /> Easy
@@ -268,6 +314,19 @@ function confettiStyle(i) {
 .rank-name { display: inline-flex; align-items: center; gap: 5px; }
 .grade-btn.again:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
 .grade-btn.easy:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+/* A missed attempt suggests Again - tint the primary treatment toward red so
+   the confirm action reads as "yes, that was a lapse". */
+.grade-btn.suggested-again { background: var(--red); border-color: var(--red); }
+.key-hint {
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+  margin-left: 6px;
+  opacity: 0.75;
+}
 
 /* card swap */
 .slide-fade-enter-active, .slide-fade-leave-active { transition: opacity 0.22s ease, transform 0.22s ease; }

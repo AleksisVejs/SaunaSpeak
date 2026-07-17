@@ -1,0 +1,22 @@
+{
+    "title": "Ordering at the café",
+    "emoji": "☕",
+    "level": "A1",
+    "tagline": "A coffee, a korvapuusti, and the here-or-to-go question.",
+    "speakers": {
+        "A": { "name": "Noora", "voice": "female", "role": "barista" },
+        "B": { "name": "Tomi", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi! Mitäs sais olla?", "en": "Hi! What can I get you?" },
+        { "who": "B", "fi": "Moi! Yks kahvi ja korvapuusti, kiitos.", "en": "Hi! One coffee and a cinnamon bun, please." },
+        { "who": "A", "fi": "Selvä homma. Täällä vai mukaan?", "en": "Sure thing. For here or to go?" },
+        { "who": "B", "fi": "Täällä, kiitos.", "en": "For here, thanks." },
+        { "who": "A", "fi": "Se tekee seittemän kakskyt.", "en": "That makes seven twenty." },
+        { "who": "B", "fi": "Käyks kortti?", "en": "Does card work?" },
+        { "who": "A", "fi": "Joo, käy. Laita vaan siihen lukijaan.", "en": "Yeah, it works. Just put it on the reader." },
+        { "who": "B", "fi": "Noni. Kiitti!", "en": "There we go. Thanks!" },
+        { "who": "A", "fi": "Kiitos! Korvapuusti tulee ihan just pöytään.", "en": "Thank you! The bun will be right out to your table." },
+        { "who": "B", "fi": "Kiitti, moi!", "en": "Thanks, bye!" }
+    ]
+}

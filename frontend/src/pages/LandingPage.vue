@@ -3,7 +3,7 @@
 // Sells the one thing competitors don't have - real SPOKEN Finnish - and
 // funnels to /try (no account needed) or /register.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { BookOpen, CalendarClock, Check, CircleCheck, Drama, Flag, Flame, Headphones, MessageCircle, Mic, Repeat, RotateCcw, Star, Target, Volume2, Zap } from 'lucide-vue-next'
+import { BookOpen, CalendarClock, Check, CircleCheck, Drama, Ear, Flag, Flame, Headphones, MessageCircle, Mic, Repeat, RotateCcw, Star, Target, Volume2, Wrench, Zap } from 'lucide-vue-next'
 import api from '../api'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -59,6 +59,8 @@ const DEMO_CHAT = [
 
 const FEATURES = [
   { icon: Headphones, title: 'Audio on every sentence', body: 'Every sentence and word plays out loud - a clear synthetic Finnish voice today, replaced sentence by sentence with real native recordings (watch the native-voice counter grow).' },
+  { icon: Ear, title: 'Kuuntelu - whole conversations', body: 'Two Finns talking at normal speed, transcript hidden until you want it. Drills teach sentences; this is what trains your ear.' },
+  { icon: Wrench, title: 'Taivutus - bend the endings', body: 'Finnish hides its grammar in the endings. Make it negative, make it yesterday, make it a question - so you can build sentences, not just recite them.' },
   { icon: Repeat, title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
   { icon: Star, title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
   { icon: Flag, title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
@@ -91,7 +93,7 @@ const FAQ = [
   },
   {
     q: 'How far will SaunaSpeak take me?',
-    a: 'Honestly: from zero to confident everyday spoken Finnish - understanding and holding your own in real conversations, roughly the A0-B1 range where the course is strongest. There are upper-level lessons too (idioms, hearsay particles, workplace Finnish) and the path keeps growing, but no app alone takes anyone to C1 - that also takes reading, writing and kirjakieli study. SaunaSpeak covers the part most courses skip: the Finnish you actually hear.'
+    a: 'Honestly: from zero to solid everyday spoken Finnish - ordering, small talk, getting things done, and understanding what Finns actually say back. In CEFR terms that\'s the A0-A2 range done properly, with upper-level lessons (idioms, hearsay particles, workplace Finnish) stretching beyond it as the path grows. No app alone makes anyone B1+ - that takes hours of real listening, reading and conversation on top - and we won\'t pretend otherwise. What SaunaSpeak covers is the part most courses skip: the Finnish you actually hear.'
   }
 ]
 

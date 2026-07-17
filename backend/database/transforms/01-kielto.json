@@ -1,0 +1,63 @@
+{
+    "title": "Say it with 'no'",
+    "emoji": "🚫",
+    "level": "A1",
+    "rule": "Negation: en, et, ei + the bare stem",
+    "summary": "Finnish doesn't have one word for 'not' - the negative itself conjugates (en, et, ei, ei/emme...) and the main verb drops to its bare stem: otan → en ota, tiiän → en tiiä. Watch the object too: it usually softens to the partitive (kahvin → kahvii).",
+    "items": [
+        {
+            "prompt": "Say you're NOT having one",
+            "from": "Mä otan kahvin.",
+            "from_en": "I'll take a coffee.",
+            "to": "Mä en ota kahvii.",
+            "to_en": "I'm not taking a coffee.",
+            "accepts": ["Mä en ota kahvia.", "En mä ota kahvii.", "En mä ota kahvia.", "En ota kahvia.", "En ota kahvii."],
+            "note": "otan → en ota (the verb loses its ending), and the object softens: kahvin → kahvii (kahvia in writing)."
+        },
+        {
+            "prompt": "Say you DON'T know",
+            "from": "Mä tiiän sen.",
+            "from_en": "I know it.",
+            "to": "Mä en tiiä sitä.",
+            "to_en": "I don't know it.",
+            "accepts": ["En mä tiiä sitä.", "Emmä tiiä sitä.", "Mä en tiedä sitä.", "En tiiä sitä.", "En tiedä sitä."],
+            "note": "tiiän → en tiiä. The object sen → sitä, the same partitive softening. In fast speech 'en mä' fuses into 'emmä'."
+        },
+        {
+            "prompt": "Say they DON'T speak it",
+            "from": "Sä puhut suomee.",
+            "from_en": "You speak Finnish.",
+            "to": "Sä et puhu suomee.",
+            "to_en": "You don't speak Finnish.",
+            "accepts": ["Et sä puhu suomee.", "Sä et puhu suomea.", "Et puhu suomee.", "Et puhu suomea."],
+            "note": "The you-form of the negative is 'et' - puhut → et puhu."
+        },
+        {
+            "prompt": "Say they're NOT coming",
+            "from": "Se tulee mukaan.",
+            "from_en": "They're coming along.",
+            "to": "Se ei tuu mukaan.",
+            "to_en": "They're not coming along.",
+            "accepts": ["Se ei tule mukaan.", "Ei se tuu mukaan.", "Ei se tule mukaan.", "Ei tuu mukaan."],
+            "note": "The he/she/it negative is 'ei'. Spoken Finnish shortens tulee → tuu, so 'ei tuu'."
+        },
+        {
+            "prompt": "Say you're NOT going",
+            "from": "Me mennään elokuviin.",
+            "from_en": "We're going to the movies.",
+            "to": "Me ei mennä elokuviin.",
+            "to_en": "We're not going to the movies.",
+            "accepts": ["Ei me mennä elokuviin.", "Me emme mene elokuviin.", "Ei mennä elokuviin."],
+            "note": "Spoken Finnish negates the we-form with plain 'ei': me mennään → me ei mennä. (Textbook: me emme mene.)"
+        },
+        {
+            "prompt": "Say you DON'T remember",
+            "from": "Mä muistan sun nimen.",
+            "from_en": "I remember your name.",
+            "to": "Mä en muista sun nimee.",
+            "to_en": "I don't remember your name.",
+            "accepts": ["En mä muista sun nimee.", "Emmä muista sun nimee.", "Mä en muista sun nimeä.", "En muista sun nimee.", "En muista sun nimeä."],
+            "note": "muistan → en muista, and nimen → nimee (nimeä in writing) - the object softens again."
+        }
+    ]
+}

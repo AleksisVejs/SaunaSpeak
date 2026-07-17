@@ -1,0 +1,23 @@
+{
+    "title": "At the grocery store",
+    "emoji": "🛒",
+    "level": "A1",
+    "tagline": "Find the milk, skip the bag, pay and go.",
+    "speakers": {
+        "A": { "name": "Marja", "voice": "female", "role": "cashier" },
+        "B": { "name": "Tomi", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "B", "fi": "Moi, anteeks - missä teil on maito?", "en": "Hi, excuse me - where do you have the milk?" },
+        { "who": "A", "fi": "Moi! Tuolla takaseinällä, kylmäkaapissa.", "en": "Hi! Over on the back wall, in the cooler." },
+        { "who": "B", "fi": "Kiitti!", "en": "Thanks!" },
+        { "who": "A", "fi": "No, löytyks kaikki?", "en": "Well, did you find everything?" },
+        { "who": "B", "fi": "Joo, löyty.", "en": "Yeah, I did." },
+        { "who": "A", "fi": "Tuleeks pussia?", "en": "Do you want a bag?" },
+        { "who": "B", "fi": "Ei kiitos, mul on oma kassi.", "en": "No thanks, I have my own bag." },
+        { "who": "A", "fi": "Selvä. Kuus viiskyt, kiitos.", "en": "Alright. Six fifty, please." },
+        { "who": "B", "fi": "Tossa.", "en": "Here you go." },
+        { "who": "A", "fi": "Kiitos, kuitti tulee mukaan. Hyvää päivänjatkoa!", "en": "Thanks, the receipt comes with it. Have a nice day!" },
+        { "who": "B", "fi": "Kiitti samoin, moi!", "en": "Thanks, you too, bye!" }
+    ]
+}

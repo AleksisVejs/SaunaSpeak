@@ -1,0 +1,63 @@
+{
+    "title": "Turn it into a question",
+    "emoji": "❓",
+    "level": "A1",
+    "rule": "Spoken questions: the verb jumps first and takes -ks",
+    "summary": "Textbook Finnish asks with -ko/-kö. Real speech uses -ks, and the verb hops to the front, often gluing the pronoun on: sä puhut → puhutsä, sul on → onks sul. This one pattern turns almost any statement into a question.",
+    "items": [
+        {
+            "prompt": "Ask if they speak it",
+            "from": "Sä puhut englantia.",
+            "from_en": "You speak English.",
+            "to": "Puhutsä englantia?",
+            "to_en": "Do you speak English?",
+            "accepts": ["Puhut sä englantia?", "Puhuksä englantia?", "Puhutko sinä englantia?", "Puhutko englantia?"],
+            "note": "The verb goes first and the pronoun sticks to it: sä puhut → puhutsä."
+        },
+        {
+            "prompt": "Ask if they're hungry",
+            "from": "Sul on nälkä.",
+            "from_en": "You're hungry.",
+            "to": "Onks sul nälkä?",
+            "to_en": "Are you hungry?",
+            "accepts": ["Onks sulla nälkä?", "Onko sulla nälkä?", "Onko sinulla nälkä?"],
+            "note": "on → onks, and it jumps to the front. This is the single most useful question shape in spoken Finnish."
+        },
+        {
+            "prompt": "Ask if they're coming",
+            "from": "Se tulee mukaan.",
+            "from_en": "They're coming along.",
+            "to": "Tuleeks se mukaan?",
+            "to_en": "Are they coming along?",
+            "accepts": ["Tuleks se mukaan?", "Tuleeko se mukaan?", "Tuleeko hän mukaan?"],
+            "note": "tulee → tuleeks. The -ks just clips onto the verb, whatever the verb is."
+        },
+        {
+            "prompt": "Suggest it as a question",
+            "from": "Me mennään syömään.",
+            "from_en": "We're going to eat.",
+            "to": "Mennäänks syömään?",
+            "to_en": "Shall we go eat?",
+            "accepts": ["Mennääks syömään?", "Mennäänkö syömään?", "Mennäänks me syömään?"],
+            "note": "mennään → mennäänks. This is how Finns make a plan: not 'shall we', just the we-form with -ks."
+        },
+        {
+            "prompt": "Ask if it's expensive",
+            "from": "Tää maksaa paljon.",
+            "from_en": "This costs a lot.",
+            "to": "Maksaaks tää paljon?",
+            "to_en": "Does this cost a lot?",
+            "accepts": ["Maksaks tää paljon?", "Maksaako tämä paljon?", "Maksaako tää paljon?"],
+            "note": "maksaa → maksaaks. Same move every time - front the verb, add -ks."
+        },
+        {
+            "prompt": "Ask if they're ready",
+            "from": "Sä oot valmis.",
+            "from_en": "You're ready.",
+            "to": "Ootsä valmis?",
+            "to_en": "Are you ready?",
+            "accepts": ["Oot sä valmis?", "Ooksä valmis?", "Oletko sinä valmis?", "Oletko valmis?"],
+            "note": "sä oot → ootsä. Textbook 'oletko sinä' - nobody says that at the door."
+        }
+    ]
+}

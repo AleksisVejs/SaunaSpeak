@@ -31,14 +31,17 @@ export default defineConfig({
         globIgnores: ['scenes/**', 'sw-kill.js', 'og-image.png'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/audio/],
-        // Sentence + word MP3s are immutable once generated - cache-first keeps them offline.
+        // Sentence, word and listening-scene MP3s are immutable once
+        // generated - cache-first keeps them offline. maxEntries has to clear
+        // the whole corpus (sentences + words + every Kuuntelu line) or scenes
+        // start evicting the sentence audio that shares this cache.
         runtimeCaching: [
           {
             urlPattern: /\/audio\/.*\.mp3$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'finnish-audio',
-              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 90 }
+              expiration: { maxEntries: 1000, maxAgeSeconds: 60 * 60 * 24 * 90 }
             }
           },
           {

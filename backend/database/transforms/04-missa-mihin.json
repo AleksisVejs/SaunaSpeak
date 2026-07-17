@@ -1,0 +1,63 @@
+{
+    "title": "Going there vs. being there",
+    "emoji": "📍",
+    "level": "A2",
+    "rule": "Cases: -in/-lle (going to) vs. -ssa/-lla (being in)",
+    "summary": "Finnish glues the preposition onto the end of the word - and it changes depending on whether you're heading there or already there: kauppaan (to the shop) → kaupassa (in the shop). A few everyday places are irregular and just have to be known: kotiin → kotona, töihin → töissä.",
+    "items": [
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen kauppaan.",
+            "from_en": "I'm going to the shop.",
+            "to": "Mä oon kaupassa.",
+            "to_en": "I'm at the shop.",
+            "accepts": ["Oon kaupassa.", "Mä olen kaupassa.", "Olen kaupassa.", "Minä olen kaupassa."],
+            "note": "kauppa + -an = going to; kauppa + -ssa = being in. The double -pp- thins to -p- in kaupassa (consonant gradation)."
+        },
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen saunaan.",
+            "from_en": "I'm going to the sauna.",
+            "to": "Mä oon saunassa.",
+            "to_en": "I'm in the sauna.",
+            "accepts": ["Oon saunassa.", "Mä olen saunassa.", "Olen saunassa."],
+            "note": "saunaan → saunassa. No gradation here - the stem is untouched."
+        },
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen Helsinkiin.",
+            "from_en": "I'm going to Helsinki.",
+            "to": "Mä oon Helsingissä.",
+            "to_en": "I'm in Helsinki.",
+            "accepts": ["Oon Helsingissä.", "Mä olen Helsingissä.", "Olen Helsingissä."],
+            "note": "Helsinki → Helsingissä: the -k- softens to -g- and the ending harmonizes to -ssä (front vowels take ä, not a)."
+        },
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen kotiin.",
+            "from_en": "I'm going home.",
+            "to": "Mä oon kotona.",
+            "to_en": "I'm at home.",
+            "accepts": ["Oon kotona.", "Mä olen kotona.", "Olen kotona."],
+            "note": "Irregular - and one you'll use daily: kotiin (going home) → kotona (at home). Not 'kodissa'."
+        },
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen töihin.",
+            "from_en": "I'm going to work.",
+            "to": "Mä oon töissä.",
+            "to_en": "I'm at work.",
+            "accepts": ["Oon töissä.", "Mä olen töissä.", "Olen töissä."],
+            "note": "Also irregular, also daily: töihin (to work) → töissä (at work). Finnish treats 'work' as a plural."
+        },
+        {
+            "prompt": "Now say you're already there",
+            "from": "Mä meen mökille.",
+            "from_en": "I'm going to the cottage.",
+            "to": "Mä oon mökillä.",
+            "to_en": "I'm at the cottage.",
+            "accepts": ["Oon mökillä.", "Mä olen mökillä.", "Olen mökillä."],
+            "note": "Some places take the -lle/-llä pair instead of -in/-ssa: mökille → mökillä. Same idea, different set of endings."
+        }
+    ]
+}

@@ -10,10 +10,12 @@ use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\ListeningController;
 use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\PublicLessonController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\TransformController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
 use Illuminate\Support\Facades\Route;
@@ -82,6 +84,18 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/checkpoint/{level}', [CheckpointController::class, 'show']);
     Route::post('/checkpoint/{level}', [CheckpointController::class, 'complete']);
 
+    // Kuuntelu (whole-conversation listening) is part of the free path:
+    // comprehension needs volume, and volume can't sit behind a paywall.
+    Route::get('/listening', [ListeningController::class, 'index']);
+    Route::get('/listening/{id}', [ListeningController::class, 'show']);
+    Route::post('/listening/{id}/complete', [ListeningController::class, 'complete']);
+
+    // Taivutus (inflection drills): the generative half of the method -
+    // free, for the same reason listening is.
+    Route::get('/transforms', [TransformController::class, 'index']);
+    Route::get('/transforms/{id}', [TransformController::class, 'show']);
+    Route::post('/transforms/{id}/complete', [TransformController::class, 'complete']);
+
     Route::get('/words', [WordController::class, 'index']);
     Route::get('/words/review', [WordController::class, 'review']);
     Route::post('/words', [WordController::class, 'store']);
@@ -121,6 +135,12 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::delete('/record/sentence/{id}', [RecordController::class, 'revertSentence']);
     Route::post('/record/word', [RecordController::class, 'storeWord']);
     Route::delete('/record/word', [RecordController::class, 'revertWord']);
+
+    // Conversation lines, grouped by speaker - a scene needs two voices, so
+    // the queue never presents its lines as one flat list.
+    Route::get('/record/listening', [RecordController::class, 'listeningQueue']);
+    Route::post('/record/listening/{scene}/{index}', [RecordController::class, 'storeListening']);
+    Route::delete('/record/listening/{scene}/{index}', [RecordController::class, 'revertListening']);
 
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {

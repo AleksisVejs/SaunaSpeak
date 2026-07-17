@@ -1,0 +1,22 @@
+{
+    "title": "Sauna evening at the mökki",
+    "emoji": "🧖",
+    "level": "A2",
+    "tagline": "Löyly, a lake dip, and makkara on the dock.",
+    "speakers": {
+        "A": { "name": "Ossi", "voice": "male", "role": "host" },
+        "B": { "name": "Anna", "voice": "female", "role": "guest" }
+    },
+    "lines": [
+        { "who": "A", "fi": "No nyt on hyvät löylyt! Heitänks lisää?", "en": "Now this is good steam! Should I throw more?" },
+        { "who": "B", "fi": "Heitä vaan. Ai että, tää on just sopiva.", "en": "Go ahead. Oh man, this is just right." },
+        { "who": "A", "fi": "Otatko makkaraa saunan jälkeen? Mä laitoin grillin valmiiks.", "en": "Will you have some sausage after the sauna? I got the grill ready." },
+        { "who": "B", "fi": "Joo kiitti, mul on ihan sika nälkä.", "en": "Yeah thanks, I'm absolutely starving." },
+        { "who": "A", "fi": "Mennäänks välillä järveen? Vesi on viel lämmintä.", "en": "Shall we go in the lake in between? The water's still warm." },
+        { "who": "B", "fi": "Emmä tiiä... No okei, mennään vaan!", "en": "I don't know... Well okay, let's go!" },
+        { "who": "A", "fi": "Sit makkarat ja limsat laiturilla.", "en": "Then sausages and sodas on the dock." },
+        { "who": "B", "fi": "Tää on kyl paras tapa lopettaa viikko.", "en": "This really is the best way to end the week." },
+        { "who": "A", "fi": "Nii on. Ens viikolla uudestaan?", "en": "It sure is. Same again next week?" },
+        { "who": "B", "fi": "Sovittu!", "en": "Deal!" }
+    ]
+}

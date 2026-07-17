@@ -128,8 +128,11 @@ class ChatController extends Controller
                 'source' => 'daily_cap',
             ]);
         }
+        // Capped at B1 on purpose: mastering every sentence in the course is
+        // solid everyday Finnish, not C1 - overshooting the label makes the
+        // character talk past the learner instead of slightly above them.
         $mastered = $user->progress()->where('status', 'mastered')->count();
-        $level = $mastered >= 300 ? 'C1' : ($mastered >= 200 ? 'B2' : ($mastered >= 100 ? 'B1' : ($mastered >= 40 ? 'A2' : ($mastered >= 15 ? 'A1' : 'A0'))));
+        $level = $mastered >= 150 ? 'B1' : ($mastered >= 40 ? 'A2' : ($mastered >= 15 ? 'A1' : 'A0'));
 
         $system = $scenario
             ? $this->scenarioPrompt($scenario, $level, $this->learnerContext($user))

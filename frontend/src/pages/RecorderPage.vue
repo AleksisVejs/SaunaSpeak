@@ -6,7 +6,7 @@
 // The "My takes" tab shows everything submitted - waiting or live - and any
 // of it can be re-recorded (the new take goes back through review).
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { Check, Circle, CircleCheck, Clock, Mic, PartyPopper, Play, RotateCcw, Square, Volume2 } from 'lucide-vue-next'
+import { ArrowLeft, Check, Circle, CircleCheck, Clock, Mic, PartyPopper, Play, RotateCcw, Square, UserRound, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -19,23 +19,74 @@ const loading = ref(true)
 const error = ref('')
 const micError = ref('')
 
-const mode = ref('sentences') // sentences | words | submitted
+const mode = ref('sentences') // sentences | words | conversations | submitted
 const queue = ref({ sentences: [], words: [], sentence_total: 0, sentence_done: 0, word_total: 0, word_done: 0 })
 
 // Re-record flow: a take picked from "My takes" overrides the queue head.
-const override = ref(null) // { kind: 'sentence'|'word', item }
+const override = ref(null) // { kind: 'sentence'|'word'|'listening', item }
+
+// ---- conversations: pick a scene, then pick ONE speaker in it ----
+//
+// A scene is two people talking, so its lines can never be one flat queue:
+// whoever works through that list becomes both characters, and the dialogue
+// stops being a dialogue. You always record one named speaker at a time, and
+// the other speaker's progress stays visible so it's obvious the scene isn't
+// finished until a second voice records the other half.
+const lq = ref({ scenes: [], line_total: 0, line_done: 0 })
+const convScene = ref(null)
+const convSpeaker = ref(null)
+
+const scene = computed(() => lq.value.scenes.find((s) => s.id === convScene.value) ?? null)
+const speaker = computed(() => scene.value?.speakers.find((s) => s.key === convSpeaker.value) ?? null)
+// The other parts in this scene - the reason the tab is shaped like this.
+const otherSpeakers = computed(() => scene.value?.speakers.filter((s) => s.key !== convSpeaker.value) ?? [])
+
+// Only lines still on TTS are worth recording; the scene id rides along so a
+// take knows where to POST even when reached via a "My takes" override.
+const convLines = computed(() =>
+  (speaker.value?.lines ?? [])
+    .filter((l) => l.state === 'tts')
+    .map((l) => ({ ...l, scene: convScene.value, speaker: speaker.value.name, voice: speaker.value.voice }))
+)
 
 const items = computed(() => {
   if (mode.value === 'sentences') return queue.value.sentences
   if (mode.value === 'words') return queue.value.words
+  if (mode.value === 'conversations') return convLines.value
   return []
 })
 const current = computed(() => override.value?.item ?? items.value[0] ?? null)
-const kind = computed(() => override.value?.kind ?? (mode.value === 'words' ? 'word' : 'sentence'))
+const kind = computed(
+  () => override.value?.kind ?? (mode.value === 'words' ? 'word' : mode.value === 'conversations' ? 'listening' : 'sentence')
+)
 
-const done = computed(() => (mode.value === 'sentences' ? queue.value.sentence_done : queue.value.word_done))
-const total = computed(() => (mode.value === 'sentences' ? queue.value.sentence_total : queue.value.word_total))
-const pending = computed(() => (mode.value === 'sentences' ? queue.value.sentence_pending ?? 0 : queue.value.word_pending ?? 0))
+// Sentences carry finnish_text/english_text, conversation lines carry fi/en -
+// one accessor each so the take card doesn't branch three ways.
+const currentText = computed(() => {
+  if (!current.value) return ''
+  if (kind.value === 'word') return current.value.word
+  return current.value.finnish_text ?? current.value.fi ?? ''
+})
+const currentEn = computed(() => {
+  if (!current.value || kind.value === 'word') return ''
+  return current.value.english_text ?? current.value.en ?? ''
+})
+const currentRefUrl = computed(() => current.value?.audio_url ?? current.value?.current_url ?? null)
+
+// Inside a conversation the counters describe the SPEAKER's part, not the
+// whole scene - "3 of 5" means Marja's five lines, which is the unit of work.
+const done = computed(() => {
+  if (mode.value === 'conversations') return speaker.value?.done ?? 0
+  return mode.value === 'sentences' ? queue.value.sentence_done : queue.value.word_done
+})
+const total = computed(() => {
+  if (mode.value === 'conversations') return speaker.value?.total ?? 0
+  return mode.value === 'sentences' ? queue.value.sentence_total : queue.value.word_total
+})
+const pending = computed(() => {
+  if (mode.value === 'conversations') return speaker.value?.pending ?? 0
+  return mode.value === 'sentences' ? queue.value.sentence_pending ?? 0 : queue.value.word_pending ?? 0
+})
 const pct = computed(() => (total.value ? Math.round((done.value / total.value) * 100) : 0))
 
 async function loadQueue() {
@@ -46,6 +97,15 @@ async function loadQueue() {
     error.value = e.response?.status === 403 ? 'This account has no recording rights.' : 'Could not load the queue.'
   } finally {
     loading.value = false
+  }
+}
+
+async function loadListeningQueue() {
+  try {
+    const { data } = await api.get('/record/listening')
+    lq.value = data
+  } catch {
+    error.value = 'Could not load the conversations.'
   }
 }
 
@@ -78,9 +138,16 @@ const subLists = computed(() => {
   if (!sub.value) return null
   const q = subQ.value.trim().toLowerCase()
   const hit = (text) => !q || text.toLowerCase().includes(q)
+  // Conversation lines are searchable by their text OR by who says them -
+  // "marja" pulls up every line that voice is responsible for.
+  const hitLine = (l) => hit(l.fi) || hit(l.speaker) || hit(l.scene_title)
   const pendingRows = [
     ...sub.value.sentences.filter((s) => hit(s.finnish_text)).map((s) => ({
       kind: 'sentence', keyId: `ps-${s.id}`, label: s.finnish_text, note: s.english_text, url: s.pending_url, item: s
+    })),
+    ...(sub.value.listening ?? []).filter(hitLine).map((l) => ({
+      kind: 'listening', keyId: `pl-${l.scene}-${l.index}`, label: l.fi,
+      note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.pending_url, item: l
     })),
     ...sub.value.words.filter((w) => hit(w.word)).map((w) => ({
       kind: 'word', keyId: `pw-${w.word}`, label: w.word, note: 'word', url: w.pending_url, item: w
@@ -90,6 +157,10 @@ const subLists = computed(() => {
     ...sub.value.live_sentences.filter((s) => hit(s.finnish_text)).map((s) => ({
       kind: 'sentence', keyId: `ls-${s.id}`, label: s.finnish_text, note: s.english_text, url: s.audio_url, item: s
     })),
+    ...(sub.value.live_listening ?? []).filter(hitLine).map((l) => ({
+      kind: 'listening', keyId: `ll-${l.scene}-${l.index}`, label: l.fi,
+      note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.audio_url, item: l
+    })),
     ...sub.value.live_words.filter((w) => hit(w.word)).map((w) => ({
       kind: 'word', keyId: `lw-${w.word}`, label: w.word, note: 'word', url: w.audio_url, item: w
     }))
@@ -98,12 +169,17 @@ const subLists = computed(() => {
 })
 
 function redo(row) {
-  override.value = {
-    kind: row.kind,
-    item: row.kind === 'sentence'
+  const item =
+    row.kind === 'sentence'
       ? { id: row.item.id, finnish_text: row.item.finnish_text, english_text: row.item.english_text, audio_url: row.url }
-      : { word: row.item.word, audio_url: row.url }
-  }
+      : row.kind === 'listening'
+        ? {
+            scene: row.item.scene, index: row.item.index, fi: row.item.fi, en: row.item.en,
+            speaker: row.item.speaker, voice: row.item.voice, current_url: row.url
+          }
+        : { word: row.item.word, audio_url: row.url }
+
+  override.value = { kind: row.kind, item }
   discardTake()
   state.value = 'idle'
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -188,6 +264,8 @@ async function save() {
   try {
     if (kind.value === 'sentence') {
       await api.post(`/record/sentence/${current.value.id}`, form)
+    } else if (kind.value === 'listening') {
+      await api.post(`/record/listening/${current.value.scene}/${current.value.index}`, form)
     } else {
       form.append('word', current.value.word)
       await api.post('/record/word', form)
@@ -202,7 +280,13 @@ async function save() {
       return
     }
 
-    if (mode.value === 'sentences') {
+    if (mode.value === 'conversations') {
+      // The line leaves this speaker's queue by changing state, which also
+      // ticks their pending count - convLines is derived, so both follow.
+      const line = speaker.value.lines.find((l) => l.index === current.value.index)
+      if (line) line.state = 'pending'
+      speaker.value.pending++
+    } else if (mode.value === 'sentences') {
       queue.value.sentences.shift()
       queue.value.sentence_done++
       queue.value.sentence_pending = (queue.value.sentence_pending ?? 0) + 1
@@ -214,7 +298,7 @@ async function save() {
     sub.value = null // "My takes" refetches fresh next time it opens
 
     // The queue arrives in slices - refill when a slice runs dry.
-    if (!items.value.length && done.value < total.value) {
+    if (mode.value !== 'conversations' && !items.value.length && done.value < total.value) {
       loading.value = true
       await loadQueue()
     }
@@ -234,8 +318,8 @@ function skip() {
 
 function playReference() {
   if (!current.value) return
-  if (kind.value === 'sentence') playSentence(current.value.finnish_text, current.value.audio_url)
-  else playWord(current.value.word)
+  if (kind.value === 'word') playWord(current.value.word)
+  else playSentence(currentText.value, currentRefUrl.value)
 }
 
 function setMode(m) {
@@ -245,6 +329,29 @@ function setMode(m) {
   override.value = null
   mode.value = m
   if (m === 'submitted' && !sub.value) loadSubmitted()
+  if (m === 'conversations' && !lq.value.scenes.length) loadListeningQueue()
+}
+
+function pickScene(id) {
+  convScene.value = id
+  convSpeaker.value = null
+  discardTake()
+  state.value = 'idle'
+}
+
+function pickSpeaker(key) {
+  convSpeaker.value = key
+  discardTake()
+  state.value = 'idle'
+}
+
+// Back out of a scene/speaker without losing the tab.
+function leaveConv() {
+  if (state.value === 'recording') recorder?.stop()
+  discardTake()
+  state.value = 'idle'
+  if (convSpeaker.value) convSpeaker.value = null
+  else convScene.value = null
 }
 
 function onKey(e) {
@@ -302,12 +409,79 @@ onBeforeUnmount(() => {
         <button :class="{ on: mode === 'words' }" @click="setMode('words')">
           Words <span class="tab-count">{{ queue.word_done }}/{{ queue.word_total }}</span>
         </button>
+        <button :class="{ on: mode === 'conversations' }" @click="setMode('conversations')">
+          Talks <span v-if="lq.line_total" class="tab-count">{{ lq.line_done }}/{{ lq.line_total }}</span>
+        </button>
         <button :class="{ on: mode === 'submitted' }" @click="setMode('submitted')">
           My takes
         </button>
       </div>
 
-      <template v-if="mode !== 'submitted'">
+      <!-- Conversations: pick a scene, then pick which character you're voicing.
+           Never a flat list of lines - that's how a two-person dialogue ends up
+           recorded by one person. -->
+      <template v-if="mode === 'conversations' && !override">
+        <!-- 1. the scenes -->
+        <template v-if="!convScene">
+          <p class="muted conv-lede">
+            Each conversation needs <b>two different voices</b>. Pick a scene, then pick the
+            character you're voicing - record only their lines and let someone else take the other part.
+          </p>
+          <div v-for="s in lq.scenes" :key="s.id" class="card conv-scene" @click="pickScene(s.id)">
+            <span class="conv-emoji">{{ s.emoji }}</span>
+            <div class="conv-main">
+              <p class="conv-title">{{ s.title }}</p>
+              <p class="conv-sub muted">
+                <span v-for="(sp, i) in s.speakers" :key="sp.key">
+                  <template v-if="i"> · </template>{{ sp.name }} ({{ sp.voice }}) {{ sp.done }}/{{ sp.total }}
+                </span>
+              </p>
+            </div>
+            <span class="conv-count" :class="{ full: s.done === s.total }">{{ s.done }}/{{ s.total }}</span>
+          </div>
+          <p v-if="!lq.scenes.length" class="muted sub-empty">No conversations yet.</p>
+        </template>
+
+        <!-- 2. the characters in that scene -->
+        <template v-else-if="!convSpeaker">
+          <button class="conv-back" @click="leaveConv"><ArrowLeft class="sm-ico" aria-hidden="true" /> All conversations</button>
+          <p class="conv-scene-name">{{ scene.emoji }} {{ scene.title }}</p>
+          <p class="muted conv-lede">Which character are you? Record only their lines.</p>
+          <button
+            v-for="sp in scene.speakers"
+            :key="sp.key"
+            class="card conv-speaker"
+            :class="{ full: sp.done === sp.total }"
+            @click="pickSpeaker(sp.key)"
+          >
+            <UserRound class="conv-person" :class="sp.voice" aria-hidden="true" />
+            <div class="conv-main">
+              <p class="conv-title">{{ sp.name }} <span class="voice-tag" :class="sp.voice">{{ sp.voice }} voice</span></p>
+              <p class="conv-sub muted">{{ sp.role || 'speaker' }} · {{ sp.total }} lines</p>
+            </div>
+            <span class="conv-count" :class="{ full: sp.done === sp.total }">{{ sp.done }}/{{ sp.total }}</span>
+          </button>
+        </template>
+      </template>
+
+      <!-- Who you are right now. Stays on screen through every take in the
+           scene, because "which one am I again?" is the mistake that ruins a
+           whole conversation. -->
+      <div v-if="mode === 'conversations' && speaker && !override" class="as-banner" :class="speaker.voice">
+        <UserRound class="sm-ico" aria-hidden="true" />
+        <span class="as-text">
+          You are <b>{{ speaker.name }}</b> - {{ speaker.voice }} voice<span v-if="speaker.role">, {{ speaker.role }}</span>
+        </span>
+        <button class="as-change" @click="leaveConv">Change</button>
+      </div>
+      <p v-if="mode === 'conversations' && speaker && otherSpeakers.length && !override" class="muted other-note">
+        Still needs another voice:
+        <span v-for="(o, i) in otherSpeakers" :key="o.key">
+          <template v-if="i">, </template><b>{{ o.name }}</b> ({{ o.voice }}) {{ o.done }}/{{ o.total }}
+        </span>
+      </p>
+
+      <template v-if="mode !== 'submitted' && (mode !== 'conversations' || speaker || override)">
         <div class="progress-track studio-progress">
           <div class="progress-fill" :style="{ width: pct + '%' }"></div>
         </div>
@@ -325,10 +499,11 @@ onBeforeUnmount(() => {
         <div class="card take-card" :class="state">
           <p class="take-kicker">
             {{ override ? 'New take' : `${done + 1} of ${total}` }} · read this out loud
+            <span v-if="kind === 'listening' && current.speaker" class="take-as">as {{ current.speaker }}</span>
           </p>
-          <p class="take-fi">{{ kind === 'sentence' ? current.finnish_text : current.word }}</p>
-          <p v-if="kind === 'sentence' && current.english_text" class="take-en muted">{{ current.english_text }}</p>
-          <button class="ref-btn" title="Hear the current version (p)" @click="playReference">
+          <p class="take-fi">{{ currentText }}</p>
+          <p v-if="currentEn" class="take-en muted">{{ currentEn }}</p>
+          <button v-if="currentRefUrl" class="ref-btn" title="Hear the current version (p)" @click="playReference">
             <Volume2 class="sm-ico" aria-hidden="true" /> Hear the current version
           </button>
         </div>
@@ -369,7 +544,18 @@ onBeforeUnmount(() => {
         </div>
       </template>
 
-      <div v-else-if="mode !== 'submitted'" class="card all-done">
+      <div v-else-if="mode === 'conversations' && speaker" class="card all-done">
+        <PartyPopper class="sm-ico" aria-hidden="true" />
+        {{ speaker.name }}'s lines are all recorded. Kiitos!
+        <p v-if="otherSpeakers.some((o) => o.done + o.pending < o.total)" class="muted done-next">
+          This scene still needs
+          <b>{{ otherSpeakers.filter((o) => o.done + o.pending < o.total).map((o) => `${o.name} (${o.voice})`).join(', ') }}</b>
+          - a different voice has to record that part.
+        </p>
+        <button class="btn btn-ghost done-btn" @click="leaveConv">Back to the scene</button>
+      </div>
+
+      <div v-else-if="mode !== 'submitted' && mode !== 'conversations'" class="card all-done">
         <PartyPopper class="sm-ico" aria-hidden="true" /> Everything in this mode has your voice. Kiitos!
       </div>
 
@@ -467,6 +653,102 @@ onBeforeUnmount(() => {
 
 .studio-progress { margin-bottom: 8px; }
 .pending-note { font-size: 12px; text-align: center; margin-bottom: 12px; }
+
+/* ---- conversations: scene → speaker ---- */
+.conv-lede { font-size: 13px; line-height: 1.55; margin-bottom: 12px; }
+.conv-back {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.conv-back:hover { color: var(--text); }
+.conv-scene-name { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+
+.conv-scene,
+.conv-speaker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+.conv-scene:hover,
+.conv-speaker:hover { border-color: var(--accent); }
+.conv-scene.full,
+.conv-speaker.full { border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+.conv-emoji { font-size: 24px; flex-shrink: 0; }
+.conv-person { width: 22px; height: 22px; flex-shrink: 0; }
+/* The two voices never share a colour - the whole point is telling them apart. */
+.conv-person.female { color: #c084fc; }
+.conv-person.male { color: #60a5fa; }
+.conv-main { flex: 1; min-width: 0; }
+.conv-title { font-weight: 800; font-size: 14.5px; color: var(--text); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.conv-sub { font-size: 12px; margin-top: 2px; line-height: 1.4; }
+.conv-count {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-dim);
+  background: var(--bg-soft);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+}
+.conv-count.full { color: var(--green); background: var(--green-soft); }
+
+.voice-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+}
+.voice-tag.female { color: #c084fc; background: color-mix(in srgb, #c084fc 16%, transparent); }
+.voice-tag.male { color: #60a5fa; background: color-mix(in srgb, #60a5fa 16%, transparent); }
+
+/* Who you're voicing, pinned above every take in the scene. */
+.as-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.as-banner.female { color: #c084fc; background: color-mix(in srgb, #c084fc 14%, transparent); border: 1px solid color-mix(in srgb, #c084fc 40%, transparent); }
+.as-banner.male { color: #60a5fa; background: color-mix(in srgb, #60a5fa 14%, transparent); border: 1px solid color-mix(in srgb, #60a5fa 40%, transparent); }
+.as-text { flex: 1; min-width: 0; }
+.as-change {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: var(--radius-pill);
+  padding: 3px 11px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.other-note { font-size: 12px; line-height: 1.5; margin-bottom: 10px; }
+.take-as { color: var(--accent); font-weight: 800; }
+.done-next { font-size: 12.5px; line-height: 1.5; margin-top: 8px; font-weight: 400; }
+.done-btn { margin-top: 12px; }
 
 .override-note {
   display: flex;
