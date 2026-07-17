@@ -106,24 +106,54 @@ export function useFinnishAudio() {
   // (e.g. shared hosting), the reply simply stays silent.
   const spokenCache = new Map() // "voice:clean text" → url | null
   let serverTtsDown = false
-  async function playSpoken(text, rate = null, voice = 'male') {
-    const clean = stripEmoji(text)
-    if (!clean) return
 
+  async function fetchSpokenUrl(clean, voice) {
     const key = `${voice}:${clean}`
     if (!spokenCache.has(key) && !serverTtsDown) {
       try {
         const { data } = await api.post('/tts', { text: clean, voice })
         spokenCache.set(key, data.url ?? null)
       } catch (e) {
-        spokenCache.set(key, null)
-        // 503 = edge-tts not available on this server; stop asking.
-        if (e.response?.status === 503) serverTtsDown = true
+        // 503 = no TTS engine on this server; stop asking. Any other failure
+        // (timeout, hiccup) stays uncached so the next tap simply retries.
+        if (e.response?.status === 503) {
+          serverTtsDown = true
+          spokenCache.set(key, null)
+        }
       }
     }
+    return spokenCache.get(key) ?? null
+  }
 
-    const url = spokenCache.get(key)
-    if (url) playUrl(url, rate ?? audioRate())
+  async function playSpoken(text, rate = null, voice = 'male') {
+    const clean = stripEmoji(text)
+    if (!clean) return
+
+    // Prime the audio element NOW, inside the tap's user activation:
+    // synthesizing an uncached sentence outlives the activation window on
+    // mobile browsers, and an Audio created after the wait gets its play()
+    // rejected - which felt like the button needing a second tap. An element
+    // load()ed during the gesture keeps its right to play later.
+    stopAll()
+    const audio = new Audio()
+    currentAudio = audio
+    audio.load()
+
+    const url = await fetchSpokenUrl(clean, voice)
+    if (currentAudio !== audio) return // a newer tap took over meanwhile
+    if (!url) {
+      currentAudio = null
+      return
+    }
+
+    audio.src = url
+    audio.playbackRate = rate ?? audioRate()
+    audio.onerror = () => {
+      if (currentAudio === audio) currentAudio = null
+    }
+    audio.play().catch(() => {
+      if (currentAudio === audio) currentAudio = null
+    })
   }
 
   // Play a single word's MP3 from the manifest. Not in it → silence.
