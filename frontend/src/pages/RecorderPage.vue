@@ -56,9 +56,14 @@ const items = computed(() => {
   return []
 })
 const current = computed(() => override.value?.item ?? items.value[0] ?? null)
-const kind = computed(
-  () => override.value?.kind ?? (mode.value === 'words' ? 'word' : mode.value === 'conversations' ? 'listening' : 'sentence')
-)
+// Sentence-tab items carry their own kind: a Taivutus phrase reads exactly
+// like a course sentence, it just posts somewhere else.
+const kind = computed(() => {
+  if (override.value) return override.value.kind
+  if (mode.value === 'words') return 'word'
+  if (mode.value === 'conversations') return 'listening'
+  return current.value?.kind ?? 'sentence'
+})
 
 // Sentences carry finnish_text/english_text, conversation lines carry fi/en -
 // one accessor each so the take card doesn't branch three ways.
@@ -88,10 +93,43 @@ const pending = computed(() => {
   return mode.value === 'sentences' ? queue.value.sentence_pending ?? 0 : queue.value.word_pending ?? 0
 })
 const pct = computed(() => (total.value ? Math.round((done.value / total.value) * 100) : 0))
+// How many unrecorded items the search matched (server-side count, not the
+// slice length - "3 of 100 shown" would be a lie).
+const matchCount = computed(() =>
+  mode.value === 'words' ? queue.value.word_matches ?? 0 : queue.value.sentence_matches ?? 0
+)
+
+// ---- search ----
+//
+// The queue is sliced server-side (100 sentences / 200 words), so filtering
+// in the browser would only ever search the first slice - the sentence you're
+// hunting for is usually not in it. The query goes to the server instead.
+const q = ref('')
+const searching = ref(false)
+let qTimer = null
+
+function onSearch() {
+  clearTimeout(qTimer)
+  searching.value = true
+  qTimer = setTimeout(async () => {
+    // A search re-heads the queue; a half-recorded take would belong to the
+    // old head, so drop it rather than silently file it under the new one.
+    discardTake()
+    if (state.value === 'recording') recorder?.stop()
+    state.value = 'idle'
+    await loadQueue()
+    searching.value = false
+  }, 300)
+}
+
+function clearSearch() {
+  q.value = ''
+  onSearch()
+}
 
 async function loadQueue() {
   try {
-    const { data } = await api.get('/record/queue')
+    const { data } = await api.get('/record/queue', { params: q.value.trim() ? { q: q.value.trim() } : {} })
     queue.value = data
   } catch (e) {
     error.value = e.response?.status === 403 ? 'This account has no recording rights.' : 'Could not load the queue.'
@@ -145,6 +183,9 @@ const subLists = computed(() => {
     ...sub.value.sentences.filter((s) => hit(s.finnish_text)).map((s) => ({
       kind: 'sentence', keyId: `ps-${s.id}`, label: s.finnish_text, note: s.english_text, url: s.pending_url, item: s
     })),
+    ...(sub.value.phrases ?? []).filter((p) => hit(p.text)).map((p) => ({
+      kind: 'phrase', keyId: `pp-${p.base}`, label: p.text, note: 'Taivutus drill', url: p.pending_url, item: p
+    })),
     ...(sub.value.listening ?? []).filter(hitLine).map((l) => ({
       kind: 'listening', keyId: `pl-${l.scene}-${l.index}`, label: l.fi,
       note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.pending_url, item: l
@@ -156,6 +197,9 @@ const subLists = computed(() => {
   const liveRows = [
     ...sub.value.live_sentences.filter((s) => hit(s.finnish_text)).map((s) => ({
       kind: 'sentence', keyId: `ls-${s.id}`, label: s.finnish_text, note: s.english_text, url: s.audio_url, item: s
+    })),
+    ...(sub.value.live_phrases ?? []).filter((p) => hit(p.text)).map((p) => ({
+      kind: 'phrase', keyId: `lp-${p.base}`, label: p.text, note: 'Taivutus drill', url: p.audio_url, item: p
     })),
     ...(sub.value.live_listening ?? []).filter(hitLine).map((l) => ({
       kind: 'listening', keyId: `ll-${l.scene}-${l.index}`, label: l.fi,
@@ -170,8 +214,8 @@ const subLists = computed(() => {
 
 function redo(row) {
   const item =
-    row.kind === 'sentence'
-      ? { id: row.item.id, finnish_text: row.item.finnish_text, english_text: row.item.english_text, audio_url: row.url }
+    row.kind === 'sentence' || row.kind === 'phrase'
+      ? { kind: row.kind, id: row.item.id ?? row.item.base, finnish_text: row.item.finnish_text ?? row.item.text, english_text: row.item.english_text, audio_url: row.url }
       : row.kind === 'listening'
         ? {
             scene: row.item.scene, index: row.item.index, fi: row.item.fi, en: row.item.en,
@@ -264,6 +308,8 @@ async function save() {
   try {
     if (kind.value === 'sentence') {
       await api.post(`/record/sentence/${current.value.id}`, form)
+    } else if (kind.value === 'phrase') {
+      await api.post(`/record/phrase/${current.value.id}`, form)
     } else if (kind.value === 'listening') {
       await api.post(`/record/listening/${current.value.scene}/${current.value.index}`, form)
     } else {
@@ -289,10 +335,12 @@ async function save() {
     } else if (mode.value === 'sentences') {
       queue.value.sentences.shift()
       queue.value.sentence_done++
+      queue.value.sentence_matches = Math.max(0, (queue.value.sentence_matches ?? 1) - 1)
       queue.value.sentence_pending = (queue.value.sentence_pending ?? 0) + 1
     } else {
       queue.value.words.shift()
       queue.value.word_done++
+      queue.value.word_matches = Math.max(0, (queue.value.word_matches ?? 1) - 1)
       queue.value.word_pending = (queue.value.word_pending ?? 0) + 1
     }
     sub.value = null // "My takes" refetches fresh next time it opens
@@ -481,6 +529,26 @@ onBeforeUnmount(() => {
         </span>
       </p>
 
+      <!-- Jump straight to a specific line instead of skipping toward it.
+           Server-side: the queue is sliced, so the match usually isn't in
+           the slice the browser holds. -->
+      <div v-if="(mode === 'sentences' || mode === 'words') && !override" class="q-row">
+        <input
+          v-model="q"
+          type="search"
+          class="q-input"
+          :placeholder="mode === 'words' ? 'Search words…' : 'Search sentences (Finnish or English)…'"
+          :aria-label="mode === 'words' ? 'Search words' : 'Search sentences'"
+          @input="onSearch"
+        />
+        <button v-if="q" class="q-clear" title="Clear search" @click="clearSearch">✕</button>
+      </div>
+      <p v-if="(mode === 'sentences' || mode === 'words') && q && !override" class="muted q-note">
+        <template v-if="searching">Searching…</template>
+        <template v-else-if="!items.length">Nothing left to record matching "{{ q }}".</template>
+        <template v-else>{{ matchCount }} to record matching "{{ q }}"</template>
+      </p>
+
       <template v-if="mode !== 'submitted' && (mode !== 'conversations' || speaker || override)">
         <div class="progress-track studio-progress">
           <div class="progress-fill" :style="{ width: pct + '%' }"></div>
@@ -500,6 +568,7 @@ onBeforeUnmount(() => {
           <p class="take-kicker">
             {{ override ? 'New take' : `${done + 1} of ${total}` }} · read this out loud
             <span v-if="kind === 'listening' && current.speaker" class="take-as">as {{ current.speaker }}</span>
+            <span v-else-if="kind === 'phrase'" class="take-as">Taivutus drill</span>
           </p>
           <p class="take-fi">{{ currentText }}</p>
           <p v-if="currentEn" class="take-en muted">{{ currentEn }}</p>
@@ -653,6 +722,35 @@ onBeforeUnmount(() => {
 
 .studio-progress { margin-bottom: 8px; }
 .pending-note { font-size: 12px; text-align: center; margin-bottom: 12px; }
+
+/* ---- queue search ---- */
+.q-row { position: relative; margin-bottom: 8px; }
+.q-input {
+  width: 100%;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 34px 10px 13px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+}
+.q-input:focus { border-color: var(--accent); }
+.q-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.q-clear:hover { color: var(--text); }
+.q-note { font-size: 12px; margin-bottom: 10px; }
 
 /* ---- conversations: scene → speaker ---- */
 .conv-lede { font-size: 13px; line-height: 1.55; margin-bottom: 12px; }

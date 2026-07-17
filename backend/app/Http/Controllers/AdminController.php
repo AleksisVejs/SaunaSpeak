@@ -9,6 +9,7 @@ use App\Models\Sentence;
 use App\Models\User;
 use App\Models\UserProgress;
 use App\Support\Listening;
+use App\Support\Transforms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,6 +31,7 @@ class AdminController extends Controller
             ? (json_decode(File::get(public_path('audio/words.json')), true) ?: [])
             : [];
         $wordsHuman = count(array_filter($manifest, fn ($url) => str_starts_with((string) $url, '/audio/human/')));
+        $phrases = Transforms::ownPhrases();
 
         return response()->json([
             'users_total' => User::count(),
@@ -66,6 +68,13 @@ class AdminController extends Controller
                 'listening_total' => array_sum(array_map(
                     fn (array $s) => count($s['lines']),
                     Listening::all(),
+                )),
+                // Taivutus phrases the course doesn't already say. Counted with
+                // the sentences in the panel - same job to record.
+                'phrases_total' => count($phrases),
+                'phrases_human' => count(array_filter(
+                    $phrases,
+                    fn (array $p) => str_starts_with((string) $p['audio_url'], '/audio/human/'),
                 )),
             ],
         ]);

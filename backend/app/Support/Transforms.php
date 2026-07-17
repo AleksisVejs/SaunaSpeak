@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Sentence;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -21,11 +22,13 @@ class Transforms
     /** Parsed sets, keyed by id - built once per request. */
     private static ?array $sets = null;
 
-    /** Every set, in filename order. */
-    public static function all(): array
+    /**
+     * @return array<string, array> id → set JSON (no audio - see audioFor())
+     */
+    private static function raw(): array
     {
         if (self::$sets !== null) {
-            return array_values(self::$sets);
+            return self::$sets;
         }
 
         $sets = [];
@@ -40,26 +43,199 @@ class Transforms
             $sets[$data['id']] = $data;
         }
 
-        self::$sets = $sets;
+        return self::$sets = $sets;
+    }
 
-        return array_values($sets);
+    /** Every set, in filename order, with audio on each item. */
+    public static function all(): array
+    {
+        $index = self::audioIndex();
+
+        return array_values(array_map(
+            fn (array $set) => self::withAudio($set, $index),
+            self::raw(),
+        ));
     }
 
     public static function find(?string $id): ?array
     {
-        if ($id === null) {
-            return null;
+        $set = $id === null ? null : (self::raw()[$id] ?? null);
+
+        return $set === null ? null : self::withAudio($set, self::audioIndex());
+    }
+
+    /** Catalog needs no audio - skip the lookups entirely. */
+    private static function rawAll(): array
+    {
+        return array_values(self::raw());
+    }
+
+    /** @param  array<string, ?string>  $index  normalized text → url */
+    private static function withAudio(array $set, array $index): array
+    {
+        $set['items'] = array_map(function (array $item) use ($index) {
+            $item['from_audio'] = $index[self::normalize($item['from'])] ?? null;
+            $item['to_audio'] = $index[self::normalize($item['to'])] ?? null;
+
+            return $item;
+        }, $set['items']);
+
+        return $set;
+    }
+
+    // ------------------------------------------------------------------
+    //  Audio: keyed by TEXT, never by slot
+    // ------------------------------------------------------------------
+    //
+    // The same sentence shows up in more than one place - "Mä otan kahvin" is
+    // the starting line of two drills AND a course sentence. Keying audio by
+    // set+index would mean recording it three times. Keyed by its text, it's
+    // recorded once and shared, and where the course already says it, Taivutus
+    // simply plays the course's clip (human take included, the moment it's
+    // approved).
+
+    public static function normalize(string $text): string
+    {
+        return preg_replace('/\s+/u', ' ', trim(mb_strtolower(
+            preg_replace('/[^\p{L}\p{N}\s]/u', '', $text),
+        )));
+    }
+
+    /** The filename a phrase's own clip uses, when the course doesn't cover it. */
+    public static function phraseBase(string $text): string
+    {
+        return 'phrase-'.substr(md5(self::normalize($text)), 0, 10);
+    }
+
+    /**
+     * Every Taivutus sentence → the clip that should play for it.
+     *
+     * Never cached: approving a recording is a file move (or a DB update on a
+     * course sentence), and a stale map would silently keep playing the robot.
+     *
+     * @return array<string, ?string> normalized text → url
+     */
+    private static function audioIndex(): array
+    {
+        $course = self::courseAudio();
+        $clips = self::clips();
+        $index = [];
+
+        foreach (self::texts() as $normalized => $text) {
+            // The course OWNS any sentence it teaches - even one whose audio
+            // hasn't been generated yet. Falling through to a phrase clip in
+            // that gap would mint a second copy of the same sentence, and the
+            // studio would ask for it twice.
+            $index[$normalized] = array_key_exists($normalized, $course)
+                ? $course[$normalized]
+                : ($clips[self::phraseBase($text)] ?? null);
         }
 
-        self::all();
+        return $index;
+    }
 
-        return self::$sets[$id] ?? null;
+    /**
+     * Course sentences that say exactly what a drill says, normalized text →
+     * audio_url (which may be null until audio:generate has run).
+     *
+     * Their audio wins: one sentence, one recording, wherever it appears.
+     *
+     * @return array<string, ?string>
+     */
+    private static function courseAudio(): array
+    {
+        $map = [];
+
+        foreach (Sentence::get(['finnish_text', 'audio_url']) as $s) {
+            $map[self::normalize($s->finnish_text)] = $s->audio_url;
+        }
+
+        return $map;
+    }
+
+    /** Phrase clips on disk, base name → url. A human take always wins. */
+    private static function clips(): array
+    {
+        $map = [];
+
+        foreach (File::glob(public_path('audio/transforms/phrase-*.mp3')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/transforms/'.basename($path);
+        }
+
+        foreach (File::glob(public_path('audio/human/phrase-*.*')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/human/'.basename($path);
+        }
+
+        return $map;
+    }
+
+    /**
+     * Every distinct sentence Taivutus says, normalized → original text.
+     * 48 slots collapse to 45 texts; this is where that happens.
+     *
+     * @return array<string, string>
+     */
+    public static function texts(): array
+    {
+        $out = [];
+
+        foreach (self::rawAll() as $set) {
+            foreach ($set['items'] as $item) {
+                foreach (['from', 'to'] as $side) {
+                    $out[self::normalize($item[$side])] ??= $item[$side];
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * The phrases that need a recording of their own - everything the course
+     * doesn't already say. These are what the studio offers; the rest are
+     * covered by their course sentence and must never be queued twice.
+     *
+     * @return array<int, array{text: string, base: string, audio_url: ?string}>
+     */
+    public static function ownPhrases(): array
+    {
+        $course = self::courseAudio();
+        $clips = self::clips();
+        $out = [];
+
+        foreach (self::texts() as $normalized => $text) {
+            if (array_key_exists($normalized, $course)) {
+                continue; // the course already says this - reuse, don't re-record
+            }
+
+            $base = self::phraseBase($text);
+            $out[] = [
+                'text' => $text,
+                'base' => $base,
+                'audio_url' => $clips[$base] ?? null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /** Is this a phrase Taivutus actually uses? Guards uploads. */
+    public static function hasPhrase(string $base): bool
+    {
+        foreach (self::texts() as $text) {
+            if (self::phraseBase($text) === $base) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Catalog entries without the items - enough to render the index. */
     public static function index(): array
     {
         return array_map(fn (array $s) => [
+            // No audio lookups here: the catalog never plays anything.
             'id' => $s['id'],
             'emoji' => $s['emoji'] ?? '🔧',
             'title' => $s['title'],
@@ -67,6 +243,6 @@ class Transforms
             'summary' => $s['summary'] ?? '',
             'level' => $s['level'] ?? 'A1',
             'items_count' => count($s['items']),
-        ], self::all());
+        ], self::rawAll());
     }
 }

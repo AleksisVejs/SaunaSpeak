@@ -181,6 +181,10 @@ const recBusy = ref(false)
 const pendingItems = () => [
   ...(recordings.value?.sentences ?? []).map((s) => ({ ...s, type: 'sentence', key: String(s.id), label: s.finnish_text })),
   ...(recordings.value?.words ?? []).map((w) => ({ ...w, type: 'word', key: w.word, label: w.word })),
+  // Taivutus phrases review as sentences - same job, one line read out loud.
+  ...(recordings.value?.phrases ?? []).map((p) => ({
+    ...p, type: 'phrase', key: p.base, label: p.text, english_text: 'Taivutus drill'
+  })),
   // A conversation take is only reviewable against its character: the take
   // has to sound like the person it belongs to, and two lines from opposite
   // speakers arriving in the same voice is the thing to catch here.
@@ -193,7 +197,11 @@ const pendingItems = () => [
   }))
 ]
 
-const pendingOf = (type) => pendingItems().filter((i) => i.type === type)
+// The "sentences" section owns phrases too: to a reviewer they're the same
+// thing (one Finnish line, read aloud), so they don't earn their own row.
+const inSection = (item, type) => (type === 'sentence' ? item.type === 'sentence' || item.type === 'phrase' : item.type === type)
+
+const pendingOf = (type) => pendingItems().filter((i) => inSection(i, type))
 
 // The recordings manager lives inside the content-health card: each
 // "Human-voiced …" row expands into its review + live lists.
@@ -219,8 +227,9 @@ function audioNums(type) {
     const total = a.listening_total ?? 0
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
   }
-  const done = type === 'sentence' ? a.sentences_human : a.words_human
-  const total = type === 'sentence' ? a.sentences_total : a.words_total
+  // Taivutus phrases count with the sentences - they share the section.
+  const done = type === 'sentence' ? a.sentences_human + (a.phrases_human ?? 0) : a.words_human
+  const total = type === 'sentence' ? a.sentences_total + (a.phrases_total ?? 0) : a.words_total
   return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
 }
 
@@ -248,6 +257,9 @@ async function review(item, action) {
       const list = recordings.value.listening
       const idx = list.findIndex((x) => x.scene === item.scene && x.index === item.index)
       if (idx !== -1) list.splice(idx, 1)
+    } else if (item.type === 'phrase') {
+      const idx = recordings.value.phrases.findIndex((x) => x.base === item.base)
+      if (idx !== -1) recordings.value.phrases.splice(idx, 1)
     } else {
       const list = item.type === 'sentence' ? recordings.value.sentences : recordings.value.words
       const idx = list.findIndex((x) => (item.type === 'sentence' ? x.id === item.id : x.word === item.word))
@@ -289,11 +301,15 @@ const liveItems = computed(() => {
       .map((l) => ({
         type: 'listening', keyId: `l-${l.scene}-${l.index}`, scene: l.scene, index: l.index,
         label: l.fi, note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.audio_url
-      }))
+      })),
+    ...(recordings.value?.live_phrases ?? []).filter((p) => hit(p.text)).map((p) => ({
+      type: 'phrase', keyId: `p-${p.base}`, base: p.base,
+      label: p.text, note: 'Taivutus drill', url: p.audio_url
+    }))
   ]
 })
 
-const liveOf = (type) => liveItems.value.filter((i) => i.type === type)
+const liveOf = (type) => liveItems.value.filter((i) => inSection(i, type))
 
 async function removeLive(item) {
   recBusy.value = true
@@ -306,6 +322,10 @@ async function removeLive(item) {
       await api.delete(`/record/listening/${item.scene}/${item.index}`)
       const idx = recordings.value.live_listening.findIndex((l) => l.scene === item.scene && l.index === item.index)
       if (idx !== -1) recordings.value.live_listening.splice(idx, 1)
+    } else if (item.type === 'phrase') {
+      await api.delete(`/record/phrase/${item.base}`)
+      const idx = recordings.value.live_phrases.findIndex((p) => p.base === item.base)
+      if (idx !== -1) recordings.value.live_phrases.splice(idx, 1)
     } else {
       await api.delete('/record/word', { params: { word: item.word } })
       const idx = recordings.value.live_words.findIndex((w) => w.word === item.word)

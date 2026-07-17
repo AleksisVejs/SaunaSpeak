@@ -142,6 +142,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/record/listening/{scene}/{index}', [RecordController::class, 'storeListening']);
     Route::delete('/record/listening/{scene}/{index}', [RecordController::class, 'revertListening']);
 
+    // Taivutus phrases ride in the sentences queue (see queue()); these are
+    // just where their takes are submitted and retired.
+    Route::post('/record/phrase/{base}', [RecordController::class, 'storePhrase']);
+    Route::delete('/record/phrase/{base}', [RecordController::class, 'revertPhrase']);
+
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);

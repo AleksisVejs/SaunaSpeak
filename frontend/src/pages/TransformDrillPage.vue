@@ -8,14 +8,16 @@
 // the attempt: a guess made first is what makes the explanation stick.
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowRight, CircleCheck, Eye, Lightbulb, Repeat, Wrench, X } from 'lucide-vue-next'
+import { ArrowRight, CircleCheck, Eye, Lightbulb, Repeat, Volume2, Wrench, X } from 'lucide-vue-next'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
+import { useFinnishAudio } from '../composables/useFinnishAudio'
 import PracticeInput from '../components/PracticeInput.vue'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const { playSentence } = useFinnishAudio()
 
 const set = ref(null)
 const loading = ref(true)
@@ -40,14 +42,28 @@ const current = computed(() => items.value[index.value] ?? null)
 const total = computed(() => items.value.length)
 const progressPct = computed(() => (total.value ? Math.round((index.value / total.value) * 100) : 0))
 
+// Hearing the correct form the instant you've committed to an answer is the
+// feedback that makes an ending stick - the transforms ARE pronunciation
+// events (kahvin → kahvii, Helsinkiin → Helsingissä), and reading them off
+// the screen teaches the spelling while missing the sound.
+function playTo() {
+  if (current.value?.to_audio) playSentence(current.value.to, current.value.to_audio)
+}
+
+function playFrom() {
+  if (current.value?.from_audio) playSentence(current.value.from, current.value.from_audio)
+}
+
 function onChecked(correct) {
   answered.value = true
   if (correct) correctCount.value++
+  playTo()
 }
 
 function reveal() {
   answered.value = true
   gaveUp.value = true
+  playTo()
 }
 
 async function next() {
@@ -114,12 +130,22 @@ function restart() {
 
           <div class="from-row">
             <div class="from">
-              <p class="from-fi">{{ current.from }}</p>
+              <p class="from-fi">
+                <button v-if="current.from_audio" class="say" :title="'Hear ' + current.from" @click="playFrom">
+                  <Volume2 class="say-ico" aria-hidden="true" />
+                </button>
+                {{ current.from }}
+              </p>
               <p class="from-en muted">{{ current.from_en }}</p>
             </div>
             <ArrowRight class="arrow" aria-hidden="true" />
             <div class="to">
-              <p v-if="answered" class="to-fi">{{ current.to }}</p>
+              <p v-if="answered" class="to-fi">
+                <button v-if="current.to_audio" class="say accent" :title="'Hear ' + current.to" @click="playTo">
+                  <Volume2 class="say-ico" aria-hidden="true" />
+                </button>
+                {{ current.to }}
+              </p>
               <p v-else class="to-blank">?</p>
               <p v-if="answered" class="to-en muted">{{ current.to_en }}</p>
             </div>
@@ -192,6 +218,17 @@ function restart() {
 .from-row { display: flex; align-items: center; gap: 12px; }
 .from, .to { flex: 1; min-width: 0; }
 .from-fi { font-size: 17px; font-weight: 700; line-height: 1.35; }
+.say {
+  background: none;
+  border: none;
+  padding: 0 4px 0 0;
+  color: var(--text-faint);
+  cursor: pointer;
+  vertical-align: -2px;
+}
+.say:hover { color: var(--accent); }
+.say.accent { color: var(--accent); }
+.say-ico { width: 15px; height: 15px; display: inline-block; }
 .from-en { font-size: 12.5px; margin-top: 3px; line-height: 1.35; }
 .arrow { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
 .to-fi { font-size: 17px; font-weight: 800; color: var(--accent); line-height: 1.35; }

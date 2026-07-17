@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sentence;
 use App\Support\Listening;
+use App\Support\Transforms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -56,24 +57,60 @@ class RecordController extends Controller
     // ------------------------------------------------------------------
 
     /**
-     * GET /api/record/queue - items that neither have an approved human take
-     * nor one waiting for review, in course order, plus progress counts.
+     * GET /api/record/queue?q=... - items that neither have an approved human
+     * take nor one waiting for review, in course order, plus progress counts.
+     *
+     * Taivutus phrases ride in the sentences queue rather than a tab of their
+     * own: to a recorder they're just another Finnish sentence to read. Only
+     * phrases the course doesn't already say appear here - the rest reuse
+     * their course sentence's recording, so nothing is ever read twice.
+     *
+     * `q` filters server-side because the queue is sliced before it's sent:
+     * filtering client-side would only ever search the first slice.
      */
     public function queue(Request $request): JsonResponse
     {
         $this->ensureRecorder($request);
 
+        $q = trim((string) $request->query('q'));
+        $matches = fn (string ...$fields) => $q === '' || array_filter(
+            $fields,
+            fn ($f) => mb_stripos($f, $q) !== false,
+        ) !== [];
+
         $pendingSentenceIds = array_keys($this->pendingSentences());
         $pendingWordBases = array_keys($this->pendingWords());
+        $pendingPhraseBases = array_keys($this->pendingPhrases());
 
         $sentences = Sentence::join('lessons', 'lessons.id', '=', 'sentences.lesson_id')
             ->orderBy('lessons.order_index')
             ->orderBy('sentences.id')
-            ->get(['sentences.id', 'sentences.finnish_text', 'sentences.english_text', 'sentences.audio_url']);
+            ->get(['sentences.id', 'sentences.finnish_text', 'sentences.english_text', 'sentences.audio_url'])
+            ->map(fn (Sentence $s) => [
+                'kind' => 'sentence',
+                'id' => $s->id,
+                'finnish_text' => $s->finnish_text,
+                'english_text' => $s->english_text,
+                'audio_url' => $s->audio_url,
+            ]);
 
-        $openSentences = $sentences
-            ->reject(fn ($s) => str_starts_with((string) $s->audio_url, '/audio/human/')
-                || in_array($s->id, $pendingSentenceIds, true))
+        $phrases = collect(Transforms::ownPhrases())->map(fn (array $p) => [
+            'kind' => 'phrase',
+            'id' => $p['base'],
+            'finnish_text' => $p['text'],
+            'english_text' => 'Taivutus drill',
+            'audio_url' => $p['audio_url'],
+        ]);
+
+        // Phrases first: the queue is sliced at 100, and behind 550-odd course
+        // sentences they'd be invisible until the very end of the project.
+        // They're also the shorter job - 42 lines finishes in one sitting.
+        $all = $phrases->concat($sentences);
+
+        $open = $all
+            ->reject(fn (array $s) => str_starts_with((string) $s['audio_url'], '/audio/human/')
+                || ($s['kind'] === 'sentence' && in_array($s['id'], $pendingSentenceIds, true))
+                || ($s['kind'] === 'phrase' && in_array($s['id'], $pendingPhraseBases, true)))
             ->values();
 
         $manifest = $this->manifest();
@@ -84,16 +121,52 @@ class RecordController extends Controller
             ->sort()
             ->values();
 
+        // Counts describe the whole corpus; only the returned slice is filtered,
+        // so searching never makes the progress bar lie.
         return response()->json([
-            'sentence_total' => $sentences->count(),
-            'sentence_done' => $sentences->count() - $openSentences->count(),
-            'sentence_pending' => count($pendingSentenceIds),
-            'sentences' => $openSentences->take(100),
+            'sentence_total' => $all->count(),
+            'sentence_done' => $all->count() - $open->count(),
+            'sentence_pending' => count($pendingSentenceIds) + count($pendingPhraseBases),
+            'sentences' => $open
+                ->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))
+                ->take(100)
+                ->values(),
+            'sentence_matches' => $open->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))->count(),
             'word_total' => count($manifest),
             'word_done' => count($manifest) - $openWords->count(),
             'word_pending' => count($pendingWordBases),
-            'words' => $openWords->map(fn ($w) => ['word' => $w, 'audio_url' => $manifest[$w]])->take(200),
+            'words' => $openWords
+                ->filter(fn ($w) => $matches($w))
+                ->map(fn ($w) => ['word' => $w, 'audio_url' => $manifest[$w]])
+                ->take(200)
+                ->values(),
+            'word_matches' => $openWords->filter(fn ($w) => $matches($w))->count(),
         ]);
+    }
+
+    /** POST /api/record/phrase/{base} - submit a take for a Taivutus phrase. */
+    public function storePhrase(Request $request, string $base): JsonResponse
+    {
+        $this->ensureRecorder($request);
+        abort_unless(Transforms::hasPhrase($base), 404, 'Unknown phrase.');
+
+        $file = $this->validAudio($request);
+        $stored = $this->store($file, public_path('audio/pending'), $base);
+
+        return response()->json(['phrase' => $base, 'pending_url' => "/audio/pending/{$stored}"]);
+    }
+
+    /** DELETE /api/record/phrase/{base} - retire a LIVE phrase take, back to TTS. */
+    public function revertPhrase(Request $request, string $base): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        abort_unless(Transforms::hasPhrase($base), 404, 'Unknown phrase.');
+
+        foreach (File::glob(public_path("audio/human/{$base}.*")) as $old) {
+            File::delete($old);
+        }
+
+        return response()->json(['phrase' => $base]);
     }
 
     /** POST /api/record/sentence/{id} - submit a take for review. */
@@ -301,15 +374,46 @@ class RecordController extends Controller
             ->values();
 
         [$pendingListening, $liveListening] = $this->listeningSubmissionState();
+        [$pendingPhrases, $livePhrases] = $this->phraseSubmissionState();
 
         return [
             'sentences' => $pendingSentences,
             'words' => $pendingWords,
             'listening' => $pendingListening,
+            'phrases' => $pendingPhrases,
             'live_sentences' => $liveSentences,
             'live_words' => $liveWords,
             'live_listening' => $liveListening,
+            'live_phrases' => $livePhrases,
         ];
+    }
+
+    /**
+     * Taivutus phrase takes, pending and live. Reviewed alongside sentences -
+     * they're the same job: one Finnish sentence, read out loud.
+     *
+     * @return array{0: array, 1: array} [pending, live]
+     */
+    private function phraseSubmissionState(): array
+    {
+        $pendingFiles = $this->pendingPhrases();
+        $pending = [];
+        $live = [];
+
+        foreach (Transforms::ownPhrases() as $phrase) {
+            $row = ['base' => $phrase['base'], 'text' => $phrase['text']];
+
+            if (isset($pendingFiles[$phrase['base']])) {
+                $pending[] = $row + [
+                    'current_url' => $phrase['audio_url'],
+                    'pending_url' => '/audio/pending/'.basename($pendingFiles[$phrase['base']]),
+                ];
+            } elseif (str_starts_with((string) $phrase['audio_url'], '/audio/human/')) {
+                $live[] = $row + ['audio_url' => $phrase['audio_url']];
+            }
+        }
+
+        return [$pending, $live];
     }
 
     /**
@@ -373,6 +477,9 @@ class RecordController extends Controller
             foreach (array_keys($this->pendingListening()) as $base) {
                 $this->approveListeningBase($base);
             }
+            foreach (array_keys($this->pendingPhrases()) as $base) {
+                $this->approvePhraseBase($base);
+            }
 
             return response()->json(['ok' => true]);
         }
@@ -382,6 +489,7 @@ class RecordController extends Controller
         match ($type) {
             'sentence' => $this->approveSentence((int) $key),
             'listening' => $this->approveListeningBase($this->listeningBaseFromKey($key)),
+            'phrase' => $this->approvePhraseBase($this->phraseBaseFromKey($key)),
             default => $this->approveWordBase($this->wordBase($key)),
         };
 
@@ -398,6 +506,7 @@ class RecordController extends Controller
         $glob = match ($type) {
             'sentence' => public_path("audio/pending/sentence-{$key}.*"),
             'listening' => public_path('audio/pending/'.$this->listeningBaseFromKey($key).'.*'),
+            'phrase' => public_path('audio/pending/'.$this->phraseBaseFromKey($key).'.*'),
             default => public_path('audio/pending/words/'.$this->wordBase($key).'.*'),
         };
 
@@ -406,6 +515,18 @@ class RecordController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * A phrase key IS its base name ("phrase-ab12cd34ef") - but it lands in a
+     * glob, so it must be proven to name a real phrase before it goes near the
+     * filesystem, not merely look plausible.
+     */
+    private function phraseBaseFromKey(string $key): string
+    {
+        abort_unless(Transforms::hasPhrase($key), 404, 'Unknown phrase.');
+
+        return $key;
     }
 
     /** Review key "kahvilassa:3" → the shared base name for that line. */
@@ -519,7 +640,7 @@ class RecordController extends Controller
     private function validReviewTarget(Request $request): array
     {
         $data = $request->validate([
-            'type' => ['required', 'in:sentence,word,listening'],
+            'type' => ['required', 'in:sentence,word,listening,phrase'],
             'key' => ['required', 'string', 'max:64'],
         ]);
 
@@ -564,6 +685,47 @@ class RecordController extends Controller
         }
 
         return $map;
+    }
+
+    /**
+     * @return array<string, string> phrase base → pending file path
+     *
+     * Phrase takes share audio/pending/ with sentence and conversation takes;
+     * the "phrase-" prefix is what keeps the three globs apart.
+     */
+    private function pendingPhrases(): array
+    {
+        $map = [];
+        foreach (File::glob(public_path('audio/pending/phrase-*.*')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = $path;
+        }
+
+        return $map;
+    }
+
+    private function approvePhraseBase(string $base): void
+    {
+        $pending = $this->pendingPhrases()[$base] ?? null;
+        if ($pending === null) {
+            return;
+        }
+
+        if (! Transforms::hasPhrase($base)) {
+            File::delete($pending); // orphaned take for a phrase no longer drilled
+
+            return;
+        }
+
+        $dir = public_path('audio/human');
+        File::ensureDirectoryExists($dir);
+        foreach (File::glob("{$dir}/{$base}.*") as $old) {
+            File::delete($old);
+        }
+
+        // No DB write: Transforms resolves audio from disk on read, so moving
+        // the file IS the approval - and every drill saying this sentence
+        // picks it up at once.
+        File::move($pending, "{$dir}/".basename($pending));
     }
 
     private function approveListeningBase(string $base): void
