@@ -3,7 +3,7 @@
 // Sells the one thing competitors don't have - real SPOKEN Finnish - and
 // funnels to /try (no account needed) or /register.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { CalendarClock, Check, CircleCheck, Drama, Flag, Flame, Headphones, MessageCircle, Mic, Repeat, RotateCcw, Star, Target, Volume2, Zap } from 'lucide-vue-next'
+import { BookOpen, CalendarClock, Check, CircleCheck, Drama, Flag, Flame, Headphones, MessageCircle, Mic, Repeat, RotateCcw, Star, Target, Volume2, Zap } from 'lucide-vue-next'
 import api from '../api'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -173,7 +173,7 @@ onBeforeUnmount(() => faqLd?.remove())
           @click="playSentence(s.fi, s.audio)"
         >
           <span class="sample-fi"><Volume2 class="sample-ico" aria-hidden="true" /> {{ s.fi }}</span>
-          <span class="sample-book">📖 {{ s.book }}</span>
+          <span class="sample-book"><BookOpen class="book-ico" aria-hidden="true" /> {{ s.book }}</span>
           <span class="sample-en">{{ s.en }}</span>
         </button>
       </div>
@@ -364,6 +364,7 @@ onBeforeUnmount(() => faqLd?.remove())
 .sample-fi { font-weight: 800; font-size: 16px; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
 .sample-ico { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
 .sample-book { font-size: 14px; color: var(--text-dim); }
+.book-ico { width: 13px; height: 13px; vertical-align: -2px; }
 .sample-en { grid-column: 1 / -1; font-size: 13px; color: var(--text-dim); }
 @media (max-width: 480px) {
   .sample { grid-template-columns: 1fr; }
