@@ -1,0 +1,22 @@
+{
+    "title": "Meeting someone new",
+    "emoji": "🤝",
+    "level": "A1",
+    "tagline": "Names, where you're from, what you do - the first two minutes with a stranger.",
+    "speakers": {
+        "A": { "name": "Sanna", "voice": "female", "role": "partygoer" },
+        "B": { "name": "Mikko", "voice": "male", "role": "new acquaintance" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi! Mä oon Sanna. Ketäs sä oot?", "en": "Hi! I'm Sanna. And who are you?" },
+        { "who": "B", "fi": "Moi, mä oon Mikko. Hauska tutustua.", "en": "Hi, I'm Mikko. Nice to meet you." },
+        { "who": "A", "fi": "Samat sanat! Mistä sä oot kotosin?", "en": "Likewise! Where are you from?" },
+        { "who": "B", "fi": "Mä oon Tampereelta, mut asun nyt Helsingissä.", "en": "I'm from Tampere, but I live in Helsinki now." },
+        { "who": "A", "fi": "Ai kiva. Mitä sä teet työkses?", "en": "Oh nice. What do you do for work?" },
+        { "who": "B", "fi": "Mä oon opettaja. Entä sä?", "en": "I'm a teacher. And you?" },
+        { "who": "A", "fi": "Mä opiskelen vielä. Luen kauppatiedettä.", "en": "I'm still studying. I study business." },
+        { "who": "B", "fi": "Siistiä! Miten sä tunnet Ollin?", "en": "Cool! How do you know Olli?" },
+        { "who": "A", "fi": "Me ollaan vanhoja kavereita. Tunnetsä sen kans?", "en": "We're old friends. Do you know him too?" },
+        { "who": "B", "fi": "Joo, me ollaan töissä samas paikassa.", "en": "Yeah, we work at the same place." }
+    ]
+}

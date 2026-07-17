@@ -1,0 +1,24 @@
+{
+    "title": "Phoning the health centre",
+    "emoji": "📞",
+    "level": "B1",
+    "tagline": "No faces, no pointing - book an appointment with only your voice on the line.",
+    "speakers": {
+        "A": { "name": "Sirpa", "voice": "female", "role": "receptionist" },
+        "B": { "name": "Jani", "voice": "male", "role": "caller" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Terveysasema, Sirpa puhelimessa.", "en": "Health centre, Sirpa speaking." },
+        { "who": "B", "fi": "Hei, mä haluaisin varata ajan lääkärille.", "en": "Hi, I'd like to book an appointment with a doctor." },
+        { "who": "A", "fi": "Selvä. Mikä on nimi ja henkilötunnus?", "en": "Alright. What's your name and personal ID code?" },
+        { "who": "B", "fi": "Jani Virtanen. Sanonks mä sen tunnuksen?", "en": "Jani Virtanen. Shall I say the ID code?" },
+        { "who": "A", "fi": "Sano vaan. Ja mikä vaivaa?", "en": "Go ahead. And what's the trouble?" },
+        { "who": "B", "fi": "Selkä on ollu kipee jo pari viikkoo.", "en": "My back's been sore for a couple of weeks now." },
+        { "who": "A", "fi": "Onks sulla kuumetta?", "en": "Do you have a fever?" },
+        { "who": "B", "fi": "Ei oo.", "en": "No." },
+        { "who": "A", "fi": "Sopiiks torstai kello kymmenen?", "en": "Does Thursday at ten work?" },
+        { "who": "B", "fi": "Sopii hyvin.", "en": "That works well." },
+        { "who": "A", "fi": "Hyvä, varasin ajan. Tervetuloa torstaina!", "en": "Good, I've booked the appointment. Welcome on Thursday!" },
+        { "who": "B", "fi": "Kiitos, kuulemiin!", "en": "Thanks, goodbye!" }
+    ]
+}

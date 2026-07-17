@@ -87,6 +87,11 @@ function playLine(i, rate = null) {
 // Mark it heard (first time pays XP), then advance the session.
 async function finishStep() {
   stopPlayback()
+  // A skip - never played through - earns nothing and doesn't mark the scene
+  // heard. Only a real listen counts (or one already done on a past day).
+  if (!heardOnce.value && !completed.value) {
+    return emit('done', 0)
+  }
   let xp = 0
   if (!completed.value) {
     try {

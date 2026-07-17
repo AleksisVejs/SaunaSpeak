@@ -1,0 +1,22 @@
+{
+    "title": "A table at the restaurant",
+    "emoji": "🍽️",
+    "level": "A2",
+    "tagline": "A table for two, a recommendation, and the bill - the full sit-down round.",
+    "speakers": {
+        "A": { "name": "Antti", "voice": "male", "role": "waiter" },
+        "B": { "name": "Laura", "voice": "female", "role": "diner" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Hei, tervetuloa! Onks teil varaus?", "en": "Hi, welcome! Do you have a reservation?" },
+        { "who": "B", "fi": "Ei oo, meit on kaks. Onks tilaa?", "en": "No, there's two of us. Is there room?" },
+        { "who": "A", "fi": "Joo, käykää istuun. Tässä on menu.", "en": "Yeah, have a seat. Here's the menu." },
+        { "who": "B", "fi": "Kiitos. Mitä te suosittelette?", "en": "Thanks. What do you recommend?" },
+        { "who": "A", "fi": "Lohikeitto on tosi hyvää tänään.", "en": "The salmon soup is really good today." },
+        { "who": "B", "fi": "Otetaan kaks lohikeittoo sit.", "en": "We'll take two salmon soups then." },
+        { "who": "A", "fi": "Mitäs juotavaa?", "en": "Anything to drink?" },
+        { "who": "B", "fi": "Kaks vettä, kiitos.", "en": "Two waters, please." },
+        { "who": "A", "fi": "Tuleeks jälkiruokaa?", "en": "Any dessert?" },
+        { "who": "B", "fi": "Ei kiitos, vaan lasku.", "en": "No thanks, just the bill." }
+    ]
+}

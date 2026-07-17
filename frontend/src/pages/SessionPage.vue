@@ -288,8 +288,6 @@ function confettiStyle(i) {
           @confirm="confirmSuggested"
         />
 
-        <div v-if="error" class="error-msg">{{ error }}</div>
-
         <div class="grade-zone">
           <p v-if="!canGrade" class="muted grade-hint">Try it from memory, then check - or reveal the answer to grade yourself.</p>
           <!-- The check result pre-picks a grade (correct → Good, miss → Again):
@@ -323,6 +321,10 @@ function confettiStyle(i) {
       <TransformStep v-else-if="session.current.type === 'transform'" :key="`t-${session.index}`" :data="session.current.data" @done="onWovenDone" />
       <UseStep v-else-if="session.current.type === 'use'" :key="`u-${session.index}`" :data="session.current.data" @done="onWovenDone" />
     </transition>
+
+    <!-- one error slot for the whole flow: sentence grades AND woven steps land
+         here, so a failed save is never silent on a listen/bend/use step. -->
+    <div v-if="error" class="error-msg session-error" role="alert">{{ error }}</div>
   </div>
   </div>
 </template>

@@ -45,6 +45,14 @@ class Themes
     private const FULL_WEAVE_MIN_SIZE = 6;
 
     /**
+     * At/above this size (the "15-minute / serious" goal) a SECOND conversation
+     * is woven in. Comprehension is a function of input volume, so the most
+     * engaged learners get more of it - a different scene, never the theme's own
+     * again.
+     */
+    private const SECOND_LISTEN_MIN_SIZE = 12;
+
+    /**
      * Lesson title → the assets that share its theme. Keyed by title because
      * that's how lessons are identified (no slug column; the seeder is
      * idempotent on title). Any facet a lesson doesn't pin ('listening',
@@ -58,17 +66,17 @@ class Themes
      */
     private const THEME_MAP = [
         // ---- topic lessons: the strong clusters (scene + drill + roleplay) ----
-        'Eating at a Restaurant' => ['listening' => 'kahvilassa', 'transform' => 'kysymys', 'scenario' => 'ravintola'],
+        'Eating at a Restaurant' => ['listening' => 'ravintolassa', 'transform' => 'kysymys', 'scenario' => 'ravintola'],
         'Buses and Trains' => ['listening' => 'bussissa', 'transform' => 'missa-mihin', 'scenario' => 'bussi'],
         'Numbers, Prices and Time' => ['listening' => 'kaupassa', 'transform' => 'kysymys', 'scenario' => 'tori'],
-        'Family and Friends' => ['transform' => 'kysymys', 'scenario' => 'naapuri'],
-        'At the Pharmacy' => ['listening' => 'ajanvaraus', 'transform' => 'kielto', 'scenario' => 'apteekki'],
-        'A Night Out' => ['listening' => 'kahvilassa', 'transform' => 'mennyt-aika', 'scenario' => 'ravintola'],
+        'Family and Friends' => ['listening' => 'tutustuminen', 'transform' => 'kysymys', 'scenario' => 'naapuri'],
+        'At the Pharmacy' => ['listening' => 'laakarissa', 'transform' => 'kielto', 'scenario' => 'apteekki'],
+        'A Night Out' => ['listening' => 'ravintolassa', 'transform' => 'mennyt-aika', 'scenario' => 'ravintola'],
         'Weekend at the Mökki' => ['listening' => 'saunailta', 'transform' => 'mennyt-aika', 'scenario' => 'saunailta'],
         'When Something Breaks' => ['listening' => 'rappukaytavassa', 'transform' => 'kielto', 'scenario' => 'naapuri'],
-        'Buying Clothes' => ['listening' => 'kaupassa', 'transform' => 'kysymys', 'scenario' => 'kauppa'],
+        'Buying Clothes' => ['listening' => 'vaatekaupassa', 'transform' => 'kysymys', 'scenario' => 'kauppa'],
         'Running Errands' => ['listening' => 'kaupassa', 'transform' => 'missa-mihin', 'scenario' => 'kauppa'],
-        'Hobbies and Free Time' => ['listening' => 'saunailta', 'transform' => 'mennyt-aika', 'scenario' => 'saunailta'],
+        'Hobbies and Free Time' => ['listening' => 'suunnitelmia', 'transform' => 'mennyt-aika', 'scenario' => 'saunailta'],
 
         // ---- B1 clusters: the intermediate scenes and drills ----
         'Renting a Place' => ['listening' => 'asuntonaytto', 'transform' => 'missa-mihin', 'scenario' => 'naapuri'],
@@ -114,11 +122,31 @@ class Themes
         $full = $size >= self::FULL_WEAVE_MIN_SIZE;
         $theme = self::THEME_MAP[$focusTitle] ?? [];
 
+        $listening = $full ? self::pickListening($user, $focusLevel, $seed, $theme['listening'] ?? null) : null;
+
         return [
-            'listening' => $full ? self::pickListening($user, $focusLevel, $seed, $theme['listening'] ?? null) : null,
+            'listening' => $listening,
+            // A second conversation for the longest sessions - more input volume
+            // for the most engaged learners. Always a different scene.
+            'listening2' => ($listening !== null && $size >= self::SECOND_LISTEN_MIN_SIZE)
+                ? self::pickExtraListening($user, $focusLevel, $seed, $listening['id'])
+                : null,
             'transform' => $full ? self::pickTransform($user, $focusLevel, $seed, $theme['transform'] ?? null) : null,
             'use' => self::pickUse($user, $focusLevel, $seed, $theme['scenario'] ?? null),
         ];
+    }
+
+    /** A second scene for long sessions: level-appropriate, never the first one. */
+    private static function pickExtraListening(User $user, string $focusLevel, int $seed, string $excludeId): ?array
+    {
+        $done = $user->listening_done ?? [];
+        $pool = array_values(array_filter(
+            self::atOrBelow(Listening::index(), $focusLevel),
+            fn (array $s) => $s['id'] !== $excludeId,
+        ));
+        $pick = self::choose($pool, $done, $seed + 1);
+
+        return $pick === null ? null : $pick + ['done' => isset($done[$pick['id']])];
     }
 
     /** One listening scene: the theme's own if mapped, else level-matched. */

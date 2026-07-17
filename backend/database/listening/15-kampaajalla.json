@@ -1,0 +1,23 @@
+{
+    "title": "At the hairdresser's",
+    "emoji": "💈",
+    "level": "A2",
+    "tagline": "Short on the sides, leave the top, and pay at the till - a haircut, start to finish.",
+    "speakers": {
+        "A": { "name": "Tiina", "voice": "female", "role": "hairdresser" },
+        "B": { "name": "Joni", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Hei! Mitäs tänään tehdään?", "en": "Hi! What are we doing today?" },
+        { "who": "B", "fi": "Vaan lyhennys, kiitos. Sivuilta lyhyeks.", "en": "Just a trim, thanks. Short on the sides." },
+        { "who": "A", "fi": "Selvä. Ja päältä?", "en": "Alright. And on top?" },
+        { "who": "B", "fi": "Jätä vähän pituutta päälle.", "en": "Leave a bit of length on top." },
+        { "who": "A", "fi": "Käyks koneella sivut?", "en": "Machine on the sides okay?" },
+        { "who": "B", "fi": "Käy hyvin.", "en": "That's fine." },
+        { "who": "A", "fi": "Halutaaks pesu ensin?", "en": "Want a wash first?" },
+        { "who": "B", "fi": "Joo kiitos.", "en": "Yeah thanks." },
+        { "who": "A", "fi": "No niin. Miltä näyttää?", "en": "There we go. How does it look?" },
+        { "who": "B", "fi": "Tosi hyvältä, kiitos!", "en": "Really good, thanks!" },
+        { "who": "A", "fi": "Se tekee kakskytviis. Maksat tuol kassalla.", "en": "That's twenty-five. You pay at the till over there." }
+    ]
+}

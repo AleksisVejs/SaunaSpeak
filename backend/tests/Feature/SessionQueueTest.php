@@ -91,6 +91,21 @@ class SessionQueueTest extends TestCase
         $this->assertNull($light->json('woven.transform'));
     }
 
+    public function test_longest_sessions_weave_in_a_second_conversation(): void
+    {
+        $this->makeSentences(14);
+
+        // The 15-minute goal (size 12) gets a second, different conversation...
+        $big = $this->getJson('/api/today-session?size=12')->assertOk();
+        $this->assertNotNull($big->json('woven.listening'));
+        $this->assertNotNull($big->json('woven.listening2'), 'a second listen should ride along on long sessions');
+        $this->assertNotSame($big->json('woven.listening.id'), $big->json('woven.listening2.id'));
+
+        // ...but a normal 5-minute session (size 6) gets only the one.
+        $mid = $this->getJson('/api/today-session?size=6')->assertOk();
+        $this->assertNull($mid->json('woven.listening2'));
+    }
+
     public function test_a_themed_lesson_weaves_in_its_own_matching_assets(): void
     {
         // A mapped lesson pins its own scene and drill over the level default.

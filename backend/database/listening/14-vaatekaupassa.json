@@ -1,0 +1,24 @@
+{
+    "title": "Buying a jacket",
+    "emoji": "🧥",
+    "level": "A2",
+    "tagline": "Size, fitting room, a bigger one, the price - shopping for clothes.",
+    "speakers": {
+        "A": { "name": "Nina", "voice": "female", "role": "shop assistant" },
+        "B": { "name": "Ville", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi! Voinks mä auttaa?", "en": "Hi! Can I help?" },
+        { "who": "B", "fi": "Joo, mä etin talvitakkii.", "en": "Yeah, I'm looking for a winter jacket." },
+        { "who": "A", "fi": "Mikäs koko?", "en": "What size?" },
+        { "who": "B", "fi": "Emmä oo varma. Ehkä large.", "en": "I'm not sure. Maybe large." },
+        { "who": "A", "fi": "Tää musta ois tosi kiva. Haluuks kokeilla?", "en": "This black one would be really nice. Want to try it on?" },
+        { "who": "B", "fi": "Joo. Missä on sovituskoppi?", "en": "Yeah. Where's the fitting room?" },
+        { "who": "A", "fi": "Tuolla perällä, vasemmalla.", "en": "Over there in the back, on the left." },
+        { "who": "B", "fi": "Tää on vähän pieni. Onks isompaa?", "en": "This is a bit small. Is there a bigger one?" },
+        { "who": "A", "fi": "Katon varastosta. Pieni hetki.", "en": "I'll check the stockroom. One moment." },
+        { "who": "B", "fi": "Kiitos. Paljonks tää muuten maksaa?", "en": "Thanks. How much is it, by the way?" },
+        { "who": "A", "fi": "Se on nyt alennuksessa, kaheksankyt euroo.", "en": "It's on sale now, eighty euros." },
+        { "who": "B", "fi": "Hyvä, mä otan sen.", "en": "Great, I'll take it." }
+    ]
+}

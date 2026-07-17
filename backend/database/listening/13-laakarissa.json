@@ -1,0 +1,24 @@
+{
+    "title": "At the doctor's",
+    "emoji": "🩺",
+    "level": "B1",
+    "tagline": "Describe what hurts, how long, and get a plan - a real GP visit.",
+    "speakers": {
+        "A": { "name": "Leena", "voice": "female", "role": "doctor" },
+        "B": { "name": "Sami", "voice": "male", "role": "patient" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Päivää, käykää istumaan. Mikä vaivaa?", "en": "Hello, have a seat. What's the trouble?" },
+        { "who": "B", "fi": "Mul on ollu kuumetta ja yskää jo viikon.", "en": "I've had a fever and a cough for a week now." },
+        { "who": "A", "fi": "Onks muita oireita?", "en": "Any other symptoms?" },
+        { "who": "B", "fi": "Kurkku on kipee ja oon tosi väsyny.", "en": "My throat's sore and I'm really tired." },
+        { "who": "A", "fi": "Katotaas. Avaa suu ja sano aaa.", "en": "Let's have a look. Open your mouth and say ahh." },
+        { "who": "B", "fi": "Aaa.", "en": "Ahh." },
+        { "who": "A", "fi": "Kurkku on punonen. Kuulostaa flunssalta.", "en": "The throat's red. Sounds like a flu." },
+        { "who": "B", "fi": "Tarviinks mä antibiootteja?", "en": "Do I need antibiotics?" },
+        { "who": "A", "fi": "Et vielä. Lepää ja juo paljon. Kirjotan sairasloman.", "en": "Not yet. Rest and drink a lot. I'll write you a sick leave." },
+        { "who": "B", "fi": "Kiitos. Mistä mä saan lääkkeet?", "en": "Thanks. Where do I get the medicine?" },
+        { "who": "A", "fi": "Apteekista. Resepti menee sinne sähkösenä.", "en": "From the pharmacy. The prescription goes there electronically." },
+        { "who": "B", "fi": "Selvä, kiitos paljon!", "en": "Alright, thanks a lot!" }
+    ]
+}

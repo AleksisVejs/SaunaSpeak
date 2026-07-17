@@ -28,6 +28,9 @@ export const useSessionStore = defineStore('session', {
     // just before them, so it comes back at the end of the sentence block, not
     // after the listening.
     wovenStart: 0,
+    // Whether the day has been committed (streak + daily bonus). Fires when the
+    // sentence block clears, NOT at the very end - see advance().
+    committed: false,
     // Tracks whether /progress/complete already succeeded for the current
     // sentence, so a retry (after /session/complete fails) doesn't double-submit it.
     progressRecorded: false
@@ -51,6 +54,7 @@ export const useSessionStore = defineStore('session', {
       this.finished = false
       this.requeuedIds = []
       this.progressRecorded = false
+      this.committed = false
       try {
         // Session length follows the learner's daily goal from the intake quiz.
         const { dailyGoal } = usePrefs()
@@ -77,6 +81,9 @@ export const useSessionStore = defineStore('session', {
 
       if (woven.listening) steps.push({ type: 'listening', data: woven.listening })
       if (woven.transform) steps.push({ type: 'transform', data: woven.transform })
+      // A second conversation on the longest sessions (backend gates it by size)
+      // - spaced after the drill so the input is distributed, not massed.
+      if (woven.listening2) steps.push({ type: 'listening', data: woven.listening2 })
 
       // The USE beat: produce a sentence from today out loud, from memory - the
       // one activity in the loop that makes you generate rather than recall or
@@ -124,11 +131,26 @@ export const useSessionStore = defineStore('session', {
       await this.advance()
     },
 
-    // Move to the next step, or finish the session when the last one clears.
+    // Commit the day: streak + daily bonus. Fires the moment the SENTENCE block
+    // is done, not at the end of the woven tail. Streaks run on loss aversion,
+    // so withholding the streak after the core daily work is the exact churn
+    // trigger to avoid - the listen/bend/produce steps are enrichment, not a
+    // gate on the streak. Idempotent server-side (once per local day).
+    async commitDay() {
+      const res = await api.post('/session/complete')
+      this.bonusXp = res.data.xp_gained
+      this.committed = true
+    },
+
+    // Move to the next step. Commits the day once the sentence block clears, and
+    // marks the session finished (celebration) when the last step is done.
     async advance() {
+      // index+1 reaching wovenStart means the last sentence just cleared.
+      if (!this.committed && this.index + 1 >= this.wovenStart) {
+        await this.commitDay()
+      }
+
       if (this.index + 1 >= this.steps.length) {
-        const res = await api.post('/session/complete')
-        this.bonusXp = res.data.xp_gained
         this.finished = true
         // The retention event that matters: a full session, start to finish.
         window.umami?.track('session_complete')

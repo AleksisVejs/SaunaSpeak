@@ -1,0 +1,22 @@
+{
+    "title": "Asking the way",
+    "emoji": "🧭",
+    "level": "A1",
+    "tagline": "Where's the shop, is it far, which bus - finding your way on the street.",
+    "speakers": {
+        "A": { "name": "Emma", "voice": "female", "role": "newcomer" },
+        "B": { "name": "Jussi", "voice": "male", "role": "passer-by" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Anteeks, tietsä missä on lähin kauppa?", "en": "Excuse me, do you know where the nearest shop is?" },
+        { "who": "B", "fi": "Joo, se on ton kadun päässä, oikeella.", "en": "Yeah, it's at the end of that street, on the right." },
+        { "who": "A", "fi": "Onks se kaukana?", "en": "Is it far?" },
+        { "who": "B", "fi": "Ei, viis minuuttii kävellen.", "en": "No, five minutes on foot." },
+        { "who": "A", "fi": "Meneeks tää katu keskustaan?", "en": "Does this street go to the centre?" },
+        { "who": "B", "fi": "Menee, mut on nopeempaa mennä bussilla.", "en": "It does, but it's faster to go by bus." },
+        { "who": "A", "fi": "Mistä mä saan bussilipun?", "en": "Where do I get a bus ticket?" },
+        { "who": "B", "fi": "Suoraan kuskilta, tai sovelluksesta.", "en": "Straight from the driver, or from the app." },
+        { "who": "A", "fi": "Selvä, kiitos tosi paljon!", "en": "Alright, thanks so much!" },
+        { "who": "B", "fi": "Eipä kestä. Hyvää päivänjatkoa!", "en": "No problem. Have a good rest of your day!" }
+    ]
+}

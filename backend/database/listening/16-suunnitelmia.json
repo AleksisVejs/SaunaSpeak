@@ -1,0 +1,22 @@
+{
+    "title": "Making plans with a friend",
+    "emoji": "🎬",
+    "level": "B1",
+    "tagline": "Shall we, what should we watch, what time - sorting out a Saturday.",
+    "speakers": {
+        "A": { "name": "Katri", "voice": "female", "role": "friend" },
+        "B": { "name": "Tomi", "voice": "male", "role": "friend" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moro! Mitä sä teet viikonloppuna?", "en": "Hey! What are you doing this weekend?" },
+        { "who": "B", "fi": "En mitään erikoista. Miksei?", "en": "Nothing special. Why?" },
+        { "who": "A", "fi": "Mennäänks leffaan lauantaina?", "en": "Shall we go to the movies on Saturday?" },
+        { "who": "B", "fi": "Vois mennä! Mitä katottais?", "en": "We could! What should we watch?" },
+        { "who": "A", "fi": "Se uus komedia näyttää hyvältä.", "en": "That new comedy looks good." },
+        { "who": "B", "fi": "Sopii. Monelt se alkaa?", "en": "Works for me. What time does it start?" },
+        { "who": "A", "fi": "Varmaan seittemält. Katon netistä.", "en": "Probably at seven. I'll check online." },
+        { "who": "B", "fi": "Otetaaks ennen ruokaa jossain?", "en": "Should we grab food somewhere before?" },
+        { "who": "A", "fi": "Joo! Mä varaan pöydän.", "en": "Yeah! I'll book a table." },
+        { "who": "B", "fi": "Täydellistä. Nähää lauantaina!", "en": "Perfect. See you Saturday!" }
+    ]
+}

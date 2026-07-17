@@ -20,6 +20,12 @@ const emit = defineEmits(['done'])
 const auth = useAuthStore()
 const { playSentence } = useFinnishAudio()
 
+// In-session drill is a TASTER, not the whole set. Massed practice depletes
+// working memory and learns worse than spaced (Cambridge SSLA; CLT resource-
+// depletion), so we cap the inline run and let the SRS do the spacing. The full
+// set stays one tap away in the Taivutus library.
+const MAX_ITEMS = 5
+
 const set = ref(null)
 const loading = ref(true)
 const index = ref(0)
@@ -34,7 +40,7 @@ onMounted(async () => {
   }
 })
 
-const items = computed(() => set.value?.items ?? [])
+const items = computed(() => (set.value?.items ?? []).slice(0, MAX_ITEMS))
 const currentItem = computed(() => items.value[index.value] ?? null)
 const total = computed(() => items.value.length)
 

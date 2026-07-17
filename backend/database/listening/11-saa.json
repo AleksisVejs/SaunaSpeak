@@ -1,0 +1,22 @@
+{
+    "title": "Talking about the weather",
+    "emoji": "🌦️",
+    "level": "A1",
+    "tagline": "Cold, snow, dark - the small talk that oils every Finnish day.",
+    "speakers": {
+        "A": { "name": "Riitta", "voice": "female", "role": "neighbour" },
+        "B": { "name": "Pekka", "voice": "male", "role": "neighbour" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Huh, onpa kylmä tänään!", "en": "Phew, it's cold today!" },
+        { "who": "B", "fi": "Nii on. Aamulla oli pakkasta.", "en": "It is. This morning it was below freezing." },
+        { "who": "A", "fi": "Sataaks illalla?", "en": "Is it going to rain tonight?" },
+        { "who": "B", "fi": "Ennusteen mukaan tulee lunta.", "en": "According to the forecast it'll snow." },
+        { "who": "A", "fi": "Voi ei. Mä inhoon lunta.", "en": "Oh no. I hate snow." },
+        { "who": "B", "fi": "Mä taas tykkään. Pääsee hiihtään.", "en": "I like it, though. You get to go skiing." },
+        { "who": "A", "fi": "Haha, sä oot oikee talvi-ihminen.", "en": "Haha, you're a real winter person." },
+        { "who": "B", "fi": "Oon. Mut kohta on kesä, ei hätää.", "en": "I am. But summer's soon, no worries." },
+        { "who": "A", "fi": "Toivottavasti! Nyt on ihan pimeetä.", "en": "Hopefully! It's so dark right now." },
+        { "who": "B", "fi": "Nii, mut valot lisääntyy pian.", "en": "Yeah, but the daylight'll increase soon." }
+    ]
+}

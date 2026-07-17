@@ -45,9 +45,19 @@ const planSteps = computed(() => {
   const w = p.woven ?? {}
   if (w.listening) steps.push({ icon: Headphones, kind: 'Listen', title: w.listening.title })
   if (w.transform) steps.push({ icon: Wrench, kind: 'Bend', title: w.transform.title })
+  if (w.listening2) steps.push({ icon: Headphones, kind: 'Listen', title: w.listening2.title })
   steps.push({ icon: Sparkles, kind: 'Use', title: 'Say it for real' })
   return steps
 })
+
+// First-run explainer: a plain-language key to the vocabulary the rest of the
+// dashboard assumes (streak, XP, levels, "due"). Shown until dismissed - hover
+// tooltips are invisible on touch, and this is a mobile-first PWA.
+const showIntro = ref(localStorage.getItem('ss_dash_intro_done') !== '1')
+function dismissIntro() {
+  showIntro.value = false
+  localStorage.setItem('ss_dash_intro_done', '1')
+}
 
 const rank = computed(() => rankFor(auth.user?.xp ?? 0))
 
@@ -178,7 +188,10 @@ async function sendFeedback() {
     <div v-else class="dashboard">
       <!-- greeting + compact stat chips -->
       <header class="top">
-        <h2 class="greeting">Hei, {{ auth.user?.name }}!</h2>
+        <div class="greet-block">
+          <h2 class="greeting">Hei, {{ auth.user?.name }}!</h2>
+          <p class="greeting-sub muted">Learning everyday spoken Finnish</p>
+        </div>
         <div class="chips">
           <span class="chip" title="XP — points earned from every completed exercise" aria-label="Experience points">
             <Zap class="chip-icon" aria-hidden="true" />{{ auth.user?.xp ?? 0 }}
@@ -191,6 +204,18 @@ async function sendFeedback() {
           </span>
         </div>
       </header>
+
+      <!-- first-run: plain-language key to how the app works, dismissible -->
+      <div v-if="showIntro" class="card intro-card">
+        <button class="intro-x" aria-label="Dismiss" @click="dismissIntro">×</button>
+        <p class="intro-title">👋 New here? Here's the whole app in 20 seconds</p>
+        <ul class="intro-list">
+          <li><b>One Sauna Session a day.</b> Each one mixes a few sentences with a real conversation to hear, a grammar drill, and a bit of speaking.</li>
+          <li><b>Sentences come back over time.</b> "Ready to review" means one is due again — seeing it right before you'd forget is what makes it stick.</li>
+          <li><b>Streak &amp; XP</b> reward showing up daily. <b>Levels A1 → B2</b> mark how far you've come — A1 is your first words, B2 is nearly fluent.</li>
+        </ul>
+        <button class="btn btn-primary intro-go" @click="dismissIntro">Got it — let's go</button>
+      </div>
 
       <!-- hero: today's session, with today's goal on the button -->
       <router-link to="/session" class="btn btn-primary btn-block session-btn">
@@ -214,23 +239,23 @@ async function sendFeedback() {
           <text v-if="goalMet" x="12" y="16.2" class="ring-check">✓</text>
         </svg>
       </router-link>
-      <p class="muted session-hint">
-        <template v-if="nextLesson">Next up: <b class="hint-lesson">{{ nextLesson.title }}</b> ({{ nextLesson.level }}) · </template>
-        <template v-if="dueCount">{{ dueCount }} due · </template>
-        today {{ todayDone }}/{{ goal }}{{ goalMet ? ' — goal met!' : '' }}
-      </p>
-
-      <!-- today's woven session: the four-skill lineup, made visible up front.
-           This is the theme map surfacing - what you'll hear and bend today is
-           picked to match the lesson you're on, not a separate menu. -->
-      <div v-if="planSteps.length" class="card plan-card">
+      <!-- today's session: the ONE place for session context - the four-skill
+           lineup plus what's due and today's progress, in plain words. Replaces
+           the old jargon hint line so there aren't three widgets saying it. -->
+      <div class="card plan-card">
         <p class="plan-title">Today's session</p>
-        <ol class="plan-steps">
+        <ol v-if="planSteps.length" class="plan-steps">
           <li v-for="(s, i) in planSteps" :key="i" class="plan-step">
             <span class="plan-ico"><component :is="s.icon" aria-hidden="true" /></span>
             <span class="plan-text"><b class="plan-kind">{{ s.kind }}</b><span class="plan-name">{{ s.title }}</span></span>
           </li>
         </ol>
+        <p v-else class="plan-empty muted">You're all caught up — nothing due right now. Tap Start for an extra round any time.</p>
+        <p class="plan-foot">
+          <template v-if="nextLesson">Next: <b>{{ nextLesson.title }}</b><span class="foot-dot">·</span></template>
+          <template v-if="dueCount">{{ dueCount }} ready to review<span class="foot-dot">·</span></template>
+          <span :class="{ 'foot-met': goalMet }">{{ todayDone }}/{{ goal }} done today{{ goalMet ? ' ✓' : '' }}</span>
+        </p>
       </div>
 
       <!-- a recently broken streak can be relit for XP -->
@@ -326,54 +351,60 @@ async function sendFeedback() {
         </template>
       </div>
 
-      <!-- the rest of the sauna: listen, talk, roleplay, your own words.
-           These are no longer a separate menu - your daily session now weaves
-           listening, inflection drills and a speaking beat in. This row is the
-           library: open any one to go deeper or replay. -->
+      <!-- the path: the curriculum map, above the optional extras so a newcomer
+           sees what they're learning and how far it goes before the buffet. -->
+      <div class="journey-head">
+        <h3>Your path</h3>
+        <span class="muted">{{ auth.stats?.mastered_count ?? 0 }} / {{ auth.stats?.total_sentences ?? 0 }} sentences mastered</span>
+      </div>
+      <LessonPath :lessons="lessons" />
+
+      <!-- optional extra practice: the same skills that are already in the daily
+           session, available on their own. English descriptors sit under the
+           Finnish names so a newcomer isn't left guessing what "Taivutus" is. -->
       <div class="quick-head">
-        <h3>Go deeper</h3>
-        <span class="muted">Woven into your session — open one to practice more</span>
+        <h3>More practice</h3>
+        <span class="muted">Optional — each skill on its own, any time</span>
       </div>
       <div class="quick-row">
         <router-link to="/listening" class="quick">
           <Headphones class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Kuuntelu</span>
+          <span class="quick-sub">Listen</span>
         </router-link>
         <router-link to="/transforms" class="quick">
           <Wrench class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Taivutus</span>
+          <span class="quick-sub">Endings</span>
         </router-link>
         <router-link to="/chat" class="quick">
           <MessageCircle class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Sauna Chat</span>
+          <span class="quick-sub">Talk</span>
         </router-link>
         <router-link to="/scenarios" class="quick">
           <Drama class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Situations</span>
+          <span class="quick-sub">Roleplay</span>
         </router-link>
         <router-link to="/words" class="quick">
           <BookOpen class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Word bank</span>
-          <span v-if="auth.stats?.words_due" class="quick-badge">{{ auth.stats.words_due }} due</span>
+          <span class="quick-sub">Your words</span>
+          <span v-if="auth.stats?.words_due" class="quick-badge">{{ auth.stats.words_due }} ready</span>
         </router-link>
-        <!-- appears only once chat corrections have piled up into due cards -->
+        <!-- appears only once chat corrections have piled up into review cards -->
         <router-link v-if="auth.stats?.mistakes_due" to="/mistakes/review" class="quick">
           <Pencil class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Chat mistakes</span>
-          <span class="quick-badge">{{ auth.stats.mistakes_due }} due</span>
+          <span class="quick-sub">Fixes</span>
+          <span class="quick-badge">{{ auth.stats.mistakes_due }} ready</span>
         </router-link>
       </div>
 
       <button v-if="installPrompt" class="btn btn-ghost btn-block install-btn" @click="install">
         <Smartphone class="install-ico" aria-hidden="true" /> Install SaunaSpeak on this device
       </button>
-
-      <!-- the journey -->
-      <div class="journey-head">
-        <h3>Your journey</h3>
-        <span class="muted">{{ auth.stats?.mastered_count ?? 0 }} / {{ auth.stats?.total_sentences ?? 0 }} sentences mastered</span>
-      </div>
-      <LessonPath :lessons="lessons" />
 
       <!-- feedback: complaints belong here, where they get fixed -->
       <div class="card feedback">
@@ -503,8 +534,29 @@ async function sendFeedback() {
   fill: currentColor;
   text-anchor: middle;
 }
-.session-hint { text-align: center; margin: 10px 0 14px; }
-.hint-lesson { color: var(--text); font-weight: 700; }
+.greet-block { min-width: 0; }
+.greeting-sub { font-size: 12.5px; margin-top: 1px; }
+
+/* ---- first-run intro: plain-language key, dismissible ---- */
+.intro-card { position: relative; padding: 16px 16px 14px; margin-bottom: 14px; border-color: var(--accent); }
+.intro-x {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.intro-x:hover { color: var(--text); }
+.intro-title { font-weight: 800; font-size: 15px; margin-bottom: 10px; padding-right: 24px; }
+.intro-list { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; padding-left: 18px; }
+.intro-list li { font-size: 13.5px; line-height: 1.5; color: var(--text-dim); }
+.intro-list b { color: var(--text); }
+.intro-go { font-size: 14px; }
 
 /* ---- today's woven session preview ---- */
 .plan-card { padding: 12px 14px; margin-bottom: 14px; }
@@ -543,6 +595,18 @@ async function sendFeedback() {
 .plan-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .plan-kind { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); }
 .plan-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-empty { font-size: 13px; line-height: 1.5; padding: 2px 0 4px; }
+.plan-foot {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.plan-foot b { color: var(--text); font-weight: 700; }
+.foot-dot { margin: 0 7px; opacity: 0.5; }
+.foot-met { color: var(--green); font-weight: 700; }
 
 .repair-card {
   display: flex;
@@ -693,7 +757,16 @@ async function sendFeedback() {
 .quick:hover { background: var(--card-hover); border-color: var(--accent); }
 .quick:active { transform: scale(0.98); }
 .quick-icon { width: 22px; height: 22px; color: var(--accent); }
-.quick-name { font-size: 12px; font-weight: 700; }
+.quick-name { font-size: 12px; font-weight: 700; text-align: center; line-height: 1.15; }
+.quick-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: center;
+  line-height: 1.1;
+}
 .quick-badge {
   font-size: 10px;
   font-weight: 800;

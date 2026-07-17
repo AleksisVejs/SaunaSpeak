@@ -1,0 +1,23 @@
+{
+    "title": "At the Kela office",
+    "emoji": "🏢",
+    "level": "B1",
+    "tagline": "New in the country: the Kela card, benefits and what papers you need.",
+    "speakers": {
+        "A": { "name": "Marja", "voice": "female", "role": "Kela clerk" },
+        "B": { "name": "Omar", "voice": "male", "role": "new resident" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Hei, miten voin auttaa?", "en": "Hi, how can I help?" },
+        { "who": "B", "fi": "Mä muutin just Suomeen. Miten mä haen Kela-korttii?", "en": "I just moved to Finland. How do I apply for a Kela card?" },
+        { "who": "A", "fi": "Ootko jo rekisteröityny väestötietoihin?", "en": "Have you already registered in the population records?" },
+        { "who": "B", "fi": "Joo, mul on suomalainen henkilötunnus.", "en": "Yeah, I have a Finnish personal identity code." },
+        { "who": "A", "fi": "Hyvä. Sit voit hakee Kelan etuuksii verkossa.", "en": "Good. Then you can apply for Kela's benefits online." },
+        { "who": "B", "fi": "Tarviinks mä jotain papereita?", "en": "Do I need some documents?" },
+        { "who": "A", "fi": "Passi ja työsopimus riittää alkuun.", "en": "A passport and a work contract are enough to start." },
+        { "who": "B", "fi": "Kauanks hakemuksen käsittely kestää?", "en": "How long does processing the application take?" },
+        { "who": "A", "fi": "Yleensä pari viikkoo. Saat päätöksen postiin.", "en": "Usually a couple of weeks. You'll get the decision by mail." },
+        { "who": "B", "fi": "Selvä. Kiitos avusta!", "en": "Alright. Thanks for the help!" },
+        { "who": "A", "fi": "Eipä kestä. Kysy rohkeesti lisää.", "en": "No problem. Feel free to ask more." }
+    ]
+}
