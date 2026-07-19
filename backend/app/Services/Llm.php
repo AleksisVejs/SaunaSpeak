@@ -146,13 +146,16 @@ class Llm
         }
 
         try {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}";
-            $response = Http::timeout(20)->post($url, $payload);
+            // Key in a header, not the URL query string: query strings get
+            // captured by access logs and proxy caches, headers don't.
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+            $request = Http::withHeaders(['x-goog-api-key' => $key])->timeout(20);
+            $response = $request->post($url, $payload);
 
             // Models that don't accept thinkingConfig reject the request; retry without it.
             if ($response->clientError()) {
                 unset($payload['generationConfig']['thinkingConfig']);
-                $response = Http::timeout(20)->post($url, $payload);
+                $response = $request->post($url, $payload);
             }
 
             if (! $response->successful()) {

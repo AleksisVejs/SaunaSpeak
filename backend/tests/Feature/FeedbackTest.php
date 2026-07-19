@@ -21,7 +21,7 @@ class FeedbackTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::create([
+        $this->admin = User::forceCreate([
             'name' => 'Boss', 'email' => 'boss@example.com',
             'password' => bcrypt('password'), 'is_admin' => true,
         ]);

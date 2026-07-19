@@ -25,7 +25,8 @@ class PromoteAdmin extends Command
             return self::FAILURE;
         }
 
-        $user->update(['is_admin' => ! $this->option('revoke')]);
+        // forceFill: is_admin is intentionally not mass-assignable (see User).
+        $user->forceFill(['is_admin' => ! $this->option('revoke')])->save();
         $this->info("{$user->email} is ".($user->is_admin ? 'now an admin.' : 'no longer an admin.'));
 
         return self::SUCCESS;

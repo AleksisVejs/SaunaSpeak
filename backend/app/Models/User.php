@@ -38,8 +38,10 @@ class User extends Authenticatable
         'stripe_customer_id',
         'stripe_subscription_id',
         'premium_until',
-        'is_admin',
-        'is_recorder',
+        // is_admin / is_recorder are deliberately NOT fillable: they're set
+        // only via artisan (user:promote, user:recorder) and the admin panel,
+        // all of which write them explicitly. Keeping them out of $fillable
+        // means no mass-assignment path can ever grant privilege by accident.
     ];
 
     /**

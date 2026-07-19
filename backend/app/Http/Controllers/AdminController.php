@@ -295,7 +295,8 @@ class AdminController extends Controller
     /** Toggle recording-studio access (same effect as `php artisan user:recorder`). */
     public function toggleRecorder(Request $request, User $user): JsonResponse
     {
-        $user->update(['is_recorder' => ! $user->is_recorder]);
+        // forceFill: is_recorder is intentionally not mass-assignable (see User).
+        $user->forceFill(['is_recorder' => ! $user->is_recorder])->save();
 
         return response()->json([
             'id' => $user->id,

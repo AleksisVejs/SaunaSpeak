@@ -130,8 +130,10 @@ class TtsController extends Controller
         }
 
         try {
-            $response = Http::timeout(15)->post(
-                "https://texttospeech.googleapis.com/v1/text:synthesize?key={$key}",
+            // Key travels in a header, never the URL: query strings leak into
+            // access logs and proxy caches, headers don't.
+            $response = Http::withHeaders(['X-Goog-Api-Key' => $key])->timeout(15)->post(
+                'https://texttospeech.googleapis.com/v1/text:synthesize',
                 [
                     'input' => ['text' => $text],
                     'voice' => [

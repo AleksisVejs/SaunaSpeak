@@ -276,7 +276,7 @@ class ElevenLabsAudioTest extends TestCase
         $this->fakeApi();
         $this->artisan('audio:eleven --only=sentences --limit=2')->assertSuccessful();
 
-        $recorder = User::create([
+        $recorder = User::forceCreate([
             'name' => 'Voice', 'email' => 'voice@example.com',
             'password' => bcrypt('password'), 'is_recorder' => true,
         ]);
@@ -297,7 +297,7 @@ class ElevenLabsAudioTest extends TestCase
         $this->fakeApi();
         $this->artisan('audio:eleven --only=sentences --limit=2')->assertSuccessful();
 
-        $recorder = User::create([
+        $recorder = User::forceCreate([
             'name' => 'Voice', 'email' => 'voice@example.com',
             'password' => bcrypt('password'), 'is_recorder' => true,
         ]);

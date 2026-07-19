@@ -38,11 +38,11 @@ class TransformAudioTest extends TestCase
         $this->seed(LessonSeeder::class);
         $this->seed(JsonLessonSeeder::class);
 
-        $this->recorder = User::create([
+        $this->recorder = User::forceCreate([
             'name' => 'Native Speaker', 'email' => 'voice@example.com',
             'password' => bcrypt('password'), 'is_recorder' => true,
         ]);
-        $this->admin = User::create([
+        $this->admin = User::forceCreate([
             'name' => 'Boss', 'email' => 'boss@example.com',
             'password' => bcrypt('password'), 'is_admin' => true,
         ]);

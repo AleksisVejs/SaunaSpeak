@@ -20,7 +20,7 @@ class AdminPremiumBadgeTest extends TestCase
     {
         config(['services.stripe.secret' => 'sk_test_x']);
 
-        $admin = User::create([
+        $admin = User::forceCreate([
             'name' => 'Boss', 'email' => 'boss@example.com',
             'password' => bcrypt('password'), 'is_admin' => true,
         ]);

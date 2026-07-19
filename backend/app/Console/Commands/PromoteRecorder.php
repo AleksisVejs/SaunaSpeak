@@ -26,7 +26,8 @@ class PromoteRecorder extends Command
             return self::FAILURE;
         }
 
-        $user->update(['is_recorder' => ! $this->option('revoke')]);
+        // forceFill: is_recorder is intentionally not mass-assignable (see User).
+        $user->forceFill(['is_recorder' => ! $this->option('revoke')])->save();
         $this->info("{$user->email} ".($user->is_recorder ? 'can now record at /record.' : 'no longer has recording rights.'));
 
         return self::SUCCESS;
