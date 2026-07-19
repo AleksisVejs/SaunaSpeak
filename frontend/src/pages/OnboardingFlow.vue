@@ -145,6 +145,7 @@ function finish() {
 <style scoped>
 .onb {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: max(24px, 6vh) 4px 28px;

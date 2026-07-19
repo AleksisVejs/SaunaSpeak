@@ -124,7 +124,14 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  min-height: 100dvh; /* dvh tracks the mobile toolbar so the page isn't taller than the visible viewport */
   -webkit-font-smoothing: antialiased;
+  /* Long Finnish compound words break instead of forcing a sideways scroll. */
+  overflow-wrap: break-word;
+  /* Safety net: clip (not hidden) so a stray wide element can't scroll the
+     whole page sideways, without creating a scroll container that would break
+     the desktop sidebar's position: sticky. */
+  overflow-x: clip;
   transition: background 0.25s var(--ease), color 0.25s var(--ease);
 }
 

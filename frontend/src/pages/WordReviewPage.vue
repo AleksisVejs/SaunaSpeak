@@ -116,7 +116,7 @@ function onKey(e) {
 </template>
 
 <style scoped>
-.review { min-height: 100vh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
+.review { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
 
 .review-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .quit { background: none; border: none; color: var(--text-dim); cursor: pointer; font-family: inherit; display: inline-flex; }

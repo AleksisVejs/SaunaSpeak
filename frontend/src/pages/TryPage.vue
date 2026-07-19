@@ -139,6 +139,7 @@ function next() {
 <style scoped>
 .try {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: max(20px, 5vh) 4px 28px;

@@ -277,7 +277,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.checkpoint { min-height: 100vh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
+.checkpoint { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; padding: max(16px, 3vh) 4px 24px; }
 
 .panel { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; }
 .big-icon { font-size: 56px; }

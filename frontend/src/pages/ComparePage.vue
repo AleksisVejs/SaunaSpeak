@@ -5,7 +5,13 @@
 // where they beat us (grammar depth, audio-only learning, price). The one
 // axis we own outright is puhekieli, so that's the framing of the page.
 
-const APPS = ['SaunaSpeak', 'Duolingo', 'Pimsleur', 'SuomiSpeak']
+// Icons echo the verdict cards below so the same app reads the same everywhere.
+const APPS = [
+  { name: 'SaunaSpeak', icon: '♨️' },
+  { name: 'Duolingo', icon: '🦉' },
+  { name: 'Pimsleur', icon: '🎧' },
+  { name: 'SuomiSpeak', icon: '📚' }
+]
 
 // rows[n].cells align with APPS; first cell (ours) gets the accent treatment.
 const ROWS = [
@@ -104,6 +110,7 @@ const VERDICTS = [
     </div>
 
     <div class="hero">
+      <span class="hero-glow" aria-hidden="true"></span>
       <h1>Finnish learning apps, compared <em>honestly</em></h1>
       <p class="muted lede">
         Yes, we make one of these apps - so instead of a ranked list where we
@@ -113,17 +120,25 @@ const VERDICTS = [
       </p>
     </div>
 
+    <p class="swipe-hint muted" aria-hidden="true">SaunaSpeak's column is shown first - swipe sideways to compare the others →</p>
     <div class="table-wrap card">
       <table>
+        <caption class="sr-only">Feature comparison of SaunaSpeak, Duolingo, Pimsleur and SuomiSpeak</caption>
         <thead>
           <tr>
             <th class="row-label" aria-label="Feature"></th>
-            <th v-for="(app, i) in APPS" :key="app" :class="{ ours: i === 0 }">{{ app }}</th>
+            <th v-for="(app, i) in APPS" :key="app.name" scope="col" :class="{ ours: i === 0 }">
+              <span v-if="i === 0" class="best-badge">★ Best for spoken Finnish</span>
+              <span class="app-head">
+                <span class="app-emoji" aria-hidden="true">{{ app.icon }}</span>
+                <span class="app-name">{{ app.name }}</span>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="row in ROWS" :key="row.label">
-            <th class="row-label">{{ row.label }}</th>
+            <th class="row-label" scope="row">{{ row.label }}</th>
             <td v-for="(cell, i) in row.cells" :key="i" :class="{ ours: i === 0 }">{{ cell }}</td>
           </tr>
         </tbody>
@@ -174,20 +189,66 @@ const VERDICTS = [
 .page-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
 .home-link { color: var(--text-dim); font-size: 14px; font-weight: 600; }
 
-.hero { text-align: center; margin-bottom: 28px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.hero { position: relative; text-align: center; margin-bottom: 28px; }
+/* soft löyly glow behind the title, echoing the landing hero */
+.hero-glow {
+  position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+  width: 320px; height: 200px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--accent-soft), transparent 72%);
+  pointer-events: none; z-index: 0;
+}
+.hero h1, .hero .lede { position: relative; z-index: 1; }
 .hero h1 { font-size: clamp(26px, 5vw, 34px); line-height: 1.2; }
 .hero h1 em { color: var(--accent); font-style: normal; }
 .lede { max-width: 560px; margin: 10px auto 0; font-size: 15.5px; line-height: 1.55; }
 
+/* Scroll affordance: the table scrolls sideways on phones, and the leftmost
+   column (SaunaSpeak) is already in view - this just tells narrow screens to swipe. */
+.swipe-hint { display: none; font-size: 12.5px; text-align: center; margin-bottom: 8px; }
+@media (max-width: 559px) { .swipe-hint { display: block; } }
+
 .table-wrap { overflow-x: auto; padding: 6px; }
-table { border-collapse: collapse; width: 100%; min-width: 640px; }
-th, td { padding: 10px 12px; font-size: 13.5px; line-height: 1.4; text-align: left; vertical-align: top; }
-thead th { font-size: 14px; font-weight: 800; border-bottom: 1px solid var(--border); }
-tbody tr + tr th, tbody tr + tr td { border-top: 1px solid var(--border); }
-.row-label { font-weight: 700; color: var(--text-dim); min-width: 140px; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 660px; }
+th, td { padding: 11px 13px; font-size: 13.5px; line-height: 1.4; text-align: left; vertical-align: top; }
+tbody th, tbody td { border-bottom: 1px solid var(--border); }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+
+/* sticky feature column: keeps the row label in view while the table scrolls
+   sideways on narrow screens. Solid card bg so cells don't bleed through. */
+.row-label {
+  position: sticky; left: 0; z-index: 2;
+  background: var(--card);
+  font-weight: 700; color: var(--text-dim); min-width: 148px;
+}
+thead .row-label { z-index: 3; }
 td { color: var(--text-dim); }
+
+/* header: emoji + name, badge stacked above ours */
+thead th { vertical-align: bottom; padding-bottom: 12px; }
+thead th:not(.ours) { border-bottom: 1px solid var(--border); }
+.app-head { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 800; }
+.app-emoji { font-size: 16px; line-height: 1; }
+.best-badge {
+  display: table; margin-bottom: 8px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--accent-contrast); background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  padding: 3px 8px; border-radius: var(--radius-pill); white-space: nowrap;
+}
+
+/* the SaunaSpeak column, framed as its own highlighted card */
 .ours { background: var(--accent-soft); color: var(--text); }
-thead .ours { color: var(--accent); }
+td.ours, th.ours {
+  border-left: 1.5px solid var(--accent);
+  border-right: 1.5px solid var(--accent);
+}
+thead th.ours { border-top: 1.5px solid var(--accent); border-top-left-radius: 12px; border-top-right-radius: 12px; }
+tbody tr:last-child td.ours { border-bottom: 1.5px solid var(--accent); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+thead th.ours .app-name { color: var(--accent); }
 
 .fine { text-align: center; font-size: 13px; line-height: 1.6; margin-top: 14px; }
 
@@ -195,8 +256,9 @@ thead .ours { color: var(--accent); }
 .verdicts h2, .why h2 { font-size: 20px; margin-bottom: 14px; }
 .verdict-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 560px) { .verdict-grid { grid-template-columns: 1fr 1fr; } }
-.verdict { display: flex; flex-direction: column; gap: 8px; }
-.verdict.ours { border-color: var(--accent); }
+.verdict { display: flex; flex-direction: column; gap: 8px; transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease); }
+.verdict:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.verdict.ours { border-color: var(--accent); background: var(--accent-soft); }
 .verdict-app { font-weight: 800; font-size: 15px; }
 .verdict-pick { font-size: 14px; line-height: 1.5; }
 .verdict-but { font-size: 13px; line-height: 1.5; }

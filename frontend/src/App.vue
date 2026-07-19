@@ -145,6 +145,7 @@ async function logout() {
 <style scoped>
 .app-shell {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .verify-banner {
@@ -284,6 +285,7 @@ async function logout() {
     position: sticky;
     top: 0;
     height: 100vh;
+    height: 100dvh;
     padding: var(--space-6) 0;
   }
   .sidebar-nav {
