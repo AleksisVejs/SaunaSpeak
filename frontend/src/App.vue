@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CircleCheck, Clock, Compass, Drama, LogOut, Mail, MessageCircle, Mic, Moon, Star, Sun } from 'lucide-vue-next'
 import api from './api'
-import LoylyIcon from './components/icons/LoylyIcon.vue'
+import AvatarIcon from './components/icons/AvatarIcon.vue'
 import { useAuthStore } from './stores/auth'
 import { useTheme } from './composables/useTheme'
 
@@ -65,7 +65,7 @@ const navItems = computed(() => [
   ...(auth.user?.is_recorder || auth.user?.is_admin
     ? [{ name: 'record', to: '/record', icon: Mic, label: 'Studio' }]
     : []),
-  { name: 'profile', to: '/profile', icon: LoylyIcon, label: 'Profile' }
+  { name: 'profile', to: '/profile', icon: AvatarIcon, iconProps: { name: auth.user?.name }, label: 'Profile' }
 ])
 
 async function logout() {
@@ -91,7 +91,7 @@ async function logout() {
           class="nav-link"
           :class="{ active: route.name === item.name }"
         >
-          <component :is="item.icon" class="nav-icon" aria-hidden="true" />
+          <component :is="item.icon" v-bind="item.iconProps" class="nav-icon" aria-hidden="true" />
           <span class="nav-label">{{ item.label }}</span>
         </router-link>
       </nav>
@@ -135,7 +135,7 @@ async function logout() {
         class="tab"
         :class="{ active: route.name === item.name }"
       >
-        <component :is="item.icon" class="tab-icon" aria-hidden="true" />
+        <component :is="item.icon" v-bind="item.iconProps" class="tab-icon" aria-hidden="true" />
         <span class="tab-label">{{ item.label }}</span>
       </router-link>
     </nav>
