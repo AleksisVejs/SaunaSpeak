@@ -215,7 +215,61 @@ async function sendFeedback() {
         </div>
       </header>
 
-      <!-- first-run: plain-language key to how the app works, dismissible -->
+      <!-- hero: the ONE action on this page. Land here, tap it, you're in the
+           session. The session preview hangs off the button as a closed drawer -
+           joined to it visually, so the button stays the focus but the details
+           are one tap away. -->
+      <div class="session-block">
+        <router-link to="/session" class="btn btn-primary btn-block session-btn">
+          <span class="session-label"><LoylyIcon class="session-ico" aria-hidden="true" /> Start Sauna Session</span>
+          <svg
+            class="goal-ring"
+            :class="{ met: goalMet }"
+            viewBox="0 0 24 24"
+            role="img"
+            :aria-label="`Today: ${todayDone} of ${goal} reviews done`"
+          >
+            <circle class="ring-track" cx="12" cy="12" r="10" />
+            <circle
+              class="ring-fill"
+              cx="12"
+              cy="12"
+              r="10"
+              :stroke-dasharray="RING_C"
+              :stroke-dashoffset="ringOffset"
+            />
+            <text v-if="goalMet" x="12" y="16.2" class="ring-check">✓</text>
+          </svg>
+        </router-link>
+
+        <!-- today's session preview: closed by default, joined to the button -->
+        <details class="plan-fold">
+          <summary class="plan-summary">
+            <span class="plan-summary-label">Today's session</span>
+            <span class="plan-summary-meta">
+              <span class="plan-summary-hint">{{ planSteps.length ? `${planSteps.length} steps` : 'All caught up' }}</span>
+              <svg class="fold-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </span>
+          </summary>
+          <div class="plan-body">
+            <ol v-if="planSteps.length" class="plan-steps">
+              <li v-for="(s, i) in planSteps" :key="i" class="plan-step">
+                <span class="plan-ico"><component :is="s.icon" aria-hidden="true" /></span>
+                <span class="plan-text"><b class="plan-kind">{{ s.kind }}</b><span class="plan-name">{{ s.title }}</span></span>
+              </li>
+            </ol>
+            <p v-else class="plan-empty muted">You're all caught up — nothing due right now. Tap Start for an extra round any time.</p>
+            <p class="plan-foot">
+              <template v-if="nextLesson">Next: <b>{{ nextLesson.title }}</b><span class="foot-dot">·</span></template>
+              <template v-if="dueCount">{{ dueCount }} ready to review<span class="foot-dot">·</span></template>
+              <span :class="{ 'foot-met': goalMet }">{{ todayDone }}/{{ goal }} done today{{ goalMet ? ' ✓' : '' }}</span>
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <!-- first-run key to the app, below the hero so the action comes first and
+           the explainer is there only if a newcomer wants it -->
       <div v-if="showIntro" class="card intro-card">
         <button class="intro-x" aria-label="Dismiss" @click="dismissIntro">×</button>
         <p class="intro-title">👋 New here? Here's the whole app in 20 seconds</p>
@@ -225,47 +279,6 @@ async function sendFeedback() {
           <li><b>Streak &amp; XP</b> reward showing up daily. <b>Levels A0 → B2</b> mark how far you've come — A0 is your first words, B2 is nearly fluent.</li>
         </ul>
         <button class="btn btn-primary intro-go" @click="dismissIntro">Got it — let's go</button>
-      </div>
-
-      <!-- hero: today's session, with today's goal on the button -->
-      <router-link to="/session" class="btn btn-primary btn-block session-btn">
-        <span class="session-label"><LoylyIcon class="session-ico" aria-hidden="true" /> Start Sauna Session</span>
-        <svg
-          class="goal-ring"
-          :class="{ met: goalMet }"
-          viewBox="0 0 24 24"
-          role="img"
-          :aria-label="`Today: ${todayDone} of ${goal} reviews done`"
-        >
-          <circle class="ring-track" cx="12" cy="12" r="10" />
-          <circle
-            class="ring-fill"
-            cx="12"
-            cy="12"
-            r="10"
-            :stroke-dasharray="RING_C"
-            :stroke-dashoffset="ringOffset"
-          />
-          <text v-if="goalMet" x="12" y="16.2" class="ring-check">✓</text>
-        </svg>
-      </router-link>
-      <!-- today's session: the ONE place for session context - the four-skill
-           lineup plus what's due and today's progress, in plain words. Replaces
-           the old jargon hint line so there aren't three widgets saying it. -->
-      <div class="card plan-card">
-        <p class="plan-title">Today's session</p>
-        <ol v-if="planSteps.length" class="plan-steps">
-          <li v-for="(s, i) in planSteps" :key="i" class="plan-step">
-            <span class="plan-ico"><component :is="s.icon" aria-hidden="true" /></span>
-            <span class="plan-text"><b class="plan-kind">{{ s.kind }}</b><span class="plan-name">{{ s.title }}</span></span>
-          </li>
-        </ol>
-        <p v-else class="plan-empty muted">You're all caught up — nothing due right now. Tap Start for an extra round any time.</p>
-        <p class="plan-foot">
-          <template v-if="nextLesson">Next: <b>{{ nextLesson.title }}</b><span class="foot-dot">·</span></template>
-          <template v-if="dueCount">{{ dueCount }} ready to review<span class="foot-dot">·</span></template>
-          <span :class="{ 'foot-met': goalMet }">{{ todayDone }}/{{ goal }} done today{{ goalMet ? ' ✓' : '' }}</span>
-        </p>
       </div>
 
       <!-- a recently broken streak can be relit for XP -->
@@ -285,81 +298,92 @@ async function sendFeedback() {
         </button>
       </div>
 
-      <!-- rank: one slim strip instead of a full card -->
-      <div class="card rank-strip" :title="`${rank.title} — sauna rank grows with XP`">
-        <component :is="rank.icon" class="rank-icon" aria-hidden="true" />
-        <div class="rank-mid">
-          <div class="rank-row">
-            <span class="rank-title">{{ rank.title }}</span>
-            <span class="rank-next muted">
-              <template v-if="rank.next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</template>
-              <template v-else>legenda!</template>
-            </span>
+      <!-- progress details, folded away by default so the landing view stays
+           calm - the essentials (XP, streak) already live in the header chips.
+           Native <details>, so it's open/close with no extra state. -->
+      <details v-if="showWeek || (auth.user?.xp ?? 0) > 0" class="progress-fold">
+        <summary class="progress-summary">
+          <span>Your progress</span>
+          <svg class="fold-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </summary>
+        <div class="progress-body">
+          <!-- rank: one slim strip instead of a full card -->
+          <div class="card rank-strip" :title="`${rank.title} — sauna rank grows with XP`">
+            <component :is="rank.icon" class="rank-icon" aria-hidden="true" />
+            <div class="rank-mid">
+              <div class="rank-row">
+                <span class="rank-title">{{ rank.title }}</span>
+                <span class="rank-next muted">
+                  <template v-if="rank.next">{{ rank.next.xp - (auth.user?.xp ?? 0) }} XP to {{ rank.next.title }}</template>
+                  <template v-else>legenda!</template>
+                </span>
+              </div>
+              <div class="progress-track slim">
+                <div class="progress-fill" :style="{ width: rank.pct + '%' }"></div>
+              </div>
+            </div>
           </div>
-          <div class="progress-track slim">
-            <div class="progress-fill" :style="{ width: rank.pct + '%' }"></div>
+
+          <!-- your week: practice behind you, reviews ahead of you -->
+          <div v-if="showWeek" class="card week">
+            <template v-if="hasActivity">
+              <div class="week-head">
+                <p class="week-title">
+                  <svg class="week-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 13l4 4L20 6" />
+                  </svg>
+                  Past 7 days
+                </p>
+              </div>
+              <div class="week-days">
+                <div
+                  v-for="d in weekDays"
+                  :key="d.date"
+                  class="wday"
+                  :class="{ done: d.count > 0, today: d.isToday }"
+                  role="img"
+                  :aria-label="`${d.label}: ${d.count} reviews`"
+                  :title="`${d.label}: ${d.count} reviews`"
+                >
+                  <span class="wday-dot">{{ d.count > 0 ? '✓' : '·' }}</span>
+                  <span class="wday-label">{{ d.label }}</span>
+                </div>
+              </div>
+              <div v-if="hasSchedule" class="week-divider"></div>
+            </template>
+
+            <template v-if="hasSchedule">
+              <div class="schedule-head">
+                <p class="schedule-title">
+                  <svg class="schedule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3.5 2" />
+                  </svg>
+                  Review schedule
+                </p>
+                <span class="schedule-sub muted">next 7 days</span>
+              </div>
+              <div class="schedule-days">
+                <div
+                  v-for="d in schedule"
+                  :key="d.key"
+                  class="sday"
+                  :class="{ today: d.label === 'Now', empty: !d.count }"
+                  role="img"
+                  :aria-label="`${d.label}: ${d.count} reviews due`"
+                >
+                  <span class="sday-count">{{ d.count || '·' }}</span>
+                  <div class="sday-track"><div class="sday-fill" :style="{ height: d.pct + '%' }"></div></div>
+                  <span class="sday-label">{{ d.label }}</span>
+                </div>
+              </div>
+              <p class="schedule-why muted">
+                Each sentence returns right before you'd forget it - that timing is what makes it stick.
+              </p>
+            </template>
           </div>
         </div>
-      </div>
-
-      <!-- your week: practice behind you, reviews ahead of you -->
-      <div v-if="showWeek" class="card week">
-        <template v-if="hasActivity">
-          <div class="week-head">
-            <p class="week-title">
-              <svg class="week-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-                <path d="M4 13l4 4L20 6" />
-              </svg>
-              Past 7 days
-            </p>
-          </div>
-          <div class="week-days">
-            <div
-              v-for="d in weekDays"
-              :key="d.date"
-              class="wday"
-              :class="{ done: d.count > 0, today: d.isToday }"
-              role="img"
-              :aria-label="`${d.label}: ${d.count} reviews`"
-              :title="`${d.label}: ${d.count} reviews`"
-            >
-              <span class="wday-dot">{{ d.count > 0 ? '✓' : '·' }}</span>
-              <span class="wday-label">{{ d.label }}</span>
-            </div>
-          </div>
-          <div v-if="hasSchedule" class="week-divider"></div>
-        </template>
-
-        <template v-if="hasSchedule">
-          <div class="schedule-head">
-            <p class="schedule-title">
-              <svg class="schedule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3.5 2" />
-              </svg>
-              Review schedule
-            </p>
-            <span class="schedule-sub muted">next 7 days</span>
-          </div>
-          <div class="schedule-days">
-            <div
-              v-for="d in schedule"
-              :key="d.key"
-              class="sday"
-              :class="{ today: d.label === 'Now', empty: !d.count }"
-              role="img"
-              :aria-label="`${d.label}: ${d.count} reviews due`"
-            >
-              <span class="sday-count">{{ d.count || '·' }}</span>
-              <div class="sday-track"><div class="sday-fill" :style="{ height: d.pct + '%' }"></div></div>
-              <span class="sday-label">{{ d.label }}</span>
-            </div>
-          </div>
-          <p class="schedule-why muted">
-            Each sentence returns right before you'd forget it - that timing is what makes it stick.
-          </p>
-        </template>
-      </div>
+      </details>
 
       <!-- the path: the curriculum map, above the optional extras so a newcomer
            sees what they're learning and how far it goes before the buffet. -->
@@ -506,6 +530,7 @@ async function sendFeedback() {
 .freeze-ico { width: 11px; height: 11px; }
 
 /* ---- hero ---- */
+.session-block { margin-bottom: 14px; }
 .session-btn {
   position: relative;
   font-size: 18px;
@@ -513,6 +538,10 @@ async function sendFeedback() {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 0;
+  /* square off the bottom so the session drawer joins seamlessly below */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .session-label { display: inline-flex; align-items: center; gap: 8px; }
 .session-ico { width: 19px; height: 19px; flex-shrink: 0; }
@@ -568,16 +597,40 @@ async function sendFeedback() {
 .intro-list b { color: var(--text); }
 .intro-go { font-size: 14px; }
 
-/* ---- today's woven session preview ---- */
-.plan-card { padding: 12px 14px; margin-bottom: 14px; }
-.plan-title {
+/* ---- today's session: a closed drawer joined to the hero button ---- */
+.plan-fold {
+  /* borders on three sides only - the top edge is the button, so they read as
+     one connected unit. Square top corners, rounded bottom to close the shape. */
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--card);
+}
+.plan-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  transition: background 0.15s ease;
+}
+.plan-summary::-webkit-details-marker { display: none; }
+.plan-summary:hover { background: var(--card-hover); }
+.plan-fold[open] .plan-summary { border-radius: 0; }
+.plan-summary-label {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-dim);
-  margin-bottom: 10px;
 }
+.plan-summary-meta { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.plan-summary-hint { font-size: 12.5px; font-weight: 700; color: var(--text-dim); }
+.plan-fold[open] .fold-chevron { transform: rotate(180deg); }
+.plan-body { padding: 12px 14px; border-top: 1px solid var(--border); }
 .plan-steps { display: flex; flex-direction: column; gap: 2px; list-style: none; }
 .plan-step { display: flex; align-items: center; gap: 11px; padding: 6px 0; position: relative; }
 /* a thin connector so it reads as a sequence, not a list */
@@ -654,6 +707,31 @@ async function sendFeedback() {
 .rank-title { font-weight: 800; font-size: 14px; }
 .rank-next { font-size: 12px; white-space: nowrap; }
 .progress-track.slim { height: 6px; }
+
+/* ---- progress fold: secondary stats, tucked away so the default view is calm ---- */
+.progress-fold { margin-bottom: 14px; }
+.progress-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 0.15s ease;
+}
+.progress-summary::-webkit-details-marker { display: none; }
+.progress-summary:hover { border-color: var(--accent); }
+.progress-fold[open] .progress-summary { border-color: var(--accent); margin-bottom: 14px; }
+.fold-chevron { width: 16px; height: 16px; color: var(--text-dim); flex-shrink: 0; transition: transform 0.2s ease; }
+.progress-fold[open] .fold-chevron { transform: rotate(180deg); }
+.progress-body > .card:last-child { margin-bottom: 0; }
 
 /* ---- week card ---- */
 .week { margin-bottom: 14px; }
