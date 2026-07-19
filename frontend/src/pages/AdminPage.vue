@@ -31,8 +31,32 @@ const page = ref(1)
 const loading = ref(true)
 const denied = ref(false)
 const busy = ref({}) // user id → toggling
+const exporting = ref(false) // false | true | 'error'
 
 onMounted(load)
+
+/**
+ * Pull the full snapshot and save it as a file. Built client-side from the
+ * JSON response rather than linking straight at /api/admin/export, because
+ * a plain <a href> carries no Authorization header and would just 401.
+ */
+async function downloadExport() {
+  exporting.value = true
+  try {
+    const { data } = await api.get('/admin/export')
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    )
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `saunaspeak-snapshot-${data.meta?.today ?? 'export'}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    exporting.value = false
+  } catch {
+    exporting.value = 'error'
+  }
+}
 
 async function load() {
   loading.value = true
@@ -454,6 +478,13 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
       <!-- ============================== PULSE ============================== -->
       <template v-if="tab === 'pulse'">
         <template v-if="stats">
+          <div class="export-row">
+            <button class="btn btn-ghost btn-sm" :disabled="exporting" @click="downloadExport">
+              {{ exporting === 'error' ? 'Export failed - retry' : exporting ? 'Preparing…' : 'Download data snapshot (JSON)' }}
+            </button>
+            <span class="export-hint">Everything on this panel, unpaginated. No names or emails.</span>
+          </div>
+
           <h3 class="group-label">Learners</h3>
           <div class="stat-grid five">
             <div class="card stat"><span class="v">{{ stats.users_total }}</span><span class="l">users</span></div>
@@ -867,6 +898,11 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .stat .l { font-size: 10px; color: var(--text-dim); text-align: center; }
 .stat.accent .v { color: var(--accent); }
 .stat .sub { font-size: 9px; color: var(--text-dim); text-align: center; margin-top: 2px; opacity: .75; }
+
+/* ---- data snapshot export ---- */
+.export-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.export-hint { font-size: 11px; color: var(--text-dim); }
 
 /* ---- 30-day trend strips ---- */
 .trend-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }

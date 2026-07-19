@@ -251,6 +251,116 @@ class AdminController extends Controller
         return response()->json(['cohorts' => $cohorts]);
     }
 
+    /**
+     * GET /api/admin/export - the whole panel as one unpaginated JSON
+     * snapshot, for offline analysis. Deliberately excludes names and email
+     * addresses: nothing in the analysis needs them, and the file is meant
+     * to be handed around. Users are identified by their panel id, so a row
+     * worth chasing can still be looked up in the Users tab.
+     *
+     * Carries its own caveats in `notes` so the file can be read months
+     * later, or by someone who wasn't here, without repeating our mistakes.
+     */
+    public function export(): JsonResponse
+    {
+        $now = now();
+
+        // Per-user activity, aggregated in three queries rather than per row.
+        $reviewStats = ReviewLog::selectRaw('user_id, count(*) as total, min(created_at) as first_at, max(created_at) as last_at')
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+        $reviewDays = ReviewLog::get(['user_id', 'created_at'])
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->map(fn ($r) => $r->created_at->toDateString())->unique()->count());
+        $chatStats = ChatDay::selectRaw('user_id, count(*) as days, sum(messages) as messages, min(date) as first_date')
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $users = User::orderBy('id')
+            ->get(['id', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until',
+                'stripe_subscription_id', 'stripe_status', 'is_admin', 'is_recorder', 'created_at'])
+            ->map(function (User $u) use ($reviewStats, $reviewDays, $chatStats) {
+                $reviews = $reviewStats->get($u->id);
+                $chat = $chatStats->get($u->id);
+                $firstReview = $reviews?->first_at ? Carbon::parse($reviews->first_at) : null;
+                $firstChat = $chat?->first_date ? Carbon::parse($chat->first_date) : null;
+                $firstSeen = collect([$firstReview, $firstChat])->filter()->min();
+
+                return [
+                    'id' => $u->id,
+                    'created_at' => $u->created_at?->toIso8601String(),
+                    'signup_week' => $u->created_at?->copy()->startOfWeek()->toDateString(),
+                    'verified' => $u->email_verified_at !== null,
+                    'verified_at' => $u->email_verified_at?->toIso8601String(),
+                    // The headline question: did this account ever do anything?
+                    'activated' => $firstSeen !== null,
+                    'first_activity_at' => $firstSeen?->toIso8601String(),
+                    // Null when never activated; 0 means same-day as signup.
+                    'days_to_first_activity' => $firstSeen && $u->created_at
+                        ? $u->created_at->copy()->startOfDay()->diffInDays($firstSeen->copy()->startOfDay())
+                        : null,
+                    'last_active_date' => $u->last_active_date?->toDateString(),
+                    'reviews_total' => (int) ($reviews->total ?? 0),
+                    'review_days' => (int) ($reviewDays[$u->id] ?? 0),
+                    'chat_days' => (int) ($chat->days ?? 0),
+                    'chat_messages' => (int) ($chat->messages ?? 0),
+                    'xp' => $u->xp,
+                    'streak' => $u->streak,
+                    'premium_source' => $this->premiumSource($u),
+                    'premium_until' => $u->premium_until?->toIso8601String(),
+                    // Staff and test accounts - exclude these before drawing
+                    // conclusions about real learners.
+                    'is_admin' => (bool) $u->is_admin,
+                    'is_recorder' => (bool) $u->is_recorder,
+                ];
+            });
+
+        return response()->json([
+            'meta' => [
+                'generated_at' => $now->toIso8601String(),
+                'timezone' => config('app.timezone'),
+                'today' => today()->toDateString(),
+                'week_started' => today()->startOfWeek()->toDateString(),
+                'schema_version' => 1,
+            ],
+            'notes' => [
+                'identity' => 'Names and emails are deliberately omitted. `id` matches the Users tab.',
+                'partial_week' => 'The current week is incomplete. In `retention.cohorts`, the last entry of every `active` array covers only '.(today()->dayOfWeekIso).' of 7 days, so it always understates. Compare finished weeks only.',
+                'grace' => 'premium_count and premium_source use User::isPremium()\'s 2-day renewal grace, so a subscriber mid-renewal still counts as premium.',
+                'legacy_status' => 'stripe_status was added 2026-07-20. Subscribers from before that have a null status and are reported as paying until their next webhook.',
+                'analytics_gap' => 'Umami register events undercount signups (adblockers, in-app browsers, privacy tooling). This DB export is ground truth; do not compute activation from Umami denominators.',
+                'activity_streams' => 'activated = ever logged a review or a chat day. These are the only two per-day streams the app records; reading a lesson without reviewing leaves no trace.',
+            ],
+            'stats' => $this->stats()->getData(true),
+            'trends' => $this->trends()->getData(true),
+            'retention' => $this->retention()->getData(true),
+            'users' => $users,
+        ]);
+    }
+
+    /**
+     * Where a user's Löyly+ came from - the export's revenue ground truth.
+     *
+     * Deliberately does NOT call isPremium(): that returns true for everyone
+     * while billing is unconfigured (the paywall-off switch), which would
+     * report every account as comped on any instance without Stripe keys.
+     * Mirrors the same date window the premium_* counts use instead, so the
+     * export and the Pulse tiles can never disagree.
+     */
+    private function premiumSource(User $user): string
+    {
+        if ($user->premium_until === null || $user->premium_until->copy()->addDays(2)->isPast()) {
+            return 'none';
+        }
+        if ($user->stripe_subscription_id === null) {
+            return 'comped';
+        }
+
+        return $user->stripe_status === 'trialing' ? 'trial' : 'paying';
+    }
+
     public function users(Request $request): JsonResponse
     {
         $data = $request->validate([
