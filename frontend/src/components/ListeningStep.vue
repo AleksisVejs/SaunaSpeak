@@ -8,7 +8,7 @@
 // session. The learner can continue whenever they like - listening isn't a
 // test to pass.
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { ArrowRight, Eye, EyeOff, Headphones, Pause, Play, Turtle } from 'lucide-vue-next'
+import { ArrowRight, Eye, EyeOff, Headphones, Languages, Pause, Play, Turtle } from 'lucide-vue-next'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
@@ -28,6 +28,7 @@ const loading = ref(true)
 const playing = ref(false)
 const current = ref(-1)
 const showAllFi = ref(false)
+const showAllEn = ref(false)
 const heardOnce = ref(false)
 const completed = ref(false)
 let runToken = 0
@@ -136,6 +137,10 @@ async function finishStep() {
             <component :is="showAllFi ? EyeOff : Eye" class="ctl-ico" aria-hidden="true" />
             {{ showAllFi ? 'Hide text' : 'Show text' }}
           </button>
+          <button class="btn btn-ghost ctl-btn" @click="showAllEn = !showAllEn">
+            <Languages class="ctl-ico" aria-hidden="true" />
+            {{ showAllEn ? 'Hide English' : 'English' }}
+          </button>
         </div>
 
         <div class="thread">
@@ -154,6 +159,7 @@ async function finishStep() {
             >
               <p v-if="showAllFi" class="line-fi">{{ line.fi }}</p>
               <p v-else class="line-hidden muted">· · ·</p>
+              <p v-if="showAllEn" class="line-en muted">{{ line.en }}</p>
             </button>
           </div>
         </div>
@@ -212,6 +218,7 @@ async function finishStep() {
 .row.right .bubble { border-bottom-right-radius: 6px; background: var(--accent-soft); border-color: rgba(245, 158, 11, 0.28); }
 .bubble.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 .line-fi { font-weight: 700; font-size: 15px; line-height: 1.4; }
+.line-en { font-size: 12.5px; margin-top: 3px; line-height: 1.4; }
 .line-hidden { font-size: 15px; letter-spacing: 3px; }
 
 .continue-btn { margin-top: auto; display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
