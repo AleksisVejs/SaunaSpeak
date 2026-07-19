@@ -735,10 +735,11 @@ async function sendFeedback() {
 .quick-head .muted { font-size: 12px; text-align: right; }
 .quick-row {
   display: grid;
-  /* equal columns for however many tiles render (the mistakes tile is
-     conditional), instead of a hardcoded 3 */
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  /* Wrapping grid: tiles hold a comfortable min width and flow onto a second
+     row rather than being crushed into one line. auto-fill keeps every tile
+     the same width regardless of how many render (the mistakes tile is
+     conditional) - on a phone that's 3 per row, on desktop all in one. */
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -819,4 +820,28 @@ async function sendFeedback() {
   margin-bottom: 16px;
 }
 .journey-head h3 { font-size: 18px; }
+
+/* ---- small phones ---- */
+@media (max-width: 380px) {
+  /* greeting + chips: let the chips wrap under the greeting cleanly and keep
+     the heading from crowding them off the edge */
+  .greeting { font-size: 21px; }
+  .chips { flex-wrap: wrap; }
+
+  /* hero button: trim so the label + goal ring never collide on a narrow row */
+  .session-btn { font-size: 16.5px; padding: 16px 46px 16px 14px; }
+
+  /* the two 7-across strips are the tightest thing on the page - shrink the
+     gap so the day cells keep a usable width down to ~320px */
+  .week-days,
+  .schedule-days { gap: 5px; }
+  .wday-dot { width: 24px; height: 24px; }
+
+  /* section headings + their trailing note can collide when both are long;
+     let them stack instead of squeezing onto one baseline */
+  .quick-head,
+  .journey-head { flex-wrap: wrap; gap: 2px 10px; }
+  .quick-head .muted,
+  .journey-head .muted { text-align: left; }
+}
 </style>
