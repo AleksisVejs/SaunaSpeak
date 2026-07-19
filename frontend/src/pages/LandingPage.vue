@@ -160,8 +160,9 @@ onBeforeUnmount(() => faqLd?.remove())
       </div>
       <h1>Learn the Finnish <em>Finns actually speak</em></h1>
       <p class="lede">
-        Spoken Finnish (puhekieli) in short daily sauna sessions - audio-first,
-        scheduled by spaced repetition, spoken out loud from the first lesson.
+        Short daily sauna sessions built on puhekieli - the spoken Finnish Finns
+        really use - so you can follow what people say and be understood back.
+        Audio-first, out loud from the very first lesson.
       </p>
       <div class="cta-row">
         <router-link to="/try" class="btn btn-primary cta"><Flame class="btn-ico" aria-hidden="true" /> Try it - no account</router-link>
@@ -180,6 +181,17 @@ onBeforeUnmount(() => faqLd?.remove())
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div v-if="nativeCount" class="stat-item"><b><Mic class="stat-ico" aria-hidden="true" /> {{ nativeCount }}</b><span>voiced by a native Finn</span></div>
       <div class="stat-item"><b>€0</b><span>free forever</span></div>
+    </section>
+
+    <!-- honest positioning up front: no "fluent in 3 weeks" promise. The humility
+         is the differentiator - every rival over-promises, so this builds trust. -->
+    <section class="honest">
+      <p>
+        <strong>No app makes you fluent on its own</strong> - real conversations,
+        listening and time do that. What SaunaSpeak does is get you ready for them:
+        the everyday spoken Finnish most courses skip, so you understand people and
+        they understand you.
+      </p>
     </section>
 
     <section class="contrast">
@@ -471,6 +483,16 @@ onBeforeUnmount(() => faqLd?.remove())
   text-transform: uppercase;
   color: var(--text-dim);
 }
+
+/* ---- honest positioning strip ---- */
+.honest p {
+  max-width: 560px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.honest strong { color: var(--text); font-weight: 800; }
 
 /* ---- session mock ---- */
 .mock {

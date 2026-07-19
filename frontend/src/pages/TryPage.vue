@@ -28,6 +28,9 @@ const samples = [
 // same sentences (human takes once approved). Failure changes nothing - the
 // committed files keep the page fully self-contained.
 onMounted(async () => {
+  // Funnel entry - the marketing plan's activation funnel is Visitors ->
+  // try_start -> try_complete -> register (no-op in dev; script is domain-locked).
+  window.umami?.track('try_start')
   try {
     const { data } = await api.get('/public/try-audio', {
       params: { texts: samples.map((s) => s.fi) }
@@ -60,6 +63,8 @@ function reveal() {
 function next() {
   if (isLast.value) {
     done.value = true
+    // Reached the finish screen - the mid-funnel step between try_start and register.
+    window.umami?.track('try_complete')
   } else {
     index.value++
     revealed.value = false
@@ -114,11 +119,14 @@ function next() {
       <div class="finish">
         <img class="finish-icon" src="/vaino-wave.png" alt="Väinö waving hello" />
         <h1>That's spoken Finnish.</h1>
+        <p class="finish-affirm">
+          You just understood {{ samples.length }} sentences of the Finnish textbooks
+          skip - the everyday Finnish people actually say to you.
+        </p>
         <p class="finish-text">
-          SaunaSpeak brings each sentence back at the right moment - listen, fill the gap,
-          then say it from memory - so it actually sticks. The lessons run from your first
-          words to real everyday conversations - and the path keeps growing. It's free.
-          Already know some Finnish? Placement tests let you skip ahead.
+          From here, each sentence comes back right when you'd forget it - listen, fill
+          the gap, say it from memory - all the way to real conversations. Free, and a
+          placement test skips you ahead if you already know some.
         </p>
         <router-link to="/register" class="btn btn-primary btn-block">Create free account</router-link>
         <router-link to="/login" class="btn btn-ghost btn-block login-link">I already have an account</router-link>
@@ -174,7 +182,8 @@ function next() {
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; }
 .finish-icon { width: 110px; height: 110px; margin: 0 auto; }
 .finish h1 { font-size: 28px; }
-.finish-text { color: var(--text-dim); font-size: 16px; line-height: 1.6; margin-bottom: 8px; }
+.finish-affirm { font-size: 16.5px; font-weight: 700; color: var(--text); line-height: 1.55; }
+.finish-text { color: var(--text-dim); font-size: 14.5px; line-height: 1.6; margin-bottom: 8px; }
 .login-link { margin-top: 4px; }
 .home-below { color: var(--text-dim); font-size: 13.5px; font-weight: 600; margin-top: 6px; }
 </style>
