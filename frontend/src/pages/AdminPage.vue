@@ -468,7 +468,12 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
             <div class="card stat"><span class="v">{{ stats.reviews_today }}</span><span class="l">reviews today</span></div>
             <div class="card stat"><span class="v">{{ stats.reviews_7d }}</span><span class="l">reviews · 7d</span></div>
             <div class="card stat"><span class="v">{{ stats.sentences_mastered_total }}</span><span class="l">mastered</span></div>
-            <div class="card stat accent"><span class="v">{{ stats.premium_count }}</span><span class="l">Löyly+</span></div>
+            <!-- Paying is the headline: comps and trials are not revenue. -->
+            <div class="card stat accent">
+              <span class="v">{{ stats.premium_paying }}</span>
+              <span class="l">Löyly+ paying</span>
+              <span class="sub">{{ stats.premium_trialing }} trial · {{ stats.premium_comped }} comped</span>
+            </div>
           </div>
         </template>
 
@@ -861,6 +866,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .stat .v { font-size: 20px; font-weight: 800; }
 .stat .l { font-size: 10px; color: var(--text-dim); text-align: center; }
 .stat.accent .v { color: var(--accent); }
+.stat .sub { font-size: 9px; color: var(--text-dim); text-align: center; margin-top: 2px; opacity: .75; }
 
 /* ---- 30-day trend strips ---- */
 .trend-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }

@@ -33,6 +33,10 @@ class AdminController extends Controller
         $wordsHuman = count(array_filter($manifest, fn ($url) => str_starts_with((string) $url, '/audio/human/')));
         $phrases = Transforms::ownPhrases();
 
+        // One definition of "has Löyly+ right now", reused by the four counts
+        // below so the breakdown always sums to the headline number.
+        $premium = User::where('premium_until', '>', $now->copy()->subDays(2));
+
         return response()->json([
             'users_total' => User::count(),
             'users_new_7d' => User::where('created_at', '>=', $now->copy()->subDays(7))->count(),
@@ -42,7 +46,19 @@ class AdminController extends Controller
             'users_verified' => User::whereNotNull('email_verified_at')->count(),
             // Mirrors User::isPremium()'s 2-day renewal grace so this count
             // always matches the Löyly+ badges in the users list below.
-            'premium_count' => User::where('premium_until', '>', $now->copy()->subDays(2))->count(),
+            'premium_count' => $premium->clone()->count(),
+            // ...and the same total split by where the access came from, so a
+            // handful of comps and trials never reads as revenue. No Stripe
+            // subscription means it was granted by hand (togglePremium below).
+            'premium_paying' => $premium->clone()
+                ->whereNotNull('stripe_subscription_id')
+                ->where(fn ($q) => $q->where('stripe_status', '!=', 'trialing')->orWhereNull('stripe_status'))
+                ->count(),
+            'premium_trialing' => $premium->clone()
+                ->whereNotNull('stripe_subscription_id')
+                ->where('stripe_status', 'trialing')
+                ->count(),
+            'premium_comped' => $premium->clone()->whereNull('stripe_subscription_id')->count(),
             'reviews_today' => ReviewLog::whereDate('created_at', today())->count(),
             'reviews_7d' => ReviewLog::where('created_at', '>=', $now->copy()->subDays(7))->count(),
             'sentences_mastered_total' => UserProgress::where('status', UserProgress::STATUS_MASTERED)->count(),

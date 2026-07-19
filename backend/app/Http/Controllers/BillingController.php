@@ -281,6 +281,10 @@ class BillingController extends Controller
         $periodEnd = $this->periodEnd($subscription);
         $status = $subscription['status'] ?? '';
 
+        // Recorded on every event so the admin panel can separate real revenue
+        // from trials; access itself still keys off premium_until alone.
+        $user->update(['stripe_status' => $status ?: null]);
+
         if (in_array($status, ['active', 'trialing'], true) && $periodEnd) {
             // Store the true period end; the renewal-processing grace window
             // lives in User::isPremium() so displayed dates stay honest.

@@ -47,4 +47,71 @@ class AdminPremiumBadgeTest extends TestCase
         $this->assertFalse($byEmail['free@example.com']['is_premium']);
         $this->assertFalse($byEmail['boss@example.com']['is_premium']);
     }
+
+    /**
+     * Comps and trials must not read as revenue: only a live, non-trialing
+     * Stripe subscription counts as paying, and the three buckets have to
+     * add back up to the headline premium_count.
+     */
+    public function test_premium_stat_splits_paying_from_trial_and_comp(): void
+    {
+        $admin = User::forceCreate([
+            'name' => 'Boss', 'email' => 'boss@example.com',
+            'password' => bcrypt('password'), 'is_admin' => true,
+        ]);
+        User::create([
+            'name' => 'Payer', 'email' => 'payer@example.com',
+            'password' => bcrypt('password'), 'premium_until' => now()->addDays(30),
+            'stripe_subscription_id' => 'sub_paid', 'stripe_status' => 'active',
+        ]);
+        User::create([
+            'name' => 'Trialist', 'email' => 'trial@example.com',
+            'password' => bcrypt('password'), 'premium_until' => now()->addDays(3),
+            'stripe_subscription_id' => 'sub_trial', 'stripe_status' => 'trialing',
+        ]);
+        // Comped by hand from the admin panel: no Stripe subscription at all.
+        User::create([
+            'name' => 'Friend', 'email' => 'friend@example.com',
+            'password' => bcrypt('password'), 'premium_until' => now()->addDays(30),
+        ]);
+        // Lapsed well past the renewal grace - outside every bucket.
+        User::create([
+            'name' => 'Lapsed', 'email' => 'lapsed@example.com',
+            'password' => bcrypt('password'), 'premium_until' => now()->subDays(10),
+            'stripe_subscription_id' => 'sub_old', 'stripe_status' => 'canceled',
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $this->getJson('/api/admin/stats')
+            ->assertJsonPath('premium_count', 3)
+            ->assertJsonPath('premium_paying', 1)
+            ->assertJsonPath('premium_trialing', 1)
+            ->assertJsonPath('premium_comped', 1);
+    }
+
+    /**
+     * Subscribers who predate the stripe_status column have a NULL status.
+     * They are counted as paying, not silently dropped from every bucket.
+     */
+    public function test_legacy_subscriber_without_status_counts_as_paying(): void
+    {
+        $admin = User::forceCreate([
+            'name' => 'Boss', 'email' => 'boss@example.com',
+            'password' => bcrypt('password'), 'is_admin' => true,
+        ]);
+        User::create([
+            'name' => 'Legacy', 'email' => 'legacy@example.com',
+            'password' => bcrypt('password'), 'premium_until' => now()->addDays(30),
+            'stripe_subscription_id' => 'sub_legacy',
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $this->getJson('/api/admin/stats')
+            ->assertJsonPath('premium_count', 1)
+            ->assertJsonPath('premium_paying', 1)
+            ->assertJsonPath('premium_trialing', 0)
+            ->assertJsonPath('premium_comped', 0);
+    }
 }

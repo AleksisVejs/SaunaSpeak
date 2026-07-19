@@ -37,6 +37,7 @@ class User extends Authenticatable
         'review_emails',
         'stripe_customer_id',
         'stripe_subscription_id',
+        'stripe_status',
         'premium_until',
         // is_admin / is_recorder are deliberately NOT fillable: they're set
         // only via artisan (user:promote, user:recorder) and the admin panel,
