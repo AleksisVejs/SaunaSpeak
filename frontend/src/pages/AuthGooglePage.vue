@@ -2,7 +2,9 @@
 // Landing spot for the Google OAuth callback: the backend redirects here
 // with the Sanctum token in the URL fragment (#token=...&new=0|1). The
 // fragment never reaches any server or log - this page moves it into
-// localStorage and gets out of the way.
+// localStorage and gets out of the way. An inline script in index.html
+// strips the fragment (and stashes it in sessionStorage) before analytics
+// loads, so the token never lands in Umami - we read the stash here first.
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
@@ -12,7 +14,11 @@ const auth = useAuthStore()
 const failed = ref(false)
 
 onMounted(async () => {
-  const params = new URLSearchParams(window.location.hash.slice(1))
+  // Prefer the sessionStorage stash set by index.html; fall back to the live
+  // fragment in case that inline script didn't run (e.g. a stale cached shell).
+  const stash = sessionStorage.getItem('oauth_hash')
+  sessionStorage.removeItem('oauth_hash')
+  const params = new URLSearchParams(stash ?? window.location.hash.slice(1))
   const token = params.get('token')
   const isNew = params.get('new') === '1'
 

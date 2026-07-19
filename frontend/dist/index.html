@@ -91,6 +91,19 @@
     <meta name="twitter:description" content="Learn the Finnish Finns actually speak. Short daily speaking sessions, spaced repetition, puhekieli first." />
     <meta name="twitter:image" content="https://saunaspeak.com/og-image.png" />
 
+    <!-- Strip the Google OAuth token out of the URL before the deferred Umami
+         script below records the pageview - otherwise the token lands in
+         analytics (and shows up as a unique "page"). This runs synchronously
+         during parsing, ahead of any deferred script. The token never leaves
+         the client: it moves to sessionStorage, and AuthGooglePage reads it
+         from there. -->
+    <script>
+      if (location.pathname === '/auth/google' && location.hash) {
+        try { sessionStorage.setItem('oauth_hash', location.hash.slice(1)) } catch (e) { /* private mode */ }
+        history.replaceState(null, '', location.pathname + location.search)
+      }
+    </script>
+
     <!-- Umami analytics: cookieless + GDPR-friendly (no consent banner needed).
          data-domains keeps localhost/dev traffic out of the stats; SPA route
          changes are auto-tracked. Custom events fire via window.umami?.track(). -->
@@ -100,7 +113,7 @@
       data-website-id="07db80cb-c075-4295-a69b-66172af04cd6"
       data-domains="saunaspeak.com"
     ></script>
-    <script type="module" crossorigin src="/assets/index-BKXB0Qzg.js"></script>
+    <script type="module" crossorigin src="/assets/index-sh9ocY2J.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DqOkCTp8.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
