@@ -146,6 +146,10 @@ class AuthController extends Controller
         $data = $request->validate([
             'preferences' => ['required', 'array'],
             'timezone' => ['sometimes', 'nullable', 'string', 'max:64'],
+            // Whether to seed the coarse level placement now. The intake defers
+            // it (false) until the learner picks between the placement test and
+            // starting fresh; other savers leave it at the default (true).
+            'apply_placement' => ['sometimes', 'boolean'],
         ]);
         $data['timezone'] = $this->sanitizeTimezone($data['timezone'] ?? null);
 
@@ -162,7 +166,9 @@ class AuthController extends Controller
         }
 
         $user->update($updates);
-        $this->applyPlacement($user, $data['preferences']['level'] ?? null);
+        if ($request->boolean('apply_placement', true)) {
+            $this->applyPlacement($user, $data['preferences']['level'] ?? null);
+        }
 
         return response()->json(['preferences' => $user->fresh()->preferences]);
     }
@@ -170,16 +176,20 @@ class AuthController extends Controller
     /**
      * Intake placement: a learner who says they already know "a few words"
      * (or is brushing up) shouldn't grind through "Moi! Mä oon Anna" one card
-     * at a time. Skip 1-2 starter lessons by seeding them as light reviews -
-     * due within days, so the skipped material still gets checked, just not
-     * taught from scratch. Only ever runs on a blank account: placement must
-     * never overwrite real progress.
+     * at a time. Skip the first 2-4 starter lessons by seeding them as light
+     * reviews - due over the coming days, so the skipped material still gets
+     * checked, just not taught from scratch, and fresh material starts further
+     * along the path. Only ever runs on a blank account: placement must never
+     * overwrite real progress.
      */
     private function applyPlacement(User $user, ?string $level): void
     {
+        // How much of the intro to skip. "A few words" clears the survival
+        // openers; "brushing up" skips the whole A0 block so a returning
+        // learner starts fresh material at A1, not "Moi! Mä oon Anna".
         $skipLessons = match ($level) {
-            'some' => 1,
-            'rusty' => 2,
+            'some' => 2,
+            'rusty' => 4,
             default => 0,
         };
 
@@ -193,10 +203,14 @@ class AuthController extends Controller
             ->orderBy('sentences.id')
             ->get(['sentences.id']);
 
+        // Trickle the skipped block back as reviews at roughly the learner's
+        // own daily pace (from the intake), starting day 2 - so a deeper skip
+        // never lands as one review lump, and a "2 min a day" learner isn't
+        // buried under a placement they didn't ask to cram.
+        $perDay = max(4, min(8, (int) ($user->preferences['dailyGoal'] ?? 6)));
+
         foreach ($sentences->values() as $i => $sentence) {
-            // Stagger due dates over days 2-5 so the skipped block doesn't
-            // land as one review lump on top of the first new lessons.
-            $due = 2 + ($i % 4);
+            $due = 2 + intdiv($i, $perDay);
             $user->progress()->create([
                 'sentence_id' => $sentence->id,
                 'status' => UserProgress::STATUS_REVIEW,

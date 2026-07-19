@@ -2,20 +2,37 @@
 // Level checkpoint: a short, low-stakes cumulative recall quiz. The framing
 // matters - taking the test IS practice (testing effect), so failing is
 // explicitly fine and retakes are always open.
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+//
+// Intake placement (?intake=1): straight after onboarding, non-beginners are
+// offered this as a test-out ladder - pass A1 and it offers A2, then B1, B2,
+// each pass unlocking the path and skipping that level's fresh material. The
+// chain carries ?go=1 so only the first step shows the offer. Declining (or
+// not placing out of the first level) falls back to the coarse seed placement.
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Brain, Check, Eye, Rocket, Volume2, X } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
+import { usePrefs } from '../composables/usePrefs'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const { playSentence } = useFinnishAudio()
+const { seedPlacement } = usePrefs()
 
-const level = String(route.params.level || 'A0').toUpperCase()
+// The test-out ladder for intake placement. A0 survival basics are the seeded
+// floor, so the ladder starts at A1; only levels the curriculum actually has.
+const INTAKE_LADDER = ['A1', 'A2', 'B1', 'B2']
+
+const level = computed(() => String(route.params.level || 'A0').toUpperCase())
+const intake = computed(() => route.query.intake === '1')
+const nextPlacementLevel = computed(() => {
+  const i = INTAKE_LADDER.indexOf(level.value)
+  return i >= 0 && i < INTAKE_LADDER.length - 1 ? INTAKE_LADDER[i + 1] : null
+})
 
 const loading = ref(true)
 const ready = ref(false)
@@ -32,15 +49,20 @@ const finished = ref(false)
 const passed = ref(false)
 const xpGained = ref(0)
 const submitting = ref(false)
+// Intake only: the offer (take the check vs. start fresh) gates the first step;
+// chained steps auto-start via ?go=1.
+const accepted = ref(false)
+const showOffer = computed(() => intake.value && !accepted.value && !finished.value)
 
 const current = computed(() => sentences.value[index.value] || null)
 const total = computed(() => sentences.value.length)
 const progressPct = computed(() => (total.value ? Math.round((index.value / total.value) * 100) : 0))
 const scorePct = computed(() => (total.value ? Math.round((correct.value / total.value) * 100) : 0))
 
-onMounted(async () => {
+async function load() {
+  loading.value = true
   try {
-    const { data } = await api.get(`/checkpoint/${level}`)
+    const { data } = await api.get(`/checkpoint/${level.value}`)
     ready.value = data.ready
     if (data.ready) {
       placement.value = !!data.placement
@@ -52,10 +74,50 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-  window.addEventListener('keydown', onKey)
-})
+}
 
-onUnmounted(() => window.removeEventListener('keydown', onKey))
+// (Re)start for the current route - reset the quiz, then either wait on the
+// offer (the first intake step) or load straight into the quiz.
+function start() {
+  ready.value = false
+  sentences.value = []
+  index.value = 0
+  revealed.value = false
+  correct.value = 0
+  finished.value = false
+  passed.value = false
+  xpGained.value = 0
+  submitting.value = false
+  accepted.value = !intake.value || route.query.go === '1'
+  if (accepted.value) {
+    load()
+  } else {
+    loading.value = false
+  }
+}
+
+function accept() {
+  accepted.value = true
+  load()
+}
+
+// Decline / didn't test out: apply the coarse seed so they still get the head
+// start their self-reported level earns, then into the app.
+async function startFresh() {
+  await seedPlacement()
+  router.push('/dashboard')
+}
+
+function continueChain() {
+  router.push({ name: 'checkpoint', params: { level: nextPlacementLevel.value }, query: { intake: '1', go: '1' } })
+}
+
+// End the intake chain. Placed out of nothing (failed or quit the very first
+// level) → fall back to the seed; a pass anywhere means they're already placed.
+function finishIntake() {
+  if (!passed.value && level.value === INTAKE_LADDER[0]) return startFresh()
+  router.push('/dashboard')
+}
 
 async function reveal() {
   if (revealed.value) return
@@ -70,7 +132,7 @@ async function mark(got) {
   if (index.value + 1 >= total.value) {
     submitting.value = true
     try {
-      const { data } = await api.post(`/checkpoint/${level}`, {
+      const { data } = await api.post(`/checkpoint/${level.value}`, {
         correct: correct.value,
         total: total.value
       })
@@ -91,7 +153,7 @@ async function mark(got) {
 }
 
 function onKey(e) {
-  if (finished.value || !ready.value) return
+  if (finished.value || !ready.value || showOffer.value) return
   if (e.code === 'Space') {
     e.preventDefault()
     reveal()
@@ -100,6 +162,16 @@ function onKey(e) {
     else if (e.key === '2') mark(true)
   }
 }
+
+// Chaining to the next level reuses this component (same route name), so react
+// to the param/query change as well as the initial mount.
+watch(() => route.fullPath, start)
+
+onMounted(() => {
+  start()
+  window.addEventListener('keydown', onKey)
+})
+onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
@@ -107,7 +179,7 @@ function onKey(e) {
     <div v-if="loading" class="spinner"></div>
 
     <!-- Not enough studied material yet -->
-    <div v-else-if="!ready" class="panel">
+    <div v-else-if="!ready && !showOffer" class="panel">
       <img class="big-icon vaino" src="/vaino-oops.png" alt="Väinö shrugging" />
       <h1>Not quite yet</h1>
       <p class="muted">
@@ -137,13 +209,41 @@ function onKey(e) {
             ? `Not this time - you need 80% to place out of ${level}. Its lessons will get you there fast, and you can retake this any time.`
             : 'No pressure - every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.') }}
       </p>
-      <router-link to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
+      <!-- Intake placement: pass → offer the next rung; fail/last → into the app -->
+      <template v-if="intake">
+        <button v-if="passed && nextPlacementLevel" class="btn btn-primary btn-block loyly-cta" @click="continueChain">
+          <Rocket class="cta-ico" aria-hidden="true" /> Try {{ nextPlacementLevel }} next
+        </button>
+        <button
+          class="btn btn-block"
+          :class="passed && nextPlacementLevel ? 'btn-ghost' : 'btn-primary'"
+          @click="finishIntake"
+        >
+          {{ passed ? 'Start learning' : `Start at ${level}` }}
+        </button>
+      </template>
+      <router-link v-else to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
+    </div>
+
+    <!-- Intake placement offer: test out of levels already known, or start fresh -->
+    <div v-else-if="showOffer" class="panel">
+      <img class="big-icon vaino" src="/vaino-flex.png" alt="Väinö flexing encouragement" />
+      <h1>Know some already?</h1>
+      <p class="muted">
+        Take a quick check and skip straight past the levels you already know -
+        each one you pass unlocks the path and earns a badge. Or start from the
+        very beginning, no pressure.
+      </p>
+      <button class="btn btn-primary btn-block loyly-cta" @click="accept">
+        <Rocket class="cta-ico" aria-hidden="true" /> Take the quick check
+      </button>
+      <button class="btn btn-ghost btn-block" @click="startFresh">Start from the beginning</button>
     </div>
 
     <!-- Active quiz -->
     <div v-else class="quiz">
       <div class="quiz-top">
-        <button class="quit" @click="router.push('/dashboard')" aria-label="Quit"><X class="quit-ico" aria-hidden="true" /></button>
+        <button class="quit" @click="intake ? finishIntake() : router.push('/dashboard')" aria-label="Quit"><X class="quit-ico" aria-hidden="true" /></button>
         <div class="progress-track"><div class="progress-fill" :style="{ width: progressPct + '%' }"></div></div>
         <span class="counter">{{ index + 1 }}/{{ total }}</span>
       </div>

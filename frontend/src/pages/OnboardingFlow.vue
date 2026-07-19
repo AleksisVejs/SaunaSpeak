@@ -79,15 +79,26 @@ function back() {
 }
 
 function finish() {
-  savePrefs({
-    goal: answers.value.goal,
-    level: answers.value.level,
-    minutes: answers.value.minutes
-  })
+  const beginner = answers.value.level === 'none'
+  // Defer the coarse seed placement: for non-beginners it's the fallback if
+  // they skip the test, applied later by the placement flow. (For beginners
+  // it's a no-op anyway - nothing to skip.)
+  savePrefs(
+    {
+      goal: answers.value.goal,
+      level: answers.value.level,
+      minutes: answers.value.minutes
+    },
+    { placement: false }
+  )
   // Beginners go straight into the first session - earn value immediately.
-  // Learners with prior Finnish land on the path, where every level's
-  // checkpoint doubles as a placement test ("test out and skip ahead").
-  router.push({ name: answers.value.level === 'none' ? 'session' : 'dashboard' })
+  // Everyone else is offered a placement check that tests them out of levels
+  // they already know, starting at A1 (A0 survival basics are the seeded floor).
+  if (beginner) {
+    router.push({ name: 'session' })
+  } else {
+    router.push({ name: 'checkpoint', params: { level: 'A1' }, query: { intake: '1' } })
+  }
 }
 </script>
 

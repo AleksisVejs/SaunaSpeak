@@ -20,7 +20,10 @@ function load() {
 const prefs = ref(load())
 
 export function usePrefs() {
-  function savePrefs(patch) {
+  // `placement` gates the backend's coarse level-seeding. The intake passes
+  // false to defer it - the placement test is the accurate placement, and the
+  // seed is only applied (via seedPlacement) if the learner skips the test.
+  function savePrefs(patch, { placement = true } = {}) {
     const next = { ...prefs.value, ...patch }
     if (patch.minutes != null) next.dailyGoal = GOAL_BY_MINUTES[patch.minutes] ?? 6
     prefs.value = next
@@ -29,8 +32,17 @@ export function usePrefs() {
 
     // Mirror to the server (fire-and-forget) so prefs survive device switches.
     if (localStorage.getItem('token')) {
-      api.post('/preferences', { preferences: next }).catch(() => {})
+      api.post('/preferences', { preferences: next, apply_placement: placement }).catch(() => {})
     }
+  }
+
+  // Apply the coarse level placement now - used when a learner declines the
+  // intake placement test (or doesn't test out of the first level), so they
+  // still get the head start their self-reported level earns. No-ops on the
+  // server for a blank level or an account that already has progress.
+  function seedPlacement() {
+    if (!localStorage.getItem('token')) return Promise.resolve()
+    return api.post('/preferences', { preferences: prefs.value, apply_placement: true }).catch(() => {})
   }
 
   // New device, existing account: adopt the server copy when local is empty.
@@ -58,5 +70,5 @@ export function usePrefs() {
   // Global audio playback speed (0.5x–2x, default 1x), set in the profile.
   const audioRate = () => Math.min(2, Math.max(0.5, prefs.value.audioRate ?? 1))
 
-  return { prefs, savePrefs, adoptServerPrefs, hasOnboarded, clearPrefs, dailyGoal, audioRate }
+  return { prefs, savePrefs, seedPlacement, adoptServerPrefs, hasOnboarded, clearPrefs, dailyGoal, audioRate }
 }

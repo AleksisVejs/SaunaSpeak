@@ -11,7 +11,17 @@ import api from '../api'
 
 const auth = useAuthStore()
 const { installPrompt, install } = usePwaInstall()
-const { dailyGoal } = usePrefs()
+const { dailyGoal, prefs } = usePrefs()
+
+// The greeting subtitle reflects the "why" picked at intake, so the goal a
+// learner chose is echoed back every day - not buried on the Situations page.
+const GOAL_SUBTITLES = {
+  move: 'Finnish for your life in Finland',
+  travel: 'Finnish for your visits to Finland',
+  family: 'Finnish to connect with family & friends',
+  casual: 'Exploring spoken Finnish, one sauna at a time'
+}
+const greetingSub = computed(() => GOAL_SUBTITLES[prefs.value.goal] ?? 'Learning everyday spoken Finnish')
 
 const lessons = ref([])
 const loading = ref(true)
@@ -190,7 +200,7 @@ async function sendFeedback() {
       <header class="top">
         <div class="greet-block">
           <h2 class="greeting">Hei, {{ auth.user?.name }}!</h2>
-          <p class="greeting-sub muted">Learning everyday spoken Finnish</p>
+          <p class="greeting-sub muted">{{ greetingSub }}</p>
         </div>
         <div class="chips">
           <span class="chip" title="XP — points earned from every completed exercise" aria-label="Experience points">
@@ -212,7 +222,7 @@ async function sendFeedback() {
         <ul class="intro-list">
           <li><b>One Sauna Session a day.</b> Each one mixes a few sentences with a real conversation to hear, a grammar drill, and a bit of speaking.</li>
           <li><b>Sentences come back over time.</b> "Ready to review" means one is due again — seeing it right before you'd forget is what makes it stick.</li>
-          <li><b>Streak &amp; XP</b> reward showing up daily. <b>Levels A1 → B2</b> mark how far you've come — A1 is your first words, B2 is nearly fluent.</li>
+          <li><b>Streak &amp; XP</b> reward showing up daily. <b>Levels A0 → B2</b> mark how far you've come — A0 is your first words, B2 is nearly fluent.</li>
         </ul>
         <button class="btn btn-primary intro-go" @click="dismissIntro">Got it — let's go</button>
       </div>
