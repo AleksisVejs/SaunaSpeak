@@ -767,6 +767,8 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                 <span v-if="u.is_recorder" class="tag recorder-tag">recorder</span>
                 <span v-if="u.is_premium" class="tag premium-tag">Löyly+</span>
                 <span v-if="!u.email_verified_at" class="tag unverified-tag">unverified</span>
+                <!-- Defaults on, so this only shows when someone opted out. -->
+                <span v-if="!u.review_emails" class="tag nomail-tag">no email</span>
               </p>
               <p class="u-email muted">{{ u.email }}</p>
             </div>
@@ -1182,6 +1184,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .recorder-tag { background: var(--green-soft); color: var(--green); }
 .premium-tag { background: var(--accent-soft); color: var(--accent); }
 .unverified-tag { background: var(--red-soft, rgba(239,68,68,0.12)); color: var(--red); }
+.nomail-tag { background: var(--red-soft, rgba(239,68,68,0.12)); color: var(--red); }
 .u-stats { display: flex; gap: 10px; font-size: 12px; white-space: nowrap; flex-wrap: wrap; }
 .u-actions { display: flex; gap: 6px; }
 .comp {

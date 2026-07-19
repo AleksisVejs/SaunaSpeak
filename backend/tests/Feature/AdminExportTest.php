@@ -126,6 +126,31 @@ class AdminExportTest extends TestCase
         $this->assertSame('none', $rows[$free->id]['premium_source']);
     }
 
+    /**
+     * Mail opt-out has to be visible somewhere before anyone sends a manual
+     * blast: it defaults to true, so a false is a deliberate "don't email me".
+     */
+    public function test_export_and_user_list_expose_mail_opt_out(): void
+    {
+        $optedOut = User::create([
+            'name' => 'Quiet', 'email' => 'quiet@example.com',
+            'password' => bcrypt('password'), 'review_emails' => false,
+        ]);
+        $default = User::create([
+            'name' => 'Default', 'email' => 'default@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        Sanctum::actingAs($this->admin());
+
+        $rows = collect($this->getJson('/api/admin/export')->assertOk()->json('users'))->keyBy('id');
+        $this->assertFalse($rows[$optedOut->id]['review_emails']);
+        $this->assertTrue($rows[$default->id]['review_emails'], 'opt-in is the default');
+
+        $listed = collect($this->getJson('/api/admin/users')->assertOk()->json('data'))->keyBy('id');
+        $this->assertFalse($listed[$optedOut->id]['review_emails']);
+    }
+
     public function test_export_is_admin_only(): void
     {
         $plain = User::create([

@@ -280,7 +280,7 @@ class AdminController extends Controller
 
         $users = User::orderBy('id')
             ->get(['id', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until',
-                'stripe_subscription_id', 'stripe_status', 'is_admin', 'is_recorder', 'created_at'])
+                'stripe_subscription_id', 'stripe_status', 'review_emails', 'is_admin', 'is_recorder', 'created_at'])
             ->map(function (User $u) use ($reviewStats, $reviewDays, $chatStats) {
                 $reviews = $reviewStats->get($u->id);
                 $chat = $chatStats->get($u->id);
@@ -310,6 +310,9 @@ class AdminController extends Controller
                     'streak' => $u->streak,
                     'premium_source' => $this->premiumSource($u),
                     'premium_until' => $u->premium_until?->toIso8601String(),
+                    // Opted out of mail. Defaults true, so false means the
+                    // learner actively turned it off - do not email them.
+                    'review_emails' => (bool) $u->review_emails,
                     // Staff and test accounts - exclude these before drawing
                     // conclusions about real learners.
                     'is_admin' => (bool) $u->is_admin,
@@ -376,7 +379,7 @@ class AdminController extends Controller
             })
             ->orderByDesc('last_active_date')
             ->orderByDesc('id')
-            ->paginate(25, ['id', 'name', 'email', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until', 'is_admin', 'is_recorder', 'created_at']);
+            ->paginate(25, ['id', 'name', 'email', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until', 'review_emails', 'is_admin', 'is_recorder', 'created_at']);
 
         // Statement body on purpose: an arrow-fn assignment returns the
         // assigned value, and each() aborts on the first false.
