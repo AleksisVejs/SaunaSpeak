@@ -181,6 +181,7 @@ const VERDICTS = [
     </section>
 
     <p class="muted fine links">
+      <router-link to="/puhekieli-vs-kirjakieli">Puhekieli vs kirjakieli, explained</router-link> ·
       <router-link to="/lessons">Browse the lessons</router-link> ·
       <router-link to="/pricing">Pricing</router-link> ·
       <router-link to="/register">Create a free account</router-link>

@@ -53,8 +53,9 @@ onMounted(async () => {
     <div class="hero">
       <h1>Spoken Finnish lessons, <em>free to read</em></h1>
       <p class="muted lede">
-        Every lesson in the SaunaSpeak path - real puhekieli with the written
-        Finnish (kirjakieli) next to it, word-by-word explanations and audio.
+        Every lesson in the SaunaSpeak path - yleispuhekieli, the spoken
+        Finnish understood everywhere, with the written form (kirjakieli)
+        next to it, word-by-word explanations and audio.
         Browse freely; a free account adds daily sessions and spaced repetition.
       </p>
     </div>

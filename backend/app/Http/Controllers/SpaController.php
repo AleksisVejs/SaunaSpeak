@@ -49,6 +49,10 @@ class SpaController extends Controller
             'Best apps to learn Finnish, compared honestly (2026) - SaunaSpeak',
             'SaunaSpeak vs Duolingo vs Pimsleur vs SuomiSpeak - an honest comparison of Finnish learning apps: spoken Finnish (puhekieli), free tiers, AI practice, grammar depth and price.',
         ],
+        '/puhekieli-vs-kirjakieli' => [
+            'Puhekieli vs kirjakieli vs yleispuhekieli - spoken Finnish explained - SaunaSpeak',
+            'The three registers of Finnish, explained: kirjakieli (the written standard), puhekieli (spoken - and not one single thing) and yleispuhekieli (the common spoken register worth learning first). What Finns actually say, and which words you should recognise but not repeat.',
+        ],
         '/privacy' => [
             'Privacy policy - SaunaSpeak',
             'What SaunaSpeak stores, why, and your rights over your data.',

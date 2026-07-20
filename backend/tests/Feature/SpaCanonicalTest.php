@@ -64,6 +64,15 @@ class SpaCanonicalTest extends TestCase
         $res->assertDontSee('Default shell description.', false);
     }
 
+    public function test_the_registers_explainer_is_served_with_its_own_meta(): void
+    {
+        $res = $this->get('/puhekieli-vs-kirjakieli');
+
+        $res->assertSee('yleispuhekieli', false);
+        $res->assertSee('<link rel="canonical" href="https://saunaspeak.com/puhekieli-vs-kirjakieli" />', false);
+        $res->assertDontSee('Default shell description.', false);
+    }
+
     public function test_app_routes_keep_the_shell_tags_but_still_self_canonicalise(): void
     {
         $res = $this->get('/dashboard');

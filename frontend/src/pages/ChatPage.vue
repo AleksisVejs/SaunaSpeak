@@ -342,7 +342,7 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
         </p>
 
         <ul class="locked-perks">
-          <li><MessageCircle class="lp-icon" aria-hidden="true" /><span>Real puhekieli, kept at your level</span></li>
+          <li><MessageCircle class="lp-icon" aria-hidden="true" /><span>Real yleispuhekieli, kept at your level</span></li>
           <li><Brain class="lp-icon" aria-hidden="true" /><span>Gentle corrections that explain the why</span></li>
           <li><Drama class="lp-icon" aria-hidden="true" /><span>Situations: real-life missions like buying groceries</span></li>
         </ul>
