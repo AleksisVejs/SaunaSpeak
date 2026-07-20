@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Sentence;
 use App\Services\ElevenLabs;
 use App\Support\Listening;
+use App\Support\MinimalPairs;
 use App\Support\Transforms;
 use App\Support\Tts;
 use Illuminate\Console\Command;
@@ -29,7 +30,7 @@ use Illuminate\Support\Str;
 class GenerateElevenAudio extends Command
 {
     protected $signature = 'audio:eleven
-        {--only= : comma-separated: sentences,words,listening,transforms (default: all)}
+        {--only= : comma-separated: sentences,words,listening,transforms,pairs (default: all)}
         {--limit= : stop after this many clips}
         {--max-chars= : stop before spending more than this many characters}
         {--dry-run : report what it would cost and generate nothing}
@@ -37,7 +38,7 @@ class GenerateElevenAudio extends Command
 
     protected $description = 'Voice the course with ElevenLabs, as far as the credits go (mixes with edge-tts)';
 
-    private const KINDS = ['sentences', 'words', 'listening', 'transforms'];
+    private const KINDS = ['sentences', 'words', 'listening', 'transforms', 'pairs'];
 
     public function handle(): int
     {
@@ -244,6 +245,20 @@ class GenerateElevenAudio extends Command
                     'text' => $phrase['text'],
                     'voice_id' => $male,
                     'file' => "{$dir}/{$phrase['base']}.mp3",
+                ];
+            }
+        }
+
+        // Kuulo vowel drills. Worth ElevenLabs credits ahead of most things:
+        // every other clip survives a slightly-off rendering, but a drill that
+        // asks "y or u?" is worthless if the voice doesn't separate them.
+        if (in_array('pairs', $kinds, true) && $male !== null) {
+            foreach (MinimalPairs::words() as $word) {
+                $jobs[] = [
+                    'kind' => 'pair',
+                    'text' => $word,
+                    'voice_id' => $male,
+                    'file' => "{$dir}/pairs/".MinimalPairs::wordBase($word).'.mp3',
                 ];
             }
         }
