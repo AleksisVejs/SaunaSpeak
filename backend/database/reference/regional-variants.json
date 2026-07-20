@@ -16,7 +16,7 @@
         { "form": "ratikka", "attestation": "strong", "notes": "Most commonly reported across the whole sample, including by Helsinki and Turku speakers." },
         { "form": "spora", "attestation": "strong", "etymology": "Swedish spårvagn", "notes": "Sometimes written spåra. Associated with Helsinki, but attested from Tampere and rejected by long-term Helsinki residents. Not a reliable regional marker." },
         { "form": "raitsikka", "attestation": "moderate", "notes": "Reported as older or deliberately ornate; one speaker's grandmother uses it 'to flourish her words'. A Turku speaker called it too many syllables." },
-        { "form": "skuru", "attestation": "weak", "notes": "Oldest Helsinki slang form. One current self-reported user in the sample; otherwise described as historical." }
+        { "form": "skuru", "attestation": "moderate", "notes": "Oldest Helsinki slang form, and repeatedly described as historical - but two current self-reported users in the sample. One switched TO skuru from spora after moving from the eastern suburbs to Kallio in the late 1990s, which is the clearest single illustration of the _finding: a few kilometres changed the word, in the direction of the older form." }
       ]
     },
     {
@@ -42,7 +42,7 @@
       "standard": null,
       "standard_note": "Standard form not established from the thread - check before publishing.",
       "variants": [
-        { "form": "rotvalli", "attestation": "moderate", "etymology": "French trottoir via Swedish trottoar", "notes": "Tampere. Reported as not really used elsewhere." }
+        { "form": "rotvalli", "attestation": "moderate", "etymology": "French trottoir via Swedish trottoar", "notes": "Tampere. Reported as not really used elsewhere. Same root survives in Oulu as Rotuaari, the proper name of the central pedestrian street - so the loan landed as a common noun in one city and a place name in another." }
       ]
     },
     {
@@ -73,6 +73,21 @@
       ]
     }
   ],
+
+  "social_risk": {
+    "_note": "A different and higher-value category than the variants above. These are not words that mark you as foreign if you get them wrong - they are words where misreading the intent lands you somewhere socially wrong. A learner who knows the dictionary meaning is MORE exposed here, not less, because the surface reading is the trap. Worth teaching ahead of vocabulary variants.",
+    "items": [
+      {
+        "form": "erinomainen",
+        "spoken": "ernomane",
+        "dictionary_meaning": "excellent, outstanding",
+        "actual_use": "Not a compliment. Reported for older speakers and parts of Southwestern Finland. 'Oot sääki kans ernomane' lands closer to 'aren't you a piece of work'.",
+        "attestation": "moderate",
+        "source": "r/Finland 2026-07-20, single native source with regional and generational scoping",
+        "risk": "A learner reads it as praise and misses that they are being needled. Verify scope before teaching - the source scoped it carefully, which is a good sign, but it is one source."
+      }
+    ]
+  },
 
   "universal_reductions": {
     "_note": "These are the defensible teachable core. Unlike vocabulary above, the reduction happens everywhere - only its exact shape varies. No native in any of the three threads disputed this.",
