@@ -160,6 +160,10 @@ const schedule = computed(() => {
 })
 
 const hasSchedule = computed(() => schedule.value.some((d) => d.count > 0))
+
+// Tomorrow's stake, surfaced OUTSIDE the fold: the schedule is the SRS's
+// loss-aversion engine, and hidden in a <details> nobody churning ever saw it.
+const tomorrowDue = computed(() => schedule.value[1]?.count ?? 0)
 const showWeek = computed(() => hasActivity.value || hasSchedule.value)
 
 // Feedback box: the private channel to the maker. Collapsed to one line
@@ -270,6 +274,10 @@ async function sendFeedback() {
             </p>
           </div>
         </details>
+
+        <p v-if="tomorrowDue" class="due-tomorrow muted">
+          {{ tomorrowDue }} sentence{{ tomorrowDue > 1 ? 's' : '' }} come{{ tomorrowDue > 1 ? '' : 's' }} due tomorrow — reviewed on time, they stick for weeks.
+        </p>
       </div>
 
       <!-- first-run key to the app, below the hero so the action comes first and
@@ -705,6 +713,13 @@ async function sendFeedback() {
 .plan-kind { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); }
 .plan-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .plan-empty { font-size: 13px; line-height: 1.5; padding: 2px 0 4px; }
+.due-tomorrow {
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
 .plan-foot {
   margin-top: 10px;
   padding-top: 10px;

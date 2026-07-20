@@ -13,12 +13,22 @@ const { playSentence } = useFinnishAudio()
 // order), so the demo voice is exactly the voice inside the app. On mount we
 // ask the backend for each sentence's CURRENT audio - once a human recording
 // is approved, the demo plays the human voice too (see tryAudio upgrade below).
+// Five cards, not seven: attention decays fast in a passive tap-through, and
+// the demo's job is momentum, not coverage. Card 3 flips passive to active -
+// an ear test, because catching spoken-vs-textbook BY EAR is the product's
+// entire thesis in one interaction.
 const samples = [
   { fi: 'Moi! Mä oon Anna.', book: 'Hei! Minä olen Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
   { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
-  { fi: 'Otetaanks kahvit?', book: 'Otetaanko kahvit?', en: 'Shall we grab a coffee?', note: '“-ks” turns a statement into a casual question.', audio: '/audio/try-3.mp3' },
-  { fi: 'Mitä kuuluu?', book: null, en: 'How are you?', note: 'Literally “what is heard?” - the everyday how-are-you.', audio: '/audio/sentence-4.mp3' },
-  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.', audio: '/audio/sentence-10.mp3' },
+  {
+    kind: 'pick',
+    fi: 'Emmä tiiä.',
+    book: 'En minä tiedä.',
+    en: "I don't know.",
+    note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.',
+    audio: '/audio/sentence-10.mp3',
+    options: ['En minä tiedä.', 'Emmä tiiä.']
+  },
   { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' },
   // A taste from further down the path - slang the textbooks never touch.
   { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'From further down the same course - “överiks” is Helsinki slang, borrowed from Swedish “över”. The path keeps going into Finnish the textbooks never touch.', audio: '/audio/sentence-369.mp3' }
@@ -45,11 +55,15 @@ onMounted(async () => {
 
 const index = ref(0)
 const revealed = ref(false)
+// The ear-test card: which option the visitor tapped (null = not yet).
+const picked = ref(null)
 
 const current = computed(() => samples[index.value])
 // True once the upgrade above swapped in an approved human recording.
 const nativeAudio = computed(() => !!current.value.audio?.startsWith('/audio/human/'))
 const isLast = computed(() => index.value === samples.length - 1)
+const isPick = computed(() => current.value.kind === 'pick')
+const pickedRight = computed(() => picked.value === current.value.fi)
 const done = ref(false)
 
 function play(rate = null) {
@@ -57,6 +71,12 @@ function play(rate = null) {
 }
 
 function reveal() {
+  revealed.value = true
+}
+
+function pick(option) {
+  if (picked.value) return
+  picked.value = option
   revealed.value = true
 }
 
@@ -68,6 +88,7 @@ function next() {
   } else {
     index.value++
     revealed.value = false
+    picked.value = null
     play()
   }
 }
@@ -93,7 +114,25 @@ function next() {
           <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly"><Turtle class="audio-ico" aria-hidden="true" /> Slow</button>
         </div>
         <p v-if="nativeAudio" class="native-note"><Mic class="note-ico" aria-hidden="true" /> recorded by a native Finnish speaker</p>
-        <p class="fi">{{ current.fi }}</p>
+
+        <!-- The ear test: the sentence stays hidden until the visitor commits -->
+        <template v-if="isPick">
+          <p class="pick-q">Which one did you hear?</p>
+          <div class="pick-row">
+            <button
+              v-for="o in current.options"
+              :key="o"
+              class="pick-opt"
+              :class="{ right: revealed && o === current.fi, wrong: revealed && picked === o && o !== current.fi }"
+              :disabled="revealed"
+              @click="pick(o)"
+            >{{ o }}</button>
+          </div>
+          <p v-if="revealed" class="pick-verdict" :class="{ good: pickedRight }">
+            {{ pickedRight ? 'Your ear caught it! 👂 That instinct is exactly what we train.' : 'You picked the textbook form - but what you heard was the spoken one. That gap is exactly what we train.' }}
+          </p>
+        </template>
+        <p v-else class="fi">{{ current.fi }}</p>
 
         <!-- :duration guarantees the leave element is removed even if the tab
              is throttled and transition events never fire (stale text would
@@ -109,8 +148,8 @@ function next() {
         </transition>
       </div>
 
-      <button v-if="!revealed" class="btn btn-ghost btn-block reveal-btn" @click="reveal"><Eye class="audio-ico" aria-hidden="true" /> Show meaning</button>
-      <button v-else class="btn btn-primary btn-block" @click="next">
+      <button v-if="!revealed && !isPick" class="btn btn-ghost btn-block reveal-btn" @click="reveal"><Eye class="audio-ico" aria-hidden="true" /> Show meaning</button>
+      <button v-else-if="revealed" class="btn btn-primary btn-block" @click="next">
         {{ isLast ? 'See how it works →' : 'Next sentence →' }}
       </button>
     </template>
@@ -179,6 +218,28 @@ function next() {
 .en { font-size: 17px; color: var(--text-dim); }
 .book { font-size: 13.5px; color: var(--text-dim); margin-top: 10px; }
 .note { font-size: 14px; color: var(--text); background: var(--bg-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; line-height: 1.5; }
+
+/* the ear test */
+.pick-q { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.pick-row { display: flex; flex-direction: column; gap: 8px; }
+.pick-opt {
+  background: var(--bg-soft);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.pick-opt:hover:not(:disabled) { border-color: var(--accent); }
+.pick-opt:disabled { cursor: default; }
+.pick-opt.right { border-color: var(--green); background: var(--green-soft); }
+.pick-opt.wrong { border-color: var(--red, #f87171); opacity: 0.75; }
+.pick-verdict { font-size: 13.5px; font-weight: 600; color: var(--text-dim); margin-top: 12px; line-height: 1.5; }
+.pick-verdict.good { color: var(--green); }
 
 .finish { margin: auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; }
 .finish-icon { width: 110px; height: 110px; margin: 0 auto; }

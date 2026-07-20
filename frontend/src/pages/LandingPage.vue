@@ -76,7 +76,7 @@ const DEMO_CHAT = [
 ]
 
 const FEATURES = [
-  { icon: Headphones, title: 'Audio on every sentence', body: 'Every sentence and word plays out loud - a clear synthetic Finnish voice today, replaced sentence by sentence with real native recordings (watch the native-voice counter grow).' },
+  { icon: Headphones, title: 'Audio on every sentence', body: 'Every sentence and word plays out loud in a studio-grade Finnish AI voice (ElevenLabs) - being replaced sentence by sentence with real native recordings (watch the native-voice counter grow).' },
   { icon: Ear, title: 'Kuuntelu - whole conversations', body: 'Two Finns talking at normal speed, transcript hidden until you want it. Drills teach sentences; this is what trains your ear.' },
   { icon: Wrench, title: 'Taivutus - bend the endings', body: 'Finnish hides its grammar in the endings. Make it negative, make it yesterday, make it a question - so you can build sentences, not just recite them.' },
   { icon: Repeat, title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },

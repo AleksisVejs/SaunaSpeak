@@ -3,7 +3,7 @@
 // drops the learner straight into their first session (value in session one).
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { BicepsFlexed, BookOpen, Check, Coffee, Egg, Flame, Heart, Home, Plane, RotateCcw, Sprout } from 'lucide-vue-next'
+import { BicepsFlexed, BookOpen, Check, Coffee, Egg, Flame, Heart, Home, Moon, Plane, RotateCcw, Sprout, Sun, Sunset } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { usePrefs } from '../composables/usePrefs'
 
@@ -11,7 +11,7 @@ const router = useRouter()
 const { savePrefs } = usePrefs()
 
 const step = ref(0)
-const answers = ref({ goal: null, level: null, minutes: null })
+const answers = ref({ goal: null, level: null, minutes: null, practice_time: null })
 
 const questions = [
   {
@@ -47,9 +47,22 @@ const questions = [
     kind: 'choice',
     title: 'How much time per day?',
     options: [
-      { value: 2, icon: Coffee, label: '2 min - a taste' },
+      { value: 2, icon: Coffee, label: '2 min - keep the habit alive' },
       { value: 5, icon: Flame, label: '5 min - steady' },
       { value: 15, icon: BicepsFlexed, label: '15 min - serious' }
+    ]
+  },
+  {
+    // Implementation intention: people who commit to a WHEN come back at
+    // roughly double the rate of people who merely intend to. The answer
+    // also times the review-reminder email to the learner's own rhythm.
+    key: 'practice_time',
+    kind: 'choice',
+    title: 'When will you practice?',
+    options: [
+      { value: 'morning', icon: Sun, label: 'Morning - with coffee' },
+      { value: 'lunch', icon: Sunset, label: 'Midday - on a break' },
+      { value: 'evening', icon: Moon, label: 'Evening - winding down' }
     ]
   }
 ]
@@ -87,7 +100,8 @@ function finish() {
     {
       goal: answers.value.goal,
       level: answers.value.level,
-      minutes: answers.value.minutes
+      minutes: answers.value.minutes,
+      practice_time: answers.value.practice_time
     },
     { placement: false }
   )

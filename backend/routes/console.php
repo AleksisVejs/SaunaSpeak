@@ -8,7 +8,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-// Early evening local time: late enough that "you haven't practiced today"
-// is meaningful, early enough to act on. Requires the scheduler cron
+// Hourly: the command itself mails each learner only in the hour matching
+// the practice time they picked at intake, in their own timezone (legacy
+// accounts default to 17:00 local). Requires the scheduler cron
 // (`php artisan schedule:run` every minute) - see DEPLOY.md.
-Schedule::command('reminders:send')->dailyAt('17:00');
+Schedule::command('reminders:send')->hourly();

@@ -12,6 +12,7 @@ import UseStep from '../components/UseStep.vue'
 import { cardKind, clozeWord } from '../utils/practice'
 import { rankFor } from '../utils/ranks'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
+import { usePrefs } from '../composables/usePrefs'
 
 const session = useSessionStore()
 const auth = useAuthStore()
@@ -182,6 +183,39 @@ function startCelebration() {
   )
 }
 
+// --- tomorrow, made concrete ---
+// The finish screen used to end on a wish ("see you tomorrow!"). Wishes
+// don't retain; appointments do. Two mechanisms below:
+// 1. The forecast: how many of today's sentences come due tomorrow - loss
+//    aversion working for us instead of silently against the learner.
+// 2. An implementation intention: learners without a chosen practice time
+//    pick one here, once - it also times their reminder email.
+const { prefs, savePrefs } = usePrefs()
+
+const dueTomorrow = computed(() => {
+  const d = new Date(Date.now() + 86400000)
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return auth.stats?.forecast?.find((r) => r.date === key)?.count ?? 0
+})
+
+const TIME_SLOTS = [
+  { value: 'morning', label: '☀️ Morning' },
+  { value: 'lunch', label: '☕ Midday' },
+  { value: 'evening', label: '🌙 Evening' }
+]
+const pickedTime = ref(null)
+const showTimePicker = computed(() => !prefs.value.practice_time && !pickedTime.value)
+
+function pickTime(slot) {
+  pickedTime.value = slot
+  savePrefs({ practice_time: slot })
+}
+
+const slotLabel = computed(() => {
+  const v = pickedTime.value ?? prefs.value.practice_time
+  return { morning: 'in the morning', lunch: 'at midday', evening: 'in the evening' }[v] ?? 'tomorrow'
+})
+
 // The trial pitch at the happiest moment of the day: right after a finished
 // session, when the mistakes are fresh and "AI feedback on every attempt"
 // means something concrete. Shows for free accounts until acted on or
@@ -253,6 +287,23 @@ function confettiStyle(i) {
     <div class="streak-note"><Flame class="note-ico" aria-hidden="true" /> {{ auth.user?.streak }} day streak</div>
     <p v-if="freezeEarned" class="freeze-note"><Snowflake class="note-ico" aria-hidden="true" /> Week complete — you earned a streak freeze! It auto-saves one missed day.</p>
     <p v-else-if="auth.user?.streak_freezes" class="freeze-note muted"><Snowflake class="note-ico" aria-hidden="true" /> {{ auth.user.streak_freezes }} freeze{{ auth.user.streak_freezes > 1 ? 's' : '' }} banked — each auto-saves one missed day</p>
+
+    <!-- Tomorrow, made concrete: the appointment replaces the wish -->
+    <div class="tomorrow card-inset">
+      <p v-if="dueTomorrow" class="tomorrow-line">
+        <b>{{ dueTomorrow }} sentence{{ dueTomorrow > 1 ? 's' : '' }} come{{ dueTomorrow > 1 ? '' : 's' }} back tomorrow.</b>
+        Review them then and they stick for weeks — skip it and they fade.
+      </p>
+      <p v-else class="tomorrow-line"><b>Come back tomorrow</b> — reviewing right on schedule is what moves sentences into long-term memory.</p>
+
+      <template v-if="showTimePicker">
+        <p class="tomorrow-q">When will you practice tomorrow?</p>
+        <div class="slot-row">
+          <button v-for="s in TIME_SLOTS" :key="s.value" class="slot-chip" @click="pickTime(s.value)">{{ s.label }}</button>
+        </div>
+      </template>
+      <p v-else class="tomorrow-set muted">Väinö will save your seat {{ slotLabel }}. 🧖</p>
+    </div>
 
     <!-- Löyly+ at the moment it makes sense: the session just surfaced real
          mistakes, and the paid tier is the thing that talks them through. -->
@@ -475,6 +526,37 @@ function confettiStyle(i) {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
+
+/* tomorrow's appointment */
+.tomorrow {
+  text-align: left;
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tomorrow-line { font-size: 14px; line-height: 1.5; }
+.tomorrow-line b { color: var(--accent); }
+.tomorrow-q { font-size: 13.5px; font-weight: 700; }
+.slot-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.slot-chip {
+  flex: 1;
+  min-width: 90px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.slot-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.tomorrow-set { font-size: 13px; }
 
 /* the trial pitch after the celebration */
 .upsell {

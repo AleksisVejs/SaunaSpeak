@@ -97,7 +97,7 @@ const VERDICTS = [
     app: 'SaunaSpeak',
     icon: '♨️',
     pick: 'Pick it if you want to understand and speak the Finnish you\'ll actually hear in Finland - from the first lesson.',
-    but: 'But if you want C-level grammar theory or a 4,000-word vocabulary tracker, pair it with a grammar resource - and while native recordings roll out sentence by sentence, most audio is still a synthetic voice.'
+    but: 'But if you want C-level grammar theory or a 4,000-word vocabulary tracker, pair it with a grammar resource - and while real native recordings roll out sentence by sentence, the rest of the audio is a studio-grade AI voice (ElevenLabs), not a human.'
   }
 ]
 </script>

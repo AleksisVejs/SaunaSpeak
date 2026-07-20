@@ -16,9 +16,9 @@
             "written": "Moi, onko täällä tilaa?",
             "glosses": {
                 "moi": "hi",
-                "onks": "is",
-                "tääl": "here",
-                "tilaa": "space"
+                "onks": "is - spoken 'onko': the -ko question ending becomes -ks",
+                "tääl": "here - spoken 'täällä', the last syllable drops",
+                "tilaa": "space - partitive of 'tila'"
             }
         },
         {
@@ -26,9 +26,9 @@
             "en": "I'll take a coffee.",
             "written": "Minä otan kahvin.",
             "glosses": {
-                "mä": "I",
-                "otan": "take",
-                "kahvin": "coffee"
+                "mä": "I - spoken 'minä'",
+                "otan": "I take - from 'ottaa'",
+                "kahvin": "a coffee - object form of 'kahvi'"
             }
         },
         {
@@ -37,8 +37,8 @@
             "written": "Mitä sinä otat?",
             "glosses": {
                 "mitä": "what",
-                "sä": "you",
-                "otat": "take"
+                "sä": "you - spoken 'sinä'",
+                "otat": "you take - from 'ottaa'"
             }
         },
         {
@@ -46,9 +46,9 @@
             "en": "Can you get pizza here?",
             "written": "Saako täältä pitsaa?",
             "glosses": {
-                "saaks": "can you get",
-                "täält": "from here",
-                "pitsaa": "pizza"
+                "saaks": "can one get - spoken 'saako': -ko becomes -ks",
+                "täält": "from here - spoken 'täältä', the final vowel drops",
+                "pitsaa": "pizza - partitive of 'pitsa'"
             }
         },
         {
@@ -56,9 +56,9 @@
             "en": "One large soda, please.",
             "written": "Yksi iso limonadi, kiitos.",
             "glosses": {
-                "yks": "one",
+                "yks": "one - spoken 'yksi', the final -i drops",
                 "iso": "large",
-                "limu": "soda",
+                "limu": "soda - the casual word for 'limonadi'",
                 "kiitos": "thanks"
             }
         },
@@ -68,9 +68,9 @@
             "written": "Se tekee kymmenen euroa.",
             "glosses": {
                 "se": "it",
-                "tekee": "makes",
+                "tekee": "makes - from 'tehdä'",
                 "kymmenen": "ten",
-                "euroo": "euros"
+                "euroo": "euros - spoken 'euroa': the -oa ending smooths to -oo"
             }
         },
         {
@@ -78,9 +78,9 @@
             "en": "I'll pay by card.",
             "written": "Minä maksan kortilla.",
             "glosses": {
-                "mä": "I",
-                "maksan": "pay",
-                "kortilla": "with card"
+                "mä": "I - spoken 'minä'",
+                "maksan": "I pay - from 'maksaa'",
+                "kortilla": "by card - 'kortti' + -lla (with)"
             }
         },
         {
@@ -88,8 +88,8 @@
             "en": "Shall we go eat?",
             "written": "Mennäänkö syömään?",
             "glosses": {
-                "mennäänks": "shall we go",
-                "syömään": "to eat"
+                "mennäänks": "shall we go - spoken 'mennäänkö': -kö becomes -ks",
+                "syömään": "to eat - from 'syödä'"
             }
         }
     ]

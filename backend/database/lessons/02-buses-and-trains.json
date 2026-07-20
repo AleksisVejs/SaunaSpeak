@@ -15,8 +15,8 @@
             "en": "Is this the bus?",
             "written": "Onko tämä bussi?",
             "glosses": {
-                "onks": "is",
-                "tää": "this",
+                "onks": "is - spoken 'onko': the -ko question ending becomes -ks",
+                "tää": "this - spoken 'tämä'",
                 "bussi": "bus"
             }
         },
@@ -25,8 +25,8 @@
             "en": "Is that the train?",
             "written": "Onko tuo juna?",
             "glosses": {
-                "onks": "is",
-                "toi": "that",
+                "onks": "is - spoken 'onko': -ko becomes -ks",
+                "toi": "that - spoken 'tuo'",
                 "juna": "train"
             }
         },
@@ -35,9 +35,9 @@
             "en": "I'm going by train.",
             "written": "Minä menen junalla.",
             "glosses": {
-                "mä": "I",
-                "meen": "go",
-                "junalla": "by train"
+                "mä": "I - spoken 'minä'",
+                "meen": "I go - spoken 'menen': the verb squeezes to one syllable",
+                "junalla": "by train - 'juna' + -lla (by/with)"
             }
         },
         {
@@ -46,7 +46,7 @@
             "written": "Me menemme nyt.",
             "glosses": {
                 "me": "we",
-                "mennään": "go (passive style)",
+                "mennään": "go - spoken Finnish swaps 'me menemme' for the let's-form: 'me mennään'",
                 "nyt": "now"
             }
         },
@@ -55,9 +55,9 @@
             "en": "When does it come?",
             "written": "Milloin se tulee?",
             "glosses": {
-                "millon": "when",
+                "millon": "when - spoken 'milloin', the i slips out",
                 "se": "it",
-                "tulee": "comes"
+                "tulee": "comes - from 'tulla'"
             }
         },
         {
@@ -66,8 +66,8 @@
             "written": null,
             "glosses": {
                 "se": "it",
-                "tulee": "comes",
-                "viideltä": "at five"
+                "tulee": "comes - from 'tulla'",
+                "viideltä": "at five - 'viisi' + -ltä"
             }
         },
         {
@@ -75,8 +75,8 @@
             "en": "Are you coming along?",
             "written": "Tuletko sinä mukaan?",
             "glosses": {
-                "tuuks": "come (question)",
-                "sä": "you",
+                "tuuks": "are (you) coming - spoken 'tuletko': the verb shortens AND -ko becomes -ks",
+                "sä": "you - spoken 'sinä'",
                 "mukaan": "along"
             }
         },
@@ -85,7 +85,7 @@
             "en": "Let's go already!",
             "written": null,
             "glosses": {
-                "mennään": "let's go",
+                "mennään": "let's go - the everyday let's-do-it form",
                 "jo": "already"
             }
         }

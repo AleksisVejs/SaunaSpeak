@@ -9,15 +9,25 @@ use Illuminate\Support\Facades\Mail;
 /**
  * Daily review reminder: SRS only works when learners come back on schedule.
  * Emails everyone who has due reviews, hasn't practiced today, and hasn't
- * opted out (profile toggle → users.review_emails). Scheduled in
- * routes/console.php; safe to run manually. Uses whatever MAIL_* transport
- * is configured (the default `log` driver makes this a no-op in dev).
+ * opted out (profile toggle → users.review_emails). Scheduled HOURLY in
+ * routes/console.php; each learner is mailed in the hour that matches the
+ * practice time they picked at intake ("when will you practice?"), in their
+ * own timezone - an appointment they chose, not our 17:00. Safe to run
+ * manually. Uses whatever MAIL_* transport is configured (the default `log`
+ * driver makes this a no-op in dev).
  */
 class SendReviewReminders extends Command
 {
-    protected $signature = 'reminders:send {--dry-run : List recipients without sending}';
+    protected $signature = 'reminders:send
+        {--dry-run : List recipients without sending}
+        {--all-hours : Ignore the per-user practice hour (for manual runs)}';
 
     protected $description = 'Email learners whose reviews are due and who have not practiced today';
+
+    /** Local send hour per intake slot; unset/legacy accounts keep 17:00. */
+    private const SLOT_HOURS = ['morning' => 8, 'lunch' => 12, 'evening' => 18];
+
+    private const DEFAULT_HOUR = 17;
 
     public function handle(): int
     {
@@ -27,6 +37,17 @@ class SendReviewReminders extends Command
                 $q->whereNull('last_active_date')->orWhere('last_active_date', '<', today());
             })
             ->get();
+
+        // The hour gate: running hourly, each learner matches exactly once a
+        // day - when their own clock strikes their chosen practice hour.
+        if (! $this->option('all-hours')) {
+            $users = $users->filter(function (User $user) {
+                $slot = $user->preferences['practice_time'] ?? null;
+                $hour = self::SLOT_HOURS[$slot] ?? self::DEFAULT_HOUR;
+
+                return now($user->timezone ?: config('app.timezone'))->hour === $hour;
+            })->values();
+        }
 
         foreach ($users as $user) {
             $due = $user->progress()->where('next_review_at', '<=', now())->count();
