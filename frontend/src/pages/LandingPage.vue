@@ -95,11 +95,11 @@ const FAQ = [
   },
   {
     q: 'What is puhekieli?',
-    a: 'Puhekieli is spoken, colloquial Finnish - what Finns actually say: "mä oon" instead of the textbook "minä olen", "onks" instead of "onko". Most courses teach only the formal written language (kirjakieli), which is why learners freeze when a real Finn speaks. SaunaSpeak teaches the spoken form first and keeps the written form one tap away.'
+    a: 'Puhekieli is spoken, colloquial Finnish - what Finns actually say: "mä oon" instead of the textbook "minä olen", "onks" instead of "onko". Most courses teach only the formal written language (kirjakieli), which is why learners freeze when a real Finn speaks. Worth knowing: there is no single puhekieli. Everyday vocabulary varies between towns and social circles, which is part of why kirjakieli exists as a standard everyone understands. What barely varies is the reductions - "minä" becomes "mä", "mää" or "mie" depending where you are, but it becomes something everywhere. SaunaSpeak teaches those reductions first, keeps the written form one tap away, and flags vocabulary that is local rather than nationwide.'
   },
   {
     q: 'Will Finns everywhere understand me?',
-    a: 'They\'ll understand you - SaunaSpeak teaches the capital-region spoken standard, the everyday Finnish used in media and cities, understood in the whole country. Honest flip side: you won\'t instantly understand every regional dialect (Savo, Oulu and Tampere all have their own flavor), and the bigger real-world hurdle is that Finns often switch to English the moment you hesitate. The course trains you for both: broad listening practice, and the phrases for politely keeping the conversation in Finnish.'
+    a: 'They\'ll understand you - SaunaSpeak teaches the capital-region spoken standard, the everyday Finnish used in media and cities, understood in the whole country. Honest flip side: you won\'t instantly understand every regional dialect (Savo, Oulu and Tampere all have their own flavor), and everyday words vary more than you\'d expect - a tram is spora, ratikka or raitsikka depending on who you ask, sometimes between people in the same city. The bigger real-world hurdle is that Finns often switch to English the moment you hesitate. The course trains you for both: broad listening practice, and the phrases for politely keeping the conversation in Finnish.'
   },
   {
     q: 'I\'m a complete beginner - is this for me?',

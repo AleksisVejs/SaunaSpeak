@@ -79,7 +79,7 @@ const VERDICTS = [
     app: 'Duolingo',
     icon: '🦉',
     pick: 'Pick it if you want a fun free habit and a language-learning giant behind it.',
-    but: 'But its Finnish course teaches written kirjakieli and stops around A2 - real Finns will sound like a different language.'
+    but: 'But its Finnish course teaches written kirjakieli and stops around A2 - you\'ll be understood, but everyday speech will still be hard to follow.'
   },
   {
     app: 'Pimsleur',
@@ -164,12 +164,18 @@ const VERDICTS = [
     <section class="why card">
       <h2>Why spoken Finnish first?</h2>
       <p>
-        Most courses teach kirjakieli - the written standard. It's correct,
-        and nobody talks like it. Learners arrive in Finland after months of
-        "minä olen" and can't parse "mä oon" at the counter of the K-market.
-        SaunaSpeak flips the order: you learn the spoken form first, with the
-        written form alongside as a reference, so real Finns are understandable
-        from week one.
+        Most courses teach kirjakieli - the written standard. It's correct, it's
+        understood everywhere, and that's exactly why it's taught. But almost
+        nobody speaks it. Learners arrive after months of "minä olen" and can't
+        parse "mä oon" at the counter of the K-market.
+      </p>
+      <p>
+        There's no single spoken Finnish to teach instead - vocabulary shifts
+        between towns and between social circles. What barely shifts is the
+        reductions: "minä" becomes "mä" or "mää" or "mie", but it becomes
+        something everywhere. SaunaSpeak teaches those first, keeps the written
+        form alongside as a reference, and marks the words that are local rather
+        than pretending there's one right answer.
       </p>
       <router-link to="/try" class="btn btn-primary cta">Hear real spoken Finnish - no account</router-link>
     </section>
@@ -265,6 +271,7 @@ thead th.ours .app-name { color: var(--accent); }
 
 .why { margin-top: 34px; text-align: center; padding: 26px 22px; }
 .why p { max-width: 560px; margin: 0 auto; font-size: 14.5px; line-height: 1.6; color: var(--text-dim); }
+.why p + p { margin-top: 12px; }
 .why .cta { margin-top: 18px; display: inline-block; }
 
 .links { margin-top: 26px; }

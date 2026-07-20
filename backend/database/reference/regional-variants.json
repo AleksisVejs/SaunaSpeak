@@ -1,0 +1,96 @@
+{
+  "_about": "Everyday Finnish words with multiple spoken variants, collected from native speakers in three Reddit threads (r/Helsinki, r/LearnFinnish, r/Finland) in July 2026. Not yet wired into lessons - the sentence schema has no variants field. See _finding before using this to write content.",
+  "_collected": "2026-07-20",
+  "_sources": [
+    "r/Helsinki - 'onks sul HSL-appi' thread, 2026-07-13",
+    "r/LearnFinnish - puhekieli resource thread, 2026-07-15",
+    "r/Finland - tram word thread, 2026-07-20 (largest sample)"
+  ],
+  "_finding": "Do NOT attribute variants to regions. Nine natives in the r/Finland thread gave tram words with essentially no geographic pattern: four Helsinki-area speakers said 'ratikka', a Tampere speaker said 'spora', one speaker switches by language (ratikka in Finnish, spåra in Swedish). Word choice tracks social circle, not place, and updates through life - one speaker reported picking up 'spora' and 'dösä' after moving to Helsinki, another lost 'linkki' after moving to Lahti because nobody understood it. Teach variant sets as 'these all coexist, you will hear any of them'. Any note claiming who says which will be contradicted by real speakers.",
+
+  "concepts": [
+    {
+      "concept": "tram",
+      "standard": "raitiovaunu",
+      "variants": [
+        { "form": "ratikka", "attestation": "strong", "notes": "Most commonly reported across the whole sample, including by Helsinki and Turku speakers." },
+        { "form": "spora", "attestation": "strong", "etymology": "Swedish spårvagn", "notes": "Sometimes written spåra. Associated with Helsinki, but attested from Tampere and rejected by long-term Helsinki residents. Not a reliable regional marker." },
+        { "form": "raitsikka", "attestation": "moderate", "notes": "Reported as older or deliberately ornate; one speaker's grandmother uses it 'to flourish her words'. A Turku speaker called it too many syllables." },
+        { "form": "skuru", "attestation": "weak", "notes": "Oldest Helsinki slang form. One current self-reported user in the sample; otherwise described as historical." }
+      ]
+    },
+    {
+      "concept": "bus",
+      "standard": "linja-auto",
+      "also_standard": "bussi",
+      "variants": [
+        { "form": "dösä", "attestation": "strong", "notes": "Helsinki. Derived forms reported: dösälippu (ticket), dösäri - the latter reported once as 'bus stop' but commonly means the driver; verify before teaching." },
+        { "form": "linkki", "attestation": "strong", "notes": "Jyväskylä. Now used by the local transit authority itself." },
+        { "form": "linkku", "attestation": "moderate", "notes": "Lahti area." },
+        { "form": "linikka", "attestation": "moderate", "notes": "Pohjois-Savo." },
+        { "form": "nysse", "attestation": "moderate", "notes": "Tampere (from the local transit brand)." },
+        { "form": "föli", "attestation": "moderate", "notes": "Turku (from the local transit brand)." },
+        { "form": "linjuri", "attestation": "moderate" },
+        { "form": "onnikka", "attestation": "moderate", "notes": "Described as historical." },
+        { "form": "linkka", "attestation": "weak" },
+        { "form": "linkkari", "attestation": "weak", "notes": "Collision: also means linkkuveitsi (pocket knife), and reportedly something else again in office contexts." }
+      ],
+      "pattern": "The local public-transport brand name becomes the generic word for bus: föli (Turku), nysse (Tampere), linkki (Jyväskylä). Productive rule a learner can apply in any new city."
+    },
+    {
+      "concept": "street curb",
+      "standard": null,
+      "standard_note": "Standard form not established from the thread - check before publishing.",
+      "variants": [
+        { "form": "rotvalli", "attestation": "moderate", "etymology": "French trottoir via Swedish trottoar", "notes": "Tampere. Reported as not really used elsewhere." }
+      ]
+    },
+    {
+      "concept": "sauna whisk",
+      "standard": "vasta / vihta",
+      "variants": [],
+      "notes": "Both forms are standard; which one you use is a well-known east/west divide and a running national argument. Raised as a canonical example of this whole phenomenon. Split not verified in detail here."
+    },
+    {
+      "concept": "discourse particle ('you know')",
+      "standard": null,
+      "variants": [
+        { "form": "nääs", "attestation": "moderate", "notes": "Tampere. Described as a distinct and widely recognised Tampere marker." }
+      ]
+    },
+    {
+      "concept": "person who moved to Helsinki from elsewhere in Finland",
+      "standard": null,
+      "variants": [
+        { "form": "junantuoma", "attestation": "moderate", "literal": "brought by the train", "notes": "Self-applied, mildly self-deprecating." }
+      ]
+    },
+    {
+      "concept": "alakoulu grades and pupils",
+      "standard": null,
+      "variants": [
+        { "form": "eppu, toppu, kolkki, nelkki, viikki, kuukki", "attestation": "weak", "notes": "Jyväskylä, children's usage, grades 1-6. Single source; reported as possibly faded. Verify before teaching." }
+      ]
+    }
+  ],
+
+  "universal_reductions": {
+    "_note": "These are the defensible teachable core. Unlike vocabulary above, the reduction happens everywhere - only its exact shape varies. No native in any of the three threads disputed this.",
+    "items": [
+      { "written": "minä", "spoken": ["mä", "mää", "mnää", "mie", "miä"], "note": "Nobody says minä olen aloud in casual speech anywhere." },
+      { "written": "sinä", "spoken": ["sä", "sää", "snää", "sie", "siä"] },
+      { "written": "onko", "spoken": ["onks"] },
+      { "written": "en minä tiedä", "spoken": ["emmä tiiä"] },
+      { "written": "onko sinulla", "spoken": ["onks sul"] }
+    ]
+  },
+
+  "grammar_variants": [
+    {
+      "written": "Ketkä lähtevät lounaalle?",
+      "spoken": "Ketä lähtee lounaalle?",
+      "region": "capital region",
+      "note": "Sits between vocabulary and reduction: a grammatical simplification that is regionally marked. Reported once - verify scope."
+    }
+  ]
+}
