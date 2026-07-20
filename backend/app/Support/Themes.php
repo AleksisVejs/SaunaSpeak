@@ -247,9 +247,16 @@ class Themes
     }
 
     /**
-     * Catalog entries whose level is at or below the focus level. If none
-     * qualify (a learner below the lowest asset - not possible today, but
-     * cheap to guard), the whole catalog is returned so a step still appears.
+     * Catalog entries whose level is at or below the focus level.
+     *
+     * When nothing qualifies the answer is NOTHING, and the step is dropped.
+     * This used to fall back to the whole catalog "so a step still appears",
+     * which handed A0 learners - who have no assets at their level, the
+     * listening scenes and drill sets all start at A1 - a random pick that
+     * could be the B1 job interview, in their first week, at native speed.
+     * Input has to be comprehensible to teach anything; an incomprehensible
+     * wall of speech just tells a beginner they are failing. A shorter
+     * session (sentences, then produce one) is the better session for them.
      *
      * @param  array<int, array{level?: string}>  $items
      * @return array<int, array>
@@ -257,12 +264,11 @@ class Themes
     private static function atOrBelow(array $items, string $focusLevel): array
     {
         $cap = self::levelIndex($focusLevel);
-        $eligible = array_values(array_filter(
+
+        return array_values(array_filter(
             $items,
             fn (array $i) => self::levelIndex($i['level'] ?? 'A1') <= $cap,
         ));
-
-        return $eligible !== [] ? $eligible : $items;
     }
 
     /**

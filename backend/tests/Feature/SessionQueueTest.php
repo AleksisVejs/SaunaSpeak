@@ -78,6 +78,7 @@ class SessionQueueTest extends TestCase
 
     public function test_full_size_session_weaves_in_listening_and_a_drill(): void
     {
+        $this->lesson->update(['level' => 'A1']);
         $this->makeSentences(8);
 
         // 5-/15-minute goals (size >= 6) get the four-skill weave...
@@ -91,8 +92,26 @@ class SessionQueueTest extends TestCase
         $this->assertNull($light->json('woven.transform'));
     }
 
+    /**
+     * Every listening scene and drill set starts at A1, so an A0 learner has
+     * nothing at their level. They must get NO woven extras rather than a
+     * random pick from the whole catalog - which is how a learner four days
+     * into Finnish used to land in the B1 job interview at native speed.
+     */
+    public function test_an_a0_session_weaves_in_nothing_above_the_learners_level(): void
+    {
+        $this->makeSentences(8); // $this->lesson is A0
+
+        $res = $this->getJson('/api/today-session?size=6')->assertOk();
+
+        $this->assertNull($res->json('woven.listening'), 'A0 has no scene at its level - weave none');
+        $this->assertNull($res->json('woven.transform'), 'A0 has no drill at its level - weave none');
+        $this->assertNotEmpty($res->json('sentences'), 'the sentence block still runs');
+    }
+
     public function test_longest_sessions_weave_in_a_second_conversation(): void
     {
+        $this->lesson->update(['level' => 'A1']);
         $this->makeSentences(14);
 
         // The 15-minute goal (size 12) gets a second, different conversation...

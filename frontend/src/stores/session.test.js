@@ -1,9 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-// The store touches window.umami and the API; stub both so the flow logic can
-// be tested in plain node without a DOM or a server.
+// The store touches window.umami, localStorage and the API; stub them all so
+// the flow logic can be tested in plain node without a DOM or a server.
 globalThis.window = globalThis.window ?? {}
+
+const store = new Map()
+globalThis.localStorage = {
+  getItem: (k) => (store.has(k) ? store.get(k) : null),
+  setItem: (k, v) => store.set(k, String(v)),
+  removeItem: (k) => store.delete(k),
+  clear: () => store.clear()
+}
 
 vi.mock('../api', () => ({ default: { get: vi.fn(), post: vi.fn() } }))
 vi.mock('../composables/usePrefs', () => ({ usePrefs: () => ({ dailyGoal: () => 6 }) }))
@@ -27,6 +35,7 @@ const sessionCompletes = () => api.post.mock.calls.filter((c) => c[0] === '/sess
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
+  localStorage.clear()
 })
 
 describe('buildSteps', () => {
@@ -87,6 +96,80 @@ describe('streak commit gate', () => {
     await store.completeWoven(0) // use → finished
     expect(store.finished).toBe(true)
     expect(sessionCompletes()).toBe(1)
+  })
+})
+
+describe('resuming an abandoned session', () => {
+  it('picks up at the same step instead of fetching a whole new block', async () => {
+    mockApi([sentence(1), sentence(2), sentence(3)], { listening: { id: 'a', title: 'A' } })
+    const first = useSessionStore()
+    await first.loadToday()
+    await first.completeSentence('good')
+    expect(first.index).toBe(1)
+    expect(first.xpEarned).toBe(10)
+
+    // A fresh page load (new pinia, same browser storage).
+    setActivePinia(createPinia())
+    api.get.mockClear()
+    const resumed = useSessionStore()
+    await resumed.loadToday()
+
+    expect(api.get).not.toHaveBeenCalled()
+    expect(resumed.resumed).toBe(true)
+    expect(resumed.index).toBe(1)
+    expect(resumed.xpEarned).toBe(10)
+    expect(resumed.steps.length).toBe(first.steps.length)
+  })
+
+  it('forgets the session once it is finished, so the next visit is fresh', async () => {
+    mockApi([sentence(1)], {})
+    const store = useSessionStore()
+    await store.loadToday()
+    await store.completeSentence('good')
+    await store.completeWoven(0) // use step → finished
+    expect(store.finished).toBe(true)
+
+    setActivePinia(createPinia())
+    api.get.mockClear()
+    const next = useSessionStore()
+    await next.loadToday()
+
+    expect(api.get).toHaveBeenCalled()
+    expect(next.resumed).toBe(false)
+    expect(next.index).toBe(0)
+  })
+
+  it('ignores a saved session from another day', async () => {
+    mockApi([sentence(1), sentence(2)], {})
+    const store = useSessionStore()
+    await store.loadToday()
+    await store.completeSentence('good')
+
+    // Age the stored session by a day.
+    const saved = JSON.parse(localStorage.getItem('ss_session'))
+    localStorage.setItem('ss_session', JSON.stringify({ ...saved, day: 'Tue Jan 01 2019' }))
+
+    setActivePinia(createPinia())
+    api.get.mockClear()
+    const next = useSessionStore()
+    await next.loadToday()
+
+    expect(api.get).toHaveBeenCalled()
+    expect(next.index).toBe(0)
+  })
+
+  it('fresh: true skips the saved session (the "another round" button)', async () => {
+    mockApi([sentence(1), sentence(2)], {})
+    const store = useSessionStore()
+    await store.loadToday()
+    await store.completeSentence('good')
+
+    api.get.mockClear()
+    await store.loadToday({ fresh: true })
+
+    expect(api.get).toHaveBeenCalled()
+    expect(store.index).toBe(0)
+    expect(store.resumed).toBe(false)
   })
 })
 

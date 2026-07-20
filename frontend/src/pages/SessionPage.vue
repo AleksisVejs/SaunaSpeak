@@ -358,7 +358,7 @@ function confettiStyle(i) {
 
     <!-- Momentum is precious: offer another round before the exit. If
          nothing is left, the reload lands on the "all caught up" state. -->
-    <button class="btn btn-primary btn-block more-btn" @click="session.loadToday()"><Flame class="note-ico" aria-hidden="true" /> Keep going - another round</button>
+    <button class="btn btn-primary btn-block more-btn" @click="session.loadToday({ fresh: true })"><Flame class="note-ico" aria-hidden="true" /> Keep going - another round</button>
     <router-link to="/dashboard" class="btn btn-ghost btn-block">Back to dashboard</router-link>
   </div>
 
@@ -372,6 +372,7 @@ function confettiStyle(i) {
 
   <!-- Active session -->
   <div v-else class="session">
+    <p v-if="session.resumed" class="resumed-note">Picking up where you left off 🧖</p>
     <div class="session-top">
       <router-link to="/dashboard" class="quit" aria-label="End session"><X class="quit-ico" aria-hidden="true" /></router-link>
       <div class="progress-track session-progress">
@@ -448,6 +449,13 @@ function confettiStyle(i) {
 /* single root element - required by the page transition in App.vue */
 .session-page { display: flex; flex-direction: column; flex: 1; }
 .session { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+.resumed-note {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: -8px;
+}
 /* the swappable step fills the same column the sentence card used to */
 .step-wrap { display: flex; flex-direction: column; gap: 18px; flex: 1; }
 .session-top { display: flex; align-items: center; gap: 14px; }

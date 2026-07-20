@@ -10,6 +10,39 @@ import { usePrefs } from '../composables/usePrefs'
 // (see App\Support\Themes); this store stitches them onto the end of the
 // sentence steps and walks the learner through the lot.
 
+// Leaving mid-session (a call, a notification, a closed tab) used to throw the
+// whole session away: loadToday() refetched, the graded sentences were no
+// longer due, and the learner got a NEW block of sentences plus the woven
+// steps all over again - abandoning halfway made the day bigger, not smaller.
+// The session is therefore mirrored to localStorage and resumed for the rest
+// of the local day. Cleared the moment it finishes, so "another round" is a
+// genuinely fresh fetch.
+const SESSION_STORE = 'ss_session'
+
+const localDay = () => new Date().toDateString()
+
+function readSavedSession() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SESSION_STORE))
+    // Same day, still has steps left to do, and shaped like a session.
+    if (!raw || raw.day !== localDay() || !Array.isArray(raw.steps) || !raw.steps.length) return null
+    if (typeof raw.index !== 'number' || raw.index >= raw.steps.length) return null
+
+    return raw
+  } catch {
+    // No storage, or a payload from an older shape - start fresh.
+    return null
+  }
+}
+
+export function clearSavedSession() {
+  try {
+    localStorage.removeItem(SESSION_STORE)
+  } catch {
+    // storage blocked - nothing to clear
+  }
+}
+
 export const useSessionStore = defineStore('session', {
   state: () => ({
     steps: [],
@@ -33,7 +66,10 @@ export const useSessionStore = defineStore('session', {
     committed: false,
     // Tracks whether /progress/complete already succeeded for the current
     // sentence, so a retry (after /session/complete fails) doesn't double-submit it.
-    progressRecorded: false
+    progressRecorded: false,
+    // True when this session was picked up from a previous visit - the page
+    // says so once, so landing mid-session doesn't read as a glitch.
+    resumed: false
   }),
 
   getters: {
@@ -45,7 +81,12 @@ export const useSessionStore = defineStore('session', {
   },
 
   actions: {
-    async loadToday() {
+    /**
+     * Today's session: resumed from where the learner left off, or fetched
+     * fresh. `fresh: true` forces a new block - that's the "another round"
+     * button, which must never restore the session it just finished.
+     */
+    async loadToday({ fresh = false } = {}) {
       this.loading = true
       this.index = 0
       this.xpEarned = 0
@@ -55,6 +96,25 @@ export const useSessionStore = defineStore('session', {
       this.requeuedIds = []
       this.progressRecorded = false
       this.committed = false
+      this.resumed = false
+
+      const saved = fresh ? null : readSavedSession()
+      if (saved) {
+        this.steps = saved.steps
+        this.sentences = saved.sentences ?? []
+        this.index = saved.index
+        this.xpEarned = saved.xpEarned ?? 0
+        this.wovenXp = saved.wovenXp ?? 0
+        this.bonusXp = saved.bonusXp ?? 0
+        this.wovenStart = saved.wovenStart ?? saved.steps.length
+        this.requeuedIds = saved.requeuedIds ?? []
+        this.committed = saved.committed ?? false
+        this.resumed = true
+        this.loading = false
+
+        return
+      }
+
       try {
         // Session length follows the learner's daily goal from the intake quiz.
         const { dailyGoal } = usePrefs()
@@ -62,8 +122,38 @@ export const useSessionStore = defineStore('session', {
         this.sentences = data.sentences
         this.steps = this.buildSteps(data.sentences, data.woven)
         this.wovenStart = data.sentences.length
+        this.save()
       } finally {
         this.loading = false
+      }
+    },
+
+    /** Mirror the live session so leaving the page doesn't lose the place. */
+    save() {
+      if (this.finished || !this.steps.length) {
+        clearSavedSession()
+
+        return
+      }
+
+      try {
+        localStorage.setItem(
+          SESSION_STORE,
+          JSON.stringify({
+            day: localDay(),
+            steps: this.steps,
+            sentences: this.sentences,
+            index: this.index,
+            xpEarned: this.xpEarned,
+            wovenXp: this.wovenXp,
+            bonusXp: this.bonusXp,
+            wovenStart: this.wovenStart,
+            requeuedIds: this.requeuedIds,
+            committed: this.committed
+          })
+        )
+      } catch {
+        // storage blocked or full - the session just won't survive a reload
       }
     },
 
@@ -145,6 +235,9 @@ export const useSessionStore = defineStore('session', {
     // Move to the next step. Commits the day once the sentence block clears, and
     // marks the session finished (celebration) when the last step is done.
     async advance() {
+      // The resume notice is for the moment of landing only.
+      this.resumed = false
+
       // index+1 reaching wovenStart means the last sentence just cleared.
       if (!this.committed && this.index + 1 >= this.wovenStart) {
         await this.commitDay()
@@ -157,6 +250,9 @@ export const useSessionStore = defineStore('session', {
       } else {
         this.index++
       }
+
+      // Persist the new position (or clear it, now that it's finished).
+      this.save()
     }
   }
 })

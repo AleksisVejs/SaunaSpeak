@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import api from '../api'
 import { usePrefs } from '../composables/usePrefs'
+import { clearSavedSession } from './session'
 
 // The learner's clock: streaks and daily bonuses follow this, not server time.
 function browserTimezone() {
@@ -65,6 +66,9 @@ export const useAuthStore = defineStore('auth', {
       this.stats = null
       localStorage.removeItem('token')
       usePrefs().clearPrefs()
+      // The half-finished session belongs to the account that just left, not
+      // to whoever logs in on this device next.
+      clearSavedSession()
     }
   }
 })
