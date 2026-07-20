@@ -13,6 +13,7 @@ use App\Support\Transforms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -40,9 +41,13 @@ class AdminController extends Controller
         return response()->json([
             'users_total' => User::count(),
             'users_new_7d' => User::where('created_at', '>=', $now->copy()->subDays(7))->count(),
-            'users_active_today' => User::whereDate('last_active_date', today())->count(),
-            'users_active_7d' => User::where('last_active_date', '>=', today()->subDays(7))->count(),
-            'users_active_30d' => User::where('last_active_date', '>=', today()->subDays(30))->count(),
+            // Counted from what learners actually did, NOT from
+            // last_active_date: that column is the streak anchor and is only
+            // written when a session is *completed*, so anyone who reviews a
+            // few cards and closes the tab never sets it. See activeUserIds().
+            'users_active_today' => $this->activeUserIds(today())->count(),
+            'users_active_7d' => $this->activeUserIds(today()->subDays(7))->count(),
+            'users_active_30d' => $this->activeUserIds(today()->subDays(30))->count(),
             'users_verified' => User::whereNotNull('email_verified_at')->count(),
             // Mirrors User::isPremium()'s 2-day renewal grace so this count
             // always matches the Löyly+ badges in the users list below.
@@ -101,6 +106,50 @@ class AdminController extends Controller
                 )),
             ],
         ]);
+    }
+
+    /**
+     * Distinct users who reviewed or chatted on/after $from - the two per-day
+     * activity streams the app records.
+     *
+     * Deliberately not users.last_active_date: that is only written by
+     * SessionController::completeSession(), so it means "last day they
+     * finished a whole session", not "last day they were here". Anyone who
+     * grades a few cards and leaves mid-session never sets it, and would
+     * otherwise be counted as having never shown up at all.
+     */
+    private function activeUserIds(Carbon $from): Collection
+    {
+        return ReviewLog::where('created_at', '>=', $from->copy()->startOfDay())
+            ->distinct()
+            ->pluck('user_id')
+            ->concat(ChatDay::where('date', '>=', $from->toDateString())->distinct()->pluck('user_id'))
+            ->unique();
+    }
+
+    /**
+     * Last day each of $ids actually did something, across both streams.
+     * Returns [user_id => 'Y-m-d'], missing entries meaning "never".
+     */
+    private function lastActivityDates(Collection $ids): Collection
+    {
+        $reviews = ReviewLog::whereIn('user_id', $ids)
+            ->selectRaw('user_id, max(created_at) as last_at')
+            ->groupBy('user_id')
+            ->pluck('last_at', 'user_id')
+            ->map(fn ($at) => Carbon::parse($at)->toDateString());
+
+        $chat = ChatDay::whereIn('user_id', $ids)
+            ->selectRaw('user_id, max(date) as last_date')
+            ->groupBy('user_id')
+            ->pluck('last_date', 'user_id')
+            ->map(fn ($d) => substr((string) $d, 0, 10));
+
+        return $ids->mapWithKeys(function ($id) use ($reviews, $chat) {
+            $latest = collect([$reviews[$id] ?? null, $chat[$id] ?? null])->filter()->max();
+
+            return [$id => $latest];
+        })->filter();
     }
 
     /**
@@ -181,8 +230,11 @@ class AdminController extends Controller
             ));
 
         $dates = collect(range($window - 1, 0))->map(fn ($d) => today()->subDays($d)->toDateString());
+        // Looks at all of history, not just the window, so the "quiet Nd" chip
+        // stays right for someone whose last visit predates the grid.
+        $lastActivity = $this->lastActivityDates($ids);
 
-        $rows = $users->getCollection()->map(function (User $u) use ($reviewsByUser, $chatByUser, $dates) {
+        $rows = $users->getCollection()->map(function (User $u) use ($reviewsByUser, $chatByUser, $dates, $lastActivity) {
             $reviews = $reviewsByUser->get($u->id) ?? collect();
             $chat = $chatByUser->get($u->id) ?? collect();
             $cells = $dates->map(fn ($date) => [(int) ($reviews[$date] ?? 0), (int) ($chat[$date] ?? 0)]);
@@ -194,7 +246,10 @@ class AdminController extends Controller
                 'streak' => $u->streak,
                 'is_premium' => $u->isPremium(),
                 'created_at' => $u->created_at->toDateString(),
+                // Streak anchor (last *completed* session) - kept for context.
                 'last_active_date' => $u->last_active_date?->toDateString(),
+                // What the status chip must use: last day they did anything.
+                'last_activity_date' => $lastActivity[$u->id] ?? null,
                 'active_days' => $cells->filter(fn ($c) => $c[0] + $c[1] > 0)->count(),
                 'cells' => $cells,
             ];
@@ -280,13 +335,30 @@ class AdminController extends Controller
 
         $users = User::orderBy('id')
             ->get(['id', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until',
-                'stripe_subscription_id', 'stripe_status', 'review_emails', 'is_admin', 'is_recorder', 'created_at'])
+                'stripe_subscription_id', 'stripe_status', 'review_emails', 'checkpoints', 'scenarios_done',
+                'listening_done', 'transforms_done', 'is_admin', 'is_recorder', 'created_at'])
             ->map(function (User $u) use ($reviewStats, $reviewDays, $chatStats) {
                 $reviews = $reviewStats->get($u->id);
                 $chat = $chatStats->get($u->id);
                 $firstReview = $reviews?->first_at ? Carbon::parse($reviews->first_at) : null;
                 $firstChat = $chat?->first_date ? Carbon::parse($chat->first_date) : null;
-                $firstSeen = collect([$firstReview, $firstChat])->filter()->min();
+
+                // Checkpoints, listening scenes, transform drills and scenarios
+                // are stored as {id => ISO timestamp} maps on the user and write
+                // no ReviewLog at all. Counting only reviews and chat marked
+                // people who passed a checkpoint as having never shown up.
+                $maps = [
+                    'checkpoints' => $u->checkpoints ?? [],
+                    'listening_done' => $u->listening_done ?? [],
+                    'transforms_done' => $u->transforms_done ?? [],
+                    'scenarios_done' => $u->scenarios_done ?? [],
+                ];
+                $mapTimes = collect($maps)
+                    ->flatMap(fn (array $m) => array_values($m))
+                    ->filter()
+                    ->map(fn ($t) => Carbon::parse($t));
+
+                $firstSeen = collect([$firstReview, $firstChat])->concat($mapTimes)->filter()->min();
 
                 return [
                     'id' => $u->id,
@@ -306,6 +378,10 @@ class AdminController extends Controller
                     'review_days' => (int) ($reviewDays[$u->id] ?? 0),
                     'chat_days' => (int) ($chat->days ?? 0),
                     'chat_messages' => (int) ($chat->messages ?? 0),
+                    'checkpoints_passed' => count($maps['checkpoints']),
+                    'listening_done' => count($maps['listening_done']),
+                    'transforms_done' => count($maps['transforms_done']),
+                    'scenarios_done' => count($maps['scenarios_done']),
                     'xp' => $u->xp,
                     'streak' => $u->streak,
                     'premium_source' => $this->premiumSource($u),
@@ -334,7 +410,8 @@ class AdminController extends Controller
                 'grace' => 'premium_count and premium_source use User::isPremium()\'s 2-day renewal grace, so a subscriber mid-renewal still counts as premium.',
                 'legacy_status' => 'stripe_status was added 2026-07-20. Subscribers from before that have a null status and are reported as paying until their next webhook.',
                 'analytics_gap' => 'Umami register events undercount signups (adblockers, in-app browsers, privacy tooling). This DB export is ground truth; do not compute activation from Umami denominators.',
-                'activity_streams' => 'activated = ever logged a review or a chat day. These are the only two per-day streams the app records; reading a lesson without reviewing leaves no trace.',
+                'activity_streams' => 'activated = ever logged a review, a chat day, a checkpoint pass, a listening scene, a transform set or a scenario. Opening a lesson without grading anything still leaves no trace.',
+                'last_active_vs_activity' => 'last_active_date is the STREAK ANCHOR - written only when a session is completed, so it is null for people who reviewed but never finished one. It is not "last seen"; users_active_* and the panel status chip are counted from the activity streams instead.',
             ],
             'stats' => $this->stats()->getData(true),
             'trends' => $this->trends()->getData(true),

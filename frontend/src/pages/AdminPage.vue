@@ -173,9 +173,13 @@ function cellTitle(u, i) {
 
 // Days since last activity, measured against the window's "today".
 function daysSinceActive(u) {
-  if (!u.last_active_date) return Infinity
+  // last_activity_date, not last_active_date: the latter is the streak anchor
+  // and only gets written when a session is *completed*, so someone who did a
+  // dozen reviews and closed the tab was showing up as "never active" next to
+  // a grid full of their own reviews.
+  if (!u.last_activity_date) return Infinity
   const today = activity.value?.dates.at(-1)
-  return Math.max(0, Math.round((new Date(today) - new Date(u.last_active_date)) / 86400000))
+  return Math.max(0, Math.round((new Date(today) - new Date(u.last_activity_date)) / 86400000))
 }
 
 // The verdict chip: stayed, fading, or gone - the reason this tab exists.
