@@ -1,0 +1,14 @@
+{
+    "title": "ö vs o",
+    "emoji": "👂",
+    "level": "A1",
+    "contrast": ["ö", "o"],
+    "verified": false,
+    "rule": "Same lips as o, but the tongue sits forward - like ä with rounded lips.",
+    "summary": "Short set on purpose: true ö/o minimal pairs are genuinely rare in Finnish, so these three are close to all of the everyday ones. The contrast still matters, because ö and o send vowel harmony in opposite directions.",
+    "pairs": [
+        { "a": "möi", "a_en": "sold", "b": "moi", "b_en": "hi" },
+        { "a": "söi", "a_en": "ate", "b": "soi", "b_en": "rang, played" },
+        { "a": "löi", "a_en": "hit, struck", "b": "loi", "b_en": "created" }
+    ]
+}

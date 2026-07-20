@@ -1,0 +1,16 @@
+{
+    "title": "ä vs a",
+    "emoji": "👂",
+    "level": "A1",
+    "contrast": ["ä", "a"],
+    "verified": false,
+    "rule": "ä is the vowel in English 'cat'. a is the one in 'father'.",
+    "summary": "This is the contrast that costs the most, because it also drives vowel harmony: pick the wrong one in the stem and every ending after it harmonises the wrong way too. One slip, whole word wrong.",
+    "pairs": [
+        { "a": "sää", "a_en": "weather", "b": "saa", "b_en": "gets, may" },
+        { "a": "säde", "a_en": "ray, beam", "b": "sade", "b_en": "rain" },
+        { "a": "tähti", "a_en": "star", "b": "tahti", "b_en": "beat, tempo" },
+        { "a": "jää", "a_en": "ice", "b": "jaa", "b_en": "divide; 'well...'" },
+        { "a": "säkki", "a_en": "sack", "b": "sakki", "b_en": "gang, bunch of people" }
+    ]
+}

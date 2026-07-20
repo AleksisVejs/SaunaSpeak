@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
-import { BookOpen, Drama, Flame, Headphones, Layers, MessageCircle, Pencil, Smartphone, Snowflake, Sparkles, Wrench, Zap } from 'lucide-vue-next'
+import { BookOpen, Drama, Ear, Flame, Headphones, Layers, MessageCircle, Pencil, Smartphone, Snowflake, Sparkles, Wrench, Zap } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useAuthStore } from '../stores/auth'
 import { usePwaInstall } from '../composables/usePwaInstall'
@@ -438,6 +438,11 @@ async function sendFeedback() {
           <Wrench class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Taivutus</span>
           <span class="quick-sub">Endings</span>
+        </router-link>
+        <router-link to="/kuulo" class="quick">
+          <Ear class="quick-icon" aria-hidden="true" />
+          <span class="quick-name">Kuulo</span>
+          <span class="quick-sub">Vowels</span>
         </router-link>
         <router-link to="/words" class="quick">
           <BookOpen class="quick-icon" aria-hidden="true" />

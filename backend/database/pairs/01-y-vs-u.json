@@ -1,0 +1,16 @@
+{
+    "title": "y vs u",
+    "emoji": "👂",
+    "level": "A1",
+    "contrast": ["y", "u"],
+    "verified": false,
+    "rule": "Both are rounded. y is made at the front of the mouth, u at the back.",
+    "summary": "English has no y. Speakers reach for the nearest thing they know - 'oo' - and land on u, which is a different word. Say 'ee' and then round your lips without moving your tongue: that's y.",
+    "pairs": [
+        { "a": "syy", "a_en": "reason", "b": "suu", "b_en": "mouth" },
+        { "a": "kyy", "a_en": "adder (snake)", "b": "kuu", "b_en": "moon" },
+        { "a": "myy", "a_en": "sells", "b": "muu", "b_en": "other" },
+        { "a": "pyy", "a_en": "hazel grouse", "b": "puu", "b_en": "tree" },
+        { "a": "tyyli", "a_en": "style", "b": "tuuli", "b_en": "wind" }
+    ]
+}

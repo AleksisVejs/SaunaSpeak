@@ -64,7 +64,7 @@ const METHOD = [
   {
     icon: LoylyIcon,
     title: 'Finnish Finns actually speak',
-    body: 'Puhekieli first - "mä oon", not "minä olen". The textbook form stays one tap away, but you train the language of real life.'
+    body: 'Yleispuhekieli first - the spoken register understood everywhere. "Mä oon", not "minä olen". The textbook form stays one tap away, and local slang stays something you recognise rather than repeat.'
   }
 ]
 
@@ -210,6 +210,9 @@ onBeforeUnmount(() => faqLd?.remove())
         </button>
       </div>
       <p class="muted">Left: what you'll say. Right: the written form - kept one tap away in every lesson, because you'll need both.</p>
+      <p class="muted explainer-link">
+        <router-link to="/puhekieli-vs-kirjakieli">Puhekieli, kirjakieli, yleispuhekieli - which one are you learning? →</router-link>
+      </p>
     </section>
 
     <!-- the daily session itself: show the actual product, not adjectives -->
@@ -312,6 +315,7 @@ onBeforeUnmount(() => faqLd?.remove())
         <router-link to="/lessons">Lessons</router-link>
         <router-link to="/pricing">Pricing</router-link>
         <router-link to="/compare">Compare</router-link>
+        <router-link to="/puhekieli-vs-kirjakieli">Puhekieli explained</router-link>
         <router-link to="/privacy">Privacy</router-link>
         <router-link to="/terms">Terms</router-link>
         <a href="mailto:mail@saunaspeak.com">Contact</a>
@@ -378,6 +382,8 @@ onBeforeUnmount(() => faqLd?.remove())
 .bottom-cta h2 { font-size: clamp(20px, 4vw, 26px); margin-bottom: 18px; }
 
 .samples { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.explainer-link { margin-top: 12px; }
+.explainer-link a { color: var(--accent); font-weight: 600; }
 .sample {
   display: grid;
   grid-template-columns: 1fr 1fr;

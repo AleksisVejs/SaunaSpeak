@@ -15,6 +15,7 @@ use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\PublicLessonController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\PairController;
 use App\Http\Controllers\TransformController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\WordController;
@@ -95,6 +96,13 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/transforms', [TransformController::class, 'index']);
     Route::get('/transforms/{id}', [TransformController::class, 'show']);
     Route::post('/transforms/{id}/complete', [TransformController::class, 'complete']);
+
+    // Kuulo (vowel discrimination): perception before production, and free
+    // for the same reason - it is the contrast natives say actually breaks
+    // comprehension.
+    Route::get('/pairs', [PairController::class, 'index']);
+    Route::get('/pairs/{id}', [PairController::class, 'show']);
+    Route::post('/pairs/{id}/complete', [PairController::class, 'complete']);
 
     Route::get('/words', [WordController::class, 'index']);
     Route::get('/words/review', [WordController::class, 'review']);

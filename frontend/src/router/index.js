@@ -26,6 +26,7 @@ const routes = [
   { path: '/pricing', name: 'pricing', component: () => import('../pages/PricingPage.vue'), meta: { title: 'Pricing - the learning path is free forever - SaunaSpeak', description: 'SaunaSpeak pricing: the full spoken-Finnish learning path is free forever. Löyly+ (€4.99/month) adds AI conversation practice and real-life roleplay.' } },
   // full: the comparison table needs more width than the 560px reading column.
   { path: '/compare', name: 'compare', component: () => import('../pages/ComparePage.vue'), meta: { full: true, title: 'Best apps to learn Finnish, compared honestly (2026) - SaunaSpeak', description: 'SaunaSpeak vs Duolingo vs Pimsleur vs SuomiSpeak - an honest comparison of Finnish learning apps: spoken Finnish (puhekieli), free tiers, AI practice, grammar depth and price.' } },
+  { path: '/puhekieli-vs-kirjakieli', name: 'puhekieli', component: () => import('../pages/PuhekieliPage.vue'), meta: { full: true, title: 'Puhekieli vs kirjakieli vs yleispuhekieli - spoken Finnish explained - SaunaSpeak', description: 'The three registers of Finnish, explained: kirjakieli (the written standard), puhekieli (spoken - and not one single thing) and yleispuhekieli (the common spoken register worth learning first). What Finns actually say, and which words you should recognise but not repeat.' } },
   { path: '/privacy', name: 'privacy', component: () => import('../pages/PrivacyPage.vue'), meta: { title: 'Privacy policy - SaunaSpeak', description: 'What SaunaSpeak stores, why, and your rights over your data.' } },
   { path: '/terms', name: 'terms', component: () => import('../pages/TermsPage.vue'), meta: { title: 'Terms of service - SaunaSpeak', description: 'The terms for using SaunaSpeak, the spoken-Finnish learning app.' } },
   { path: '/onboarding', name: 'onboarding', component: () => import('../pages/OnboardingFlow.vue'), meta: { auth: true } },
@@ -34,6 +35,8 @@ const routes = [
   { path: '/session', name: 'session', component: () => import('../pages/SessionPage.vue'), meta: { auth: true } },
   { path: '/listening', name: 'listening', component: () => import('../pages/ListeningPage.vue'), meta: { auth: true, title: 'Kuuntelu - listen to real Finnish conversations - SaunaSpeak' } },
   { path: '/listening/:id', name: 'listening-scene', component: () => import('../pages/ListeningScenePage.vue'), meta: { auth: true, title: 'Kuuntelu - SaunaSpeak' } },
+  { path: '/kuulo', name: 'kuulo', component: () => import('../pages/KuuloPage.vue'), meta: { auth: true, title: 'Kuulo - Finnish vowel discrimination - SaunaSpeak' } },
+  { path: '/kuulo/:id', name: 'kuulo-drill', component: () => import('../pages/KuuloDrillPage.vue'), meta: { auth: true, title: 'Kuulo - SaunaSpeak' } },
   { path: '/transforms', name: 'transforms', component: () => import('../pages/TransformsPage.vue'), meta: { auth: true, title: 'Taivutus - Finnish inflection drills - SaunaSpeak' } },
   { path: '/transforms/:id', name: 'transform-drill', component: () => import('../pages/TransformDrillPage.vue'), meta: { auth: true, title: 'Taivutus - SaunaSpeak' } },
   { path: '/words', name: 'words', component: () => import('../pages/WordBankPage.vue'), meta: { auth: true } },

@@ -5,6 +5,7 @@ Allow: /
 Disallow: /dashboard
 Disallow: /session
 Disallow: /lesson/
+Disallow: /kuulo
 Disallow: /words
 Disallow: /profile
 Disallow: /checkpoint/
