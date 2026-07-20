@@ -4,7 +4,9 @@
       "PowerShell(php --version)",
       "PowerShell(composer --version)",
       "PowerShell(node --version)",
-      "PowerShell(npm --version)"
+      "PowerShell(npm --version)",
+      "mcp__visualize__read_me",
+      "Bash(php artisan *)"
     ]
   }
 }
