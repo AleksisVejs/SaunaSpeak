@@ -397,6 +397,73 @@ async function removeLive(item) {
   }
 }
 
+// ---- ElevenLabs clips: cullable back to edge-tts ----
+// Same shape as the live-human list, one tier down. Deleting one doesn't
+// refund the credits it cost - it's for the clip that came back wrong, where
+// the plain edge-tts underneath is the better thing for a learner to hear.
+const elevenItems = computed(() => {
+  const q = liveQ.value.trim().toLowerCase()
+  const hit = (t) => !q || t.toLowerCase().includes(q)
+  return [
+    ...(recordings.value?.eleven_sentences ?? []).filter((s) => hit(s.finnish_text)).map((s) => ({
+      type: 'sentence', keyId: `es-${s.id}`, key: String(s.id), id: s.id,
+      label: s.finnish_text, note: s.english_text, url: s.audio_url
+    })),
+    ...(recordings.value?.eleven_words ?? []).filter((w) => hit(w.word)).map((w) => ({
+      type: 'word', keyId: `ew-${w.word}`, key: w.word, word: w.word, label: w.word, note: '', url: w.audio_url
+    })),
+    ...(recordings.value?.eleven_listening ?? [])
+      .filter((l) => hit(l.fi) || hit(l.speaker) || hit(l.scene_title))
+      .map((l) => ({
+        type: 'listening', keyId: `el-${l.scene}-${l.index}`, key: `${l.scene}:${l.index}`,
+        label: l.fi, note: `${l.speaker} (${l.voice}) · ${l.scene_title}`, url: l.audio_url
+      })),
+    ...(recordings.value?.eleven_phrases ?? []).filter((p) => hit(p.text)).map((p) => ({
+      type: 'phrase', keyId: `ep-${p.base}`, key: p.base,
+      label: p.text, note: 'Taivutus drill', url: p.audio_url
+    })),
+    ...(recordings.value?.eleven_pairs ?? []).filter((p) => hit(p.word)).map((p) => ({
+      type: 'pair', keyId: `epr-${p.word}`, key: p.word,
+      label: p.word, note: 'Kuulo drill', url: p.audio_url
+    }))
+  ]
+})
+
+const elevenOf = (type) => elevenItems.value.filter((i) => inSection(i, type))
+
+async function removeEleven(item) {
+  if (!confirm(`Delete the ElevenLabs clip for "${item.label}"?\n\nIt falls back to the edge-tts voice. Re-voicing it later costs credits again.`)) return
+
+  recBusy.value = true
+  try {
+    await api.delete('/admin/eleven', { data: { type: item.type, key: item.key } })
+    // The lists are keyed per kind server-side; drop the row locally so the
+    // panel doesn't need a full refetch to reflect one deletion.
+    const list = {
+      sentence: 'eleven_sentences', word: 'eleven_words', listening: 'eleven_listening',
+      phrase: 'eleven_phrases', pair: 'eleven_pairs'
+    }[item.type]
+    const rows = recordings.value?.[list] ?? []
+    const idx = rows.findIndex((r) => (
+      item.type === 'sentence' ? r.id === item.id
+        : item.type === 'listening' ? `${r.scene}:${r.index}` === item.key
+          : item.type === 'phrase' ? r.base === item.key
+            : r.word === item.key
+    ))
+    if (idx !== -1) rows.splice(idx, 1)
+
+    // The 11L badge on the row above reads from stats, not this list.
+    const a = stats.value?.audio
+    if (a) {
+      if (item.type === 'sentence') a.sentences_eleven = Math.max(0, (a.sentences_eleven ?? 0) - 1)
+      else if (item.type === 'word') a.words_eleven = Math.max(0, (a.words_eleven ?? 0) - 1)
+      else if (item.type === 'pair') a.pairs_eleven = Math.max(0, (a.pairs_eleven ?? 0) - 1)
+    }
+  } finally {
+    recBusy.value = false
+  }
+}
+
 // ---- feedback inbox ----
 const feedback = ref(null)
 const fbBusy = ref({}) // feedback id → deleting
@@ -717,7 +784,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                       ✓ Approve all ({{ pendingOf(sec.type).length }})
                     </button>
                     <input
-                      v-if="liveOf(sec.type).length > 5 || liveQ"
+                      v-if="liveOf(sec.type).length + elevenOf(sec.type).length > 5 || liveQ"
                       v-model="liveQ"
                       class="search live-search"
                       type="search"
@@ -726,7 +793,7 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                     />
                   </div>
 
-                  <p v-if="!pendingOf(sec.type).length && !liveOf(sec.type).length" class="rec-empty muted">
+                  <p v-if="!pendingOf(sec.type).length && !liveOf(sec.type).length && !elevenOf(sec.type).length" class="rec-empty muted">
                     {{ liveQ ? `Nothing matches "${liveQ}".` : 'Nothing here yet - takes appear the moment your recorder keeps one.' }}
                   </p>
 
@@ -762,6 +829,23 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                     </div>
                     <p v-if="liveOf(sec.type).length > LIVE_MAX" class="muted live-more">
                       +{{ liveOf(sec.type).length - LIVE_MAX }} more - search to narrow down.
+                    </p>
+                  </template>
+
+                  <template v-if="elevenOf(sec.type).length">
+                    <p class="panel-sub">🤖 Voiced by ElevenLabs <span class="muted">{{ elevenOf(sec.type).length }}</span></p>
+                    <div v-for="item in elevenOf(sec.type).slice(0, LIVE_MAX)" :key="item.keyId" class="rec-row">
+                      <div class="rec-main">
+                        <p class="rec-text">{{ item.label }}</p>
+                        <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
+                      </div>
+                      <div class="rec-actions">
+                        <button class="rec-btn play" title="Play the ElevenLabs clip" @click="playClip(item.url)">▶ Play</button>
+                        <button class="rec-btn no" :disabled="recBusy" title="Delete - the app falls back to the edge-tts voice" @click="removeEleven(item)">✗ Delete</button>
+                      </div>
+                    </div>
+                    <p v-if="elevenOf(sec.type).length > LIVE_MAX" class="muted live-more">
+                      +{{ elevenOf(sec.type).length - LIVE_MAX }} more - search to narrow down.
                     </p>
                   </template>
                 </div>

@@ -180,6 +180,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/recordings', [RecordController::class, 'pending']);
         Route::post('/recordings/approve', [RecordController::class, 'approve']);
         Route::post('/recordings/reject', [RecordController::class, 'reject']);
+
+        // Cull a bad ElevenLabs clip back to its edge-tts one. Admin-only, not
+        // a recorder action: it retires paid audio the whole course hears.
+        Route::delete('/eleven', [RecordController::class, 'deleteEleven']);
     });
 
     // Väinö's bench: free accounts get a lifetime taste

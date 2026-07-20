@@ -460,9 +460,23 @@ class RecordController extends Controller
             ->map(fn ($url, $word) => ['word' => $word, 'audio_url' => $url])
             ->values();
 
-        [$pendingListening, $liveListening] = $this->listeningSubmissionState();
-        [$pendingPhrases, $livePhrases] = $this->phraseSubmissionState();
-        [$pendingPairs, $livePairs] = $this->pairSubmissionState();
+        // The ElevenLabs layer, listed the same way as the human takes: it is
+        // the tier a reviewer culls from. A clip that renders a vowel wrong is
+        // worse than the edge-tts one underneath it, and waiting for a human
+        // recording to fix it could take months.
+        $elevenSentences = Sentence::where('audio_url', 'like', '/audio/eleven/%')
+            ->orderBy('id')
+            ->get(['id', 'finnish_text', 'english_text', 'audio_url'])
+            ->values();
+
+        $elevenWords = collect($manifest)
+            ->filter(fn ($url) => str_starts_with($url, '/audio/eleven/'))
+            ->map(fn ($url, $word) => ['word' => $word, 'audio_url' => $url])
+            ->values();
+
+        [$pendingListening, $liveListening, $elevenListening] = $this->listeningSubmissionState();
+        [$pendingPhrases, $livePhrases, $elevenPhrases] = $this->phraseSubmissionState();
+        [$pendingPairs, $livePairs, $elevenPairs] = $this->pairSubmissionState();
 
         return [
             'sentences' => $pendingSentences,
@@ -475,6 +489,11 @@ class RecordController extends Controller
             'live_listening' => $liveListening,
             'live_phrases' => $livePhrases,
             'live_pairs' => $livePairs,
+            'eleven_sentences' => $elevenSentences,
+            'eleven_words' => $elevenWords,
+            'eleven_listening' => $elevenListening,
+            'eleven_phrases' => $elevenPhrases,
+            'eleven_pairs' => $elevenPairs,
         ];
     }
 
@@ -482,13 +501,14 @@ class RecordController extends Controller
      * Taivutus phrase takes, pending and live. Reviewed alongside sentences -
      * they're the same job: one Finnish sentence, read out loud.
      *
-     * @return array{0: array, 1: array} [pending, live]
+     * @return array{0: array, 1: array, 2: array} [pending, live, eleven]
      */
     private function phraseSubmissionState(): array
     {
         $pendingFiles = $this->pendingPhrases();
         $pending = [];
         $live = [];
+        $eleven = [];
 
         foreach (Transforms::ownPhrases() as $phrase) {
             $row = ['base' => $phrase['base'], 'text' => $phrase['text']];
@@ -500,10 +520,12 @@ class RecordController extends Controller
                 ];
             } elseif (str_starts_with((string) $phrase['audio_url'], '/audio/human/')) {
                 $live[] = $row + ['audio_url' => $phrase['audio_url']];
+            } elseif (str_starts_with((string) $phrase['audio_url'], '/audio/eleven/')) {
+                $eleven[] = $row + ['audio_url' => $phrase['audio_url']];
             }
         }
 
-        return [$pending, $live];
+        return [$pending, $live, $eleven];
     }
 
     /**
@@ -511,7 +533,7 @@ class RecordController extends Controller
      * drill hangs on one vowel, so the reviewer is listening for something
      * narrower than "sounds natural" - is the contrast actually there?
      *
-     * @return array{0: array, 1: array} [pending, live]
+     * @return array{0: array, 1: array, 2: array} [pending, live, eleven]
      */
     private function pairSubmissionState(): array
     {
@@ -519,6 +541,7 @@ class RecordController extends Controller
         $clips = MinimalPairs::wordClips();
         $pending = [];
         $live = [];
+        $eleven = [];
 
         foreach (MinimalPairs::words() as $norm => $word) {
             $base = MinimalPairs::wordBase($word);
@@ -531,10 +554,12 @@ class RecordController extends Controller
                 ];
             } elseif (str_starts_with((string) $clips[$norm], '/audio/human/')) {
                 $live[] = $row + ['audio_url' => $clips[$norm]];
+            } elseif (str_starts_with((string) $clips[$norm], '/audio/eleven/')) {
+                $eleven[] = $row + ['audio_url' => $clips[$norm]];
             }
         }
 
-        return [$pending, $live];
+        return [$pending, $live, $eleven];
     }
 
     /**
@@ -543,13 +568,14 @@ class RecordController extends Controller
      * matches the character - a scene recorded by one person for both parts
      * is the failure this whole split exists to prevent.
      *
-     * @return array{0: array, 1: array} [pending, live]
+     * @return array{0: array, 1: array, 2: array} [pending, live, eleven]
      */
     private function listeningSubmissionState(): array
     {
         $pendingFiles = $this->pendingListening();
         $pending = [];
         $live = [];
+        $eleven = [];
 
         foreach (Listening::all() as $scene) {
             foreach ($scene['lines'] as $index => $line) {
@@ -573,11 +599,13 @@ class RecordController extends Controller
                     ];
                 } elseif (str_starts_with((string) $line['audio_url'], '/audio/human/')) {
                     $live[] = $row + ['audio_url' => $line['audio_url']];
+                } elseif (str_starts_with((string) $line['audio_url'], '/audio/eleven/')) {
+                    $eleven[] = $row + ['audio_url' => $line['audio_url']];
                 }
             }
         }
 
-        return [$pending, $live];
+        return [$pending, $live, $eleven];
     }
 
     /**
@@ -715,6 +743,84 @@ class RecordController extends Controller
         $this->writeManifest($manifest);
 
         return response()->json(['word' => $word, 'audio_url' => $manifest[$word] ?? null]);
+    }
+
+    /**
+     * DELETE /api/admin/eleven - cull one ElevenLabs clip, back to edge-tts.
+     * Body: { type: sentence|word|listening|phrase|pair, key: id|word|... }.
+     *
+     * Deletes only the file in audio/eleven/; the edge-tts clip underneath it
+     * is untouched, so the item keeps a Finnish voice and nothing goes silent.
+     * Credits are already spent either way - a clip that says the wrong vowel
+     * is worth less than the robot it replaced.
+     *
+     * Phrases, pairs and listening lines resolve their URL by globbing the
+     * layers on every request (see Transforms/MinimalPairs/Listening), so
+     * removing the file IS the relink. Sentences and words store theirs, so
+     * those two are re-pointed by hand.
+     */
+    public function deleteEleven(Request $request): JsonResponse
+    {
+        $this->ensureAdmin($request);
+
+        [$type, $key] = $this->validReviewTarget($request);
+
+        if ($type === 'sentence') {
+            $sentence = Sentence::findOrFail((int) $key);
+            File::delete(public_path("audio/eleven/sentence-{$sentence->id}.mp3"));
+            $sentence->update(['audio_url' => $this->bestSentenceUrl($sentence->id)]);
+
+            return response()->json(['audio_url' => $sentence->audio_url]);
+        }
+
+        if ($type === 'word') {
+            $manifest = $this->manifest();
+            abort_unless($key !== '' && array_key_exists($key, $manifest), 422, 'Unknown word.');
+
+            $base = $this->wordBase($key);
+            File::delete(public_path("audio/eleven/words/{$base}.mp3"));
+
+            if ($url = $this->bestWordUrl($base)) {
+                $manifest[$key] = $url;
+            } else {
+                unset($manifest[$key]); // frontend falls back to browser TTS
+            }
+            $this->writeManifest($manifest);
+
+            return response()->json(['audio_url' => $manifest[$key] ?? null]);
+        }
+
+        File::delete(match ($type) {
+            'listening' => public_path('audio/eleven/'.$this->listeningBaseFromKey($key).'.mp3'),
+            'phrase' => public_path('audio/eleven/'.$this->phraseBaseFromKey($key).'.mp3'),
+            default => public_path('audio/eleven/pairs/'.$this->pairBaseFromKey($key).'.mp3'),
+        });
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * The best clip left on disk for a sentence, in the resolver's order:
+     * human, then edge-tts, then nothing. Mirrors GenerateAudio::bestUrl(),
+     * minus the ElevenLabs tier the caller has just deleted.
+     */
+    private function bestSentenceUrl(int $id): ?string
+    {
+        if ($human = File::glob(public_path("audio/human/sentence-{$id}.*"))[0] ?? null) {
+            return '/audio/human/'.basename($human);
+        }
+
+        return File::exists(public_path("audio/sentence-{$id}.mp3")) ? "/audio/sentence-{$id}.mp3" : null;
+    }
+
+    /** Same, for a word's base name: human, then edge-tts, then nothing. */
+    private function bestWordUrl(string $base): ?string
+    {
+        if ($human = File::glob(public_path("audio/human/words/{$base}.*"))[0] ?? null) {
+            return '/audio/human/words/'.basename($human);
+        }
+
+        return File::exists(public_path("audio/words/{$base}.mp3")) ? "/audio/words/{$base}.mp3" : null;
     }
 
     // ------------------------------------------------------------------
