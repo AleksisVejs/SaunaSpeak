@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ChatDay;
 use App\Models\ReviewLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,21 +42,53 @@ class PremiumTest extends TestCase
 
     public function test_premium_features_are_gated_when_billing_is_enabled(): void
     {
-        config(['services.stripe.secret' => 'sk_test_x']);
+        config(['services.stripe.secret' => 'sk_test_x', 'services.ai.key' => null,
+            'services.ai.gemini_key' => null, 'services.ai.openrouter_key' => null]);
 
+        // Free accounts get a taste of Väinö's bench (lifetime allowance)...
         $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']]])
+            ->assertOk()
+            ->assertJsonPath('free_remaining', User::FREE_CHAT_MESSAGES - 1);
+
+        // ...but Situations and insights stay behind the gate.
+        $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']], 'scenario' => 'kauppa'])
             ->assertStatus(402)
             ->assertJsonPath('code', 'premium_required');
         $this->getJson('/api/insights/week')->assertStatus(402);
 
-        // A live subscription opens the gate.
+        // A live subscription opens the gate and lifts the counter.
         $this->user->update(['premium_until' => now()->addMonth()]);
         $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']]])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonPath('free_remaining', null);
 
         // An expired one closes it again (past the 2-day renewal grace).
         $this->user->update(['premium_until' => now()->subDays(3)]);
         $this->getJson('/api/insights/week')->assertStatus(402);
+    }
+
+    public function test_free_chat_allowance_is_lifetime_and_runs_out(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x', 'services.ai.key' => null,
+            'services.ai.gemini_key' => null, 'services.ai.openrouter_key' => null]);
+
+        // Messages from six weeks ago still count: the taste never refills.
+        ChatDay::create([
+            'user_id' => $this->user->id,
+            'date' => today()->subDays(42)->toDateString(),
+            'messages' => User::FREE_CHAT_MESSAGES - 1,
+        ]);
+
+        $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi!']]])
+            ->assertOk()
+            ->assertJsonPath('free_remaining', 0);
+
+        $this->postJson('/api/chat', ['messages' => [['role' => 'user', 'content' => 'Moi taas!']]])
+            ->assertStatus(402)
+            ->assertJsonPath('code', 'chat_limit');
+
+        // /api/user reports the same number the gate enforces.
+        $this->getJson('/api/user')->assertJsonPath('user.chat_free_remaining', 0);
     }
 
     /** Post a webhook body signed the way Stripe signs it. */

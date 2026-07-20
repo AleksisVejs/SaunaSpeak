@@ -99,6 +99,10 @@ const streakTitle = computed(() => {
 
 const dueCount = computed(() => auth.stats?.due_count ?? 0)
 
+function trackUpsell(source) {
+  window.umami?.track('upsell_click', { source })
+}
+
 // Today's goal, made visible: reviews done today against the daily goal
 // picked at onboarding. A visibly closing gap is what pulls a session in
 // (goal-gradient effect) - the number alone never did.
@@ -407,7 +411,10 @@ async function sendFeedback() {
           <MessageCircle class="talk-icon" aria-hidden="true" />
           <span class="talk-name">
             Sauna Chat
-            <span v-if="!auth.user?.is_premium" class="talk-tag">Löyly+</span>
+            <!-- while free-taste messages remain, the honest label is an invitation -->
+            <span v-if="!auth.user?.is_premium" class="talk-tag" :class="{ free: (auth.user?.chat_free_remaining ?? 0) > 0 }">
+              {{ (auth.user?.chat_free_remaining ?? 0) > 0 ? 'Try free' : 'Löyly+' }}
+            </span>
           </span>
           <span class="talk-desc">Chat with Väinö in Finnish. He answers in puhekieli and fixes your mistakes as you go.</span>
         </router-link>
@@ -420,6 +427,22 @@ async function sendFeedback() {
           <span class="talk-desc">Order a coffee, book a sauna slot, small-talk at work — real scenes, played out.</span>
         </router-link>
       </div>
+
+      <!-- the trial, visible where learners actually live. Only for accounts
+           the paywall applies to (is_premium === false, never undefined). -->
+      <router-link
+        v-if="auth.user?.is_premium === false"
+        to="/upgrade"
+        class="card loyly-strip"
+        @click="trackUpsell('dashboard')"
+      >
+        <LoylyIcon class="strip-ico" aria-hidden="true" />
+        <span class="strip-body">
+          <span class="strip-title">Try Löyly+ free for 3 days</span>
+          <span class="strip-sub muted">Unlimited Väinö, Situations, AI feedback · €0 today, cancel anytime</span>
+        </span>
+        <span class="strip-go" aria-hidden="true">›</span>
+      </router-link>
 
       <!-- optional extra practice: the same skills that are already in the daily
            session, available on their own. English descriptors sit under the
@@ -875,7 +898,28 @@ async function sendFeedback() {
   background: var(--accent-soft, rgba(245,158,11,0.14));
   color: var(--accent);
 }
+.talk-tag.free {
+  background: var(--green-soft, rgba(52, 211, 153, 0.15));
+  color: var(--green, #34d399);
+}
 .talk-desc { font-size: 12px; line-height: 1.45; color: var(--text-dim); }
+
+/* the Löyly+ trial strip */
+.loyly-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  border-color: rgba(245, 158, 11, 0.35);
+  background: var(--accent-soft);
+  transition: border-color 0.15s ease;
+}
+.loyly-strip:hover { border-color: var(--accent); }
+.strip-ico { width: 22px; height: 22px; flex-shrink: 0; color: var(--accent); }
+.strip-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.strip-title { font-weight: 800; font-size: 14.5px; }
+.strip-sub { font-size: 12.5px; line-height: 1.4; }
+.strip-go { font-size: 20px; font-weight: 700; color: var(--text-dim); flex-shrink: 0; }
 
 .quick-head {
   display: flex;

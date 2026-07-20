@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { BookOpen, Check, Flame, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
+import { BookOpen, Check, Flame, MessageCircle, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
+import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useSessionStore } from '../stores/session'
 import { useAuthStore } from '../stores/auth'
 import SentenceCard from '../components/SentenceCard.vue'
@@ -181,6 +182,27 @@ function startCelebration() {
   )
 }
 
+// The trial pitch at the happiest moment of the day: right after a finished
+// session, when the mistakes are fresh and "AI feedback on every attempt"
+// means something concrete. Shows for free accounts until acted on or
+// dismissed - never again after either.
+const UPSELL_STORE = 'ss_upsell_session_done'
+const upsellDismissed = ref(localStorage.getItem(UPSELL_STORE) === '1')
+const showUpsell = computed(() => auth.user?.is_premium === false && !upsellDismissed.value)
+
+function upsellActed(source) {
+  window.umami?.track('upsell_click', { source })
+  dismissUpsell()
+}
+function dismissUpsell() {
+  upsellDismissed.value = true
+  try {
+    localStorage.setItem(UPSELL_STORE, '1')
+  } catch {
+    // storage blocked - it'll simply show again next session
+  }
+}
+
 // End-of-session consolidation: everything studied today, once more with audio.
 const studied = computed(() => {
   const unique = new Map()
@@ -231,6 +253,23 @@ function confettiStyle(i) {
     <div class="streak-note"><Flame class="note-ico" aria-hidden="true" /> {{ auth.user?.streak }} day streak</div>
     <p v-if="freezeEarned" class="freeze-note"><Snowflake class="note-ico" aria-hidden="true" /> Week complete — you earned a streak freeze! It auto-saves one missed day.</p>
     <p v-else-if="auth.user?.streak_freezes" class="freeze-note muted"><Snowflake class="note-ico" aria-hidden="true" /> {{ auth.user.streak_freezes }} freeze{{ auth.user.streak_freezes > 1 ? 's' : '' }} banked — each auto-saves one missed day</p>
+
+    <!-- Löyly+ at the moment it makes sense: the session just surfaced real
+         mistakes, and the paid tier is the thing that talks them through. -->
+    <div v-if="showUpsell" class="upsell card">
+      <button class="upsell-x" aria-label="Not now" @click="dismissUpsell">×</button>
+      <p class="upsell-head"><LoylyIcon class="upsell-ico" aria-hidden="true" /> Löyly+ · 3 days free</p>
+      <p class="upsell-text muted">
+        Nice work today. Want to actually <b>use</b> those sentences? Väinö chats
+        with you in spoken Finnish, fixes your mistakes and explains why.
+      </p>
+      <router-link to="/upgrade" class="btn btn-primary btn-block" @click="upsellActed('post_session')">
+        Start your 3 free days
+      </router-link>
+      <router-link to="/chat" class="upsell-try muted" @click="upsellActed('post_session_chat')">
+        <MessageCircle class="upsell-try-ico" aria-hidden="true" /> or try a free chat with Väinö first ›
+      </router-link>
+    </div>
 
     <div v-if="studied.length" class="recap">
       <p class="recap-title"><BookOpen class="note-ico" aria-hidden="true" /> Quick recap - say each one out loud one more time</p>
@@ -436,6 +475,50 @@ function confettiStyle(i) {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
+
+/* the trial pitch after the celebration */
+.upsell {
+  position: relative;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-color: rgba(245, 158, 11, 0.35);
+  background: var(--accent-soft);
+}
+.upsell-x {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 4px;
+}
+.upsell-x:hover { color: var(--text); }
+.upsell-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--accent);
+}
+.upsell-ico { width: 16px; height: 16px; flex-shrink: 0; }
+.upsell-text { font-size: 14px; line-height: 1.5; }
+.upsell-try {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.upsell-try:hover { color: var(--text); }
+.upsell-try-ico { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* recap */
 .recap {

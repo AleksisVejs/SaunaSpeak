@@ -123,6 +123,9 @@ class AuthController extends Controller
 
         $fresh = $user->fresh();
         $fresh->is_premium = $fresh->isPremium();
+        // Free-taste chat allowance; null = unlimited. The chat UI keys its
+        // banner and gate off this, so it must ride on the same payload.
+        $fresh->chat_free_remaining = $fresh->chatFreeRemaining();
 
         return response()->json([
             'user' => $fresh,

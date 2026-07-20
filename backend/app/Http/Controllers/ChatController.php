@@ -114,9 +114,30 @@ class ChatController extends Controller
         $user = $request->user();
         $scenario = Scenarios::find($data['scenario'] ?? null);
 
+        if (! $user->isPremium()) {
+            // Scenarios are Löyly+ only; the free taste is Väinö's bench.
+            if ($scenario) {
+                return response()->json([
+                    'message' => 'This is a Löyly+ feature.',
+                    'code' => 'premium_required',
+                ], 402);
+            }
+
+            if ($user->chatFreeRemaining() <= 0) {
+                return response()->json([
+                    'message' => 'Your free messages with Väinö are used up.',
+                    'code' => 'chat_limit',
+                ], 402);
+            }
+        }
+
         // Count the sent message (a counter, never the content) - this is
         // the "chat messages this week" line in weekly insights.
         ChatDay::bump($user->id);
+
+        // Rides on every reply so the free-taste counter in the UI never
+        // drifts from the server's count. null = unlimited (premium).
+        $freeRemaining = $user->chatFreeRemaining();
 
         $budgetKey = 'chat-budget:'.$user->id.':'.today()->toDateString();
         Cache::add($budgetKey, 0, now()->endOfDay());
@@ -126,6 +147,7 @@ class ChatController extends Controller
                 'translation' => 'That\'s enough steam for one day! Väinö is off to the lake. See you tomorrow. (Daily chat limit reached - it resets at midnight.)',
                 'correction' => null,
                 'source' => 'daily_cap',
+                'free_remaining' => $freeRemaining,
             ]);
         }
         // Capped at B1 on purpose: mastering every sentence in the course is
@@ -148,7 +170,7 @@ class ChatController extends Controller
                     $this->captureMistake($user, $data['messages'], $response['correction'], $scenario['id'] ?? null);
                 }
 
-                return response()->json($response);
+                return response()->json($response + ['free_remaining' => $freeRemaining]);
             }
 
             // Rate limited / out of credits: say so in character instead of
@@ -161,12 +183,14 @@ class ChatController extends Controller
                         : 'Phew, too much steam! Väinö is catching his breath - try again in a minute. (AI rate limit reached.)',
                     'correction' => null,
                     'source' => 'rate_limited',
+                    'free_remaining' => $freeRemaining,
                 ]);
             }
         }
 
         return response()->json(
-            $scenario ? $this->mockScenarioReply($data['messages']) : $this->mockReply($data['messages'])
+            ($scenario ? $this->mockScenarioReply($data['messages']) : $this->mockReply($data['messages']))
+                + ['free_remaining' => $freeRemaining]
         );
     }
 

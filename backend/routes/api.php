@@ -182,12 +182,17 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::post('/recordings/reject', [RecordController::class, 'reject']);
     });
 
+    // Väinö's bench: free accounts get a lifetime taste
+    // (User::FREE_CHAT_MESSAGES, enforced in the controller), Löyly+ is
+    // unlimited. TTS rides along so the free taste has a voice - edge-tts
+    // costs nothing and the throttle bounds it.
+    Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1,chat');
+    Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1,tts');
+
     // Löyly+ features. Completing a Situation lives here too: it awards XP
-    // and can only legitimately happen from inside the premium /chat.
+    // and can only legitimately happen from inside a premium scenario chat.
     Route::middleware('premium')->group(function () {
-        Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1,chat');
         Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
-        Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1,tts');
         Route::get('/insights/week', [InsightsController::class, 'week']);
     });
 });

@@ -157,6 +157,23 @@ class User extends Authenticatable
     }
 
     /**
+     * The free taste of Väinö's bench: every account gets a lifetime
+     * allowance of chat messages before the Löyly+ gate closes. Lifetime,
+     * not per-day - the taste converts, the habit is the paid tier.
+     */
+    public const FREE_CHAT_MESSAGES = 10;
+
+    /** Free messages left on the bench; null means unlimited (premium). */
+    public function chatFreeRemaining(): ?int
+    {
+        if ($this->isPremium()) {
+            return null;
+        }
+
+        return max(0, self::FREE_CHAT_MESSAGES - (int) $this->chatDays()->sum('messages'));
+    }
+
+    /**
      * Reset the streak if the user skipped a whole day - unless a streak
      * freeze covers exactly one missed day, in which case it's consumed
      * silently and the streak survives.

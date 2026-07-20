@@ -21,8 +21,21 @@ const auth = useAuthStore()
 const route = useRoute()
 
 // Löyly+ gate: the backend enforces it (402); this just shows the pitch
-// instead of a chat box that would error on send.
+// instead of a chat box that would error on send. Free accounts get a
+// lifetime taste of Väinö's bench (chat_free_remaining, server-counted);
+// Situations stay Löyly+ only.
 const premium = computed(() => auth.user?.is_premium !== false)
+const freeRemaining = computed(() => auth.user?.chat_free_remaining ?? 0)
+const scenarioMode = computed(() => !!route.query.scenario)
+const canChat = computed(() => premium.value || (!scenarioMode.value && freeRemaining.value > 0))
+// The taste is over: same lock screen, but honest about why. Keyed to an
+// explicit 0 so a not-yet-fetched user sees the generic pitch, not a false
+// "all used up".
+const tasteUsed = computed(() => auth.user?.chat_free_remaining === 0 && !scenarioMode.value)
+
+function trackUpsell(source) {
+  window.umami?.track('upsell_click', { source })
+}
 
 // (Re)enter the scene: pick the character and their first line. Runs on
 // mount and whenever the ?scenario= query changes (e.g. tapping the Chat tab
@@ -53,7 +66,9 @@ async function enterScene() {
 }
 
 onMounted(() => {
-  if (!auth.user) auth.fetchUser()
+  // Always refetch: the free-taste counter must be current, not the cached
+  // user from whenever the app booted.
+  auth.fetchUser()
   enterScene()
   // Desktop: land ready to type. On touch, focusing would pop the keyboard.
   if (window.matchMedia('(pointer: fine)').matches) inputRef.value?.focus()
@@ -271,13 +286,23 @@ async function send() {
         .catch(() => {})
     }
     burst.value = Date.now()
+    // Keep the free-taste counter in lockstep with the server's count.
+    if (typeof data.free_remaining === 'number' && auth.user) {
+      auth.user.chat_free_remaining = data.free_remaining
+    }
     playSpoken(data.reply, null, personaVoice.value)
-  } catch {
-    messages.value.push({
-      role: 'assistant',
-      content: 'Hups, sauna meni pimeeks! 😅',
-      translation: 'Oops, the sauna went dark! (Connection problem - try again.)'
-    })
+  } catch (e) {
+    if (e?.response?.status === 402) {
+      // Allowance exhausted (or a race beat the local counter): zero it so
+      // the view flips to the lock screen instead of erroring on every send.
+      if (auth.user) auth.user.chat_free_remaining = 0
+    } else {
+      messages.value.push({
+        role: 'assistant',
+        content: 'Hups, sauna meni pimeeks! 😅',
+        translation: 'Oops, the sauna went dark! (Connection problem - try again.)'
+      })
+    }
   } finally {
     sending.value = false
     scrollToEnd()
@@ -325,8 +350,9 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 
 <template>
   <!-- Löyly+ paywall: the backend enforces it (402); this shows the pitch
-       instead of a chat box that would error on send. -->
-  <div v-if="!premium" class="chat-locked">
+       instead of a chat box that would error on send. Reached only once the
+       free taste is spent (bench) or immediately (Situations). -->
+  <div v-if="!canChat" class="chat-locked">
     <div class="locked-card">
       <div class="locked-vaino-wrap">
         <span class="locked-glow" aria-hidden="true"></span>
@@ -335,10 +361,16 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 
       <div class="locked-body">
         <span class="locked-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
-        <h1>Väinö's bench</h1>
+        <h1>{{ tasteUsed ? 'Väinö saved your seat' : "Väinö's bench" }}</h1>
         <p class="muted locked-lead">
-          Free-form chatting with a patient old Finn - the fastest way to find the
-          gaps the drills can't reach.
+          <template v-if="tasteUsed">
+            Your free messages are used up - and that little chat is exactly what
+            daily practice feels like on Löyly+. The bench stays warm.
+          </template>
+          <template v-else>
+            Free-form chatting with a patient old Finn - the fastest way to find the
+            gaps the drills can't reach.
+          </template>
         </p>
 
         <ul class="locked-perks">
@@ -348,7 +380,7 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
         </ul>
 
         <div class="locked-actions">
-          <router-link to="/upgrade" class="btn btn-primary loyly-btn"><LoylyIcon class="lb-ico" aria-hidden="true" /> See Löyly+</router-link>
+          <router-link to="/upgrade" class="btn btn-primary loyly-btn" @click="trackUpsell(tasteUsed ? 'chat_taste_used' : 'chat_gate')"><LoylyIcon class="lb-ico" aria-hidden="true" /> Try Löyly+ free for 3 days</router-link>
           <router-link to="/dashboard" class="btn btn-ghost">Back to learning</router-link>
         </div>
 
@@ -523,6 +555,11 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
       </div>
 
       <div v-else class="dock">
+        <!-- free taste: the countdown doubles as the honest pitch -->
+        <p v-if="!premium" class="taste-note">
+          Free taste: <b>{{ freeRemaining }}</b> message{{ freeRemaining === 1 ? '' : 's' }} left ·
+          <router-link to="/upgrade" class="taste-link" @click="trackUpsell('chat_banner')">Löyly+ for unlimited</router-link>
+        </p>
         <p v-if="lowTurns" class="turns-note">The löyly is running low - {{ turnsLeft }} messages left</p>
 
         <div v-if="showHints" class="hint-row">
@@ -1264,6 +1301,16 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
   font-weight: 600;
   color: var(--scene-ink-faint);
 }
+
+.taste-note {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--scene-ink-dim);
+}
+.taste-note b { color: var(--scene-ink); }
+.taste-link { color: #fbbf58; font-weight: 700; }
+.taste-link:hover { text-decoration: underline; }
 
 .hint-row {
   display: grid;
