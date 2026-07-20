@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
 
 // DB-generated sitemap (includes every /lessons/{slug} page). Registered
@@ -13,11 +14,9 @@ Route::get('/sitemap.xml', SitemapController::class);
  * there at deploy time). Any non-API path falls back to the SPA's index.html
  * so client-side routes like /dashboard survive a page refresh. In local dev
  * (no index.html in public/) the Vite dev server owns the frontend instead.
+ *
+ * SpaController injects a per-route canonical (plus title/description on the
+ * public pages) so a crawler's first pass doesn't see every route claiming to
+ * be the homepage.
  */
-Route::get('/{any?}', function () {
-    $spa = public_path('index.html');
-
-    return file_exists($spa)
-        ? response()->file($spa)
-        : view('welcome');
-})->where('any', '^(?!api|audio|images|assets).*');
+Route::get('/{any?}', SpaController::class)->where('any', '^(?!api|audio|images|assets).*');

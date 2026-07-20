@@ -8,7 +8,10 @@
     <meta name="theme-color" content="#12141a" />
     <title>SaunaSpeak - Learn Spoken Finnish (Puhekieli), the Finnish Finns Actually Speak</title>
     <meta name="description" content="Learn spoken Finnish (puhekieli) - 'mä oon', not 'minä olen'. Daily 5-minute sessions with audio, spaced repetition, AI conversation practice and real-life roleplay. The learning path is free, forever." />
-    <link rel="canonical" href="https://saunaspeak.com/" />
+    <!-- No canonical here on purpose: this one shell serves every route, so a
+         static tag would declare all of them duplicates of '/'. SpaController
+         injects a self-referencing one per request; the router keeps it true
+         across client-side navigation. -->
 
     <!-- LCP: the hero Väinö - fetch it before the JS bundle asks for it.
          Only the logged-out landing page ('/') renders it: any other route,
@@ -32,10 +35,20 @@
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "Organization",
+          "@id": "https://saunaspeak.com/#org",
+          "name": "SaunaSpeak",
+          "alternateName": "Sauna Speak",
+          "url": "https://saunaspeak.com/",
+          "logo": "https://saunaspeak.com/pwa-512x512.png"
+        },
+        {
           "@type": "WebSite",
           "@id": "https://saunaspeak.com/#website",
           "url": "https://saunaspeak.com/",
           "name": "SaunaSpeak",
+          "alternateName": "Sauna Speak",
+          "publisher": { "@id": "https://saunaspeak.com/#org" },
           "description": "Learn spoken Finnish (puhekieli) with daily audio sessions, spaced repetition and AI conversation practice.",
           "inLanguage": "en"
         },
