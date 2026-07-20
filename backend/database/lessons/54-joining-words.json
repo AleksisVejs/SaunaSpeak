@@ -1,0 +1,103 @@
+{
+    "title": "Joining Words: ja, mut, tai",
+    "level": "A0",
+    "pattern": {
+        "title": "The glue: ja, mut, tai/vai, ku, jos, et",
+        "summary": "Six little words turn single phrases into real sentences: ja (and), mut (but), tai (or), ku (because/when), jos (if), et (that). Watch tai vs vai: a statement offers with 'tai', but a QUESTION offering a choice uses 'vai' - 'teetä vai kahvia?'. Mixing those two is the giveaway that someone learned Finnish from a book.",
+        "examples": [
+            "Kahvi ja pulla, kiitos. = Coffee and a bun, please.",
+            "Mä tuun, mut mä oon myöhäs. = I'm coming, but I'm late.",
+            "Otaksä teetä vai kahvii? = Do you want tea or coffee?"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Kahvi ja pulla, kiitos.",
+            "en": "Coffee and a bun, please.",
+            "written": null,
+            "glosses": {
+                "kahvi": "coffee",
+                "ja": "and - joins two things, exactly like English",
+                "pulla": "a sweet bun - the Finnish coffee companion",
+                "kiitos": "please / thanks"
+            }
+        },
+        {
+            "fi": "Mä tuun, mut mä oon myöhäs.",
+            "en": "I'm coming, but I'm late.",
+            "written": "Minä tulen, mutta minä olen myöhässä.",
+            "glosses": {
+                "mä": "I - spoken 'minä'",
+                "tuun": "I come - spoken 'tulen'",
+                "mut": "but - spoken 'mutta', the ending drops",
+                "oon": "I am - spoken 'olen'",
+                "myöhäs": "late - spoken 'myöhässä'"
+            }
+        },
+        {
+            "fi": "Otaksä teetä vai kahvii?",
+            "en": "Do you want tea or coffee?",
+            "written": "Otatko sinä teetä vai kahvia?",
+            "glosses": {
+                "otaksä": "will you take - spoken 'otatko sinä': -ko becomes -ks and 'sinä' shrinks to 'sä'",
+                "teetä": "tea - partitive of 'tee'",
+                "vai": "or - the QUESTION 'or', when you offer a choice between options",
+                "kahvii": "coffee - spoken partitive 'kahvia'"
+            }
+        },
+        {
+            "fi": "Mä otan teen tai kahvin.",
+            "en": "I'll have tea or coffee.",
+            "written": "Minä otan teen tai kahvin.",
+            "glosses": {
+                "otan": "I take - from 'ottaa'",
+                "teen": "the tea - object form of 'tee'",
+                "tai": "or - the STATEMENT 'or'; in a question it would be 'vai'",
+                "kahvin": "the coffee - object form of 'kahvi'"
+            }
+        },
+        {
+            "fi": "Mä en tuu, ku mul on kiire.",
+            "en": "I'm not coming, because I'm in a hurry.",
+            "written": "Minä en tule, koska minulla on kiire.",
+            "glosses": {
+                "en": "not - the negative verb for 'I'",
+                "ku": "because - spoken short form of 'koska' (it also means 'when')",
+                "mul on": "I have - spoken 'minulla on'",
+                "kiire": "a hurry - 'mul on kiire' = I'm busy"
+            }
+        },
+        {
+            "fi": "Jos sataa, mä jään kotiin.",
+            "en": "If it rains, I'll stay home.",
+            "written": "Jos sataa, minä jään kotiin.",
+            "glosses": {
+                "jos": "if - opens the condition, just like English",
+                "sataa": "it rains - Finnish needs no 'it' here",
+                "jään": "I stay - from 'jäädä'",
+                "kotiin": "home - to home"
+            }
+        },
+        {
+            "fi": "Mä luulen, et se on kiva.",
+            "en": "I think (that) it's nice.",
+            "written": "Minä luulen, että se on kiva.",
+            "glosses": {
+                "luulen": "I think / I reckon - from 'luulla'",
+                "et": "that - spoken 'että'; English often drops 'that', Finnish keeps it",
+                "se": "it",
+                "kiva": "nice"
+            }
+        },
+        {
+            "fi": "Ensin kahvi, sit sauna.",
+            "en": "First coffee, then sauna.",
+            "written": "Ensin kahvi, sitten sauna.",
+            "glosses": {
+                "ensin": "first",
+                "sit": "then - spoken 'sitten'; the word that strings a day together",
+                "sauna": "sauna"
+            }
+        }
+    ]
+}

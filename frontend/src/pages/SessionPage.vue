@@ -183,6 +183,29 @@ function startCelebration() {
   )
 }
 
+// --- the beginner scaffold ---
+// Below this many mastered sentences the learner has no base to guess from,
+// so a brand-new sentence is assembled from word tiles instead of pretested
+// blind. Roughly the A0 block: by then "mä", "onks", "kiitos" are known and
+// the scaffold has become the thing that slows them down (expertise reversal),
+// so it switches itself off.
+const BEGINNER_MASTERED_MAX = 30
+const scaffold = computed(() => (auth.stats?.mastered_count ?? 0) < BEGINNER_MASTERED_MAX)
+
+// Distractor words for the builder: the other sentences in today's session, so
+// the wrong options are words the learner is actually meeting - not noise.
+const builderPool = computed(() => {
+  const current = session.current?.sentence?.finnish_text ?? ''
+  return [
+    ...new Set(
+      session.sentences
+        .filter((s) => s.finnish_text !== current)
+        .flatMap((s) => s.finnish_text.split(/\s+/))
+        .filter(Boolean)
+    )
+  ]
+})
+
 // --- tomorrow, made concrete ---
 // The finish screen used to end on a wish ("see you tomorrow!"). Wishes
 // don't retain; appointments do. Two mechanisms below:
@@ -365,6 +388,8 @@ function confettiStyle(i) {
           :sentence="session.current.sentence"
           :status="session.current.sentence.status"
           mode="study"
+          :scaffold="scaffold"
+          :builder-pool="builderPool"
           @revealed="revealed = true"
         />
 

@@ -1,7 +1,8 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { BookOpen, Brain, CircleHelp, CircleUserRound, Eye, Headphones, MessageCircle, Mic, PenLine, Puzzle, Sparkles, Volume2 } from 'lucide-vue-next'
+import { Blocks, BookOpen, Brain, CircleHelp, CircleUserRound, Eye, Headphones, MessageCircle, Mic, PenLine, Puzzle, Sparkles, Volume2 } from 'lucide-vue-next'
 import AudioButton from './AudioButton.vue'
+import SentenceBuilder from './SentenceBuilder.vue'
 import ShadowCompare from './ShadowCompare.vue'
 import TappableSentence from './TappableSentence.vue'
 import { cardKind, clozeText } from '../utils/practice'
@@ -11,7 +12,14 @@ const props = defineProps({
   status: { type: String, default: null },
   // 'study' (session): exercise varies with SRS stage - see cardKind().
   // 'browse' (lesson list): everything visible except the translation.
-  mode: { type: String, default: 'browse' }
+  mode: { type: String, default: 'browse' },
+  // True while the learner is still building their first footing: a brand-new
+  // sentence is then assembled from word tiles instead of guessed at blind.
+  // Scaffolding helps novices and stops helping the competent (expertise
+  // reversal), so the session drops this the moment they have a base.
+  scaffold: { type: Boolean, default: false },
+  // Words from the rest of today's session, used as builder distractors.
+  builderPool: { type: Array, default: () => [] }
 })
 
 const emit = defineEmits(['revealed'])
@@ -26,17 +34,24 @@ const quiz = computed(() => ['cloze', 'dictation', 'recall'].includes(kind.value
 
 // Pretesting: attempting to retrieve before studying strengthens the memory,
 // even when the guess is wrong - so new sentences show the English first.
-const pretest = computed(() => kind.value === 'study' && !guessed.value)
+// It assumes something to reconstruct from, though: at absolute zero "guess
+// it" is a demand with no basis, so beginners build the sentence instead.
+const pretest = computed(() => kind.value === 'study' && !guessed.value && !props.scaffold)
+const building = computed(() => kind.value === 'study' && !guessed.value && props.scaffold)
 
 const kindLabels = {
   study: { icon: Sparkles, text: 'New - listen & shadow' },
   pretest: { icon: CircleHelp, text: 'New - guess it first, even wildly' },
+  building: { icon: Blocks, text: 'New - hear it, then build it' },
   cloze: { icon: Puzzle, text: 'Fill the gap - catch the missing word' },
   dictation: { icon: PenLine, text: 'Dictation - what do you hear?' },
   recall: { icon: Brain, text: 'Recall - say it in Finnish, out loud' }
 }
 
-const hintLabel = computed(() => kindLabels[pretest.value ? 'pretest' : kind.value])
+const hintLabel = computed(() => {
+  if (building.value) return kindLabels.building
+  return kindLabels[pretest.value ? 'pretest' : kind.value]
+})
 
 const clozed = computed(() => clozeText(props.sentence.finnish_text))
 
@@ -54,6 +69,13 @@ watch(
   },
   { immediate: true }
 )
+
+// The builder already played the sentence and showed the answer, so this
+// hands over to the full study card without replaying it.
+function builderSolved() {
+  guessed.value = true
+  emit('revealed')
+}
 
 async function reveal() {
   // New sentence: the guess is over - show the Finnish and hear it.
@@ -101,8 +123,18 @@ const nativeAudio = computed(() => !!props.sentence.audio_url?.startsWith('/audi
     <!-- Dialogue context: the line this sentence replies to -->
     <p v-if="sentence.context_text" class="context"><MessageCircle class="ctx-ico" aria-hidden="true" /> "{{ sentence.context_text }}"</p>
 
+    <!-- Beginner scaffold: hear it, then assemble it from word tiles -->
+    <SentenceBuilder
+      v-if="building"
+      :text="sentence.finnish_text"
+      :english="sentence.english_text"
+      :audio-url="sentence.audio_url"
+      :pool="builderPool"
+      @solved="builderSolved"
+    />
+
     <!-- Pretest: English shown, learner attempts the Finnish before seeing it -->
-    <template v-if="pretest">
+    <template v-else-if="pretest">
       <img v-if="sentence.image_url" :src="sentence.image_url" class="sentence-img" alt="" />
       <p class="finnish">{{ sentence.english_text }}</p>
       <p class="pretest-nudge">A wrong guess still primes your memory - say something!</p>

@@ -13,6 +13,34 @@ export function cardKind(status) {
   }
 }
 
+// Strip a word to its comparable core: case and punctuation carry no weight
+// when checking an assembled sentence.
+const normalizeWord = (w) => w.toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, '')
+
+export function sentenceWords(text) {
+  return (text ?? '').split(/\s+/).map(normalizeWord).filter(Boolean)
+}
+
+/**
+ * Grade an assembled sentence (the beginner "build it" scaffold).
+ *
+ * Finnish marks grammatical roles with case endings, not position, so several
+ * orders of the same words are genuinely correct - only the emphasis moves.
+ * Marking those wrong would be teaching learners a rule the language doesn't
+ * have, so a correct word set in another order is 'reordered' (accepted, with
+ * the everyday order shown), never 'wrong'.
+ *
+ * @returns {'perfect'|'reordered'|'wrong'}
+ */
+export function assemblyVerdict(attempt, expected) {
+  const a = attempt.map(normalizeWord).filter(Boolean)
+  const b = expected.map(normalizeWord).filter(Boolean)
+
+  if (a.length === b.length && a.every((w, i) => w === b[i])) return 'perfect'
+  if (a.length === b.length && [...a].sort().join(' ') === [...b].sort().join(' ')) return 'reordered'
+  return 'wrong'
+}
+
 // Trivial function words that make bad cloze gaps.
 const STOP_WORDS = new Set([
   'mä', 'sä', 'se', 'on', 'oo', 'ei', 'en', 'ja', 'no', 'joo',
