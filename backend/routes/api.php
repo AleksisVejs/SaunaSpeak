@@ -155,6 +155,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/record/phrase/{base}', [RecordController::class, 'storePhrase']);
     Route::delete('/record/phrase/{base}', [RecordController::class, 'revertPhrase']);
 
+    // Kuulo drill words: their own studio tab and their own directories -
+    // they never touch the course word manifest (see MinimalPairs).
+    Route::post('/record/pair', [RecordController::class, 'storePair']);
+    Route::delete('/record/pair', [RecordController::class, 'revertPair']);
+
     // Admin panel (promote via `php artisan user:promote <email>`).
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);

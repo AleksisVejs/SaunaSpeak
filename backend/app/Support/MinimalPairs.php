@@ -110,6 +110,25 @@ class MinimalPairs
     }
 
     /**
+     * Every drill word with its current clip resolved - what the recording
+     * studio queues and the admin panel counts. Same normalized keys as
+     * words(); null means no clip at all yet (the drill stays silent).
+     *
+     * @return array<string, ?string> normalized word → url
+     */
+    public static function wordClips(): array
+    {
+        $clips = self::clips();
+        $out = [];
+
+        foreach (self::words() as $norm => $word) {
+            $out[$norm] = $clips[self::wordBase($word)] ?? null;
+        }
+
+        return $out;
+    }
+
+    /**
      * Filesystem-safe, collision-proof name for a word's clip. The hash is
      * load-bearing, not decoration: Str::slug flattens ä to a, so sää and saa
      * would otherwise fight over one filename - which is the exact contrast
@@ -162,11 +181,16 @@ class MinimalPairs
         foreach ([
             'audio/pairs' => '/audio/pairs/',
             'audio/eleven/pairs' => '/audio/eleven/pairs/',
-            'audio/human/pairs' => '/audio/human/pairs/',
         ] as $dir => $url) {
             foreach (File::glob(public_path($dir).'/*.mp3') as $path) {
                 $map[pathinfo($path, PATHINFO_FILENAME)] = $url.basename($path);
             }
+        }
+
+        // Any extension: a studio take stays in the browser's native format
+        // (webm/m4a) when ffmpeg isn't around to transcode it.
+        foreach (File::glob(public_path('audio/human/pairs').'/*.*') as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = '/audio/human/pairs/'.basename($path);
         }
 
         return $map;

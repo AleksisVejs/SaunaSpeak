@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sentence;
 use App\Support\Listening;
+use App\Support\MinimalPairs;
 use App\Support\Transforms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -88,6 +89,7 @@ class RecordController extends Controller
         $pendingSentenceIds = array_keys($this->pendingSentences());
         $pendingWordBases = array_keys($this->pendingWords());
         $pendingPhraseBases = array_keys($this->pendingPhrases());
+        $pendingPairBases = array_keys($this->pendingPairs());
 
         $sentences = Sentence::join('lessons', 'lessons.id', '=', 'sentences.lesson_id')
             ->orderBy('lessons.order_index')
@@ -145,6 +147,29 @@ class RecordController extends Controller
             ? $openWordEntries->filter(fn (array $w) => $w['tier'] === 'tts')->values()
             : $openWordEntries;
 
+        // Kuulo pair words: their own tab, never mixed into the course words.
+        // They live outside the word manifest on purpose (own directory, own
+        // lifecycle - see MinimalPairs), and the drill is the one place where
+        // a human voice is the point, not a nicety: it teaches a contrast the
+        // synthetic voice may not even render.
+        $pairClips = MinimalPairs::wordClips();
+        $openPairEntries = collect(MinimalPairs::words())
+            ->map(fn (string $word, string $norm) => [
+                'word' => $word,
+                'audio_url' => $pairClips[$norm],
+                'tier' => $isEleven($pairClips[$norm]) ? 'eleven' : 'tts',
+            ])
+            ->reject(fn (array $p) => str_starts_with((string) $p['audio_url'], '/audio/human/')
+                || in_array(MinimalPairs::wordBase($p['word']), $pendingPairBases, true))
+            ->sortBy('word')
+            ->values();
+
+        $pairEleven = $openPairEntries->filter(fn (array $p) => $p['tier'] === 'eleven')->count();
+
+        $openPairs = $robotFirst
+            ? $openPairEntries->filter(fn (array $p) => $p['tier'] === 'tts')->values()
+            : $openPairEntries;
+
         // Counts describe the whole corpus; only the returned slice is filtered,
         // so searching never makes the progress bar lie.
         return response()->json([
@@ -166,6 +191,12 @@ class RecordController extends Controller
                 ->take(200)
                 ->values(),
             'word_matches' => $openWords->filter(fn (array $w) => $matches($w['word']))->count(),
+            // No search/slice for pairs: the whole corpus is ~26 words.
+            'pair_total' => count($pairClips),
+            'pair_done' => count($pairClips) - $openPairEntries->count(),
+            'pair_pending' => count($pendingPairBases),
+            'pair_eleven' => $pairEleven,
+            'pairs' => $openPairs,
         ]);
     }
 
@@ -330,6 +361,37 @@ class RecordController extends Controller
         return response()->json(['word' => $word, 'pending_url' => "/audio/pending/words/{$stored}"]);
     }
 
+    /** POST /api/record/pair - submit a take for a Kuulo drill word. */
+    public function storePair(Request $request): JsonResponse
+    {
+        $this->ensureRecorder($request);
+
+        $word = mb_strtolower(trim((string) $request->input('word')));
+        abort_unless($word !== '' && array_key_exists($word, MinimalPairs::words()), 422, 'Unknown word.');
+
+        $file = $this->validAudio($request);
+        $stored = $this->store($file, public_path('audio/pending/pairs'), MinimalPairs::wordBase($word));
+
+        return response()->json(['word' => $word, 'pending_url' => "/audio/pending/pairs/{$stored}"]);
+    }
+
+    /** DELETE /api/record/pair?word=... - retire a LIVE pair take, back to the best synthetic clip. */
+    public function revertPair(Request $request): JsonResponse
+    {
+        $this->ensureAdmin($request);
+
+        $word = mb_strtolower(trim((string) $request->input('word')));
+        abort_unless($word !== '' && array_key_exists($word, MinimalPairs::words()), 422, 'Unknown word.');
+
+        foreach (File::glob(public_path('audio/human/pairs/'.MinimalPairs::wordBase($word).'.*')) as $old) {
+            File::delete($old);
+        }
+
+        // No manifest to rewrite: MinimalPairs resolves clips from disk, so
+        // deleting the human file already falls back to ElevenLabs/edge-tts.
+        return response()->json(['word' => $word, 'audio_url' => MinimalPairs::wordClips()[$word] ?? null]);
+    }
+
     /**
      * GET /api/record/submitted - the recorder's own picture: takes waiting
      * for review and takes already live. From here anything can be
@@ -400,16 +462,19 @@ class RecordController extends Controller
 
         [$pendingListening, $liveListening] = $this->listeningSubmissionState();
         [$pendingPhrases, $livePhrases] = $this->phraseSubmissionState();
+        [$pendingPairs, $livePairs] = $this->pairSubmissionState();
 
         return [
             'sentences' => $pendingSentences,
             'words' => $pendingWords,
             'listening' => $pendingListening,
             'phrases' => $pendingPhrases,
+            'pairs' => $pendingPairs,
             'live_sentences' => $liveSentences,
             'live_words' => $liveWords,
             'live_listening' => $liveListening,
             'live_phrases' => $livePhrases,
+            'live_pairs' => $livePairs,
         ];
     }
 
@@ -435,6 +500,37 @@ class RecordController extends Controller
                 ];
             } elseif (str_starts_with((string) $phrase['audio_url'], '/audio/human/')) {
                 $live[] = $row + ['audio_url' => $phrase['audio_url']];
+            }
+        }
+
+        return [$pending, $live];
+    }
+
+    /**
+     * Kuulo pair takes, pending and live. Reviewed on their own: the whole
+     * drill hangs on one vowel, so the reviewer is listening for something
+     * narrower than "sounds natural" - is the contrast actually there?
+     *
+     * @return array{0: array, 1: array} [pending, live]
+     */
+    private function pairSubmissionState(): array
+    {
+        $pendingFiles = $this->pendingPairs();
+        $clips = MinimalPairs::wordClips();
+        $pending = [];
+        $live = [];
+
+        foreach (MinimalPairs::words() as $norm => $word) {
+            $base = MinimalPairs::wordBase($word);
+            $row = ['word' => $word];
+
+            if (isset($pendingFiles[$base])) {
+                $pending[] = $row + [
+                    'current_url' => $clips[$norm],
+                    'pending_url' => '/audio/pending/pairs/'.basename($pendingFiles[$base]),
+                ];
+            } elseif (str_starts_with((string) $clips[$norm], '/audio/human/')) {
+                $live[] = $row + ['audio_url' => $clips[$norm]];
             }
         }
 
@@ -505,6 +601,9 @@ class RecordController extends Controller
             foreach (array_keys($this->pendingPhrases()) as $base) {
                 $this->approvePhraseBase($base);
             }
+            foreach (array_keys($this->pendingPairs()) as $base) {
+                $this->approvePairBase($base);
+            }
 
             return response()->json(['ok' => true]);
         }
@@ -515,6 +614,7 @@ class RecordController extends Controller
             'sentence' => $this->approveSentence((int) $key),
             'listening' => $this->approveListeningBase($this->listeningBaseFromKey($key)),
             'phrase' => $this->approvePhraseBase($this->phraseBaseFromKey($key)),
+            'pair' => $this->approvePairBase($this->pairBaseFromKey($key)),
             default => $this->approveWordBase($this->wordBase($key)),
         };
 
@@ -532,6 +632,7 @@ class RecordController extends Controller
             'sentence' => public_path("audio/pending/sentence-{$key}.*"),
             'listening' => public_path('audio/pending/'.$this->listeningBaseFromKey($key).'.*'),
             'phrase' => public_path('audio/pending/'.$this->phraseBaseFromKey($key).'.*'),
+            'pair' => public_path('audio/pending/pairs/'.$this->pairBaseFromKey($key).'.*'),
             default => public_path('audio/pending/words/'.$this->wordBase($key).'.*'),
         };
 
@@ -552,6 +653,17 @@ class RecordController extends Controller
         abort_unless(Transforms::hasPhrase($key), 404, 'Unknown phrase.');
 
         return $key;
+    }
+
+    /**
+     * A pair review key is the drill word itself; it must name a word the
+     * drills actually say before it goes anywhere near a filesystem glob.
+     */
+    private function pairBaseFromKey(string $key): string
+    {
+        abort_unless(array_key_exists($key, MinimalPairs::words()), 404, 'Unknown word.');
+
+        return MinimalPairs::wordBase($key);
     }
 
     /** Review key "kahvilassa:3" → the shared base name for that line. */
@@ -665,7 +777,7 @@ class RecordController extends Controller
     private function validReviewTarget(Request $request): array
     {
         $data = $request->validate([
-            'type' => ['required', 'in:sentence,word,listening,phrase'],
+            'type' => ['required', 'in:sentence,word,listening,phrase,pair'],
             'key' => ['required', 'string', 'max:64'],
         ]);
 
@@ -726,6 +838,48 @@ class RecordController extends Controller
         }
 
         return $map;
+    }
+
+    /**
+     * @return array<string, string> pair word base (slug-hash) → pending path
+     *
+     * Pair takes get their own pending/pairs/ directory: the base-name scheme
+     * matches MinimalPairs, not the word manifest, and the same word can
+     * legitimately exist in both worlds with different hashes.
+     */
+    private function pendingPairs(): array
+    {
+        $map = [];
+        foreach (File::glob(public_path('audio/pending/pairs/*.*')) as $path) {
+            $map[pathinfo($path, PATHINFO_FILENAME)] = $path;
+        }
+
+        return $map;
+    }
+
+    private function approvePairBase(string $base): void
+    {
+        $pending = $this->pendingPairs()[$base] ?? null;
+        if ($pending === null) {
+            return;
+        }
+
+        $word = collect(MinimalPairs::words())->first(fn (string $w) => MinimalPairs::wordBase($w) === $base);
+        if ($word === null) {
+            File::delete($pending); // orphaned take for a word no longer drilled
+
+            return;
+        }
+
+        $dir = public_path('audio/human/pairs');
+        File::ensureDirectoryExists($dir);
+        foreach (File::glob("{$dir}/{$base}.*") as $old) {
+            File::delete($old);
+        }
+
+        // No manifest write: MinimalPairs::clips() prefers human/pairs on
+        // sight, so moving the file IS the approval.
+        File::move($pending, "{$dir}/".basename($pending));
     }
 
     private function approvePhraseBase(string $base): void

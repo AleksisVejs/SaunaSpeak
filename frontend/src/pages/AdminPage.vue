@@ -209,6 +209,11 @@ const recBusy = ref(false)
 const pendingItems = () => [
   ...(recordings.value?.sentences ?? []).map((s) => ({ ...s, type: 'sentence', key: String(s.id), label: s.finnish_text })),
   ...(recordings.value?.words ?? []).map((w) => ({ ...w, type: 'word', key: w.word, label: w.word })),
+  // Kuulo pair words review separately from course words: the reviewer is
+  // listening for one thing - is the vowel contrast actually audible?
+  ...(recordings.value?.pairs ?? []).map((p) => ({
+    ...p, type: 'pair', key: p.word, label: p.word, english_text: 'Kuulo drill'
+  })),
   // Taivutus phrases review as sentences - same job, one line read out loud.
   ...(recordings.value?.phrases ?? []).map((p) => ({
     ...p, type: 'phrase', key: p.base, label: p.text, english_text: 'Taivutus drill'
@@ -242,6 +247,7 @@ function toggleAudio(type) {
 const AUDIO_SECTIONS = [
   { type: 'sentence', label: 'Human-voiced sentences' },
   { type: 'word', label: 'Human-voiced words' },
+  { type: 'pair', label: 'Human-voiced Kuulo words' },
   { type: 'listening', label: 'Human-voiced conversations' }
 ]
 
@@ -253,6 +259,11 @@ function audioNums(type) {
     // from the recordings payload rather than the audio stats.
     const done = recordings.value?.live_listening?.length ?? 0
     const total = a.listening_total ?? 0
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
+  }
+  if (type === 'pair') {
+    const done = a.pairs_human ?? 0
+    const total = a.pairs_total ?? 0
     return { done, total, pct: total ? Math.round((done / total) * 100) : 0 }
   }
   // Taivutus phrases count with the sentences - they share the section.
@@ -269,6 +280,7 @@ function elevenCount(type) {
   if (!a) return 0
   if (type === 'sentence') return a.sentences_eleven ?? 0
   if (type === 'word') return a.words_eleven ?? 0
+  if (type === 'pair') return a.pairs_eleven ?? 0
   return 0
 }
 
@@ -299,6 +311,9 @@ async function review(item, action) {
     } else if (item.type === 'phrase') {
       const idx = recordings.value.phrases.findIndex((x) => x.base === item.base)
       if (idx !== -1) recordings.value.phrases.splice(idx, 1)
+    } else if (item.type === 'pair') {
+      const idx = recordings.value.pairs.findIndex((x) => x.word === item.word)
+      if (idx !== -1) recordings.value.pairs.splice(idx, 1)
     } else {
       const list = item.type === 'sentence' ? recordings.value.sentences : recordings.value.words
       const idx = list.findIndex((x) => (item.type === 'sentence' ? x.id === item.id : x.word === item.word))
@@ -344,6 +359,9 @@ const liveItems = computed(() => {
     ...(recordings.value?.live_phrases ?? []).filter((p) => hit(p.text)).map((p) => ({
       type: 'phrase', keyId: `p-${p.base}`, base: p.base,
       label: p.text, note: 'Taivutus drill', url: p.audio_url
+    })),
+    ...(recordings.value?.live_pairs ?? []).filter((p) => hit(p.word)).map((p) => ({
+      type: 'pair', keyId: `pr-${p.word}`, word: p.word, label: p.word, note: 'Kuulo drill', url: p.audio_url
     }))
   ]
 })
@@ -365,6 +383,10 @@ async function removeLive(item) {
       await api.delete(`/record/phrase/${item.base}`)
       const idx = recordings.value.live_phrases.findIndex((p) => p.base === item.base)
       if (idx !== -1) recordings.value.live_phrases.splice(idx, 1)
+    } else if (item.type === 'pair') {
+      await api.delete('/record/pair', { params: { word: item.word } })
+      const idx = recordings.value.live_pairs.findIndex((p) => p.word === item.word)
+      if (idx !== -1) recordings.value.live_pairs.splice(idx, 1)
     } else {
       await api.delete('/record/word', { params: { word: item.word } })
       const idx = recordings.value.live_words.findIndex((w) => w.word === item.word)

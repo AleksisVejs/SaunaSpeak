@@ -19,8 +19,8 @@ const loading = ref(true)
 const error = ref('')
 const micError = ref('')
 
-const mode = ref('sentences') // sentences | words | conversations | submitted
-const queue = ref({ sentences: [], words: [], sentence_total: 0, sentence_done: 0, word_total: 0, word_done: 0 })
+const mode = ref('sentences') // sentences | words | pairs | conversations | submitted
+const queue = ref({ sentences: [], words: [], pairs: [], sentence_total: 0, sentence_done: 0, word_total: 0, word_done: 0, pair_total: 0, pair_done: 0 })
 
 // Re-record flow: a take picked from "My takes" overrides the queue head.
 const override = ref(null) // { kind: 'sentence'|'word'|'listening', item }
@@ -52,6 +52,7 @@ const convLines = computed(() =>
 const items = computed(() => {
   if (mode.value === 'sentences') return queue.value.sentences
   if (mode.value === 'words') return queue.value.words
+  if (mode.value === 'pairs') return queue.value.pairs
   if (mode.value === 'conversations') return convLines.value
   return []
 })
@@ -61,6 +62,7 @@ const current = computed(() => override.value?.item ?? items.value[0] ?? null)
 const kind = computed(() => {
   if (override.value) return override.value.kind
   if (mode.value === 'words') return 'word'
+  if (mode.value === 'pairs') return 'pair'
   if (mode.value === 'conversations') return 'listening'
   return current.value?.kind ?? 'sentence'
 })
@@ -69,11 +71,11 @@ const kind = computed(() => {
 // one accessor each so the take card doesn't branch three ways.
 const currentText = computed(() => {
   if (!current.value) return ''
-  if (kind.value === 'word') return current.value.word
+  if (kind.value === 'word' || kind.value === 'pair') return current.value.word
   return current.value.finnish_text ?? current.value.fi ?? ''
 })
 const currentEn = computed(() => {
-  if (!current.value || kind.value === 'word') return ''
+  if (!current.value || kind.value === 'word' || kind.value === 'pair') return ''
   return current.value.english_text ?? current.value.en ?? ''
 })
 const currentRefUrl = computed(() => current.value?.audio_url ?? current.value?.current_url ?? null)
@@ -82,14 +84,17 @@ const currentRefUrl = computed(() => current.value?.audio_url ?? current.value?.
 // whole scene - "3 of 5" means Marja's five lines, which is the unit of work.
 const done = computed(() => {
   if (mode.value === 'conversations') return speaker.value?.done ?? 0
+  if (mode.value === 'pairs') return queue.value.pair_done
   return mode.value === 'sentences' ? queue.value.sentence_done : queue.value.word_done
 })
 const total = computed(() => {
   if (mode.value === 'conversations') return speaker.value?.total ?? 0
+  if (mode.value === 'pairs') return queue.value.pair_total
   return mode.value === 'sentences' ? queue.value.sentence_total : queue.value.word_total
 })
 const pending = computed(() => {
   if (mode.value === 'conversations') return speaker.value?.pending ?? 0
+  if (mode.value === 'pairs') return queue.value.pair_pending ?? 0
   return mode.value === 'sentences' ? queue.value.sentence_pending ?? 0 : queue.value.word_pending ?? 0
 })
 const pct = computed(() => (total.value ? Math.round((done.value / total.value) * 100) : 0))
@@ -131,12 +136,16 @@ function clearSearch() {
 // native's takes are better spent on the plain edge-tts ones first. On by
 // default; the toggle only appears once there's ElevenLabs coverage to skip.
 const robotFirst = ref(true)
-const elevenLeft = computed(() =>
-  mode.value === 'words' ? queue.value.word_eleven ?? 0 : queue.value.sentence_eleven ?? 0
-)
-// The toggle is worth showing whenever either queue has ElevenLabs clips -
+const elevenLeft = computed(() => {
+  if (mode.value === 'words') return queue.value.word_eleven ?? 0
+  if (mode.value === 'pairs') return queue.value.pair_eleven ?? 0
+  return queue.value.sentence_eleven ?? 0
+})
+// The toggle is worth showing whenever any queue has ElevenLabs clips -
 // switching tabs shouldn't make it vanish mid-session.
-const hasEleven = computed(() => (queue.value.sentence_eleven ?? 0) + (queue.value.word_eleven ?? 0) > 0)
+const hasEleven = computed(() =>
+  (queue.value.sentence_eleven ?? 0) + (queue.value.word_eleven ?? 0) + (queue.value.pair_eleven ?? 0) > 0
+)
 
 async function loadQueue() {
   try {
@@ -216,6 +225,9 @@ const subLists = computed(() => {
     })),
     ...sub.value.words.filter((w) => hit(w.word)).map((w) => ({
       kind: 'word', keyId: `pw-${w.word}`, label: w.word, note: 'word', url: w.pending_url, item: w
+    })),
+    ...(sub.value.pairs ?? []).filter((p) => hit(p.word)).map((p) => ({
+      kind: 'pair', keyId: `ppr-${p.word}`, label: p.word, note: 'Kuulo drill', url: p.pending_url, item: p
     }))
   ]
   const liveRows = [
@@ -231,6 +243,9 @@ const subLists = computed(() => {
     })),
     ...sub.value.live_words.filter((w) => hit(w.word)).map((w) => ({
       kind: 'word', keyId: `lw-${w.word}`, label: w.word, note: 'word', url: w.audio_url, item: w
+    })),
+    ...(sub.value.live_pairs ?? []).filter((p) => hit(p.word)).map((p) => ({
+      kind: 'pair', keyId: `lpr-${p.word}`, label: p.word, note: 'Kuulo drill', url: p.audio_url, item: p
     }))
   ]
   return { pending: pendingRows, live: liveRows }
@@ -336,6 +351,9 @@ async function save() {
       await api.post(`/record/phrase/${current.value.id}`, form)
     } else if (kind.value === 'listening') {
       await api.post(`/record/listening/${current.value.scene}/${current.value.index}`, form)
+    } else if (kind.value === 'pair') {
+      form.append('word', current.value.word)
+      await api.post('/record/pair', form)
     } else {
       form.append('word', current.value.word)
       await api.post('/record/word', form)
@@ -361,6 +379,10 @@ async function save() {
       queue.value.sentence_done++
       queue.value.sentence_matches = Math.max(0, (queue.value.sentence_matches ?? 1) - 1)
       queue.value.sentence_pending = (queue.value.sentence_pending ?? 0) + 1
+    } else if (mode.value === 'pairs') {
+      queue.value.pairs.shift()
+      queue.value.pair_done++
+      queue.value.pair_pending = (queue.value.pair_pending ?? 0) + 1
     } else {
       queue.value.words.shift()
       queue.value.word_done++
@@ -390,6 +412,7 @@ function skip() {
 
 function playReference() {
   if (!current.value) return
+  // Pair clips live outside the word manifest, so their URL rides on the item.
   if (kind.value === 'word') playWord(current.value.word)
   else playSentence(currentText.value, currentRefUrl.value)
 }
@@ -481,6 +504,9 @@ onBeforeUnmount(() => {
         <button :class="{ on: mode === 'words' }" @click="setMode('words')">
           Words <span class="tab-count">{{ queue.word_done }}/{{ queue.word_total }}</span>
         </button>
+        <button :class="{ on: mode === 'pairs' }" @click="setMode('pairs')">
+          Kuulo <span class="tab-count">{{ queue.pair_done }}/{{ queue.pair_total }}</span>
+        </button>
         <button :class="{ on: mode === 'conversations' }" @click="setMode('conversations')">
           Talks <span v-if="lq.line_total" class="tab-count">{{ lq.line_done }}/{{ lq.line_total }}</span>
         </button>
@@ -553,6 +579,14 @@ onBeforeUnmount(() => {
         </span>
       </p>
 
+      <!-- Kuulo words drill one vowel contrast each - the instruction matters:
+           an exaggerated vowel teaches learners a contrast nobody speaks. -->
+      <p v-if="mode === 'pairs' && !override" class="muted conv-lede">
+        Single words from the vowel drills (y/u, ä/a, ö/o). Say each word the way
+        you'd say it in a sentence - <b>don't exaggerate the vowel</b>. The learner's
+        job is to hear the difference in normal speech.
+      </p>
+
       <!-- Jump straight to a specific line instead of skipping toward it.
            Server-side: the queue is sliced, so the match usually isn't in
            the slice the browser holds. -->
@@ -576,7 +610,7 @@ onBeforeUnmount(() => {
       <!-- Robot-first: hide the clips ElevenLabs already voiced, so a native's
            takes land on the plain-robot ones first. Only shown when there's
            ElevenLabs coverage to skip. -->
-      <label v-if="(mode === 'sentences' || mode === 'words') && hasEleven && !override" class="robot-first">
+      <label v-if="(mode === 'sentences' || mode === 'words' || mode === 'pairs') && hasEleven && !override" class="robot-first">
         <input type="checkbox" :checked="robotFirst" @change="toggleRobotFirst" />
         <span class="rf-text">
           Replace robot voices first
@@ -607,6 +641,7 @@ onBeforeUnmount(() => {
             {{ override ? 'New take' : `${done + 1} of ${total}` }} · read this out loud
             <span v-if="kind === 'listening' && current.speaker" class="take-as">as {{ current.speaker }}</span>
             <span v-else-if="kind === 'phrase'" class="take-as">Taivutus drill</span>
+            <span v-else-if="kind === 'pair'" class="take-as">Kuulo drill</span>
             <span v-if="current.tier === 'eleven'" class="take-tier eleven">replacing ElevenLabs</span>
             <span v-else-if="current.tier === 'tts'" class="take-tier">replacing robot</span>
           </p>

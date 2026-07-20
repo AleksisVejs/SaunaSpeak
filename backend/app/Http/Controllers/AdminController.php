@@ -9,6 +9,7 @@ use App\Models\Sentence;
 use App\Models\User;
 use App\Models\UserProgress;
 use App\Support\Listening;
+use App\Support\MinimalPairs;
 use App\Support\Transforms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class AdminController extends Controller
             : [];
         $wordsHuman = count(array_filter($manifest, fn ($url) => str_starts_with((string) $url, '/audio/human/')));
         $phrases = Transforms::ownPhrases();
+        $pairClips = MinimalPairs::wordClips();
 
         // One definition of "has Löyly+ right now", reused by the four counts
         // below so the breakdown always sums to the headline number.
@@ -103,6 +105,17 @@ class AdminController extends Controller
                 'phrases_human' => count(array_filter(
                     $phrases,
                     fn (array $p) => str_starts_with((string) $p['audio_url'], '/audio/human/'),
+                )),
+                // Kuulo drill words: their own section - the drill teaches a
+                // vowel contrast, so human coverage here matters most of all.
+                'pairs_total' => count($pairClips),
+                'pairs_human' => count(array_filter(
+                    $pairClips,
+                    fn (?string $url) => str_starts_with((string) $url, '/audio/human/'),
+                )),
+                'pairs_eleven' => count(array_filter(
+                    $pairClips,
+                    fn (?string $url) => str_starts_with((string) $url, '/audio/eleven/'),
                 )),
             ],
         ]);
