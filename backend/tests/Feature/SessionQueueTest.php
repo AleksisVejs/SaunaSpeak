@@ -109,6 +109,23 @@ class SessionQueueTest extends TestCase
         $this->assertNotEmpty($res->json('sentences'), 'the sentence block still runs');
     }
 
+    /**
+     * The premium half of the same rule: the easiest roleplay is A1, so an A0
+     * subscriber must get no scenario rather than a random one - which could
+     * be the hardest in the catalog (a phone call, no visual context) in their
+     * first week. The frontend then supplies the free self-graded produce step.
+     */
+    public function test_an_a0_session_offers_no_roleplay_above_the_learners_level(): void
+    {
+        $this->user->update(['premium_until' => now()->addMonth()]);
+        config(['services.stripe.secret' => 'sk_test_x']); // paywall on: real premium
+        $this->makeSentences(8); // $this->lesson is A0
+
+        $this->getJson('/api/today-session?size=6')
+            ->assertOk()
+            ->assertJsonPath('woven.use', null);
+    }
+
     public function test_longest_sessions_weave_in_a_second_conversation(): void
     {
         $this->lesson->update(['level' => 'A1']);

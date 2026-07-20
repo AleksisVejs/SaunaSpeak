@@ -199,10 +199,13 @@ class Themes
                     <= self::levelIndex($focusLevel),
             ));
 
-            if ($eligible === []) {
-                $eligible = Scenarios::forGoal($goal); // nothing at level: use the whole catalog
-            }
-
+            // Nothing at their level means no roleplay - NOT the whole catalog.
+            // The easiest scenario is A1, so an A0 learner used to fall through
+            // to a random pick that could be the hardest one in the catalog (a
+            // phone call, with no visual context to lean on) in their first
+            // week. Returning null hands them the free self-graded "say it for
+            // real" step instead, built from a sentence they just studied -
+            // which is level-appropriate by construction.
             // Keep the goal-first order but prefer a scenario they haven't cleared.
             $notDone = array_values(array_filter($eligible, fn (array $s) => ! isset($done[$s['id']])));
             $pool = $notDone !== [] ? $notDone : $eligible;
