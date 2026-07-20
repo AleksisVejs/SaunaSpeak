@@ -393,6 +393,34 @@ async function sendFeedback() {
       </div>
       <LessonPath :lessons="lessons" />
 
+      <!-- Speaking gets its own row, above the optional buffet. These two were
+           previously tiles 3 and 4 of six identical "More practice" squares
+           labelled "Talk" and "Roleplay", under a heading that said optional -
+           so nobody ever opened them. A learner can't want a conversation
+           feature they've never seen described. -->
+      <div class="talk-head">
+        <h3>Actually speak it</h3>
+        <span class="muted">Where the sentences become conversation</span>
+      </div>
+      <div class="talk-row">
+        <router-link to="/chat" class="talk-card">
+          <MessageCircle class="talk-icon" aria-hidden="true" />
+          <span class="talk-name">
+            Sauna Chat
+            <span v-if="!auth.user?.is_premium" class="talk-tag">Löyly+</span>
+          </span>
+          <span class="talk-desc">Chat with Väinö in Finnish. He answers in puhekieli and fixes your mistakes as you go.</span>
+        </router-link>
+        <router-link to="/scenarios" class="talk-card">
+          <Drama class="talk-icon" aria-hidden="true" />
+          <span class="talk-name">
+            Situations
+            <span v-if="!auth.user?.is_premium" class="talk-tag">Löyly+</span>
+          </span>
+          <span class="talk-desc">Order a coffee, book a sauna slot, small-talk at work — real scenes, played out.</span>
+        </router-link>
+      </div>
+
       <!-- optional extra practice: the same skills that are already in the daily
            session, available on their own. English descriptors sit under the
            Finnish names so a newcomer isn't left guessing what "Taivutus" is. -->
@@ -410,16 +438,6 @@ async function sendFeedback() {
           <Wrench class="quick-icon" aria-hidden="true" />
           <span class="quick-name">Taivutus</span>
           <span class="quick-sub">Endings</span>
-        </router-link>
-        <router-link to="/chat" class="quick">
-          <MessageCircle class="quick-icon" aria-hidden="true" />
-          <span class="quick-name">Sauna Chat</span>
-          <span class="quick-sub">Talk</span>
-        </router-link>
-        <router-link to="/scenarios" class="quick">
-          <Drama class="quick-icon" aria-hidden="true" />
-          <span class="quick-name">Situations</span>
-          <span class="quick-sub">Roleplay</span>
         </router-link>
         <router-link to="/words" class="quick">
           <BookOpen class="quick-icon" aria-hidden="true" />
@@ -812,6 +830,48 @@ async function sendFeedback() {
 .schedule-why { font-size: 12px; line-height: 1.5; margin-top: 12px; text-align: center; }
 
 /* ---- quick actions ---- */
+/* ---- speak it: the two conversation features, given room to explain
+   themselves instead of sharing a six-up grid of one-word labels ---- */
+.talk-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.talk-head h3 { font-size: 16px; }
+.talk-head .muted { font-size: 12px; text-align: right; }
+.talk-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+@media (min-width: 560px) { .talk-row { grid-template-columns: 1fr 1fr; } }
+.talk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+.talk-card:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-1px); }
+.talk-icon { width: 22px; height: 22px; color: var(--accent); }
+.talk-name { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+.talk-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent-soft, rgba(245,158,11,0.14));
+  color: var(--accent);
+}
+.talk-desc { font-size: 12px; line-height: 1.45; color: var(--text-dim); }
+
 .quick-head {
   display: flex;
   align-items: baseline;
