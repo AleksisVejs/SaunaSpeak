@@ -21,6 +21,21 @@ class ReviewReminderScheduleTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Every test freezes the clock; fixtures are built at this instant so a
+     * due review is due no matter what the wall clock says. Without this the
+     * helper's next_review_at was pinned to the REAL time, which sits after
+     * the 05:00 UTC slot for most of the working day - the morning-slot case
+     * then failed purely because of when the suite happened to run.
+     */
+    private const DAY_START = '2026-07-21 00:00';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Carbon::setTestNow(Carbon::parse(self::DAY_START, 'UTC'));
+    }
+
     protected function tearDown(): void
     {
         Carbon::setTestNow();
