@@ -27,8 +27,14 @@ function loadManifest() {
 // Kick off the fetch eagerly so the first tap is instant.
 loadManifest()
 
+// Matches the keys in words.json, which are the gloss keys verbatim - so ":"
+// ("cv:n") and the spaces of phrase glosses ("ei oo") have to survive.
 function normalizeWord(word) {
-  return word.toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, '')
+  return word
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}'\-:\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 let currentAudio = null

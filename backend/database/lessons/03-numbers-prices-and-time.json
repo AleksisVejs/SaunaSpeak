@@ -26,6 +26,8 @@
             "en": "It's five euros.",
             "written": "Se on viisi euroa.",
             "glosses": {
+                "se": "it",
+                "on": "is",
                 "viis": "five - spoken 'viisi'",
                 "euroo": "euros - spoken partitive of 'euro'"
             }
@@ -35,6 +37,7 @@
             "en": "I wake up at seven.",
             "written": "Minä herään seitsemältä.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "herään": "I wake up - from 'herätä'",
                 "seiskalta": "at seven - 'seiska' is the spoken numeral seven"
             }
@@ -45,6 +48,7 @@
             "written": "Kello on puoli viisi.",
             "glosses": {
                 "kello": "clock / the time",
+                "on": "is",
                 "puol": "half - spoken 'puoli'",
                 "viis": "five - 'puol viis' counts toward five, so it's 4:30"
             }
@@ -64,6 +68,7 @@
             "en": "The bus leaves at two.",
             "written": "Bussi lähtee kahdelta.",
             "glosses": {
+                "bussi": "bus",
                 "lähtee": "leaves - from 'lähteä'",
                 "kahelta": "at two - spoken 'kahdelta', the d drops"
             }
@@ -73,6 +78,7 @@
             "en": "I'll come home at six.",
             "written": "Minä tulen kotiin kuudelta.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "tuun": "I come - spoken 'tulen'",
                 "kotiin": "home - 'to home'",
                 "kuudelta": "at six - 'kuusi' + -lta"
@@ -84,6 +90,7 @@
             "written": "Sata euroa?! Ei ole totta.",
             "glosses": {
                 "sata": "hundred",
+                "euroo": "euros - spoken 'euroa': the -oa ending smooths to -oo",
                 "ei oo": "isn't - spoken 'ei ole'",
                 "totta": "true - 'ei oo totta' = you're kidding / no way"
             }

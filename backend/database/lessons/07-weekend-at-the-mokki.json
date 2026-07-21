@@ -54,6 +54,7 @@
             "en": "I'll go for a swim.",
             "written": "Minä käyn uimassa.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "käyn": "I go (and come back) - from 'käydä'",
                 "uimassa": "swimming - 'at swimming'"
             }
@@ -73,7 +74,9 @@
             "written": "Järvi on vielä todella kylmä.",
             "glosses": {
                 "järvi": "lake - Finland has 188 000 of them",
+                "on": "is",
                 "viel": "still - spoken 'vielä'",
+                "tosi": "really - spoken intensifier",
                 "kylmä": "cold"
             }
         },
@@ -83,6 +86,7 @@
             "written": "Täällä on niin rauhallista.",
             "glosses": {
                 "tääl": "here - spoken 'täällä'",
+                "on": "is",
                 "niin": "so",
                 "rauhallista": "peaceful - partitive of 'rauhallinen'"
             }

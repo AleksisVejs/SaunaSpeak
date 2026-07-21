@@ -71,6 +71,7 @@
             "en": "I'm waiting for you in front of the library.",
             "written": "Minä odotan sinua kirjaston edessä.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "odotan": "am waiting for - odottaa ALWAYS takes the partitive, whatever you mean",
                 "sua": "you - partitive of 'sä' (sinua in writing)",
                 "kirjaston": "of the library",
@@ -93,6 +94,7 @@
             "en": "I don't drink beer.",
             "written": "Minä en juo olutta.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "en": "don't - the negative verb, 1st person",
                 "juo": "drink - bare stem after the negative",
                 "olutta": "beer - partitive 'olutta'. Consonant-final words take -ta/-tä, not plain -a"
@@ -104,6 +106,7 @@
             "written": "Meillä on kolme lasta.",
             "glosses": {
                 "meil": "we have - 'meillä', clipped in speech",
+                "on": "have - 'meil on' is the spoken 'we have'",
                 "kolme": "three",
                 "lasta": "child - partitive of 'lapsi'. Another everyday irregular: lapsi → lasta"
             }
@@ -113,6 +116,7 @@
             "en": "I'm still reading that book.",
             "written": "Minä luen tuota kirjaa vielä.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "luen": "am reading",
                 "tota": "that - spoken 'tuota', itself partitive",
                 "kirjaa": "book - partitive, because you're partway through it. 'Mä luen kirjan' would mean you'll finish it",

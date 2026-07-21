@@ -50,6 +50,7 @@
             "en": "I'll have tea or coffee.",
             "written": "Minä otan teen tai kahvin.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "otan": "I take - from 'ottaa'",
                 "teen": "the tea - object form of 'tee'",
                 "tai": "or - the STATEMENT 'or'; in a question it would be 'vai'",
@@ -61,7 +62,9 @@
             "en": "I'm not coming, because I'm in a hurry.",
             "written": "Minä en tule, koska minulla on kiire.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "en": "not - the negative verb for 'I'",
+                "tuu": "come - spoken 'tule'",
                 "ku": "because - spoken short form of 'koska' (it also means 'when')",
                 "mul on": "I have - spoken 'minulla on'",
                 "kiire": "a hurry - 'mul on kiire' = I'm busy"
@@ -74,6 +77,7 @@
             "glosses": {
                 "jos": "if - opens the condition, just like English",
                 "sataa": "it rains - Finnish needs no 'it' here",
+                "mä": "I - spoken 'minä'",
                 "jään": "I stay - from 'jäädä'",
                 "kotiin": "home - to home"
             }
@@ -83,9 +87,11 @@
             "en": "I think (that) it's nice.",
             "written": "Minä luulen, että se on kiva.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "luulen": "I think / I reckon - from 'luulla'",
                 "et": "that - spoken 'että'; English often drops 'that', Finnish keeps it",
                 "se": "it",
+                "on": "is",
                 "kiva": "nice"
             }
         },
@@ -95,6 +101,7 @@
             "written": "Ensin kahvi, sitten sauna.",
             "glosses": {
                 "ensin": "first",
+                "kahvi": "coffee",
                 "sit": "then - spoken 'sitten'; the word that strings a day together",
                 "sauna": "sauna"
             }

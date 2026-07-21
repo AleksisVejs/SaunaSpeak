@@ -15,6 +15,7 @@
             "en": "I'm looking for a new apartment.",
             "written": "Minä etsin uutta asuntoa.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "etin": "I'm looking for - spoken 'etsin'",
                 "uut": "new - spoken 'uutta'",
                 "kämppää": "apartment / pad - 'kämppä' is the everyday word for 'asunto'"
@@ -25,7 +26,9 @@
             "en": "How much is the rent per month?",
             "written": "Paljonko vuokra on kuukaudessa?",
             "glosses": {
+                "paljon": "how much - spoken speech even drops the -ko: 'paljonko' → 'paljon'",
                 "vuokra": "rent",
+                "on": "is",
                 "kuussa": "per month - spoken 'kuukaudessa' (yes, it also means 'in the moon')"
             }
         },
@@ -35,7 +38,9 @@
             "written": "Milloin sen voisi tulla katsomaan?",
             "glosses": {
                 "millon": "when - spoken 'milloin'",
+                "sen": "it - object form of 'se'",
                 "vois": "could - spoken conditional 'voisi'",
+                "tulla": "to come",
                 "kattomaan": "to look at - spoken 'katsomaan'"
             }
         },
@@ -53,6 +58,8 @@
             "en": "Is it furnished?",
             "written": "Onko se kalustettu?",
             "glosses": {
+                "onks": "is - spoken 'onko'",
+                "se": "it",
                 "kalustettu": "furnished - from 'kalustaa', 'kaluste' = a piece of furniture"
             }
         },
@@ -63,6 +70,8 @@
             "glosses": {
                 "sopiiks": "is it okay / does it suit - spoken 'sopiiko'",
                 "et": "that - spoken 'että'",
+                "mul": "I have - spoken 'minulla'",
+                "on": "have - 'mul on' is the spoken 'I have'",
                 "kissa": "cat"
             }
         },
@@ -71,6 +80,7 @@
             "en": "I'll take it.",
             "written": "Minä otan sen.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "otan": "I take - from 'ottaa'",
                 "sen": "it - object form of 'se'"
             }

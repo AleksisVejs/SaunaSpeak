@@ -16,6 +16,8 @@
             "en": "I'm sick.",
             "written": "Minä olen kipeä.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
+                "oon": "am - spoken 'olen'",
                 "kipee": "sick / sore - spoken 'kipeä'"
             }
         },
@@ -24,8 +26,11 @@
             "en": "My throat is really sore.",
             "written": "Minun kurkkuni on todella kipeä.",
             "glosses": {
+                "mun": "my - spoken 'minun'",
                 "kurkku": "throat (also: cucumber - context saves you)",
-                "tosi": "really - spoken intensifier"
+                "on": "is",
+                "tosi": "really - spoken intensifier",
+                "kipee": "sore - spoken 'kipeä'"
             }
         },
         {
@@ -34,6 +39,7 @@
             "written": "Tarvitsenko minä reseptin?",
             "glosses": {
                 "tarviinks": "do I need - spoken 'tarvitsenko'",
+                "mä": "I - spoken 'minä'",
                 "reseptin": "a prescription - object form of 'resepti'"
             }
         },
@@ -42,6 +48,7 @@
             "en": "Do you have anything for the flu?",
             "written": "Onko teillä mitään flunssaan?",
             "glosses": {
+                "onks": "do you have - spoken 'onko'",
                 "teil": "you (plural / polite) have - spoken 'teillä'",
                 "mitään": "anything",
                 "flunssaan": "for the flu - 'flunssa' + -an (into)"
@@ -54,6 +61,7 @@
             "glosses": {
                 "ota": "take - command of 'ottaa'",
                 "näitä": "these - partitive of 'nämä'",
+                "kaks": "two - spoken 'kaksi'",
                 "kertaa": "times - 'kaks kertaa' = twice",
                 "päivässä": "per day - 'in a day'"
             }
@@ -63,6 +71,8 @@
             "en": "I have a fever.",
             "written": "Minulla on kuumetta.",
             "glosses": {
+                "mul": "I have - spoken 'minulla'",
+                "on": "have - 'mul on' is the spoken 'I have'",
                 "kuumetta": "fever - partitive of 'kuume'"
             }
         },
@@ -71,6 +81,7 @@
             "en": "I'll book a doctor's appointment.",
             "written": "Minä varaan ajan lääkärille.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "varaan": "I book / reserve - from 'varata'",
                 "ajan": "an appointment - literally 'a time'",
                 "lääkärille": "to the doctor - 'lääkäri' + -lle"
@@ -82,6 +93,7 @@
             "written": "Mene kotiin lepäämään.",
             "glosses": {
                 "mee": "go - spoken 'mene'",
+                "kotiin": "home - 'to home'",
                 "lepäämään": "to rest - 'go to be resting'"
             }
         }

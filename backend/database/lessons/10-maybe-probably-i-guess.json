@@ -17,8 +17,10 @@
             "written": "Hän on varmaan jo kotona.",
             "glosses": {
                 "se": "they / he / she - spoken Finnish uses 'se' for people",
+                "on": "is",
                 "varmaan": "probably - hedge #1 in Finnish",
-                "jo": "already"
+                "jo": "already",
+                "kotona": "at home"
             }
         },
         {
@@ -36,6 +38,7 @@
             "en": "I guess it'll work out.",
             "glosses": {
                 "kai": "I guess / presumably",
+                "se": "it",
                 "onnistuu": "succeeds / works out - from 'onnistua'"
             }
         },
@@ -44,8 +47,10 @@
             "en": "I think the bus just left.",
             "written": "Bussi taisi juuri mennä.",
             "glosses": {
+                "bussi": "bus",
                 "tais": "I think / apparently (past) - spoken 'taisi', from 'taitaa'",
-                "just": "just - spoken 'juuri'"
+                "just": "just - spoken 'juuri'",
+                "mennä": "to go"
             }
         },
         {
@@ -54,6 +59,7 @@
             "written": "Ehkä me tulemme myöhemmin.",
             "glosses": {
                 "ehkä": "maybe",
+                "me": "we",
                 "tullaan": "we come - the spoken we-form",
                 "myöhemmin": "later"
             }
@@ -63,8 +69,11 @@
             "en": "I thought it was today.",
             "written": "Minä luulin, että se on tänään.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "luulin": "I thought - 'luulla' implies the belief turned out wrong",
                 "et": "that - spoken 'että'",
+                "se": "it",
+                "on": "was",
                 "tänään": "today"
             }
         },
@@ -74,6 +83,7 @@
             "written": "Niin kai sitten.",
             "glosses": {
                 "nii": "so / yeah - spoken 'niin'",
+                "kai": "I guess / presumably",
                 "sit": "then - spoken 'sitten'"
             }
         },
@@ -83,7 +93,9 @@
             "written": "Katsotaan nyt ensin, miten käy.",
             "glosses": {
                 "kattotaan": "let's see - spoken 'katsotaan'",
+                "nyt": "now",
                 "eka": "first - spoken 'ensin'",
+                "miten": "how",
                 "käy": "goes / happens - from 'käydä'"
             }
         }

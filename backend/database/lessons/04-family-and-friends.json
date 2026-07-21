@@ -16,6 +16,7 @@
             "written": "Tämä on minun äitini.",
             "glosses": {
                 "tää": "this - spoken 'tämä'",
+                "on": "is",
                 "mun": "my - spoken 'minun', and no -ni ending on the noun",
                 "äiti": "mom / mother"
             }
@@ -25,7 +26,9 @@
             "en": "My dad is still at work.",
             "written": "Minun isäni on vielä töissä.",
             "glosses": {
+                "mun": "my - spoken 'minun'",
                 "isä": "dad / father",
+                "on": "is",
                 "viel": "still - spoken 'vielä'",
                 "töissä": "at work - literally 'in works'"
             }
@@ -46,6 +49,7 @@
             "written": "Minulla on kaksi veljeä.",
             "glosses": {
                 "mul": "I have - spoken 'minulla'",
+                "on": "have - 'mul on' is the spoken 'I have'",
                 "kaks": "two - spoken 'kaksi'",
                 "veljee": "brothers - spoken partitive of 'veli'"
             }
@@ -56,6 +60,8 @@
             "written": "Tuo on minun paras kaverini.",
             "glosses": {
                 "toi": "that - spoken 'tuo'",
+                "on": "is",
+                "mun": "my - spoken 'minun'",
                 "paras": "best",
                 "kaveri": "friend / buddy - the everyday word; 'ystävä' is deeper"
             }
@@ -65,9 +71,12 @@
             "en": "My grandma calls me every day.",
             "written": "Minun isoäitini soittaa minulle joka päivä.",
             "glosses": {
+                "mun": "my - spoken 'minun'",
                 "mummo": "grandma - the warm everyday word for 'isoäiti'",
                 "soittaa": "calls - from 'soittaa' (to call, to play an instrument)",
-                "joka": "every - 'joka päivä' = every day"
+                "mulle": "to me - spoken 'minulle'",
+                "joka": "every - 'joka päivä' = every day",
+                "päivä": "day"
             }
         },
         {
@@ -75,6 +84,7 @@
             "en": "We're cousins.",
             "written": "Me olemme serkkuja.",
             "glosses": {
+                "me": "we",
                 "ollaan": "we are - the spoken we-form (passive as 'we')",
                 "serkkuja": "cousins - partitive plural of 'serkku'"
             }

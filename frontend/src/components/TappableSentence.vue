@@ -12,7 +12,7 @@ const props = defineProps({
   sentenceId: { type: [Number, String], default: null }
 })
 
-const selected = ref(null) // { index, word, gloss, saved }
+const selected = ref(null) // { indices, word, gloss, saved }
 
 // Session-wide dedupe so repeat taps don't spam the API.
 const sentWords = new Set()
@@ -22,10 +22,12 @@ watch(
   () => (selected.value = null)
 )
 
-// "Moi!" → { pre: '', word: 'Moi', post: '!' } - punctuation stays outside the tap target.
+// "Moi!" → { pre: '', word: 'Moi', post: '!' } - punctuation stays outside the
+// tap target, but -, ' and : joining two halves belong to the word: "CV:n." is
+// glossed under "cv:n", so splitting it there would lose the gloss.
 const tokens = computed(() =>
   props.text.split(/\s+/).map((chunk, index) => {
-    const m = chunk.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}'-]+)?([^\p{L}\p{N}]*)$/u)
+    const m = chunk.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}]+(?:[-':][\p{L}\p{N}]+)*)?([^\p{L}\p{N}]*)$/u)
     return {
       index,
       pre: m?.[1] ?? '',
@@ -35,20 +37,42 @@ const tokens = computed(() =>
   })
 )
 
+// Some glosses cover a phrase rather than a word ("ei oo", "mul on"): the
+// pieces mean nothing apart, so tapping either half selects the whole thing.
+const phrases = computed(() =>
+  Object.keys(props.glosses ?? {})
+    .filter((key) => key.includes(' '))
+    .map((key) => ({ key, parts: key.split(/\s+/) }))
+)
+
+function phraseAt(index) {
+  const words = tokens.value.map((t) => t.word.toLowerCase())
+  for (const { key, parts } of phrases.value) {
+    for (let start = index - parts.length + 1; start <= index; start++) {
+      if (start < 0) continue
+      if (parts.every((part, offset) => words[start + offset] === part)) {
+        return { key, indices: parts.map((_, offset) => start + offset) }
+      }
+    }
+  }
+  return null
+}
+
 function tap(token) {
-  if (selected.value?.index === token.index) {
+  if (selected.value?.indices.includes(token.index)) {
     selected.value = null
     return
   }
-  const key = token.word.toLowerCase()
+  const phrase = phraseAt(token.index)
+  const key = phrase?.key ?? token.word.toLowerCase()
   const gloss = props.glosses?.[key] ?? null
   selected.value = {
-    index: token.index,
-    word: token.word,
+    indices: phrase?.indices ?? [token.index],
+    word: phrase ? phrase.key : token.word,
     gloss: gloss ?? 'No gloss for this word yet.',
     saved: sentWords.has(key)
   }
-  playWord(token.word)
+  playWord(phrase ? phrase.key : token.word)
   if (gloss) collect(key, gloss)
 }
 
@@ -70,7 +94,7 @@ async function collect(word, gloss) {
     <p class="sentence">
       <template v-for="token in tokens" :key="token.index">{{ token.pre }}<button
         class="word"
-        :class="{ active: selected?.index === token.index }"
+        :class="{ active: selected?.indices.includes(token.index) }"
         :aria-label="`${token.word} - hear it and see its meaning`"
         @click="tap(token)"
       >{{ token.word }}</button>{{ token.post }}{{ ' ' }}</template>

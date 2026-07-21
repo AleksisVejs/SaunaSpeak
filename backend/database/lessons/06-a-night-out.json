@@ -34,6 +34,7 @@
             "en": "I'll come there at nine.",
             "written": "Minä tulen sinne yhdeksältä.",
             "glosses": {
+                "mä": "I - spoken 'minä'",
                 "tuun": "I come - spoken 'tulen'",
                 "sinne": "there - 'to there'",
                 "ysiltä": "at nine - 'ysi' is the spoken numeral nine"
@@ -44,8 +45,12 @@
             "en": "This song is so damn good!",
             "written": "Tämä kappale on todella hyvä!",
             "glosses": {
+                "tää": "this - spoken 'tämä'",
                 "biisi": "song - everyday slang, written Finnish says 'kappale'",
-                "sika": "super / damn - literally 'pig', a very common intensifier"
+                "on": "is",
+                "ihan": "quite / really",
+                "sika": "super / damn - literally 'pig', a very common intensifier",
+                "hyvä": "good"
             }
         },
         {
@@ -71,7 +76,9 @@
             "en": "I have to go home.",
             "written": "Minun pitää mennä kotiin.",
             "glosses": {
+                "mun": "I - spoken 'minun', literally 'my'",
                 "pitää": "have to / must",
+                "mennä": "to go",
                 "himaan": "home - 'hima' is slang for 'koti'"
             }
         },
