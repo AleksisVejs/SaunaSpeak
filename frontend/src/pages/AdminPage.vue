@@ -60,9 +60,13 @@ async function downloadExport() {
   }
 }
 
-// ---- win-back list: showed up once, never came back, not yet written to ----
+// ---- win-back list: not yet written to, in two audiences ----
+// `came_once` did a session and vanished; `never_started` registered and never
+// graded anything. They get different mail, so they get different lists and
+// their own copy button - one merged list would guarantee the wrong send.
 const lapsed = ref(null)
 const lapsedDays = ref(2)
+const lapsedKind = ref('came_once')
 // null | 'copying' | { count, ids } after a successful copy | 'error'
 const copied = ref(null)
 
@@ -73,12 +77,25 @@ const LAPSED_GRACE = [
   { days: 7, label: 'a week+ ago' }
 ]
 
+const LAPSED_KINDS = [
+  { kind: 'came_once', label: 'Came once' },
+  { kind: 'never_started', label: 'Never started' }
+]
+
+// The grace toggle means a different thing per audience: for came_once it is
+// the gap since their only session, for never_started it is age since signup.
+const graceLabel = computed(() => lapsedKind.value === 'never_started'
+  ? 'How long ago they registered'
+  : 'How long since their only session')
+
 async function loadLapsed() {
-  const { data } = await api.get('/admin/lapsed', { params: { min_days: lapsedDays.value } })
+  const { data } = await api.get('/admin/lapsed', {
+    params: { min_days: lapsedDays.value, kind: lapsedKind.value }
+  })
   lapsed.value = data
 }
 
-watch(lapsedDays, () => { copied.value = null; loadLapsed() })
+watch([lapsedDays, lapsedKind], () => { copied.value = null; loadLapsed() })
 
 /**
  * Copy the addresses AND record the send in one action. Splitting those into
@@ -142,7 +159,7 @@ async function load() {
       api.get('/admin/users', { params: { page: page.value, search: search.value || undefined } }),
       api.get('/admin/recordings'),
       api.get('/admin/feedback'),
-      api.get('/admin/lapsed', { params: { min_days: lapsedDays.value } })
+      api.get('/admin/lapsed', { params: { min_days: lapsedDays.value, kind: lapsedKind.value } })
     ])
     stats.value = statsRes.data
     trends.value = trendsRes.data
@@ -889,10 +906,34 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 
         <!-- The people behind the W1 gap, ready to write to. -->
         <template v-if="lapsed">
-          <h3 class="group-label">Win-back - came once, never returned</h3>
+          <h3 class="group-label">Win-back - the people who stopped</h3>
           <div class="card wb-card">
+            <div class="win-toggle wb-kinds" role="group" aria-label="Which audience to write to">
+              <button
+                v-for="k in LAPSED_KINDS"
+                :key="k.kind"
+                class="win-btn"
+                :class="{ active: lapsedKind === k.kind }"
+                @click="lapsedKind = k.kind"
+              >
+                {{ k.label }}
+                <span v-if="lapsed.counts" class="wb-count">{{ lapsed.counts[k.kind] }}</span>
+              </button>
+            </div>
+
+            <p class="muted wb-hint">
+              <template v-if="lapsedKind === 'never_started'">
+                Registered and never graded a single thing - no reviews, no chat, no
+                scenes, no drills. They never saw the product work.
+              </template>
+              <template v-else>
+                Did one real session and never came back. They have seen it; something
+                after that first session failed to bring them in again.
+              </template>
+            </p>
+
             <div class="wb-head">
-              <div class="win-toggle" role="group" aria-label="How long since their only session">
+              <div class="win-toggle" role="group" :aria-label="graceLabel">
                 <button
                   v-for="g in LAPSED_GRACE"
                   :key="g.days"
@@ -907,21 +948,37 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
             </div>
 
             <p v-if="!lapsed.users.length" class="muted rec-empty">
-              Nobody new to write to - everyone who did one session has either come back
-              or already had a mail.
+              <template v-if="lapsedKind === 'never_started'">
+                Nobody new to write to - everyone who registered has either started
+                or already had a mail.
+              </template>
+              <template v-else>
+                Nobody new to write to - everyone who did one session has either come back
+                or already had a mail.
+              </template>
             </p>
 
             <template v-else>
               <div class="wb-scroll">
                 <table class="wb">
                   <thead>
-                    <tr><th>Learner</th><th>Email</th><th>Their one day</th><th>Silent</th></tr>
+                    <tr>
+                      <th>Learner</th>
+                      <th>Email</th>
+                      <th>{{ lapsedKind === 'never_started' ? 'Registered' : 'Their one day' }}</th>
+                      <th>Silent</th>
+                    </tr>
                   </thead>
                   <tbody>
                     <tr v-for="u in lapsed.users" :key="u.id">
                       <td class="wb-name">{{ u.name }}</td>
-                      <td class="wb-mail">{{ u.email }}</td>
-                      <td>{{ fmtDay(u.day1) }}</td>
+                      <td class="wb-mail">
+                        {{ u.email }}
+                        <!-- An address nobody ever confirmed is the likeliest
+                             bounce in the batch; flagged, never auto-dropped. -->
+                        <span v-if="u.verified === false" class="wb-unconf" title="Never confirmed this address">unconfirmed</span>
+                      </td>
+                      <td>{{ lapsedKind === 'never_started' ? fmtDay(u.signed_up) : fmtDay(u.day1) }}</td>
                       <td class="wb-since">{{ u.days_since }}d</td>
                     </tr>
                   </tbody>
@@ -1403,6 +1460,31 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
   margin-bottom: 10px;
 }
 .wb-excluded { font-size: 11px; }
+/* Audience switch sits above the grace toggle - it changes what the grace
+   toggle means, so it has to read as the outer control. */
+.wb-kinds { margin-bottom: 8px; }
+.wb-count {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--card-hover);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.win-btn.active .wb-count { background: var(--bg); }
+.wb-hint { font-size: 11.5px; line-height: 1.5; margin: 0 0 12px; }
+.wb-unconf {
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--card-hover);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 /* Caps at roughly ten rows; the list grows without pushing the page down. */
 .wb-scroll { overflow: auto; max-height: 340px; }
 .wb { border-collapse: collapse; width: 100%; min-width: 460px; }

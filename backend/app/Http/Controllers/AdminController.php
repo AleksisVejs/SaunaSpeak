@@ -320,14 +320,26 @@ class AdminController extends Controller
     }
 
     /**
-     * GET /api/admin/lapsed - the win-back list: learners who showed up once
-     * and never came back, minus anyone already written to.
+     * GET /api/admin/lapsed - the win-back list, minus anyone already written
+     * to. Two audiences, selected by `kind`, because they left at different
+     * moments and cannot be sent the same mail:
      *
-     * "Did day 1 but not day 2" is counted in DISTINCT ACTIVE DAYS, not days
-     * since signup: someone who reviewed twice in one evening had one day, and
-     * someone who returned a fortnight later had two. Both streams count
-     * (reviews and chat), matching the activity matrix and retention cohorts,
-     * so a learner who only ever talked to Väinö is not miscounted as inactive.
+     *  - `came_once` (default) - showed up, did a session, never came back.
+     *  - `never_started` - registered and never graded a single thing.
+     *
+     * They are counted differently on purpose. "Did day 1 but not day 2" is
+     * counted in DISTINCT ACTIVE DAYS, not days since signup: someone who
+     * reviewed twice in one evening had one day, and someone who returned a
+     * fortnight later had two. Both streams count (reviews and chat), matching
+     * the activity matrix and retention cohorts, so a learner who only ever
+     * talked to Väinö is not miscounted as inactive. A never-starter has no
+     * active day to measure from at all, so their clock runs from SIGNUP.
+     *
+     * Never-starters are held to a wider bar than the activity matrix uses:
+     * the review/chat streams alone would call someone who cleared a listening
+     * scene a never-starter, and telling a learner "you never began" when they
+     * did is the one mistake this mail cannot survive. Every completion marker
+     * on the user row is checked too.
      *
      * Today's actives are excluded outright - a first session still in progress
      * is not a lapse, and mailing "we miss you" to someone mid-session is the
@@ -339,9 +351,11 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'min_days' => ['sometimes', 'integer', 'min:1', 'max:365'],
+            'kind' => ['sometimes', 'in:came_once,never_started'],
         ]);
 
         $minDays = (int) ($data['min_days'] ?? 2);
+        $kind = (string) ($data['kind'] ?? 'came_once');
 
         // Every distinct active day per user, both streams, whole history.
         $activeDays = ReviewLog::get(['user_id', 'created_at'])
@@ -364,31 +378,89 @@ class AdminController extends Controller
             return $day1 < $today && Carbon::parse($day1)->diffInDays(today()) >= $minDays;
         });
 
-        $users = User::whereIn('id', $oneDayOnly->keys())
-            ->whereNull('outreach_emailed_at')
-            ->orderBy('id')
-            ->get(['id', 'name', 'email', 'created_at']);
+        // Anyone with a review or chat day has started, whatever else is true.
+        $touchedStreams = $activeDays->keys();
 
-        $rows = $users->map(function (User $u) use ($oneDayOnly) {
-            $day1 = $oneDayOnly[$u->id]->first();
+        $pending = User::whereNull('outreach_emailed_at')->orderBy('id');
 
-            return [
-                'id' => $u->id,
-                'name' => $u->name,
-                'email' => $u->email,
-                'day1' => $day1,
-                'days_since' => (int) Carbon::parse($day1)->diffInDays(today()),
-                'signed_up' => $u->created_at->toDateString(),
-            ];
-        })->sortByDesc('days_since')->values();
+        if ($kind === 'never_started') {
+            $rows = (clone $pending)
+                ->whereNotIn('id', $touchedStreams)
+                ->where('created_at', '<=', today()->subDays($minDays))
+                ->get(['id', 'name', 'email', 'created_at', 'email_verified_at', 'checkpoints', 'scenarios_done', 'listening_done', 'transforms_done', 'pairs_done'])
+                ->reject(fn (User $u) => $this->hasAnyCompletion($u))
+                ->map(fn (User $u) => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    // No active day exists to show; the clock runs from signup.
+                    'day1' => null,
+                    'days_since' => (int) $u->created_at->copy()->startOfDay()->diffInDays(today()),
+                    'signed_up' => $u->created_at->toDateString(),
+                    // Surfaced, not filtered: a never-starter who never
+                    // confirmed their address is the likeliest bad address in
+                    // the file, and that is a judgement about sender
+                    // reputation, not something to decide silently here.
+                    'verified' => $u->email_verified_at !== null,
+                ])
+                ->sortByDesc('days_since')
+                ->values();
+        } else {
+            $rows = (clone $pending)
+                ->whereIn('id', $oneDayOnly->keys())
+                ->get(['id', 'name', 'email', 'created_at', 'email_verified_at'])
+                ->map(function (User $u) use ($oneDayOnly) {
+                    $day1 = $oneDayOnly[$u->id]->first();
+
+                    return [
+                        'id' => $u->id,
+                        'name' => $u->name,
+                        'email' => $u->email,
+                        'day1' => $day1,
+                        'days_since' => (int) Carbon::parse($day1)->diffInDays(today()),
+                        'signed_up' => $u->created_at->toDateString(),
+                        'verified' => $u->email_verified_at !== null,
+                    ];
+                })
+                ->sortByDesc('days_since')
+                ->values();
+        }
 
         return response()->json([
             'users' => $rows,
             'total' => $rows->count(),
             'min_days' => $minDays,
+            'kind' => $kind,
+            // Both tallies travel with every response so the panel can label
+            // its tabs without a second round trip per switch.
+            'counts' => [
+                'came_once' => (clone $pending)->whereIn('id', $oneDayOnly->keys())->count(),
+                'never_started' => (clone $pending)
+                    ->whereNotIn('id', $touchedStreams)
+                    ->where('created_at', '<=', today()->subDays($minDays))
+                    ->get(['id', 'checkpoints', 'scenarios_done', 'listening_done', 'transforms_done', 'pairs_done'])
+                    ->reject(fn (User $u) => $this->hasAnyCompletion($u))
+                    ->count(),
+            ],
             // So the panel can show what the exclusion is actually holding back.
             'already_emailed' => User::whereNotNull('outreach_emailed_at')->count(),
         ]);
+    }
+
+    /**
+     * Did this learner finish anything outside the review/chat streams? The
+     * counters are array casts, so an untouched account is an empty array
+     * rather than null - count() answers for all five without special cases.
+     */
+    private function hasAnyCompletion(User $u): bool
+    {
+        foreach (['checkpoints', 'scenarios_done', 'listening_done', 'transforms_done', 'pairs_done'] as $field) {
+            if (count((array) ($u->{$field} ?? [])) > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
