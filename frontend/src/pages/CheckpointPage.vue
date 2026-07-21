@@ -101,11 +101,20 @@ function accept() {
   load()
 }
 
+// Where a finished checkpoint lets out. During INTAKE that has to be the first
+// session: placement is the last thing standing between signing up and being
+// taught, and every exit used to land on /dashboard instead - so a non-beginner
+// could complete onboarding having been quizzed but never taught. Six of the
+// fourteen learners who ever passed a checkpoint left with reviews_total: 0.
+// Outside intake the dashboard is right: they came from the path, they go back
+// to the path.
+const exitTo = () => (intake.value ? '/session' : '/dashboard')
+
 // Decline / didn't test out: apply the coarse seed so they still get the head
 // start their self-reported level earns, then into the app.
 async function startFresh() {
   await seedPlacement()
-  router.push('/dashboard')
+  router.push(exitTo())
 }
 
 function continueChain() {
@@ -116,7 +125,7 @@ function continueChain() {
 // level) → fall back to the seed; a pass anywhere means they're already placed.
 function finishIntake() {
   if (!passed.value && level.value === INTAKE_LADDER[0]) return startFresh()
-  router.push('/dashboard')
+  router.push(exitTo())
 }
 
 async function reveal() {
@@ -187,7 +196,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         you're at {{ studied }}. A Sauna Session or two will get you there.
       </p>
       <router-link to="/session" class="btn btn-primary btn-block loyly-cta"><LoylyIcon class="cta-ico" aria-hidden="true" /> Start a session</router-link>
-      <button class="btn btn-ghost btn-block" @click="router.push('/dashboard')">Back</button>
+      <button class="btn btn-ghost btn-block" @click="router.push(exitTo())">Back</button>
     </div>
 
     <!-- Result -->
