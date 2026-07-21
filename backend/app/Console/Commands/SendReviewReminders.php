@@ -6,6 +6,7 @@ use App\Models\Sentence;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -78,6 +79,7 @@ class SendReviewReminders extends Command
         })->values();
 
         $dryRun = $this->option('dry-run');
+        $failed = 0;
 
         foreach ($users as $user) {
             // Settle the streak BEFORE quoting it - but never on a dry run,
@@ -110,14 +112,40 @@ class SendReviewReminders extends Command
                 continue;
             }
 
-            Mail::send('emails.branded', $this->payload($user, $lead, $due, $away), function ($mail) use ($user, $lead) {
-                $mail->to($user->email)->subject($this->subject($lead));
-            });
+            // One learner's failure must not cost everyone else their reminder.
+            // Unwrapped, a single throw - a dead SMTP host, an address the
+            // server rejects, a transient timeout - aborted the whole run at
+            // whatever learner it reached, and the cron swallowed it: no mail,
+            // no "Processed N", nothing to notice. The batch is the product
+            // here, so a bad address is logged and skipped, never fatal.
+            try {
+                Mail::send('emails.branded', $this->payload($user, $lead, $due, $away), function ($mail) use ($user, $lead) {
+                    $mail->to($user->email)->subject($this->subject($lead));
+                });
+            } catch (\Throwable $e) {
+                $failed++;
+                Log::error('reminders:send could not mail a learner', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->warn("{$user->email}: send failed - {$e->getMessage()}");
+            }
         }
 
-        $this->info("Processed {$users->count()} learner(s).");
+        // A dry run sends nothing, so it must not claim a send count.
+        if ($dryRun) {
+            $this->info("Processed {$users->count()} learner(s).");
 
-        return self::SUCCESS;
+            return self::SUCCESS;
+        }
+
+        $sent = $users->count() - $failed;
+        $this->info("Processed {$users->count()} learner(s); {$sent} sent, {$failed} failed.");
+
+        // Non-zero tells the scheduler something is wrong even though the run
+        // completed, so a systematically broken transport surfaces in cron mail
+        // instead of looking like a clean nightly send.
+        return $failed > 0 ? self::FAILURE : self::SUCCESS;
     }
 
     /**
