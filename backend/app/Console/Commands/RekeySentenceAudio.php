@@ -14,20 +14,33 @@ use Illuminate\Support\Facades\File;
  *   php artisan audio:rekey                        # every layer (run this LOCALLY)
  *   php artisan audio:rekey --only=human,pending   # native takes only (run this on the SERVER)
  *
- * WHICH LAYERS TO REKEY WHERE MATTERS.
+ * WHICH LAYERS TO REKEY WHERE MATTERS, because "what id is this?" has a
+ * different answer on each machine.
  *
- * The edge-tts and ElevenLabs clips are committed, so they arrive on the
- * server already renamed by the deploy - and production's ids do NOT agree
- * with the names those files were generated under, so rekeying them there
- * would rename each clip after whatever sentence happens to hold its old id
- * and cement the mismatch this whole change exists to remove. On the server,
- * pass --only=human,pending: those live only on that machine, were recorded
- * against that machine's ids, and are the two layers git cannot carry.
+ *   audio/          committed, so the deploy delivers it already renamed.
+ *   eleven/         gitignored (culling a clip on the server has to stick),
+ *                   so the server's copy must be renamed IN PLACE - but its
+ *                   files are named after the ids of the machine that
+ *                   GENERATED them, which is not the server. Rekeying it by
+ *                   the server's own ids would name a joining-words recording
+ *                   after a don't-switch-to-english sentence. Use --manifest,
+ *                   which carries the old-base → new-base map from the
+ *                   machine whose ids those filenames actually came from.
+ *   human/pending   server-only, and recorded against the server's own ids,
+ *                   so those DO rekey correctly from its database.
+ *
+ * On the server:  audio:rekey --only=eleven --manifest=database/audio-rekey.json
+ *                 audio:rekey --only=human,pending
+ *
+ * Skipping the eleven pass is safe, just not pretty: every sentence falls back
+ * to its edge-tts clip, which the deploy renamed correctly. Wrong voice, right
+ * words - never the other way round.
  */
 class RekeySentenceAudio extends Command
 {
     protected $signature = 'audio:rekey
         {--only= : comma-separated: audio,eleven,human,pending (default: all)}
+        {--manifest= : apply a shipped old-base → new-base map instead of this database ids}
         {--dry-run : list the renames and change nothing}';
 
     protected $description = 'Rename sentence clips from id-keyed to text-keyed filenames';
@@ -47,7 +60,11 @@ class RekeySentenceAudio extends Command
             return self::FAILURE;
         }
 
-        $sentences = Sentence::all(['id', 'finnish_text']);
+        $renames = $this->renames();
+        if ($renames === null) {
+            return self::FAILURE;
+        }
+
         $dry = $this->option('dry-run');
 
         $renamed = 0;
@@ -65,10 +82,8 @@ class RekeySentenceAudio extends Command
 
             $handled = [];
 
-            foreach ($sentences as $sentence) {
-                $new = $sentence->audioBase();
-
-                foreach (File::glob("{$dir}/sentence-{$sentence->id}.*") as $old) {
+            foreach ($renames as $oldBase => $new) {
+                foreach (File::glob("{$dir}/{$oldBase}.*") as $old) {
                     $handled[$old] = true;
                     $target = $dir.'/'.$new.'.'.pathinfo($old, PATHINFO_EXTENSION);
 
@@ -116,6 +131,49 @@ class RekeySentenceAudio extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * old base name → new base name.
+     *
+     * From this database by default; from a shipped manifest when the files
+     * being renamed were named by a DIFFERENT machine's ids (see the class
+     * comment - that is the whole point of --manifest).
+     *
+     * @return array<string, string>|null
+     */
+    private function renames(): ?array
+    {
+        $path = $this->option('manifest');
+
+        if ($path === null) {
+            $map = [];
+            foreach (Sentence::all(['id', 'finnish_text']) as $sentence) {
+                $map["sentence-{$sentence->id}"] = $sentence->audioBase();
+            }
+
+            return $map;
+        }
+
+        $full = str_starts_with($path, '/') ? $path : base_path($path);
+
+        if (! File::exists($full)) {
+            $this->error("No manifest at {$full}.");
+
+            return null;
+        }
+
+        $map = json_decode(File::get($full), true);
+
+        if (! is_array($map) || $map === []) {
+            $this->error("Manifest at {$full} is not a non-empty old→new object.");
+
+            return null;
+        }
+
+        $this->line('Using manifest '.$path.' ('.count($map).' mappings).');
+
+        return $map;
     }
 
     /** @return array<int, string>|null */
