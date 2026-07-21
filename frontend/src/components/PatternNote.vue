@@ -1,12 +1,22 @@
 <script setup>
 // "Why this works" - a short, dismissible grammar rule shown in context.
 // Collapsed state is remembered per pattern so it doesn't nag on every visit.
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Lightbulb } from 'lucide-vue-next'
 
 const props = defineProps({
   pattern: { type: Object, required: true }
 })
+
+// Examples arrive in two seed shapes: { fi, en, note } from the PHP seeders,
+// and a plain "<fi> = <en>" string from the JSON lesson files (the shape the
+// AI drafting prompt asks for). Normalize both to { fi, en, note } so the
+// string-seeded lessons don't render as empty rows.
+const examples = computed(() => (props.pattern.examples || []).map((ex) => {
+  if (typeof ex !== 'string') return ex
+  const [fi, ...rest] = ex.split(' = ')
+  return { fi, en: rest.join(' = ') }
+}))
 
 const key = `ss_pattern_open_${props.pattern.id}`
 // Default open the first time a learner meets a pattern.
@@ -29,7 +39,7 @@ function toggle() {
     <div v-if="open" class="pattern-body">
       <p class="summary">{{ pattern.summary }}</p>
       <ul class="examples">
-        <li v-for="(ex, i) in pattern.examples" :key="i" class="example">
+        <li v-for="(ex, i) in examples" :key="i" class="example">
           <span class="ex-fi">{{ ex.fi }}</span>
           <span class="ex-en">{{ ex.en }}</span>
           <span v-if="ex.note" class="ex-note">{{ ex.note }}</span>
