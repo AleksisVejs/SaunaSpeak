@@ -171,5 +171,12 @@ export function useFinnishAudio() {
     if (url) playUrl(url, 1)
   }
 
-  return { playSentence, playSentenceAsync, playSpoken, playWord, playClip, stop: stopAll }
+  // Like playClip, but resolves when the clip ends - for auditing a whole
+  // tier of recordings back to back without clicking play on every row.
+  function playClipAsync(url) {
+    if (url) return playUrlAsync(url, 1)
+    return Promise.resolve()
+  }
+
+  return { playSentence, playSentenceAsync, playSpoken, playWord, playClip, playClipAsync, stop: stopAll }
 }

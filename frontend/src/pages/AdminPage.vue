@@ -7,11 +7,11 @@
 //   Users    - search, comp Löyly+, recording rights, confirm emails
 // Access is enforced by the backend (admin middleware, 403); this page just
 // renders what it's allowed.
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
-const { playClip } = useFinnishAudio()
+const { playClip, playClipAsync, stop: stopAudio } = useFinnishAudio()
 
 const TABS = [
   { id: 'pulse', label: '📈 Pulse' },
@@ -242,6 +242,7 @@ const openAudio = ref(null) // 'sentence' | 'word' | 'listening' | null
 function toggleAudio(type) {
   openAudio.value = openAudio.value === type ? null : type
   liveQ.value = ''
+  stopRun() // a run belongs to the section it started in
 }
 
 const AUDIO_SECTIONS = [
@@ -338,7 +339,14 @@ async function approveAllType(type) {
 
 // ---- live human recordings: everything approved, removable back to TTS ----
 const liveQ = ref('')
-const LIVE_MAX = 50
+
+// How many rows a tier shows before "show all". Auditing means hearing every
+// clip, so the rest is always one click away (and a play-through opens it) -
+// the cap is only here to keep the first paint of 500+ rows cheap.
+const LIVE_PAGE = 50
+const shown = ref({}) // `${tier}:${type}` → rows revealed
+const shownOf = (tier, type) => shown.value[`${tier}:${type}`] ?? LIVE_PAGE
+const showAll = (tier, type, total) => (shown.value[`${tier}:${type}`] = total)
 
 const liveItems = computed(() => {
   const q = liveQ.value.trim().toLowerCase()
@@ -363,37 +371,34 @@ const liveItems = computed(() => {
     ...(recordings.value?.live_pairs ?? []).filter((p) => hit(p.word)).map((p) => ({
       type: 'pair', keyId: `pr-${p.word}`, word: p.word, label: p.word, note: 'Kuulo drill', url: p.audio_url
     }))
-  ]
+  ].map((i) => ({ ...i, tier: 'live' }))
 })
 
 const liveOf = (type) => liveItems.value.filter((i) => inSection(i, type))
 
-async function removeLive(item) {
-  recBusy.value = true
-  try {
-    if (item.type === 'sentence') {
-      await api.delete(`/record/sentence/${item.id}`)
-      const idx = recordings.value.live_sentences.findIndex((s) => s.id === item.id)
-      if (idx !== -1) recordings.value.live_sentences.splice(idx, 1)
-    } else if (item.type === 'listening') {
-      await api.delete(`/record/listening/${item.scene}/${item.index}`)
-      const idx = recordings.value.live_listening.findIndex((l) => l.scene === item.scene && l.index === item.index)
-      if (idx !== -1) recordings.value.live_listening.splice(idx, 1)
-    } else if (item.type === 'phrase') {
-      await api.delete(`/record/phrase/${item.base}`)
-      const idx = recordings.value.live_phrases.findIndex((p) => p.base === item.base)
-      if (idx !== -1) recordings.value.live_phrases.splice(idx, 1)
-    } else if (item.type === 'pair') {
-      await api.delete('/record/pair', { params: { word: item.word } })
-      const idx = recordings.value.live_pairs.findIndex((p) => p.word === item.word)
-      if (idx !== -1) recordings.value.live_pairs.splice(idx, 1)
-    } else {
-      await api.delete('/record/word', { params: { word: item.word } })
-      const idx = recordings.value.live_words.findIndex((w) => w.word === item.word)
-      if (idx !== -1) recordings.value.live_words.splice(idx, 1)
-    }
-  } finally {
-    recBusy.value = false
+// One clip, gone. The caller owns the confirm and the busy flag - these run
+// in batches (see deleteMarked).
+async function deleteLiveClip(item) {
+  if (item.type === 'sentence') {
+    await api.delete(`/record/sentence/${item.id}`)
+    const idx = recordings.value.live_sentences.findIndex((s) => s.id === item.id)
+    if (idx !== -1) recordings.value.live_sentences.splice(idx, 1)
+  } else if (item.type === 'listening') {
+    await api.delete(`/record/listening/${item.scene}/${item.index}`)
+    const idx = recordings.value.live_listening.findIndex((l) => l.scene === item.scene && l.index === item.index)
+    if (idx !== -1) recordings.value.live_listening.splice(idx, 1)
+  } else if (item.type === 'phrase') {
+    await api.delete(`/record/phrase/${item.base}`)
+    const idx = recordings.value.live_phrases.findIndex((p) => p.base === item.base)
+    if (idx !== -1) recordings.value.live_phrases.splice(idx, 1)
+  } else if (item.type === 'pair') {
+    await api.delete('/record/pair', { params: { word: item.word } })
+    const idx = recordings.value.live_pairs.findIndex((p) => p.word === item.word)
+    if (idx !== -1) recordings.value.live_pairs.splice(idx, 1)
+  } else {
+    await api.delete('/record/word', { params: { word: item.word } })
+    const idx = recordings.value.live_words.findIndex((w) => w.word === item.word)
+    if (idx !== -1) recordings.value.live_words.splice(idx, 1)
   }
 }
 
@@ -426,41 +431,186 @@ const elevenItems = computed(() => {
       type: 'pair', keyId: `epr-${p.word}`, key: p.word,
       label: p.word, note: 'Kuulo drill', url: p.audio_url
     }))
-  ]
+  ].map((i) => ({ ...i, tier: 'eleven' }))
 })
 
 const elevenOf = (type) => elevenItems.value.filter((i) => inSection(i, type))
 
-async function removeEleven(item) {
-  if (!confirm(`Delete the ElevenLabs clip for "${item.label}"?\n\nIt falls back to the edge-tts voice. Re-voicing it later costs credits again.`)) return
+// The two tiers a reviewer audits, rendered by one loop: same rows, same
+// play-through, only the wording of what deleting costs differs.
+const REVIEW_TIERS = [
+  {
+    id: 'live',
+    label: '✅ Live in the app',
+    playTitle: 'Play the live recording',
+    markTitle: 'Mark for removal - the app falls back to the TTS voice'
+  },
+  {
+    id: 'eleven',
+    label: '🤖 Voiced by ElevenLabs',
+    playTitle: 'Play the ElevenLabs clip',
+    markTitle: 'Mark for deletion - the app falls back to the edge-tts voice'
+  }
+]
 
+const tierOf = (tier, type) => (tier === 'live' ? liveOf(type) : elevenOf(type))
+
+async function deleteElevenClip(item) {
+  await api.delete('/admin/eleven', { data: { type: item.type, key: item.key } })
+  // The lists are keyed per kind server-side; drop the row locally so the
+  // panel doesn't need a full refetch to reflect one deletion.
+  const list = {
+    sentence: 'eleven_sentences', word: 'eleven_words', listening: 'eleven_listening',
+    phrase: 'eleven_phrases', pair: 'eleven_pairs'
+  }[item.type]
+  const rows = recordings.value?.[list] ?? []
+  const idx = rows.findIndex((r) => (
+    item.type === 'sentence' ? r.id === item.id
+      : item.type === 'listening' ? `${r.scene}:${r.index}` === item.key
+        : item.type === 'phrase' ? r.base === item.key
+          : r.word === item.key
+  ))
+  if (idx !== -1) rows.splice(idx, 1)
+
+  // The 11L badge on the row above reads from stats, not this list.
+  const a = stats.value?.audio
+  if (a) {
+    if (item.type === 'sentence') a.sentences_eleven = Math.max(0, (a.sentences_eleven ?? 0) - 1)
+    else if (item.type === 'word') a.words_eleven = Math.max(0, (a.words_eleven ?? 0) - 1)
+    else if (item.type === 'pair') a.pairs_eleven = Math.max(0, (a.pairs_eleven ?? 0) - 1)
+  }
+}
+
+// ---- audit run: hear a whole tier back to back, cull what sounds wrong ----
+//
+// Reviewing hundreds of clips one play button at a time is the reason bad
+// audio survives, so a run plays the tier straight through and auto-advances.
+// You listen; when something sounds off you mark it (D, or the ✗ on the row)
+// and keep listening. Nothing is deleted until you commit the marks, because
+// these files are the audio the whole course hears and a human take or paid
+// credits went into each one - a misfired click shouldn't spend either.
+const heard = ref({}) // keyId → played this session, so you keep your place
+const marked = ref({}) // keyId → item staged for deletion
+const run = ref(null) // { queue, i, label } while playing through
+
+const runningKey = computed(() => (run.value ? run.value.queue[run.value.i]?.keyId : null))
+const markedList = computed(() => Object.values(marked.value))
+
+function toggleMark(item) {
+  if (marked.value[item.keyId]) delete marked.value[item.keyId]
+  else marked.value[item.keyId] = item
+}
+
+const clearMarks = () => (marked.value = {})
+
+function stopRun() {
+  run.value = null
+  stopAudio()
+}
+
+// Skip ahead: stopping the clip resolves the await, and the loop moves on.
+const skipClip = () => stopAudio()
+
+// Runs are identified by a counter, not by the object: ref() hands back a
+// reactive proxy, so comparing run.value to the object we put in never matches.
+let runId = 0
+
+async function startRun(items, label, tier, type) {
+  stopRun()
+  const queue = items.filter((i) => i.url)
+  if (!queue.length) return
+
+  // A run covers the whole tier, so reveal the whole tier - otherwise the
+  // row that's playing scrolls past the end of what's rendered.
+  showAll(tier, type, items.length)
+
+  const id = ++runId
+  run.value = { queue, i: 0, label }
+  while (run.value && runId === id && run.value.i < queue.length) {
+    heard.value[queue[run.value.i].keyId] = true
+    await playClipAsync(queue[run.value.i].url)
+    if (!run.value || runId !== id) return // stopped, or another run took over
+    run.value.i += 1
+  }
+  if (runId === id) run.value = null
+}
+
+// Playing a single row by hand ends the run - two clips at once is noise.
+function playOne(item) {
+  stopRun()
+  heard.value[item.keyId] = true
+  playClip(item.url)
+}
+
+// Keep the playing row on screen during a long run.
+watch(runningKey, async (key) => {
+  if (!key) return
+  await nextTick()
+  document.querySelector(`[data-clip="${CSS.escape(key)}"]`)?.scrollIntoView({ block: 'nearest' })
+})
+
+// D marks what's playing, → skips it, Esc stops. Only while a run is up, and
+// never while the reviewer is typing in the search box.
+function onRunKey(e) {
+  if (!run.value || e.metaKey || e.ctrlKey || e.altKey) return
+  if (e.target instanceof HTMLElement && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return
+
+  const item = run.value.queue[run.value.i]
+  if (e.key === 'd' || e.key === 'D') {
+    if (item) toggleMark(item)
+  } else if (e.key === 'ArrowRight') {
+    skipClip()
+  } else if (e.key === 'Escape') {
+    stopRun()
+  } else {
+    return
+  }
+  e.preventDefault()
+}
+
+onMounted(() => window.addEventListener('keydown', onRunKey))
+onUnmounted(() => {
+  window.removeEventListener('keydown', onRunKey)
+  stopRun()
+})
+
+// The one destructive step, once, for everything marked.
+async function deleteMarked() {
+  const items = markedList.value
+  if (!items.length) return
+
+  const eleven = items.filter((i) => i.tier === 'eleven').length
+  const human = items.length - eleven
+  const what = [human && `${human} human recording${human > 1 ? 's' : ''}`, eleven && `${eleven} ElevenLabs clip${eleven > 1 ? 's' : ''}`]
+    .filter(Boolean).join(' and ')
+  const consequence = [
+    human && 'Human takes fall back to the synthetic voice and have to be re-recorded.',
+    eleven && 'ElevenLabs clips fall back to edge-tts; re-voicing them costs credits again.'
+  ].filter(Boolean).join('\n')
+
+  if (!confirm(`Delete ${what}?\n\n${items.map((i) => `· ${i.label}`).join('\n')}\n\n${consequence}`)) return
+
+  stopRun()
   recBusy.value = true
+  const failed = []
   try {
-    await api.delete('/admin/eleven', { data: { type: item.type, key: item.key } })
-    // The lists are keyed per kind server-side; drop the row locally so the
-    // panel doesn't need a full refetch to reflect one deletion.
-    const list = {
-      sentence: 'eleven_sentences', word: 'eleven_words', listening: 'eleven_listening',
-      phrase: 'eleven_phrases', pair: 'eleven_pairs'
-    }[item.type]
-    const rows = recordings.value?.[list] ?? []
-    const idx = rows.findIndex((r) => (
-      item.type === 'sentence' ? r.id === item.id
-        : item.type === 'listening' ? `${r.scene}:${r.index}` === item.key
-          : item.type === 'phrase' ? r.base === item.key
-            : r.word === item.key
-    ))
-    if (idx !== -1) rows.splice(idx, 1)
-
-    // The 11L badge on the row above reads from stats, not this list.
-    const a = stats.value?.audio
-    if (a) {
-      if (item.type === 'sentence') a.sentences_eleven = Math.max(0, (a.sentences_eleven ?? 0) - 1)
-      else if (item.type === 'word') a.words_eleven = Math.max(0, (a.words_eleven ?? 0) - 1)
-      else if (item.type === 'pair') a.pairs_eleven = Math.max(0, (a.pairs_eleven ?? 0) - 1)
+    for (const item of items) {
+      try {
+        if (item.tier === 'eleven') await deleteElevenClip(item)
+        else await deleteLiveClip(item)
+        delete marked.value[item.keyId]
+      } catch {
+        // One bad row shouldn't strand the rest of the batch - it stays
+        // marked, and the reviewer hears about it below.
+        failed.push(item.label)
+      }
     }
   } finally {
     recBusy.value = false
+  }
+
+  if (failed.length) {
+    alert(`Deleted the rest, but these failed and are still marked:\n\n${failed.map((l) => `· ${l}`).join('\n')}`)
   }
 }
 
@@ -815,41 +965,76 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
                     </div>
                   </template>
 
-                  <template v-if="liveOf(sec.type).length">
-                    <p class="panel-sub">✅ Live in the app <span class="muted">{{ liveOf(sec.type).length }}</span></p>
-                    <div v-for="item in liveOf(sec.type).slice(0, LIVE_MAX)" :key="item.keyId" class="rec-row">
-                      <div class="rec-main">
-                        <p class="rec-text">{{ item.label }}</p>
-                        <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
-                      </div>
-                      <div class="rec-actions">
-                        <button class="rec-btn play" title="Play the live recording" @click="playClip(item.url)">▶ Play</button>
-                        <button class="rec-btn no" :disabled="recBusy" title="Remove - the app falls back to the TTS voice" @click="removeLive(item)">✗ Remove</button>
-                      </div>
-                    </div>
-                    <p v-if="liveOf(sec.type).length > LIVE_MAX" class="muted live-more">
-                      +{{ liveOf(sec.type).length - LIVE_MAX }} more - search to narrow down.
-                    </p>
-                  </template>
+                  <!-- The two review tiers, listed the same way: play the lot
+                       straight through, mark what sounds wrong as you go. -->
+                  <template v-for="tier in REVIEW_TIERS" :key="tier.id">
+                    <template v-if="tierOf(tier.id, sec.type).length">
+                      <p class="panel-sub">
+                        {{ tier.label }} <span class="muted">{{ tierOf(tier.id, sec.type).length }}</span>
+                        <button
+                          v-if="run && run.label === tier.id + sec.type"
+                          class="rec-btn no run-btn"
+                          title="Stop the play-through (Esc)"
+                          @click="stopRun"
+                        >■ Stop · {{ run.i + 1 }}/{{ run.queue.length }}</button>
+                        <button
+                          v-else
+                          class="rec-btn play run-btn"
+                          :title="`Play all ${tierOf(tier.id, sec.type).length} back to back - D marks what's playing, → skips, Esc stops`"
+                          @click="startRun(tierOf(tier.id, sec.type), tier.id + sec.type, tier.id, sec.type)"
+                        >▶ Play all</button>
+                      </p>
 
-                  <template v-if="elevenOf(sec.type).length">
-                    <p class="panel-sub">🤖 Voiced by ElevenLabs <span class="muted">{{ elevenOf(sec.type).length }}</span></p>
-                    <div v-for="item in elevenOf(sec.type).slice(0, LIVE_MAX)" :key="item.keyId" class="rec-row">
-                      <div class="rec-main">
-                        <p class="rec-text">{{ item.label }}</p>
-                        <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
+                      <div
+                        v-for="item in tierOf(tier.id, sec.type).slice(0, shownOf(tier.id, sec.type))"
+                        :key="item.keyId"
+                        :data-clip="item.keyId"
+                        class="rec-row"
+                        :class="{ playing: runningKey === item.keyId, marked: !!marked[item.keyId], heard: heard[item.keyId] }"
+                      >
+                        <div class="rec-main">
+                          <p class="rec-text">
+                            <span v-if="heard[item.keyId]" class="heard-dot" title="You've played this one">•</span>
+                            {{ item.label }}
+                          </p>
+                          <p v-if="item.note" class="rec-en muted">{{ item.note }}</p>
+                        </div>
+                        <div class="rec-actions">
+                          <button class="rec-btn play" :title="tier.playTitle" @click="playOne(item)">▶ Play</button>
+                          <button
+                            class="rec-btn no"
+                            :title="marked[item.keyId] ? 'Keep this one after all' : tier.markTitle"
+                            @click="toggleMark(item)"
+                          >{{ marked[item.keyId] ? '↩ Keep' : '✗ Mark' }}</button>
+                        </div>
                       </div>
-                      <div class="rec-actions">
-                        <button class="rec-btn play" title="Play the ElevenLabs clip" @click="playClip(item.url)">▶ Play</button>
-                        <button class="rec-btn no" :disabled="recBusy" title="Delete - the app falls back to the edge-tts voice" @click="removeEleven(item)">✗ Delete</button>
-                      </div>
-                    </div>
-                    <p v-if="elevenOf(sec.type).length > LIVE_MAX" class="muted live-more">
-                      +{{ elevenOf(sec.type).length - LIVE_MAX }} more - search to narrow down.
-                    </p>
+
+                      <button
+                        v-if="tierOf(tier.id, sec.type).length > shownOf(tier.id, sec.type)"
+                        class="rec-btn live-more"
+                        @click="showAll(tier.id, sec.type, tierOf(tier.id, sec.type).length)"
+                      >
+                        Show all {{ tierOf(tier.id, sec.type).length }}
+                      </button>
+                    </template>
                   </template>
                 </div>
               </template>
+
+              <!-- Marks survive switching sections, so the commit bar lives
+                   outside them: nothing you flagged gets quietly stranded. -->
+              <div v-if="run || markedList.length" class="cull-bar">
+                <span v-if="run" class="cull-run">
+                  ▶ {{ run.i + 1 }}/{{ run.queue.length }} · <kbd>D</kbd> mark · <kbd>→</kbd> skip · <kbd>Esc</kbd> stop
+                </span>
+                <template v-if="markedList.length">
+                  <span class="cull-count">{{ markedList.length }} marked</span>
+                  <button class="rec-btn" :disabled="recBusy" @click="clearMarks">Clear marks</button>
+                  <button class="rec-btn no cull-go" :disabled="recBusy" @click="deleteMarked">
+                    {{ recBusy ? 'Deleting…' : `🗑 Delete ${markedList.length}` }}
+                  </button>
+                </template>
+              </div>
             </div>
           </div>
         </template>
@@ -1256,7 +1441,45 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .rec-btn.no:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
 .rec-btn.play { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
 .live-search { max-width: 170px; margin-left: auto; padding: 7px 10px; font-size: 13px; }
-.live-more { font-size: 12px; text-align: center; margin-top: 4px; }
+.live-more { font-size: 12px; margin-top: 6px; width: 100%; }
+
+/* ---- audit run: play-through, marks, and the one delete step ---- */
+.run-btn { margin-left: auto; text-transform: none; letter-spacing: 0; }
+
+/* The clip you're hearing right now, during a play-through. */
+.rec-row.playing { border-color: var(--accent); background: var(--accent-soft); }
+/* Marked ≠ deleted: it stays legible and reversible until you commit. */
+.rec-row.marked { border-color: var(--red); }
+.rec-row.marked .rec-text { text-decoration: line-through; opacity: 0.6; }
+.rec-row.heard:not(.playing):not(.marked) { opacity: 0.72; }
+.heard-dot { color: var(--accent); font-weight: 900; }
+
+.cull-bar {
+  position: sticky;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 9px 11px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+}
+.cull-run { font-size: 12px; color: var(--text-dim); }
+.cull-run kbd {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+}
+.cull-count { font-size: 13px; font-weight: 800; color: var(--red); margin-left: auto; }
+.cull-go { border-color: var(--red); color: var(--red); }
 
 
 /* ---- users ---- */
