@@ -88,6 +88,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'is_recorder' => 'boolean',
             'review_emails' => 'boolean',
+            'outreach_emailed_at' => 'datetime',
         ];
     }
 

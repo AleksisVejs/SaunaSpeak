@@ -168,6 +168,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/retention', [AdminController::class, 'retention']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::get('/export', [AdminController::class, 'export']);
+
+        // Win-back list: one-session learners not yet written to, and the
+        // stamp that keeps the next list from re-offering them.
+        Route::get('/lapsed', [AdminController::class, 'lapsed']);
+        Route::post('/lapsed/mark', [AdminController::class, 'markOutreach']);
         Route::post('/users/{user}/premium', [AdminController::class, 'togglePremium']);
         Route::post('/users/{user}/recorder', [AdminController::class, 'toggleRecorder']);
         Route::post('/users/{user}/verify-email', [AdminController::class, 'verifyEmail']);

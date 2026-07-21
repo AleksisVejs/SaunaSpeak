@@ -1,6 +1,8 @@
 <script setup>
 // Admin panel in four tabs:
-//   Pulse    - headline numbers, 30-day trends, weekly retention cohorts
+//   Pulse    - headline numbers, 30-day trends, weekly retention cohorts, and
+//              the win-back list those cohorts argue for (one-session learners,
+//              copyable as a Bcc block, each marked once written to)
 //   Activity - the who-was-here-when matrix: one row per user, one cell per
 //              day (reviews + chat), with a stayed/fading/gone verdict
 //   Content  - course shape and the human-recordings manager
@@ -58,17 +60,89 @@ async function downloadExport() {
   }
 }
 
+// ---- win-back list: showed up once, never came back, not yet written to ----
+const lapsed = ref(null)
+const lapsedDays = ref(2)
+// null | 'copying' | { count, ids } after a successful copy | 'error'
+const copied = ref(null)
+
+const LAPSED_GRACE = [
+  { days: 1, label: 'since yesterday' },
+  { days: 2, label: '2+ days ago' },
+  { days: 4, label: '4+ days ago' },
+  { days: 7, label: 'a week+ ago' }
+]
+
+async function loadLapsed() {
+  const { data } = await api.get('/admin/lapsed', { params: { min_days: lapsedDays.value } })
+  lapsed.value = data
+}
+
+watch(lapsedDays, () => { copied.value = null; loadLapsed() })
+
+/**
+ * Copy the addresses AND record the send in one action. Splitting those into
+ * two buttons reads tidier but breaks the feature: the exclusion only works if
+ * the mark actually happens, and "copy now, mark later" is a step people skip -
+ * after which the next list re-offers someone who was mailed yesterday.
+ * `undo` exists for the copy that never became a send.
+ */
+async function copyLapsed() {
+  const rows = lapsed.value?.users ?? []
+  if (!rows.length) return
+
+  copied.value = 'copying'
+  const ids = rows.map((u) => u.id)
+  const text = rows.map((u) => u.email).join(', ')
+
+  try {
+    await writeClipboard(text)
+    await api.post('/admin/lapsed/mark', { ids })
+    await loadLapsed()
+    copied.value = { count: ids.length, ids }
+  } catch {
+    // Nothing is marked unless the copy landed, so a clipboard failure
+    // leaves the list exactly as it was - safe to just retry.
+    copied.value = 'error'
+  }
+}
+
+async function undoCopy() {
+  const ids = copied.value?.ids
+  if (!ids) return
+  await api.post('/admin/lapsed/mark', { ids, undo: true })
+  copied.value = null
+  await loadLapsed()
+}
+
+/** clipboard API needs a secure context; fall back for plain-http admin use. */
+async function writeClipboard(text) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text)
+
+  const el = document.createElement('textarea')
+  el.value = text
+  el.setAttribute('readonly', '')
+  el.style.position = 'fixed'
+  el.style.opacity = '0'
+  document.body.appendChild(el)
+  el.select()
+  const ok = document.execCommand('copy')
+  document.body.removeChild(el)
+  if (!ok) throw new Error('copy failed')
+}
+
 async function load() {
   loading.value = true
   try {
-    const [statsRes, trendsRes, retRes, actRes, usersRes, recRes, fbRes] = await Promise.all([
+    const [statsRes, trendsRes, retRes, actRes, usersRes, recRes, fbRes, lapsedRes] = await Promise.all([
       api.get('/admin/stats'),
       api.get('/admin/trends'),
       api.get('/admin/retention'),
       api.get('/admin/activity', { params: activityParams() }),
       api.get('/admin/users', { params: { page: page.value, search: search.value || undefined } }),
       api.get('/admin/recordings'),
-      api.get('/admin/feedback')
+      api.get('/admin/feedback'),
+      api.get('/admin/lapsed', { params: { min_days: lapsedDays.value } })
     ])
     stats.value = statsRes.data
     trends.value = trendsRes.data
@@ -77,6 +151,7 @@ async function load() {
     users.value = usersRes.data
     recordings.value = recRes.data
     feedback.value = fbRes.data
+    lapsed.value = lapsedRes.data
   } catch (e) {
     if (e.response?.status === 403) denied.value = true
   } finally {
@@ -811,6 +886,70 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
             </p>
           </div>
         </template>
+
+        <!-- The people behind the W1 gap, ready to write to. -->
+        <template v-if="lapsed">
+          <h3 class="group-label">Win-back - came once, never returned</h3>
+          <div class="card wb-card">
+            <div class="wb-head">
+              <div class="win-toggle" role="group" aria-label="How long since their only session">
+                <button
+                  v-for="g in LAPSED_GRACE"
+                  :key="g.days"
+                  class="win-btn"
+                  :class="{ active: lapsedDays === g.days }"
+                  @click="lapsedDays = g.days"
+                >{{ g.label }}</button>
+              </div>
+              <span v-if="lapsed.already_emailed" class="muted wb-excluded">
+                {{ lapsed.already_emailed }} already written to, excluded
+              </span>
+            </div>
+
+            <p v-if="!lapsed.users.length" class="muted rec-empty">
+              Nobody new to write to - everyone who did one session has either come back
+              or already had a mail.
+            </p>
+
+            <template v-else>
+              <div class="wb-scroll">
+                <table class="wb">
+                  <thead>
+                    <tr><th>Learner</th><th>Email</th><th>Their one day</th><th>Silent</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="u in lapsed.users" :key="u.id">
+                      <td class="wb-name">{{ u.name }}</td>
+                      <td class="wb-mail">{{ u.email }}</td>
+                      <td>{{ fmtDay(u.day1) }}</td>
+                      <td class="wb-since">{{ u.days_since }}d</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="wb-actions">
+                <button class="btn btn-sm" :disabled="copied === 'copying'" @click="copyLapsed">
+                  {{ copied === 'copying' ? 'Copying…' : `Copy ${lapsed.users.length} emails & mark as written to` }}
+                </button>
+                <span v-if="copied === 'error'" class="wb-err">
+                  Copy failed - nothing was marked, try again.
+                </span>
+              </div>
+            </template>
+
+            <p v-if="copied && copied.count" class="wb-done">
+              Copied {{ copied.count }} addresses and marked them as written to.
+              <button class="linkish" @click="undoCopy">Undo</button>
+            </p>
+
+            <p class="muted ret-note">
+              One active day ever - reviews or chat - and nothing since. Today's first-timers
+              are never listed, so nobody gets a "we miss you" mid-session. Paste into
+              <strong>Bcc</strong>, never To.
+            </p>
+          </div>
+        </template>
       </template>
 
       <!-- ============================ ACTIVITY ============================ -->
@@ -1252,6 +1391,50 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
   padding: 5px 4px;
 }
 .ret-note { font-size: 12px; line-height: 1.5; margin-top: 10px; }
+
+/* ---- win-back list ---- */
+.wb-card { padding: 14px 16px; }
+.wb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.wb-excluded { font-size: 11px; }
+/* Caps at roughly ten rows; the list grows without pushing the page down. */
+.wb-scroll { overflow: auto; max-height: 340px; }
+.wb { border-collapse: collapse; width: 100%; min-width: 460px; }
+.wb th {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 4px 8px;
+  position: sticky;
+  top: 0;
+  background: var(--card, var(--bg));
+}
+.wb td { padding: 5px 8px; font-size: 12.5px; border-top: 1px solid var(--border); }
+.wb-name { font-weight: 700; white-space: nowrap; }
+.wb-mail { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+.wb-since { color: var(--text-dim); white-space: nowrap; }
+.wb-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.wb-err { font-size: 11.5px; color: var(--danger, #c0392b); }
+.wb-done { font-size: 12px; margin-top: 10px; }
+.linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 /* ---- activity matrix ---- */
 .act-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }

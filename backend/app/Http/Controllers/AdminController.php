@@ -320,6 +320,103 @@ class AdminController extends Controller
     }
 
     /**
+     * GET /api/admin/lapsed - the win-back list: learners who showed up once
+     * and never came back, minus anyone already written to.
+     *
+     * "Did day 1 but not day 2" is counted in DISTINCT ACTIVE DAYS, not days
+     * since signup: someone who reviewed twice in one evening had one day, and
+     * someone who returned a fortnight later had two. Both streams count
+     * (reviews and chat), matching the activity matrix and retention cohorts,
+     * so a learner who only ever talked to Väinö is not miscounted as inactive.
+     *
+     * Today's actives are excluded outright - a first session still in progress
+     * is not a lapse, and mailing "we miss you" to someone mid-session is the
+     * worst possible moment. `min_days` holds them a little longer: it is the
+     * gap the learner has actually left, so the default of 2 means yesterday's
+     * signups keep today to come back on their own before we write.
+     */
+    public function lapsed(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'min_days' => ['sometimes', 'integer', 'min:1', 'max:365'],
+        ]);
+
+        $minDays = (int) ($data['min_days'] ?? 2);
+
+        // Every distinct active day per user, both streams, whole history.
+        $activeDays = ReviewLog::get(['user_id', 'created_at'])
+            ->map(fn ($r) => ['user_id' => $r->user_id, 'date' => $r->created_at->toDateString()])
+            ->concat(ChatDay::get(['user_id', 'date'])
+                ->map(fn ($c) => ['user_id' => $c->user_id, 'date' => substr((string) $c->date, 0, 10)]))
+            ->groupBy('user_id')
+            ->map(fn ($rows) => collect($rows)->pluck('date')->unique()->sort()->values());
+
+        $today = today()->toDateString();
+
+        // Exactly one active day, and it was long enough ago to mean something.
+        $oneDayOnly = $activeDays->filter(function (Collection $dates) use ($today, $minDays) {
+            if ($dates->count() !== 1) {
+                return false;
+            }
+
+            $day1 = $dates->first();
+
+            return $day1 < $today && Carbon::parse($day1)->diffInDays(today()) >= $minDays;
+        });
+
+        $users = User::whereIn('id', $oneDayOnly->keys())
+            ->whereNull('outreach_emailed_at')
+            ->orderBy('id')
+            ->get(['id', 'name', 'email', 'created_at']);
+
+        $rows = $users->map(function (User $u) use ($oneDayOnly) {
+            $day1 = $oneDayOnly[$u->id]->first();
+
+            return [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'day1' => $day1,
+                'days_since' => (int) Carbon::parse($day1)->diffInDays(today()),
+                'signed_up' => $u->created_at->toDateString(),
+            ];
+        })->sortByDesc('days_since')->values();
+
+        return response()->json([
+            'users' => $rows,
+            'total' => $rows->count(),
+            'min_days' => $minDays,
+            // So the panel can show what the exclusion is actually holding back.
+            'already_emailed' => User::whereNotNull('outreach_emailed_at')->count(),
+        ]);
+    }
+
+    /**
+     * POST /api/admin/lapsed/mark - record that these learners have been
+     * written to, so the next list skips them. Called by the panel's copy
+     * button: copying IS the send, in practice, and a separate "mark as sent"
+     * step is one people forget - at which point the exclusion silently stops
+     * working and someone gets the same mail twice.
+     *
+     * `undo` clears the stamp instead, for a copy that never became a send.
+     */
+    public function markOutreach(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+            'undo' => ['sometimes', 'boolean'],
+        ]);
+
+        $undo = (bool) ($data['undo'] ?? false);
+
+        $count = User::whereIn('id', $data['ids'])
+            ->update(['outreach_emailed_at' => $undo ? null : now()]);
+
+        return response()->json(['marked' => $count, 'undo' => $undo]);
+    }
+
+    /**
      * GET /api/admin/export - the whole panel as one unpaginated JSON
      * snapshot, for offline analysis. Deliberately excludes names and email
      * addresses: nothing in the analysis needs them, and the file is meant
