@@ -65,7 +65,7 @@ class GenerateAudio extends Command
             // a human recording (from /record), then an ElevenLabs take, then
             // the edge-tts clip below. Runs on every deploy, so getting this
             // order wrong would quietly demote the good audio back to robot.
-            if ($better = $this->bestUrl("sentence-{$sentence->id}")) {
+            if ($better = $this->bestUrl($sentence->audioBase())) {
                 if ($sentence->audio_url !== $better) {
                     $sentence->update(['audio_url' => $better]);
                 }
@@ -73,8 +73,9 @@ class GenerateAudio extends Command
                 continue;
             }
 
-            $file = "{$dir}/sentence-{$sentence->id}.mp3";
-            $url = "/audio/sentence-{$sentence->id}.mp3";
+            $base = $sentence->audioBase();
+            $file = "{$dir}/{$base}.mp3";
+            $url = "/audio/{$base}.mp3";
 
             if (File::exists($file) && ! $this->option('force')) {
                 if ($sentence->audio_url !== $url) {
@@ -188,7 +189,7 @@ class GenerateAudio extends Command
     }
 
     /**
-     * The best voice already on disk for a base name ("sentence-12",
+     * The best voice already on disk for a base name ("moi-mita-kuuluu-1a2b3c",
      * "words/moi-abc123"), or null when only edge-tts is available.
      *
      * human > eleven > (caller falls back to edge-tts). ElevenLabs coverage is

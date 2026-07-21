@@ -229,10 +229,10 @@ class RecordController extends Controller
     public function storeSentence(Request $request, int $id): JsonResponse
     {
         $this->ensureRecorder($request);
-        Sentence::findOrFail($id);
+        $sentence = Sentence::findOrFail($id);
 
         $file = $this->validAudio($request);
-        $stored = $this->store($file, public_path('audio/pending'), "sentence-{$id}");
+        $stored = $this->store($file, public_path('audio/pending'), $sentence->audioBase());
 
         return response()->json(['sentence_id' => $id, 'pending_url' => "/audio/pending/{$stored}"]);
     }
@@ -657,7 +657,7 @@ class RecordController extends Controller
         [$type, $key] = $this->validReviewTarget($request);
 
         $glob = match ($type) {
-            'sentence' => public_path("audio/pending/sentence-{$key}.*"),
+            'sentence' => public_path('audio/pending/'.$this->sentenceBaseFromKey($key).'.*'),
             'listening' => public_path('audio/pending/'.$this->listeningBaseFromKey($key).'.*'),
             'phrase' => public_path('audio/pending/'.$this->phraseBaseFromKey($key).'.*'),
             'pair' => public_path('audio/pending/pairs/'.$this->pairBaseFromKey($key).'.*'),
@@ -669,6 +669,18 @@ class RecordController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * A sentence review key is still its row id - that's the identity the
+     * admin UI holds. Only the FILE is named after the words, so the key is
+     * resolved through the row rather than pasted into a glob.
+     */
+    private function sentenceBaseFromKey(string $key): string
+    {
+        abort_unless(ctype_digit($key), 422, 'Bad sentence key.');
+
+        return Sentence::findOrFail((int) $key)->audioBase();
     }
 
     /**
@@ -710,12 +722,14 @@ class RecordController extends Controller
         $this->ensureAdmin($request);
         $sentence = Sentence::findOrFail($id);
 
-        foreach (File::glob(public_path("audio/human/sentence-{$id}.*")) as $old) {
+        $base = $sentence->audioBase();
+
+        foreach (File::glob(public_path("audio/human/{$base}.*")) as $old) {
             File::delete($old);
         }
 
         $sentence->update([
-            'audio_url' => File::exists(public_path("audio/sentence-{$id}.mp3")) ? "/audio/sentence-{$id}.mp3" : null,
+            'audio_url' => File::exists(public_path("audio/{$base}.mp3")) ? "/audio/{$base}.mp3" : null,
         ]);
 
         return response()->json(['sentence_id' => $id, 'audio_url' => $sentence->audio_url]);
@@ -767,8 +781,8 @@ class RecordController extends Controller
 
         if ($type === 'sentence') {
             $sentence = Sentence::findOrFail((int) $key);
-            File::delete(public_path("audio/eleven/sentence-{$sentence->id}.mp3"));
-            $sentence->update(['audio_url' => $this->bestSentenceUrl($sentence->id)]);
+            File::delete(public_path("audio/eleven/{$sentence->audioBase()}.mp3"));
+            $sentence->update(['audio_url' => $this->bestSentenceUrl($sentence->audioBase())]);
 
             return response()->json(['audio_url' => $sentence->audio_url]);
         }
@@ -804,13 +818,13 @@ class RecordController extends Controller
      * human, then edge-tts, then nothing. Mirrors GenerateAudio::bestUrl(),
      * minus the ElevenLabs tier the caller has just deleted.
      */
-    private function bestSentenceUrl(int $id): ?string
+    private function bestSentenceUrl(string $base): ?string
     {
-        if ($human = File::glob(public_path("audio/human/sentence-{$id}.*"))[0] ?? null) {
+        if ($human = File::glob(public_path("audio/human/{$base}.*"))[0] ?? null) {
             return '/audio/human/'.basename($human);
         }
 
-        return File::exists(public_path("audio/sentence-{$id}.mp3")) ? "/audio/sentence-{$id}.mp3" : null;
+        return File::exists(public_path("audio/{$base}.mp3")) ? "/audio/{$base}.mp3" : null;
     }
 
     /** Same, for a word's base name: human, then edge-tts, then nothing. */
@@ -843,7 +857,7 @@ class RecordController extends Controller
 
         $dir = public_path('audio/human');
         File::ensureDirectoryExists($dir);
-        foreach (File::glob("{$dir}/sentence-{$id}.*") as $old) {
+        foreach (File::glob("{$dir}/{$sentence->audioBase()}.*") as $old) {
             File::delete($old);
         }
 
@@ -890,13 +904,29 @@ class RecordController extends Controller
         return [$data['type'], mb_strtolower(trim($data['key']))];
     }
 
-    /** @return array<int, string> sentence id → pending file path */
+    /**
+     * @return array<int, string> sentence id → pending file path
+     *
+     * Takes are named after the words now, so the id comes from matching the
+     * base against the rows rather than from parsing it back out of the
+     * filename. A take whose sentence has since been deleted matches nothing
+     * and simply drops out of the queue.
+     */
     private function pendingSentences(): array
     {
-        $map = [];
+        $paths = [];
         foreach (File::glob(public_path('audio/pending/sentence-*.*')) as $path) {
-            if (preg_match('/sentence-(\d+)\./', basename($path), $m)) {
-                $map[(int) $m[1]] = $path;
+            $paths[pathinfo($path, PATHINFO_FILENAME)] = $path;
+        }
+
+        if ($paths === []) {
+            return [];
+        }
+
+        $map = [];
+        foreach (Sentence::all(['id', 'finnish_text']) as $sentence) {
+            if ($path = $paths[$sentence->audioBase()] ?? null) {
+                $map[$sentence->id] = $path;
             }
         }
 

@@ -98,31 +98,31 @@ class ElevenCullTest extends TestCase
     public function test_culling_a_sentence_clip_drops_it_back_to_edge_tts(): void
     {
         $sentence = $this->sentence();
-        $eleven = $this->clip("audio/eleven/sentence-{$sentence->id}.mp3");
-        $sentence->update(['audio_url' => "/audio/eleven/sentence-{$sentence->id}.mp3"]);
+        $eleven = $this->clip("audio/eleven/{$sentence->audioBase()}.mp3");
+        $sentence->update(['audio_url' => "/audio/eleven/{$sentence->audioBase()}.mp3"]);
 
         Sanctum::actingAs($this->admin);
         $this->deleteJson('/api/admin/eleven', ['type' => 'sentence', 'key' => (string) $sentence->id])
             ->assertOk()
-            ->assertJson(['audio_url' => "/audio/sentence-{$sentence->id}.mp3"]);
+            ->assertJson(['audio_url' => "/audio/{$sentence->audioBase()}.mp3"]);
 
         $this->assertFileDoesNotExist($eleven);
         // Still voiced, one tier down - the whole point of culling.
-        $this->assertSame("/audio/sentence-{$sentence->id}.mp3", $sentence->fresh()->audio_url);
-        $this->assertFileExists(public_path("audio/sentence-{$sentence->id}.mp3"));
+        $this->assertSame("/audio/{$sentence->audioBase()}.mp3", $sentence->fresh()->audio_url);
+        $this->assertFileExists(public_path("audio/{$sentence->audioBase()}.mp3"));
     }
 
     public function test_a_human_take_outranks_the_edge_tts_clip_on_the_way_down(): void
     {
         $sentence = $this->sentence();
-        $this->clip("audio/eleven/sentence-{$sentence->id}.mp3");
-        $this->clip("audio/human/sentence-{$sentence->id}.mp3");
+        $this->clip("audio/eleven/{$sentence->audioBase()}.mp3");
+        $this->clip("audio/human/{$sentence->audioBase()}.mp3");
 
         Sanctum::actingAs($this->admin);
         $this->deleteJson('/api/admin/eleven', ['type' => 'sentence', 'key' => (string) $sentence->id])
             ->assertOk();
 
-        $this->assertSame("/audio/human/sentence-{$sentence->id}.mp3", $sentence->fresh()->audio_url);
+        $this->assertSame("/audio/human/{$sentence->audioBase()}.mp3", $sentence->fresh()->audio_url);
     }
 
     public function test_culling_a_word_repoints_the_manifest(): void
@@ -173,8 +173,8 @@ class ElevenCullTest extends TestCase
     public function test_the_recordings_payload_lists_what_eleven_voiced(): void
     {
         $sentence = $this->sentence();
-        $this->clip("audio/eleven/sentence-{$sentence->id}.mp3");
-        $sentence->update(['audio_url' => "/audio/eleven/sentence-{$sentence->id}.mp3"]);
+        $this->clip("audio/eleven/{$sentence->audioBase()}.mp3");
+        $sentence->update(['audio_url' => "/audio/eleven/{$sentence->audioBase()}.mp3"]);
 
         Sanctum::actingAs($this->admin);
         $data = $this->getJson('/api/admin/recordings')->assertOk()->json();
@@ -187,7 +187,7 @@ class ElevenCullTest extends TestCase
     public function test_a_non_admin_cannot_cull_anything(): void
     {
         $sentence = $this->sentence();
-        $eleven = $this->clip("audio/eleven/sentence-{$sentence->id}.mp3");
+        $eleven = $this->clip("audio/eleven/{$sentence->audioBase()}.mp3");
 
         $plain = User::forceCreate([
             'name' => 'Learner', 'email' => 'learner@example.com', 'password' => bcrypt('password'),

@@ -42,12 +42,12 @@ onMounted(async () => {
 // Spoken-vs-textbook contrast is the product in one glance. These are real
 // course sentences, so their pre-generated MP3s exist (this app never falls
 // back to browser TTS - without a URL the buttons would be silent). The audio
-// path is the committed edge-tts clip; onMounted upgrades it to the current
-// best voice for that sentence.
+// path is the committed edge-tts clip, named after the words it speaks (see
+// Sentence::audioBaseFor); onMounted upgrades it to the current best voice.
 const SAMPLES = [
-  { fi: 'Puhuksä englantia?', book: 'Puhutko sinä englantia?', en: 'Do you speak English?', audio: '/audio/sentence-7.mp3' },
-  { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', audio: '/audio/sentence-14.mp3' },
-  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", audio: '/audio/sentence-10.mp3' }
+  { fi: 'Puhuksä englantia?', book: 'Puhutko sinä englantia?', en: 'Do you speak English?', audio: '/audio/sentence-puhuksa-englantia-422624.mp3' },
+  { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', audio: '/audio/sentence-onks-sul-nalka-65d718.mp3' },
+  { fi: 'Emmä tiiä.', book: 'En minä tiedä.', en: "I don't know.", audio: '/audio/sentence-emma-tiia-1838ce.mp3' }
 ]
 
 const METHOD = [

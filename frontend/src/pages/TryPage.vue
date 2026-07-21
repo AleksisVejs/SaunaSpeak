@@ -26,12 +26,12 @@ const samples = [
     book: 'En minä tiedä.',
     en: "I don't know.",
     note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.',
-    audio: '/audio/sentence-10.mp3',
+    audio: '/audio/sentence-emma-tiia-1838ce.mp3',
     options: ['En minä tiedä.', 'Emmä tiiä.']
   },
-  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-8.mp3' },
+  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-moikka-nahaan-a128dd.mp3' },
   // A taste from further down the path - slang the textbooks never touch.
-  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'From further down the same course - “överiks” is Helsinki slang, borrowed from Swedish “över”. The path keeps going into Finnish the textbooks never touch.', audio: '/audio/sentence-369.mp3' }
+  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'From further down the same course - “överiks” is Helsinki slang, borrowed from Swedish “över”. The path keeps going into Finnish the textbooks never touch.', audio: '/audio/sentence-nyt-meni-kyl-overiks-6a792b.mp3' }
 ]
 
 // Upgrade the hardcoded MP3s to whatever the course currently plays for the

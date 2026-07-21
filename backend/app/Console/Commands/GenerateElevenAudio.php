@@ -215,7 +215,7 @@ class GenerateElevenAudio extends Command
                     'kind' => 'sentence',
                     'text' => $s->finnish_text,
                     'voice_id' => $male,
-                    'file' => "{$dir}/sentence-{$s->id}.mp3",
+                    'file' => "{$dir}/{$s->audioBase()}.mp3",
                 ];
             }
         }

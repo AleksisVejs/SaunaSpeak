@@ -168,7 +168,7 @@ class ElevenLabsAudioTest extends TestCase
 
         // A native take lands for the same sentence.
         File::ensureDirectoryExists(public_path('audio/human'));
-        File::put(public_path("audio/human/sentence-{$sentence->id}.mp3"), $this->fakeAudio());
+        File::put(public_path("audio/human/{$sentence->audioBase()}.mp3"), $this->fakeAudio());
 
         $this->artisan('audio:generate')->run();
 
