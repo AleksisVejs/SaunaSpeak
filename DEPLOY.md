@@ -103,8 +103,24 @@ The script: resets + pulls, composer install, copies `frontend/dist` into
 `backend/public`, runs migrations, relinks audio, clears + rebuilds caches,
 fixes permissions, and keeps the `public_html` symlink pointed at
 `backend/public`. Server-local files (`backend/.env`, `storage/`, generated
-chat TTS, and the **native recordings** in `public/audio/human/` +
-`public/audio/pending/`) survive because they're gitignored.
+chat TTS, the **native recordings** in `public/audio/human/` +
+`public/audio/pending/`, and the **ElevenLabs clips** in `public/audio/eleven/`)
+survive because they're gitignored.
+
+`public/audio/eleven/` is gitignored so that culling a bad clip in the admin
+panel actually sticks - while it was tracked, `git reset --hard` handed every
+deleted clip straight back on the next deploy. The trade is that **the server
+is the only copy of that ~44MB**: back it up before wiping or migrating the
+account, because re-voicing costs ElevenLabs credits again. Nothing goes
+silent if it is lost - the tracked edge-tts layer underneath is the floor the
+resolver falls back to (human > eleven > edge-tts) - but the voice quality
+drops until it's regenerated.
+
+The deploy *that untracks* it removes 1,782 tracked files, which would
+otherwise delete the clips off the server. `deploy.sh` snapshots the directory
+before the reset and restores it after the pull, so that changeover is safe
+and the admin's culls survive it. The snapshot is keyed to the incoming diff,
+so it costs nothing on every later deploy.
 
 The `audio:generate` step matters: `git reset` reverts the tracked
 `words.json` to the all-TTS committed version, and that command rebuilds it

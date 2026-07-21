@@ -45,3 +45,13 @@ saunaspeak-release.tar.gz
 # and keeps a local `git add -A` from ever committing server-shaped state.
 /backend/public/audio/human/
 /backend/public/audio/pending/
+
+# ElevenLabs clips are server-owned for the same reason, one tier down: the
+# admin panel culls bad ones, and while they were tracked, deploy.sh's
+# `git reset --hard` restored every clip an admin had just deleted.
+#
+# Nothing goes silent without them - the edge-tts layer under them IS tracked,
+# and it's the floor the resolver falls back to (human > eleven > edge-tts).
+# They are NOT in git, so the server is their only copy: back this directory
+# up before wiping the account, because re-voicing costs credits again.
+/backend/public/audio/eleven/

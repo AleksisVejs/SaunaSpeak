@@ -33,10 +33,36 @@ cd "$REPO_PATH" || fail "Repo not found at $REPO_PATH - clone it first (see DEPL
 # Sanity: never deploy over a missing .env (would boot with no config).
 [ -f "$BACKEND/.env" ] || fail "No $BACKEND/.env - create it from scripts/env.production.example first"
 
+# This server is the only copy of backend/public/audio/eleven (see .gitignore),
+# so a pull that removes those clips as tracked files would delete paid audio
+# with no way back except re-voicing. That is exactly what the deploy which
+# untracked them does, so snapshot first and restore whatever the pull takes.
+#
+# This runs BEFORE the reset below, deliberately: while the clips were still
+# tracked, `git reset --hard` resurrected every one an admin had culled - the
+# bug that made deletions never stick. Snapshotting first captures the state
+# the admin actually left, so their culls survive the changeover.
+#
+# Keyed to the incoming diff, so it costs nothing on a normal deploy: once the
+# directory is untracked on both sides, no pull ever touches it again.
+ELEVEN="$BACKEND/public/audio/eleven"
+ELEVEN_SNAPSHOT="$HOME/.saunaspeak-eleven-snapshot" # outside the repo: git clean must never see it
+
+echo "Fetching latest from git..."
+git fetch --quiet || fail "git fetch failed"
+git rev-parse '@{u}' >/dev/null 2>&1 || fail "No upstream branch set - run: git branch --set-upstream-to=origin/main"
+
+if [ -d "$ELEVEN" ] && [ -n "$(git diff --name-only 'HEAD..@{u}' -- backend/public/audio/eleven)" ]; then
+  echo "Incoming pull changes audio/eleven - snapshotting $(find "$ELEVEN" -type f | wc -l) clips first..."
+  rm -rf "$ELEVEN_SNAPSHOT"
+  cp -r "$ELEVEN" "$ELEVEN_SNAPSHOT" || fail "could not snapshot audio/eleven - aborting rather than risk the clips"
+fi
+
 echo "Resetting and pulling latest from git..."
 git reset --hard HEAD || fail "git reset failed"
 # audio/human + audio/pending are the native recordings uploaded through the
-# studio - they exist ONLY on this server. They're gitignored (which already
+# studio, and audio/eleven is the paid ElevenLabs layer the admin panel culls -
+# all three exist ONLY on this server. They're gitignored (which already
 # shields them from clean), but keep the explicit excludes as a second lock:
 # a clean without them once deleted every approved take.
 git clean -fd \
@@ -44,8 +70,18 @@ git clean -fd \
   --exclude=backend/storage \
   --exclude=backend/public/audio/tts \
   --exclude=backend/public/audio/human \
-  --exclude=backend/public/audio/pending
+  --exclude=backend/public/audio/pending \
+  --exclude=backend/public/audio/eleven
+
 git pull || fail "git pull failed"
+
+if [ -d "$ELEVEN_SNAPSHOT" ]; then
+  # The reset above may have resurrected culled clips before the pull deleted
+  # the lot; the snapshot is the admin's real state, so it wins outright.
+  echo "Restoring the ElevenLabs clips as the admin left them..."
+  rm -rf "$ELEVEN"
+  mv "$ELEVEN_SNAPSHOT" "$ELEVEN" || fail "restoring audio/eleven failed - snapshot kept at $ELEVEN_SNAPSHOT"
+fi
 
 echo "Installing backend dependencies..."
 cd "$BACKEND" || fail "backend/ missing"
