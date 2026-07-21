@@ -1,0 +1,100 @@
+{
+    "title": "How much, how many",
+    "emoji": "🔢",
+    "level": "A2",
+    "verified": false,
+    "rule": "Partitive for amounts: after numbers, for mass nouns, and in 'there is/are'",
+    "summary": "The other half of the partitive has nothing to do with finishing things - it's about quantity. Any number above one puts the thing that follows into the partitive SINGULAR (kaks kahvia, not kaks kahvit), stuff you can't count sits in the partitive by default (vettä, aikaa), and 'there is / there are' takes it too. Get this wrong and you sound like you're counting in a foreign grammar; get it right and prices, orders and shopping all come out naturally.",
+    "items": [
+        {
+            "prompt": "Order TWO of them",
+            "from": "Mä otan kahvin.",
+            "from_en": "I'll take a coffee.",
+            "to": "Mä otan kaks kahvii.",
+            "to_en": "I'll take two coffees.",
+            "accepts": ["Otan kaks kahvii.", "Mä otan kaksi kahvia.", "Otan kaksi kahvia.", "Mä otan kaks kahvia."],
+            "note": "After any number but one, Finnish uses the partitive SINGULAR - kaks kahvia, never a plural. English pluralises, Finnish does the opposite."
+        },
+        {
+            "prompt": "Make it FIVE",
+            "from": "Mul on euro.",
+            "from_en": "I have a euro.",
+            "to": "Mul on viis euroo.",
+            "to_en": "I have five euros.",
+            "accepts": ["Mul on viisi euroa.", "Mulla on viisi euroa.", "Mul on viis euroa.", "Mulla on viis euroo."],
+            "note": "euroa → euroo in speech. This is why prices sound the way they do: 'seittemän kakskyt' - the euro itself often gets dropped once the number is clear."
+        },
+        {
+            "prompt": "Make it THREE",
+            "from": "Mä ostan omenan.",
+            "from_en": "I'll buy an apple.",
+            "to": "Mä ostan kolme omenaa.",
+            "to_en": "I'll buy three apples.",
+            "accepts": ["Ostan kolme omenaa.", "Minä ostan kolme omenaa."],
+            "note": "kolme omenaa - singular partitive again, even though there are three. 'Kolme omenat' is the mistake nearly every learner makes once."
+        },
+        {
+            "prompt": "Make it TWO - watch the ending on this one",
+            "from": "Täs on olut.",
+            "from_en": "Here's a beer.",
+            "to": "Täs on kaks olutta.",
+            "to_en": "Here are two beers.",
+            "accepts": ["Tässä on kaksi olutta.", "Täs on kaksi olutta.", "Tässä on kaks olutta."],
+            "note": "olut takes -ta, so kaks olutta. The number rule doesn't change which partitive ending a word uses - it only decides that you need one."
+        },
+        {
+            "prompt": "Ask for water - you can't count it",
+            "from": "Saisinks lasin?",
+            "from_en": "Could I get a glass?",
+            "to": "Saisinks vettä?",
+            "to_en": "Could I get some water?",
+            "accepts": ["Saisinko vettä?", "Saisinks vettä", "Saisinko vettä", "Voisinks saada vettä?"],
+            "note": "vesi → vettä, an everyday irregular worth knowing cold. Mass nouns - water, milk, coffee, money, time - live in the partitive unless you mean one specific whole portion."
+        },
+        {
+            "prompt": "Say you have time, not a specific hour",
+            "from": "Mul on tunti.",
+            "from_en": "I have an hour.",
+            "to": "Mul on aikaa.",
+            "to_en": "I have time.",
+            "accepts": ["Mulla on aikaa.", "Mul on aikaa", "Mulla on aikaa"],
+            "note": "aika → aikaa. 'Mul on aika' would mean an appointment - the partitive is what turns it into the uncountable 'time'."
+        },
+        {
+            "prompt": "Say there are people there, not one person",
+            "from": "Kaupas on ihminen.",
+            "from_en": "There's a person in the shop.",
+            "to": "Kaupas on ihmisii.",
+            "to_en": "There are people in the shop.",
+            "accepts": ["Kaupassa on ihmisiä.", "Kaupas on ihmisiä.", "Kaupassa on ihmisii."],
+            "note": "An indefinite number of things uses the PLURAL partitive: ihmisiä, spoken ihmisii. Note the verb stays singular - 'on', never 'ovat'. That trips up speakers of every other European language."
+        },
+        {
+            "prompt": "Say there are books on the table",
+            "from": "Pöydäl on kirja.",
+            "from_en": "There's a book on the table.",
+            "to": "Pöydäl on kirjoja.",
+            "to_en": "There are books on the table.",
+            "accepts": ["Pöydällä on kirjoja.", "Pöydäl on kirjoi.", "Pöydällä on kirjoi."],
+            "note": "kirja → kirjoja in the plural partitive. Still 'on', still singular verb."
+        },
+        {
+            "prompt": "Say you'd like a bit of it",
+            "from": "Mä otan pullan.",
+            "from_en": "I'll take a bun.",
+            "to": "Mä otan vähän pullaa.",
+            "to_en": "I'll take a bit of bun.",
+            "accepts": ["Otan vähän pullaa.", "Mä otan vähä pullaa.", "Otan vähä pullaa."],
+            "note": "Quantity words - vähän, paljon, vähän lisää - all pull the partitive after them, exactly like numbers do."
+        },
+        {
+            "prompt": "Say there's a lot of it",
+            "from": "Mul on työ.",
+            "from_en": "I have a job.",
+            "to": "Mul on paljon työtä.",
+            "to_en": "I have a lot of work.",
+            "accepts": ["Mulla on paljon työtä.", "Mul on paljo työtä.", "Mulla on paljo työtä."],
+            "note": "työ → työtä (the -tä form, harmonising with the front vowel ö). paljon takes the partitive just like a number does."
+        }
+    ]
+}

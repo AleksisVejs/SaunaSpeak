@@ -1,0 +1,118 @@
+{
+    "title": "The whole thing, or some of it",
+    "emoji": "🍕",
+    "level": "A2",
+    "verified": false,
+    "rule": "Objects: kirjan (the whole book) vs. kirjaa (at a book, still going)",
+    "summary": "Finnish makes you say whether you finished it. 'Mä luen kirjan' means you'll read it to the end; 'Mä luen kirjaa' means you're in the middle of one. Same verb, same word - the ending carries the difference, and there's no English equivalent to lean on. The -n object is the whole, completed thing; the partitive (-a/-ä, -ta/-tä) is a part of it, or an action still running. This one ending decides how half your sentences are read, which is why it's worth drilling on its own.",
+    "items": [
+        {
+            "prompt": "Say you're in the MIDDLE of it, not finishing it",
+            "from": "Mä luen kirjan.",
+            "from_en": "I'll read the book (cover to cover).",
+            "to": "Mä luen kirjaa.",
+            "to_en": "I'm reading a book (partway through).",
+            "accepts": ["Luen kirjaa.", "Mä oon lukemas kirjaa.", "Minä luen kirjaa."],
+            "note": "kirjan → kirjaa. The -n says you get to the end; the doubled -aa says you're somewhere inside it. Nothing else in the sentence changes."
+        },
+        {
+            "prompt": "Say you're eating AT it, not finishing it",
+            "from": "Mä syön omenan.",
+            "from_en": "I'll eat the apple (all of it).",
+            "to": "Mä syön omenaa.",
+            "to_en": "I'm eating an apple.",
+            "accepts": ["Syön omenaa.", "Minä syön omenaa."],
+            "note": "omenan → omenaa. Stems ending in -a just double it: omena + a = omenaa."
+        },
+        {
+            "prompt": "Say you're partway through it",
+            "from": "Mä katon leffan.",
+            "from_en": "I'll watch the film (to the end).",
+            "to": "Mä katon leffaa.",
+            "to_en": "I'm watching a film.",
+            "accepts": ["Katon leffaa.", "Mä katson leffaa.", "Katson leffaa."],
+            "note": "leffan → leffaa. 'Katon' is the spoken form of 'katson' - it stays put; only the object moves."
+        },
+        {
+            "prompt": "Say you're drinking one, not downing it",
+            "from": "Mä juon oluen.",
+            "from_en": "I'll have a beer (the whole glass).",
+            "to": "Mä juon olutta.",
+            "to_en": "I'm drinking beer.",
+            "accepts": ["Juon olutta.", "Minä juon olutta."],
+            "note": "Here the partitive is -ta, not -a: olut → olutta. Words ending in a consonant take the -ta/-tä form. This is the one you have to learn per word."
+        },
+        {
+            "prompt": "Say you're buying some, not one specific carton",
+            "from": "Mä ostan maidon.",
+            "from_en": "I'll buy the milk.",
+            "to": "Mä ostan maitoo.",
+            "to_en": "I'm buying (some) milk.",
+            "accepts": ["Ostan maitoo.", "Mä ostan maitoa.", "Ostan maitoa.", "Minä ostan maitoa."],
+            "note": "maitoa in writing, maitoo in speech - spoken Finnish lengthens the vowel instead of saying -oa. Milk is a mass, so the partitive is the everyday form."
+        },
+        {
+            "prompt": "Say you're cooking, not that you'll finish a dish",
+            "from": "Mä teen ruoan.",
+            "from_en": "I'll make the meal.",
+            "to": "Mä teen ruokaa.",
+            "to_en": "I'm cooking.",
+            "accepts": ["Teen ruokaa.", "Mä laitan ruokaa.", "Laitan ruokaa.", "Minä teen ruokaa."],
+            "note": "Watch the k: ruoka loses it in ruoan (weak grade) but keeps it in ruokaa (strong). The partitive is built on the strong stem - that's consonant gradation, drilled properly in its own set."
+        },
+        {
+            "prompt": "Say you're learning it, not that you'll master it",
+            "from": "Mä opettelen laulun.",
+            "from_en": "I'll learn the song (all of it).",
+            "to": "Mä opettelen laulua.",
+            "to_en": "I'm learning a song.",
+            "accepts": ["Opettelen laulua.", "Minä opettelen laulua."],
+            "note": "laulun → laulua. A skill in progress is almost always partitive - which is why 'mä opettelen suomee' is partitive too, never 'suomen'."
+        },
+        {
+            "prompt": "Say you're writing it right now",
+            "from": "Mä kirjotan viestin.",
+            "from_en": "I'll write the message (and send it).",
+            "to": "Mä kirjotan viestii.",
+            "to_en": "I'm writing a message.",
+            "accepts": ["Kirjotan viestii.", "Mä kirjoitan viestiä.", "Kirjoitan viestiä.", "Mä kirjotan viestiä."],
+            "note": "viestiä in writing, viestii in speech. Words in -i do the same lengthening as kahvi → kahvii."
+        },
+        {
+            "prompt": "Say you're washing it, not that you'll finish",
+            "from": "Mä pesen auton.",
+            "from_en": "I'll wash the car.",
+            "to": "Mä pesen autoo.",
+            "to_en": "I'm washing the car.",
+            "accepts": ["Pesen autoo.", "Mä pesen autoa.", "Pesen autoa.", "Minä pesen autoa."],
+            "note": "autoa → autoo, the same -oa lengthening as maitoa → maitoo."
+        },
+        {
+            "prompt": "Now say you're WAITING for it instead",
+            "from": "Mä nään bussin.",
+            "from_en": "I see the bus.",
+            "to": "Mä odotan bussii.",
+            "to_en": "I'm waiting for the bus.",
+            "accepts": ["Odotan bussii.", "Mä odotan bussia.", "Odotan bussia.", "Minä odotan bussia."],
+            "note": "Same object, different verb, and the ending has to move: nähdä takes bussin, but odottaa only ever takes the partitive. 'Mä odotan bussin' isn't a shade of meaning - it's simply wrong. Waiting has no finish line built into it."
+        },
+        {
+            "prompt": "Now say you LOVE them - same rule",
+            "from": "Mä nään sut huomenna.",
+            "from_en": "I'll see you tomorrow.",
+            "to": "Mä rakastan sua.",
+            "to_en": "I love you.",
+            "accepts": ["Rakastan sua.", "Mä rakastan sinua.", "Rakastan sinua."],
+            "note": "nähdä takes sut, rakastaa takes sua (sinua in writing). Never 'rakastan sun' - that's the one that makes a Finn wince."
+        },
+        {
+            "prompt": "Now say you'll HELP them - partitive again",
+            "from": "Mä tunnen sut.",
+            "from_en": "I know you.",
+            "to": "Mä autan sua.",
+            "to_en": "I'll help you.",
+            "accepts": ["Autan sua.", "Mä autan sinua.", "Autan sinua."],
+            "note": "tuntea takes sut, auttaa takes sua. Worth memorising the four partitive verbs together - odottaa, rakastaa, auttaa, harrastaa - because they come up constantly and the rule has no logic to reconstruct from."
+        }
+    ]
+}

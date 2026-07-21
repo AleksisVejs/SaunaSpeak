@@ -73,6 +73,16 @@ class LessonImporter
         if (isset($data['pattern']) && (empty($data['pattern']['title']) || empty($data['pattern']['summary']) || empty($data['pattern']['examples']))) {
             $problems[] = 'Pattern needs title, summary and examples.';
         }
+        // patterns.summary is VARCHAR(500). Without this the seeder dies on a
+        // raw PDOException ("Data too long for column 'summary'") that names
+        // no file, so a long note in one lesson looks like a broken database.
+        // Length is also a content signal: the existing notes top out around
+        // 320 characters, and a summary past the limit is usually an essay
+        // that wants editing rather than a wider column.
+        $summary = $data['pattern']['summary'] ?? '';
+        if (is_string($summary) && mb_strlen($summary) > 500) {
+            $problems[] = 'Pattern summary is '.mb_strlen($summary).' characters; the limit is 500.';
+        }
         foreach ((array) ($data['sentences'] ?? []) as $i => $row) {
             if (empty($row['fi']) || empty($row['en'])) {
                 $problems[] = "Sentence #{$i} needs both \"fi\" and \"en\".";

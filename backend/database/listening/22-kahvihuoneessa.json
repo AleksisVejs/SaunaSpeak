@@ -1,0 +1,30 @@
+{
+    "title": "In the break room",
+    "emoji": "☕",
+    "level": "B1",
+    "tagline": "No transaction, no script - two colleagues talking about nothing in particular.",
+    "speakers": {
+        "A": { "name": "Petri", "voice": "male", "role": "colleague" },
+        "B": { "name": "Heli", "voice": "female", "role": "colleague" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi. Onks toi kahvi tuoretta?", "en": "Hi. Is that coffee fresh?" },
+        { "who": "B", "fi": "No, mä keitin sen joskus aamuyheksält, nii et... arvioi ite.", "en": "Well, I made it around nine, so... you be the judge." },
+        { "who": "A", "fi": "Eli ei. Mä keitän uuden.", "en": "So no. I'll make a new pot." },
+        { "who": "B", "fi": "Kiitos, sä oot sankari. Mitäs sulle muuten kuuluu?", "en": "Thanks, you're a hero. How are you doing, by the way?" },
+        { "who": "A", "fi": "No ihan jees. Vähän väsyttää, meil oli eilen se koko päivän palaveri.", "en": "Pretty good. A bit tired, we had that all-day meeting yesterday." },
+        { "who": "B", "fi": "Aa nii, se strategiajuttu. Miten se meni?", "en": "Oh right, the strategy thing. How did it go?" },
+        { "who": "A", "fi": "No... siis. Sanotaan et me puhuttiin paljon.", "en": "Well... I mean. Let's say we talked a lot." },
+        { "who": "B", "fi": "Eli mitään ei päätetty.", "en": "So nothing was decided." },
+        { "who": "A", "fi": "Ei oikeestaan. Palataan asiaan ens kuussa, kuulemma.", "en": "Not really. We'll come back to it next month, apparently." },
+        { "who": "B", "fi": "Kuulostaa tutulta. Meil kävi ihan sama viime keväänä.", "en": "Sounds familiar. The exact same thing happened to us last spring." },
+        { "who": "A", "fi": "Niinpä. No, ei se mitään. Ootsä muuten menos sinne kesäjuhliin?", "en": "Yeah. Well, never mind. Are you going to the summer party, by the way?" },
+        { "who": "B", "fi": "En oo viel päättäny. Riippuu vähän siit, onks se taas siel samas paikas.", "en": "I haven't decided yet. Depends a bit on whether it's at that same place again." },
+        { "who": "A", "fi": "On kuulemma. Ei se mun mielest ollu niin paha?", "en": "It is, apparently. I didn't think it was that bad?" },
+        { "who": "B", "fi": "No ei paha, mut sinne on ihan hirvee matka. Mä olin tunnin bussis.", "en": "Not bad, but it's an awful journey there. I was on the bus for an hour." },
+        { "who": "A", "fi": "Aa, joo. Mä asun aika lähel, nii mä en tullu ees ajatelleeks.", "en": "Ah, right. I live pretty close, so it didn't even occur to me." },
+        { "who": "B", "fi": "Sillon se onki eri juttu. Katotaan nyt.", "en": "Then it's a different story. We'll see." },
+        { "who": "A", "fi": "Joo. No, toi kahvi on kohta valmis, jos jaksat odottaa hetken.", "en": "Yeah. Well, the coffee's nearly ready, if you can wait a moment." },
+        { "who": "B", "fi": "Jaksan kyl. Mul ei oo mitään kiirettä ennen kahtatoista.", "en": "I can. I'm not in any rush before twelve." }
+    ]
+}

@@ -113,9 +113,13 @@ class RecordController extends Controller
             'tier' => $isEleven($p['audio_url']) ? 'eleven' : 'tts',
         ]);
 
-        // Phrases first: the queue is sliced at 100, and behind 550-odd course
-        // sentences they'd be invisible until the very end of the project.
-        // They're also the shorter job - 42 lines finishes in one sitting.
+        // Phrases lead: behind 550-odd course sentences they'd be invisible
+        // until the very end of the project. But they only LEAD - see
+        // leadWithPhrases(), which caps their share of the slice. When the
+        // Taivutus corpus was 42 lines a plain concat was equivalent; once the
+        // partitive and gradation sets pushed it past the slice size, phrases
+        // filled the whole page and the course sentences vanished from the
+        // studio entirely.
         $all = $phrases->concat($sentences);
 
         $open = $all
@@ -177,10 +181,9 @@ class RecordController extends Controller
             'sentence_done' => $all->count() - $open->count(),
             'sentence_pending' => count($pendingSentenceIds) + count($pendingPhraseBases),
             'sentence_eleven' => $sentenceEleven,
-            'sentences' => $openSentences
-                ->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))
-                ->take(100)
-                ->values(),
+            'sentences' => $this->leadWithPhrases(
+                $openSentences->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))
+            ),
             'sentence_matches' => $openSentences->filter(fn (array $s) => $matches($s['finnish_text'], (string) $s['english_text']))->count(),
             'word_total' => count($manifest),
             'word_done' => count($manifest) - $openWordEntries->count(),
@@ -198,6 +201,35 @@ class RecordController extends Controller
             'pair_eleven' => $pairEleven,
             'pairs' => $openPairs,
         ]);
+    }
+
+    /** How many rows one queue page shows. */
+    private const SLICE = 100;
+
+    /**
+     * How much of a page Taivutus phrases may occupy before course sentences
+     * get their turn. Phrases are the shorter, self-contained job so they go
+     * first, but a recorder opening the studio has to be able to see both -
+     * otherwise a growing drill corpus silently hides the course.
+     */
+    private const PHRASE_LEAD = 40;
+
+    /**
+     * Order one page: phrases first up to PHRASE_LEAD, then course sentences,
+     * then any phrases that didn't fit the lead.
+     *
+     * @param  \Illuminate\Support\Collection<int, array>  $open
+     */
+    private function leadWithPhrases($open): \Illuminate\Support\Collection
+    {
+        $phrases = $open->where('kind', 'phrase')->values();
+        $sentences = $open->where('kind', 'sentence')->values();
+
+        return $phrases->take(self::PHRASE_LEAD)
+            ->concat($sentences)
+            ->concat($phrases->slice(self::PHRASE_LEAD))
+            ->take(self::SLICE)
+            ->values();
     }
 
     /** POST /api/record/phrase/{base} - submit a take for a Taivutus phrase. */

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { BookOpen, Check, Flame, MessageCircle, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useSessionStore } from '../stores/session'
@@ -14,6 +15,7 @@ import { rankFor } from '../utils/ranks'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { usePrefs } from '../composables/usePrefs'
 
+const route = useRoute()
 const session = useSessionStore()
 const auth = useAuthStore()
 const { playSentence } = useFinnishAudio()
@@ -27,8 +29,17 @@ const error = ref('')
 // one tap away as the manual override.
 const suggested = ref(null)
 
+// ?size=N (the reminder email's "Review 5 sentences" link) shortens this one
+// session to the length that was promised. Junk or out-of-range values fall
+// through to the learner's own daily goal; the backend clamps the rest.
+const requestedSize = (() => {
+  const n = Number.parseInt(route.query.size, 10)
+
+  return Number.isInteger(n) && n > 0 ? n : null
+})()
+
 // Load in setup (not onMounted) so the reset state is in place before the first render.
-session.loadToday()
+session.loadToday({ size: requestedSize })
 
 watch(
   () => session.index,

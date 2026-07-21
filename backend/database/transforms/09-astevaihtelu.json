@@ -1,0 +1,118 @@
+{
+    "title": "When k, p and t go soft",
+    "emoji": "🔀",
+    "level": "A2",
+    "verified": false,
+    "rule": "Consonant gradation: kauppa → kaupassa, katu → kadulla, Helsinki → Helsingissä",
+    "summary": "Finnish words change their own consonants when you add an ending. kauppa becomes kaupassa, katu becomes kadulla, Helsinki becomes Helsingissä - the k, p or t in the middle weakens. This is why a word you know perfectly well can look unrecognisable with a case on it, and why learners often think they've met a new word when they haven't. For the big everyday group drilled here - words like kauppa, katu, tyttö, ranta, whose plain form is already the strong grade - the weak grade turns up with -n, -ssa, -lla and -lle, while the partitive and the 'going to' form keep the strong one. Watch out for the smaller group that runs the other way: words ending in -e, -as or -in (osoite, opas, rakas) are WEAK in their plain form and strengthen instead - osoite becomes osoitteen, opas becomes oppaan. So 'plain form = strong' is a rule about this set, not about Finnish.",
+    "items": [
+        {
+            "prompt": "Say you're AT the shop (pp → p)",
+            "from": "Toi on kauppa.",
+            "from_en": "That's a shop.",
+            "to": "Mä oon kaupas.",
+            "to_en": "I'm at the shop.",
+            "accepts": ["Mä oon kaupassa.", "Oon kaupas.", "Oon kaupassa.", "Minä olen kaupassa."],
+            "note": "kauppa → kaupassa: the double pp thins to a single p. Spoken Finnish then clips -ssa to -s, so you hear 'kaupas'."
+        },
+        {
+            "prompt": "Say you're IN Helsinki (nk → ng)",
+            "from": "Toi on Helsinki.",
+            "from_en": "That's Helsinki.",
+            "to": "Mä oon Helsingis.",
+            "to_en": "I'm in Helsinki.",
+            "accepts": ["Mä oon Helsingissä.", "Oon Helsingis.", "Oon Helsingissä.", "Minä olen Helsingissä."],
+            "note": "nk → ng. It's a spelling change AND a sound change - 'Helsingissä' has the ng of 'singer', not a hard k. This is the single most common place learners freeze mid-sentence."
+        },
+        {
+            "prompt": "Say you're AT the bank (kk → k)",
+            "from": "Toi on pankki.",
+            "from_en": "That's a bank.",
+            "to": "Mä oon pankis.",
+            "to_en": "I'm at the bank.",
+            "accepts": ["Mä oon pankissa.", "Oon pankis.", "Oon pankissa.", "Minä olen pankissa."],
+            "note": "kk → k. Same shape as kauppa → kaupassa: a doubled consonant loses one half."
+        },
+        {
+            "prompt": "Say you're ON the street (t → d)",
+            "from": "Toi on katu.",
+            "from_en": "That's a street.",
+            "to": "Mä oon kadul.",
+            "to_en": "I'm on the street.",
+            "accepts": ["Mä oon kadulla.", "Oon kadul.", "Oon kadulla.", "Minä olen kadulla."],
+            "note": "A single t weakens all the way to d: katu → kadulla. Finnish d only really exists as a weak-grade t, which is why it's rare at the start of words."
+        },
+        {
+            "prompt": "Say it's ON the table (t → d again)",
+            "from": "Toi on pöytä.",
+            "from_en": "That's a table.",
+            "to": "Se on pöydäl.",
+            "to_en": "It's on the table.",
+            "accepts": ["Se on pöydällä.", "Se on pöydäl", "Se on pöydällä"],
+            "note": "pöytä → pöydällä. Front vowels take -llä rather than -lla - vowel harmony and gradation apply at the same time, independently."
+        },
+        {
+            "prompt": "Say you bought it (p → v)",
+            "from": "Täs on leipä.",
+            "from_en": "Here's the bread.",
+            "to": "Mä ostin leivän.",
+            "to_en": "I bought the bread.",
+            "accepts": ["Ostin leivän.", "Minä ostin leivän.", "Mä ostin sen leivän."],
+            "note": "p → v: leipä → leivän. Not an obvious one to guess, and it shows up constantly in everyday words - leipä, halpa → halvan, apu → avun."
+        },
+        {
+            "prompt": "Say it happens IN the evening (lt → ll)",
+            "from": "Nyt on ilta.",
+            "from_en": "It's evening now.",
+            "to": "Nähdään illal.",
+            "to_en": "See you in the evening.",
+            "accepts": ["Nähdään illalla.", "Nähää illal.", "Nähdään illalla"],
+            "note": "lt → ll: ilta → illalla. The t assimilates completely into the l before it."
+        },
+        {
+            "prompt": "Say you're AT the beach (nt → nn)",
+            "from": "Toi on ranta.",
+            "from_en": "That's a beach.",
+            "to": "Mä oon rannal.",
+            "to_en": "I'm at the beach.",
+            "accepts": ["Mä oon rannalla.", "Oon rannal.", "Oon rannalla.", "Minä olen rannalla."],
+            "note": "nt → nn, the same assimilation as lt → ll. Compare also rt → rr: kerta → kerran."
+        },
+        {
+            "prompt": "Say the girl's name (tt → t)",
+            "from": "Toi on tyttö.",
+            "from_en": "That's a girl.",
+            "to": "Mikä on tytön nimi?",
+            "to_en": "What's the girl's name?",
+            "accepts": ["Mikä tytön nimi on?", "Mikä on sen tytön nimi?", "Mikä on tytön nimi"],
+            "note": "tt → t. The -n ending here is the genitive - 'the girl's' - and genitive always pulls the weak grade."
+        },
+        {
+            "prompt": "Say it's on the rug (tt → t)",
+            "from": "Toi on matto.",
+            "from_en": "That's a rug.",
+            "to": "Se on maton pääl.",
+            "to_en": "It's on top of the rug.",
+            "accepts": ["Se on maton päällä.", "Se on maton päal", "Se on maton päällä"],
+            "note": "matto → maton. Worth saying aloud next to 'mato' (a worm), which has one t all the way through - the length is the whole difference between the words."
+        },
+        {
+            "prompt": "Now go the OTHER way: partitive keeps it strong",
+            "from": "Mä oon kaupas.",
+            "from_en": "I'm at the shop.",
+            "to": "Mä meen kauppaan.",
+            "to_en": "I'm going to the shop.",
+            "accepts": ["Meen kauppaan.", "Mä menen kauppaan.", "Menen kauppaan."],
+            "note": "Going TO somewhere restores the strong grade: kaupas → kauppaan. Weak and strong aren't 'before and after' - each ending picks its own, and you learn which by meeting them."
+        },
+        {
+            "prompt": "Strong grade again - the partitive never weakens",
+            "from": "Mä oon kaupas.",
+            "from_en": "I'm at the shop.",
+            "to": "Mä etin kauppaa.",
+            "to_en": "I'm looking for a shop.",
+            "accepts": ["Etin kauppaa.", "Mä etsin kauppaa.", "Etsin kauppaa."],
+            "note": "This is where gradation and the partitive meet: kaupassa is weak, but kauppaa is strong. Same word, two endings, two grades - which is exactly why the partitive drills and this one belong next to each other."
+        }
+    ]
+}

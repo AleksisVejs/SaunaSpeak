@@ -250,6 +250,13 @@ class Transforms
             'summary' => $s['summary'] ?? '',
             'level' => $s['level'] ?? 'A1',
             'items_count' => count($s['items']),
+            // Whether a native has read this set through. Sets written but not
+            // yet reviewed say so rather than looking identical to checked
+            // ones - the same flag MinimalPairs carries, and for the same
+            // reason: teaching wrong Finnish confidently is the one failure
+            // this content cannot afford. Older sets predate the flag and are
+            // reviewed, hence the default.
+            'verified' => $s['verified'] ?? true,
         ], self::rawAll());
     }
 }

@@ -1,0 +1,123 @@
+{
+    "title": "Some of It, Not All of It",
+    "level": "A2",
+    "pattern": {
+        "title": "The partitive: kahvia, vettä, kaks pullaa",
+        "summary": "The partitive marks a part rather than a whole, and it turns up far more often than learners expect: anything uncountable (kahvia, vettä), anything after a number above one (kaks pullaa), anything you're partway through, and everything you negate. There's no English equivalent to translate from. Endings are -a/-ä, or -ta/-tä after a consonant - and in speech an -a after a vowel usually just lengthens it: kahvia → kahvii, maitoa → maitoo.",
+        "examples": [
+            "Mä juon kahvii joka aamu. = I drink coffee every morning.",
+            "Mä otan kaks pullaa. = I'll take two buns.",
+            "Mul ei oo rahaa. = I don't have any money."
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mä juon kahvii joka aamu.",
+            "en": "I drink coffee every morning.",
+            "written": "Minä juon kahvia joka aamu.",
+            "glosses": {
+                "mä": "I",
+                "juon": "drink",
+                "kahvii": "coffee - partitive 'kahvia', spoken as kahvii. Coffee is a mass, so it's partitive by default",
+                "joka": "every",
+                "aamu": "morning"
+            }
+        },
+        {
+            "fi": "Onks teil maitoo?",
+            "en": "Do you have milk?",
+            "written": "Onko teillä maitoa?",
+            "glosses": {
+                "onks": "is there / do you have - spoken 'onko'",
+                "teil": "you (plural/polite) have - 'teillä', clipped in speech",
+                "maitoo": "milk - partitive 'maitoa'. Asking for an amount, not one specific carton"
+            }
+        },
+        {
+            "fi": "Mä otan kaks pullaa.",
+            "en": "I'll take two buns.",
+            "written": "Minä otan kaksi pullaa.",
+            "glosses": {
+                "mä": "I",
+                "otan": "take",
+                "kaks": "two - spoken 'kaksi'",
+                "pullaa": "bun - partitive singular. After any number but one, Finnish uses the singular partitive, never a plural"
+            }
+        },
+        {
+            "fi": "Mul ei oo rahaa.",
+            "en": "I don't have any money.",
+            "written": "Minulla ei ole rahaa.",
+            "glosses": {
+                "mul": "I have - 'minulla', clipped in speech",
+                "ei": "not",
+                "oo": "be - spoken 'ole'",
+                "rahaa": "money - partitive 'rahaa'. Negation always takes the partitive"
+            }
+        },
+        {
+            "fi": "Täs on vähän juustoo.",
+            "en": "Here's a bit of cheese.",
+            "written": "Tässä on vähän juustoa.",
+            "glosses": {
+                "täs": "here - spoken 'tässä'",
+                "on": "is",
+                "vähän": "a little - quantity words pull the partitive after them",
+                "juustoo": "cheese - partitive 'juustoa'"
+            }
+        },
+        {
+            "fi": "Mä odotan sua kirjaston edes.",
+            "en": "I'm waiting for you in front of the library.",
+            "written": "Minä odotan sinua kirjaston edessä.",
+            "glosses": {
+                "odotan": "am waiting for - odottaa ALWAYS takes the partitive, whatever you mean",
+                "sua": "you - partitive of 'sä' (sinua in writing)",
+                "kirjaston": "of the library",
+                "edes": "in front of - spoken 'edessä'"
+            }
+        },
+        {
+            "fi": "Saisinks vähän lisää vettä?",
+            "en": "Could I get a bit more water?",
+            "written": "Saisinko vähän lisää vettä?",
+            "glosses": {
+                "saisinks": "could I get - spoken 'saisinko'",
+                "vähän": "a little",
+                "lisää": "more",
+                "vettä": "water - partitive of 'vesi'. An everyday irregular worth knowing cold"
+            }
+        },
+        {
+            "fi": "Mä en juo olutta.",
+            "en": "I don't drink beer.",
+            "written": "Minä en juo olutta.",
+            "glosses": {
+                "en": "don't - the negative verb, 1st person",
+                "juo": "drink - bare stem after the negative",
+                "olutta": "beer - partitive 'olutta'. Consonant-final words take -ta/-tä, not plain -a"
+            }
+        },
+        {
+            "fi": "Meil on kolme lasta.",
+            "en": "We have three children.",
+            "written": "Meillä on kolme lasta.",
+            "glosses": {
+                "meil": "we have - 'meillä', clipped in speech",
+                "kolme": "three",
+                "lasta": "child - partitive of 'lapsi'. Another everyday irregular: lapsi → lasta"
+            }
+        },
+        {
+            "fi": "Mä luen tota kirjaa viel.",
+            "en": "I'm still reading that book.",
+            "written": "Minä luen tuota kirjaa vielä.",
+            "glosses": {
+                "luen": "am reading",
+                "tota": "that - spoken 'tuota', itself partitive",
+                "kirjaa": "book - partitive, because you're partway through it. 'Mä luen kirjan' would mean you'll finish it",
+                "viel": "still - spoken 'vielä'"
+            }
+        }
+    ]
+}

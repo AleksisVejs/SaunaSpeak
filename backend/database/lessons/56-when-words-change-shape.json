@@ -1,0 +1,120 @@
+{
+    "title": "When Words Change Shape",
+    "level": "A2",
+    "pattern": {
+        "title": "Consonant gradation: kauppa → kaupas, katu → kadul",
+        "summary": "Finnish rewrites its own middles when an ending arrives: kauppa → kaupassa, katu → kadulla, Helsinki → Helsingissä, leipä → leivän. The k, p or t weakens, which is why a word you know can be unrecognisable with a case on it. For everyday words like these, the plain form and the partitive are strong, while -n, -ssa and -lla pull the weak grade. A smaller group runs in reverse: -e, -as and -in words are weak plain and strengthen instead (osoite → osoitteen, opas → oppaan).",
+        "examples": [
+            "Mä oon kaupas. = I'm at the shop. (kauppa → kaupas)",
+            "Se asuu Helsingis. = They live in Helsinki. (Helsinki → Helsingis)",
+            "Mä ostin leivän. = I bought the bread. (leipä → leivän)"
+        ]
+    },
+    "sentences": [
+        {
+            "fi": "Mun jalka on kipee.",
+            "en": "My leg hurts.",
+            "written": "Minun jalkani on kipeä.",
+            "glosses": {
+                "mun": "my",
+                "jalka": "leg / foot - strong grade here, in the plain word",
+                "on": "is",
+                "kipee": "sore - spoken 'kipeä'"
+            }
+        },
+        {
+            "fi": "Mua sattuu jalkaan.",
+            "en": "My leg hurts (it's hurting me).",
+            "written": "Minua sattuu jalkaan.",
+            "glosses": {
+                "mua": "me - partitive",
+                "sattuu": "hurts",
+                "jalkaan": "into/at the leg - the -an ending keeps the strong grade, so the k stays"
+            }
+        },
+        {
+            "fi": "Mä satutin jalan eilen.",
+            "en": "I hurt my leg yesterday.",
+            "written": "Minä satutin jalkani eilen.",
+            "glosses": {
+                "satutin": "hurt (past)",
+                "jalan": "the leg - and here the k vanishes completely: jalka → jalan. Same word as two sentences ago",
+                "eilen": "yesterday"
+            }
+        },
+        {
+            "fi": "Me mentiin illal rannalle.",
+            "en": "We went to the beach in the evening.",
+            "written": "Me menimme illalla rannalle.",
+            "glosses": {
+                "mentiin": "went - the spoken we-form",
+                "illal": "in the evening - ilta → illalla, lt becomes ll",
+                "rannalle": "to the beach - ranta → rannalle, nt becomes nn"
+            }
+        },
+        {
+            "fi": "Sen tytön nimi on Aino.",
+            "en": "That girl's name is Aino.",
+            "written": "Sen tytön nimi on Aino.",
+            "glosses": {
+                "sen": "that / their",
+                "tytön": "girl's - tyttö → tytön, the double tt thins to t",
+                "nimi": "name"
+            }
+        },
+        {
+            "fi": "Mä ostin leipää ja pari omenaa.",
+            "en": "I bought bread and a couple of apples.",
+            "written": "Minä ostin leipää ja pari omenaa.",
+            "glosses": {
+                "ostin": "bought",
+                "leipää": "bread - partitive, and the partitive keeps the STRONG grade, so it's p here and not the v of leivän",
+                "pari": "a couple of",
+                "omenaa": "apple - partitive singular after a quantity word"
+            }
+        },
+        {
+            "fi": "Mä unohdin leivän kauppaan.",
+            "en": "I left the bread at the shop.",
+            "written": "Minä unohdin leivän kauppaan.",
+            "glosses": {
+                "unohdin": "forgot / left behind",
+                "leivän": "the bread - and now it's weak: leipä → leivän, p becomes v",
+                "kauppaan": "to the shop - going TO restores the strong grade, so kauppa keeps its pp"
+            }
+        },
+        {
+            "fi": "Pankki on kadun toisel puolel.",
+            "en": "The bank is on the other side of the street.",
+            "written": "Pankki on kadun toisella puolella.",
+            "glosses": {
+                "pankki": "bank - strong in the plain word",
+                "kadun": "of the street - katu → kadun, t becomes d",
+                "toisel": "on the other - spoken 'toisella'",
+                "puolel": "side - spoken 'puolella'"
+            }
+        },
+        {
+            "fi": "Mä käyn pankis huomenna.",
+            "en": "I'll go to the bank tomorrow.",
+            "written": "Minä käyn pankissa huomenna.",
+            "glosses": {
+                "käyn": "go / visit",
+                "pankis": "at the bank - pankki → pankissa, kk thins to k, then -ssa clips to -s in speech",
+                "huomenna": "tomorrow"
+            }
+        },
+        {
+            "fi": "Toi kenkä on rikki, kengän pohja irtos.",
+            "en": "That shoe is broken, the sole came off.",
+            "written": "Tuo kenkä on rikki, kengän pohja irtosi.",
+            "glosses": {
+                "kenkä": "shoe - strong grade",
+                "rikki": "broken",
+                "kengän": "the shoe's - kenkä → kengän, nk becomes ng. Same sound change as Helsinki → Helsingissä",
+                "pohja": "sole / bottom",
+                "irtos": "came off - spoken 'irtosi'"
+            }
+        }
+    ]
+}

@@ -36,6 +36,9 @@ Thumbs.db
 /release/
 saunaspeak-release.zip
 saunaspeak-release.tar.gz
+# Hand-built ElevenLabs transfer bundles - the server is the only copy that
+# matters (public/audio/eleven/ is gitignored), so these are scratch.
+*-eleven.zip
 
 # Runtime TTS cache (regenerated on demand per chat reply)
 /backend/public/audio/tts/

@@ -62,6 +62,30 @@ describe('buildSteps', () => {
   })
 })
 
+describe('session length', () => {
+  it('follows the learner daily goal by default', async () => {
+    mockApi([sentence(1)], {})
+    await useSessionStore().loadToday()
+    expect(api.get).toHaveBeenCalledWith('/today-session', { params: { size: 6 } })
+  })
+
+  // The reminder email's button names a number of sentences ("Review 5
+  // sentences · about 3 min") and links to /session?size=5. If the store
+  // ignored that the app would serve the full daily goal instead, and the
+  // mail's one concrete promise - a small, timed ask - would be false.
+  it('honours an explicit size so the email keeps its promise', async () => {
+    mockApi([sentence(1)], {})
+    await useSessionStore().loadToday({ size: 5 })
+    expect(api.get).toHaveBeenCalledWith('/today-session', { params: { size: 5 } })
+  })
+
+  it('falls back to the daily goal when no size is given', async () => {
+    mockApi([sentence(1)], {})
+    await useSessionStore().loadToday({ fresh: true })
+    expect(api.get).toHaveBeenCalledWith('/today-session', { params: { size: 6 } })
+  })
+})
+
 describe('streak commit gate', () => {
   it('commits the day when the sentence block clears, not at the very end', async () => {
     mockApi([sentence(1), sentence(2)], { listening: { id: 'a', title: 'A' } })

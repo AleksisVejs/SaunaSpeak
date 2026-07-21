@@ -1,0 +1,29 @@
+{
+    "title": "At the pharmacy",
+    "emoji": "💊",
+    "level": "A2",
+    "tagline": "A cough that won't quit, and the pharmacist's three questions.",
+    "speakers": {
+        "A": { "name": "Riikka", "voice": "female", "role": "pharmacist" },
+        "B": { "name": "Jussi", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "A", "fi": "Moi! Miten voin auttaa?", "en": "Hi! How can I help?" },
+        { "who": "B", "fi": "Moi. Mul on ollu tosi paha yskä jo viikon.", "en": "Hi. I've had a really bad cough for a week now." },
+        { "who": "A", "fi": "Okei. Onks sul ollu kuumetta?", "en": "Okay. Have you had a fever?" },
+        { "who": "B", "fi": "Ei oo ollu. Vaan se yskä.", "en": "No, I haven't. Just the cough." },
+        { "who": "A", "fi": "Onks se kuivaa yskää vai tuleeks limaa?", "en": "Is it a dry cough, or is there mucus?" },
+        { "who": "B", "fi": "Aika kuivaa. Etenkin öisin.", "en": "Pretty dry. Especially at night." },
+        { "who": "A", "fi": "Joo. Sul ei oo mitään lääkeaineallergioita?", "en": "Right. You don't have any medication allergies?" },
+        { "who": "B", "fi": "Ei mun tietääkseni.", "en": "Not as far as I know." },
+        { "who": "A", "fi": "Hyvä. Tää siirappi auttaa yleensä yöyskään aika hyvin.", "en": "Good. This syrup usually helps night coughs quite well." },
+        { "who": "B", "fi": "Paljon sitä otetaan?", "en": "How much do you take of it?" },
+        { "who": "A", "fi": "Ruokalusikallinen illalla. Ei enempää ku kolme kertaa päivässä.", "en": "A tablespoon in the evening. No more than three times a day." },
+        { "who": "B", "fi": "Selvä. Entä jos se ei parane?", "en": "Got it. And what if it doesn't get better?" },
+        { "who": "A", "fi": "Jos se jatkuu viel toisen viikon, kannattaa varata aika lääkärille.", "en": "If it goes on another week, it's worth booking a doctor's appointment." },
+        { "who": "B", "fi": "Joo, teen niin. Paljon tää maksaa?", "en": "Yeah, I'll do that. How much is this?" },
+        { "who": "A", "fi": "Kymmenen viiskyt. Käyks kortti?", "en": "Ten fifty. Is card okay?" },
+        { "who": "B", "fi": "Käy joo. Kiitos avusta!", "en": "Yeah it is. Thanks for the help!" },
+        { "who": "A", "fi": "Ole hyvä. Parane pian!", "en": "You're welcome. Get well soon!" }
+    ]
+}

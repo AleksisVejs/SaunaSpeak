@@ -12,6 +12,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Check, RotateCcw, Volume2, X } from 'lucide-vue-next'
 import api from '../api'
+import VowelCheck from '../components/VowelCheck.vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 
 const route = useRoute()
@@ -28,6 +29,13 @@ const finished = ref(false)
 
 const trial = computed(() => trials.value[at.value] ?? null)
 const total = computed(() => trials.value.length)
+
+// The production step unlocks only on a clearly-heard set. Discrimination
+// precedes production (Logan, Lively & Pisoni 1991): a learner who is still
+// guessing which vowel they heard cannot yet self-correct the one they say,
+// and drilling it at that point trains the wrong sound in. 80% rather than
+// perfect - the point is a working ear, not a flawless run.
+const earReady = computed(() => total.value > 0 && correct.value / total.value >= 0.8)
 
 onMounted(async () => {
   try {
@@ -150,6 +158,8 @@ function leave() {
           <button class="btn" @click="leave">Back to Kuulo</button>
         </div>
       </section>
+
+      <VowelCheck v-if="finished && earReady" :set="set" />
     </template>
   </div>
 </template>

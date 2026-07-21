@@ -1,0 +1,29 @@
+{
+    "title": "Picking up a parcel",
+    "emoji": "📦",
+    "level": "A2",
+    "tagline": "The code came by text, and the parcel is somehow under the wrong name.",
+    "speakers": {
+        "A": { "name": "Sanna", "voice": "female", "role": "kiosk worker" },
+        "B": { "name": "Otto", "voice": "male", "role": "customer" }
+    },
+    "lines": [
+        { "who": "B", "fi": "Moi! Mä tulin hakee pakettii.", "en": "Hi! I came to pick up a parcel." },
+        { "who": "A", "fi": "Moi. Onks sul se noutokoodi?", "en": "Hi. Do you have the pickup code?" },
+        { "who": "B", "fi": "Joo, se tuli tekstarilla. Hetki.", "en": "Yeah, it came by text. One sec." },
+        { "who": "B", "fi": "Tässä: kaheksan kolme neljä yks.", "en": "Here: eight three four one." },
+        { "who": "A", "fi": "Kiitos. Hmm... mä en löydä sitä tolla koodilla.", "en": "Thanks. Hmm... I can't find it with that code." },
+        { "who": "B", "fi": "Ai jaa. Onks se väärä?", "en": "Oh. Is it wrong?" },
+        { "who": "A", "fi": "Ei välttämättä. Mikä on sun nimi?", "en": "Not necessarily. What's your name?" },
+        { "who": "B", "fi": "Otto Lahtinen.", "en": "Otto Lahtinen." },
+        { "who": "A", "fi": "Joo, täällä on paketti, mut se on toisen nimen alla.", "en": "Right, there's a parcel here, but it's under a different name." },
+        { "who": "B", "fi": "Aa, se on varmaan mun kämppiksen tilaama.", "en": "Ah, my flatmate probably ordered it." },
+        { "who": "A", "fi": "Voi olla. Mut sit mä en valitettavasti voi antaa sitä sulle.", "en": "Could be. But then unfortunately I can't give it to you." },
+        { "who": "B", "fi": "Ai ei? Vaikka meil on sama osote?", "en": "Really? Even though we have the same address?" },
+        { "who": "A", "fi": "Valitettavasti ei. Se pitää olla sen oma henkkari tai valtakirja.", "en": "Unfortunately not. It needs their own ID or a written authorisation." },
+        { "who": "B", "fi": "Okei, ymmärrän. Kuin kauan te säilytätte sitä?", "en": "Okay, I understand. How long do you keep it?" },
+        { "who": "A", "fi": "Seittemän päivää. Sen jälkeen se palautuu lähettäjälle.", "en": "Seven days. After that it goes back to the sender." },
+        { "who": "B", "fi": "Selvä, mä sanon sille. Kiitti kuitenki!", "en": "Right, I'll tell them. Thanks anyway!" },
+        { "who": "A", "fi": "Ei kestä. Moi moi!", "en": "No problem. Bye!" }
+    ]
+}

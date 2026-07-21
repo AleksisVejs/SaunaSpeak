@@ -1,0 +1,28 @@
+{
+    "title": "Getting a library card",
+    "emoji": "📚",
+    "level": "A1",
+    "tagline": "ID, address, and the one question about late fees.",
+    "speakers": {
+        "A": { "name": "Marko", "voice": "male", "role": "librarian" },
+        "B": { "name": "Elin", "voice": "female", "role": "new customer" }
+    },
+    "lines": [
+        { "who": "B", "fi": "Moi! Mä haluaisin kirjastokortin.", "en": "Hi! I'd like a library card." },
+        { "who": "A", "fi": "Joo, onnistuu. Onks sul henkkarit mukana?", "en": "Yeah, that works. Do you have ID with you?" },
+        { "who": "B", "fi": "On, tässä.", "en": "Yes, here." },
+        { "who": "A", "fi": "Kiitos. Ja asutsä Helsingis?", "en": "Thanks. And do you live in Helsinki?" },
+        { "who": "B", "fi": "Joo, mä muutin tänne kuukaus sitte.", "en": "Yeah, I moved here a month ago." },
+        { "who": "A", "fi": "Selvä. Mikä on sun osote?", "en": "Right. What's your address?" },
+        { "who": "B", "fi": "Hämeentie kakskytkolme, asunto viis.", "en": "Hämeentie twenty-three, apartment five." },
+        { "who": "A", "fi": "Kiitos. Ja puhelinnumero?", "en": "Thanks. And a phone number?" },
+        { "who": "B", "fi": "Nolla neljä nolla, kaks kaks kolme, neljä viis kuus.", "en": "Zero four zero, two two three, four five six." },
+        { "who": "A", "fi": "Hyvä. Kortti on ilmanen, mut myöhästymisistä tulee maksu.", "en": "Good. The card is free, but there's a fee for late returns." },
+        { "who": "B", "fi": "Paljon se on?", "en": "How much is it?" },
+        { "who": "A", "fi": "Kymmenen senttii päivässä per kirja. Ei kauheesti, mut kertyy.", "en": "Ten cents a day per book. Not much, but it adds up." },
+        { "who": "B", "fi": "Joo. Kauanks kirjoja saa pitää?", "en": "Right. How long can you keep books?" },
+        { "who": "A", "fi": "Neljä viikkoo. Voit uusia netissä jos kukaan ei oo varannu sitä.", "en": "Four weeks. You can renew online if nobody's reserved it." },
+        { "who": "B", "fi": "Tosi kätevää. Kiitos!", "en": "Really handy. Thanks!" },
+        { "who": "A", "fi": "Ole hyvä. Tässä on sun kortti - tervetuloa!", "en": "You're welcome. Here's your card - welcome!" }
+    ]
+}

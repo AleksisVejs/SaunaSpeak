@@ -85,8 +85,14 @@ export const useSessionStore = defineStore('session', {
      * Today's session: resumed from where the learner left off, or fetched
      * fresh. `fresh: true` forces a new block - that's the "another round"
      * button, which must never restore the session it just finished.
+     *
+     * `size` overrides the learner's daily goal for this one session. The
+     * reminder email promises a specific, small number of sentences ("Review 5
+     * sentences · about 3 min") to answer the real objection of a lapsed
+     * learner, which is time - so the link has to deliver exactly that many,
+     * not the 8 their intake goal asks for.
      */
-    async loadToday({ fresh = false } = {}) {
+    async loadToday({ fresh = false, size = null } = {}) {
       this.loading = true
       this.index = 0
       this.xpEarned = 0
@@ -116,9 +122,10 @@ export const useSessionStore = defineStore('session', {
       }
 
       try {
-        // Session length follows the learner's daily goal from the intake quiz.
+        // Session length follows the learner's daily goal from the intake quiz
+        // unless a caller asked for a specific length (see the doc above).
         const { dailyGoal } = usePrefs()
-        const { data } = await api.get('/today-session', { params: { size: dailyGoal() } })
+        const { data } = await api.get('/today-session', { params: { size: size ?? dailyGoal() } })
         this.sentences = data.sentences
         this.steps = this.buildSteps(data.sentences, data.woven)
         this.wovenStart = data.sentences.length
