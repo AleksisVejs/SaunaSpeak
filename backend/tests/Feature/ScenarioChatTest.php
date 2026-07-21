@@ -61,6 +61,30 @@ class ScenarioChatTest extends TestCase
         $this->assertGreaterThan($lastRecommended, $firstOther);
     }
 
+    /**
+     * The catalog is authored in theme order, not difficulty order, so without
+     * an explicit second sort key three easy scenarios sat below three medium
+     * ones. Goal matches still come first - each half climbs independently.
+     */
+    public function test_each_half_of_the_catalog_climbs_by_difficulty(): void
+    {
+        $rank = ['easy' => 0, 'medium' => 1, 'hard' => 2];
+
+        $this->user->update(['preferences' => ['goal' => 'move']]);
+        $scenarios = $this->getJson('/api/scenarios')->json('scenarios');
+
+        $halves = [true => [], false => []];
+        foreach ($scenarios as $s) {
+            $halves[$s['recommended']][] = $rank[$s['difficulty']];
+        }
+
+        foreach ($halves as $label => $levels) {
+            $sorted = $levels;
+            sort($sorted);
+            $this->assertSame($sorted, $levels, 'difficulty is out of order in the '.($label ? 'recommended' : 'other').' half');
+        }
+    }
+
     public function test_scenario_chat_replies_via_mock_and_reaches_the_goal(): void
     {
         config(['services.ai.key' => null, 'services.ai.gemini_key' => null, 'services.ai.openrouter_key' => null]);

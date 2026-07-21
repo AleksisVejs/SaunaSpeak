@@ -119,6 +119,16 @@ class Listening
     /** Catalog entries without the lines - enough to render the index. */
     public static function index(): array
     {
+        // The catalog is a ladder, so it has to climb. Scenes are read in
+        // filename order and every authoring batch restarted near A1, which
+        // left the B1 job interview (07) above A1 small talk (09, 10, 11) and
+        // an A1 library visit (20) below four B1 scenes. The cards already
+        // show a level badge, so the order was contradicting the label.
+        // Stable sort: the authored sequence still holds within a level.
+        $scenes = self::all();
+        usort($scenes, fn (array $a, array $b) => Themes::levelIndex($a['level'] ?? 'A1')
+            <=> Themes::levelIndex($b['level'] ?? 'A1'));
+
         return array_map(fn (array $s) => [
             'id' => $s['id'],
             'emoji' => $s['emoji'] ?? '🎧',
@@ -126,7 +136,7 @@ class Listening
             'tagline' => $s['tagline'] ?? '',
             'level' => $s['level'] ?? 'A1',
             'lines_count' => count($s['lines']),
-        ], self::all());
+        ], $scenes);
     }
 
     /**

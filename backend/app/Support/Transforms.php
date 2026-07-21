@@ -241,6 +241,14 @@ class Transforms
     /** Catalog entries without the items - enough to render the index. */
     public static function index(): array
     {
+        // Same ladder rule as the listening catalog: sets are read in filename
+        // order and each batch restarted low, so today's three A2 partitiivi
+        // sets landed under the B1 konditionaali and relatiivilause. Stable, so
+        // the authored sequence survives inside each level.
+        $sets = self::rawAll();
+        usort($sets, fn (array $a, array $b) => Themes::levelIndex($a['level'] ?? 'A1')
+            <=> Themes::levelIndex($b['level'] ?? 'A1'));
+
         return array_map(fn (array $s) => [
             // No audio lookups here: the catalog never plays anything.
             'id' => $s['id'],
@@ -257,6 +265,6 @@ class Transforms
             // this content cannot afford. Older sets predate the flag and are
             // reviewed, hence the default.
             'verified' => $s['verified'] ?? true,
-        ], self::rawAll());
+        ], $sets);
     }
 }

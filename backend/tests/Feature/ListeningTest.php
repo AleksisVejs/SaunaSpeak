@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Support\Listening;
+use App\Support\Themes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -40,6 +41,38 @@ class ListeningTest extends TestCase
         $this->assertFalse($first['done']);
         // The index is a summary - the transcript only ships with the scene.
         $this->assertArrayNotHasKey('lines', $first);
+    }
+
+    /**
+     * Scenes are read in filename order and every authoring batch restarted
+     * near A1, so the catalog used to put the B1 job interview above A1 small
+     * talk and an A1 library visit below four B1 scenes - while each card
+     * displayed a level badge saying otherwise. The list has to climb.
+     */
+    public function test_the_catalog_climbs_by_level(): void
+    {
+        $levels = array_map(
+            fn (array $s) => Themes::levelIndex($s['level']),
+            $this->getJson('/api/listening')->assertOk()->json('scenes')
+        );
+
+        $sorted = $levels;
+        sort($sorted);
+        $this->assertSame($sorted, $levels, 'the listening catalog is not ordered by level');
+    }
+
+    /** Within one level the authored (filename) sequence still holds. */
+    public function test_ordering_is_stable_inside_a_level(): void
+    {
+        $ids = array_column(
+            array_filter(
+                $this->getJson('/api/listening')->assertOk()->json('scenes'),
+                fn (array $s) => $s['level'] === 'A1'
+            ),
+            'id'
+        );
+
+        $this->assertSame(['kahvilassa', 'kaupassa', 'bussissa'], array_slice(array_values($ids), 0, 3));
     }
 
     public function test_a_scene_ships_its_lines_with_speakers(): void

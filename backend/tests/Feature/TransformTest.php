@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Support\Themes;
 use App\Support\Transforms;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -40,6 +41,19 @@ class TransformTest extends TestCase
         $this->assertFalse($first['done']);
         // The catalog is a summary - the answers ship with the set itself.
         $this->assertArrayNotHasKey('items', $first);
+    }
+
+    /** Same ladder rule as the listening catalog - see ListeningTest. */
+    public function test_the_catalog_climbs_by_level(): void
+    {
+        $levels = array_map(
+            fn (array $s) => Themes::levelIndex($s['level']),
+            $this->getJson('/api/transforms')->assertOk()->json('sets')
+        );
+
+        $sorted = $levels;
+        sort($sorted);
+        $this->assertSame($sorted, $levels, 'the transforms catalog is not ordered by level');
     }
 
     public function test_a_set_ships_its_items(): void

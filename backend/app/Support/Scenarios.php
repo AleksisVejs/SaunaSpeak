@@ -165,6 +165,9 @@ class Scenarios
     /** First-completion XP by difficulty - paid once, on the first clear. */
     public const XP = ['easy' => 30, 'medium' => 50, 'hard' => 80];
 
+    /** Catalog sort order for difficulty; mirrors the XP ladder. */
+    private const DIFFICULTY_RANK = ['easy' => 0, 'medium' => 1, 'hard' => 2];
+
     public static function xpFor(array $scenario): int
     {
         return self::XP[$scenario['difficulty']] ?? self::XP['easy'];
@@ -196,8 +199,10 @@ class Scenarios
 
     /**
      * Catalog ordered for one learner: scenarios matching their intake-quiz
-     * goal float to the top (stable within each half), each entry flagged
-     * with `recommended` so the UI can label them.
+     * goal float to the top, each entry flagged with `recommended` so the UI
+     * can label them, and each half then climbs by difficulty. The array is
+     * authored in theme order rather than difficulty order, so without the
+     * second key three easy scenarios sat below three medium ones.
      */
     public static function forGoal(?string $goal): array
     {
@@ -207,7 +212,8 @@ class Scenarios
             return $s;
         }, self::all());
 
-        usort($all, fn ($a, $b) => $b['recommended'] <=> $a['recommended']);
+        usort($all, fn ($a, $b) => ($b['recommended'] <=> $a['recommended'])
+            ?: (self::DIFFICULTY_RANK[$a['difficulty']] ?? 0) <=> (self::DIFFICULTY_RANK[$b['difficulty']] ?? 0));
 
         return $all;
     }
