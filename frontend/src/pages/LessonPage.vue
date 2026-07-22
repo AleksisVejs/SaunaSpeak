@@ -7,6 +7,7 @@ import api from '../api'
 import SentenceCard from '../components/SentenceCard.vue'
 import PatternNote from '../components/PatternNote.vue'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
+import { pathStageName } from '../utils/pathStages'
 
 const route = useRoute()
 const lesson = ref(null)
@@ -62,7 +63,7 @@ onUnmounted(stopPlayAll)
   <div v-else class="lesson-page">
     <router-link to="/dashboard" class="back">‹ Back</router-link>
     <div class="lesson-head">
-      <span class="lesson-level">{{ lesson.level }}</span>
+      <span class="lesson-level">{{ pathStageName(lesson.level) }}</span>
       <h2>{{ lesson.title }}</h2>
       <p class="muted">{{ lesson.sentences.length }} sentences</p>
     </div>

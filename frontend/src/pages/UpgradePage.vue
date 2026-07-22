@@ -25,7 +25,7 @@ const busyCancel = ref(false)
 
 const PERKS = [
   { icon: MessageCircle, title: 'Sauna Chat with Väinö', text: 'Free-form conversation that knows you: your name, your goal, and the words you keep forgetting.' },
-  { icon: Drama, title: 'Situations', text: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish.' },
+  { icon: Drama, title: 'All Situations', text: 'Keep going after the free neighbor mission with groceries, cafés, housing, phone calls and more.' },
   { icon: Brain, title: 'AI feedback on every attempt', text: 'Not just right/wrong: what went wrong and why, in plain English.' },
   { icon: ChartLine, title: 'Weekly insights', text: 'Your reviews, recall rate and momentum, week by week.' }
 ]

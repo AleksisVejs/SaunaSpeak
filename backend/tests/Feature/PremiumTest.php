@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ChatDay;
+use App\Models\ProductEvent;
 use App\Models\ReviewLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -131,6 +132,10 @@ class PremiumTest extends TestCase
         $this->assertSame('cus_123', $this->user->stripe_customer_id);
         // The real billing period is stored as-is (grace lives in isPremium).
         $this->assertSame($periodEnd, $this->user->premium_until->timestamp);
+        $this->assertDatabaseHas('product_events', [
+            'user_id' => $this->user->id,
+            'event' => ProductEvent::SUBSCRIPTION_STARTED,
+        ]);
     }
 
     public function test_webhook_ignores_a_completed_but_unpaid_session(): void

@@ -4,6 +4,7 @@
 // anyone (and by crawlers) with audio on every sentence.
 import { onMounted, ref, computed } from 'vue'
 import api from '../api'
+import { pathStageName } from '../utils/pathStages'
 
 const lessons = ref([])
 const loading = ref(true)
@@ -23,7 +24,13 @@ const byLevel = computed(() => {
   for (const lesson of lessons.value) {
     let group = groups.find((g) => g.level === lesson.level)
     if (!group) {
-      group = { level: lesson.level, blurb: LEVEL_BLURBS[lesson.level] ?? '', lessons: [] }
+      group = {
+        level: lesson.level,
+        stageNumber: groups.length + 1,
+        stageName: pathStageName(lesson.level),
+        blurb: LEVEL_BLURBS[lesson.level] ?? '',
+        lessons: []
+      }
       groups.push(group)
     }
     group.lessons.push(lesson)
@@ -65,7 +72,10 @@ onMounted(async () => {
 
     <template v-else>
       <section v-for="group in byLevel" :key="group.level" class="level-block">
-        <h2><span class="level-chip">{{ group.level }}</span>{{ group.blurb }}</h2>
+        <h2>
+          <span class="level-chip">Stage {{ group.stageNumber }}</span>
+          <span><b>{{ group.stageName }}</b> · {{ group.blurb }}</span>
+        </h2>
         <div class="grid">
           <router-link
             v-for="lesson in group.lessons"

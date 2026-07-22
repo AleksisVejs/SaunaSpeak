@@ -288,7 +288,7 @@ async function sendFeedback() {
         <ul class="intro-list">
           <li><b>One Sauna Session a day.</b> Each one mixes a few sentences with a real conversation to hear, a grammar drill, and a bit of speaking.</li>
           <li><b>Sentences come back over time.</b> "Ready to review" means one is due again — seeing it right before you'd forget is what makes it stick.</li>
-          <li><b>Streak &amp; XP</b> reward showing up daily. <b>Levels A0 → B2</b> mark how far you've come — A0 is your first words, B2 is nearly fluent.</li>
+          <li><b>Streak &amp; XP</b> reward showing up daily. <b>Named stages</b> keep the route clear, from first words through everyday life and into nuance — without pretending an app badge makes you fluent.</li>
         </ul>
         <button class="btn btn-primary intro-go" @click="dismissIntro">Got it — let's go</button>
       </div>

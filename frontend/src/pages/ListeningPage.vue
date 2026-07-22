@@ -7,6 +7,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { CircleCheck, Headphones } from 'lucide-vue-next'
 import api from '../api'
+import { pathStageName } from '../utils/pathStages'
 
 const scenes = ref([])
 const loading = ref(true)
@@ -54,7 +55,7 @@ const doneCount = computed(() => scenes.value.filter((s) => s.done).length)
             <CircleCheck v-if="s.done" class="done-ico" aria-hidden="true" />
           </p>
           <p class="scene-tagline muted">{{ s.tagline }}</p>
-          <p class="scene-meta muted">{{ s.level }} · {{ s.lines_count }} lines</p>
+          <p class="scene-meta muted">{{ pathStageName(s.level) }} · {{ s.lines_count }} lines</p>
         </div>
       </router-link>
     </div>

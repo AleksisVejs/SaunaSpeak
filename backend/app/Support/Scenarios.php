@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\User;
+
 /**
  * Tilanteet: guided roleplay scenarios for conversation practice. Each one
  * drops the learner into an everyday situation (buying groceries, ordering
@@ -14,6 +16,9 @@ namespace App\Support;
  */
 class Scenarios
 {
+    /** The one guided mission every free learner can finish once. */
+    public const FREE_TASTE_ID = 'naapuri';
+
     /**
      * Scenario definitions.
      *
@@ -189,6 +194,25 @@ class Scenarios
         return $id !== null && isset(self::CATALOG[$id])
             ? ['id' => $id] + self::CATALOG[$id]
             : null;
+    }
+
+    public static function isFreeTaste(?string $id): bool
+    {
+        return $id === self::FREE_TASTE_ID;
+    }
+
+    /** Free learners can work on the taste until they finish it once. */
+    public static function freeTasteAvailable(User $user): bool
+    {
+        return ! $user->isPremium()
+            && ! isset(($user->scenarios_done ?? [])[self::FREE_TASTE_ID]);
+    }
+
+    /** Server-side entitlement check for scenario chat and completion. */
+    public static function availableTo(User $user, string $id): bool
+    {
+        return $user->isPremium()
+            || (self::isFreeTaste($id) && self::freeTasteAvailable($user));
     }
 
     /** Valid ids, for request validation. */

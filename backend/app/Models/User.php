@@ -142,6 +142,11 @@ class User extends Authenticatable
         return $this->hasMany(ChatDay::class);
     }
 
+    public function productEvents(): HasMany
+    {
+        return $this->hasMany(ProductEvent::class);
+    }
+
     /**
      * Löyly+ access. While billing is unconfigured (no STRIPE_SECRET), every
      * feature is open - flip the paywall on by adding the Stripe keys.

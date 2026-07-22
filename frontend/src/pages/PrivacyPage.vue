@@ -23,7 +23,7 @@ const UPDATED = 'July 14, 2026'
     <h2>What we store</h2>
     <ul>
       <li><b>Account:</b> your name, email address and a hashed password (we can never read the password itself).</li>
-      <li><b>Learning data:</b> which sentences and words you've studied, your self-grades, review schedule, streak, XP, checkpoints, preferences (goal, daily time, audio speed) and timezone. This is the product - spaced repetition can't work without it.</li>
+      <li><b>Learning data:</b> which sentences and words you've studied, your self-grades, review schedule, streak, XP, checkpoints, preferences (goal, daily time, audio speed), timezone, and a few one-time product milestones such as opening or completing the free guided Situation. This is the product - spaced repetition and the learning journey can't work without it.</li>
       <li><b>Chat messages:</b> what you write to Väinö or a scenario character is sent to an AI provider to generate the reply (see below). Practice-attempt corrections are cached so identical mistakes get instant answers.</li>
       <li><b>Billing (Löyly+ only):</b> payments run entirely through <a href="https://stripe.com/privacy" rel="noopener" target="_blank">Stripe</a>. We store your Stripe customer and subscription IDs and your subscription status - never your card number.</li>
     </ul>

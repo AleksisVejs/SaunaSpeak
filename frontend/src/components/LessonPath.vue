@@ -12,22 +12,13 @@ import { computed, ref, watch } from 'vue'
 import { Check, Medal, Target } from 'lucide-vue-next'
 import PathNode from './PathNode.vue'
 import { useAuthStore } from '../stores/auth'
+import { pathStageName, pathStageSlug } from '../utils/pathStages'
 
 const props = defineProps({
   lessons: { type: Array, required: true }
 })
 
 const auth = useAuthStore()
-
-// Short names give each CEFR code a human hook on the map and headers.
-const LEVEL_NAMES = {
-  A0: 'First words',
-  A1: 'Everyday life',
-  A2: 'Stories & opinions',
-  B1: 'Real world',
-  B2: 'The native layer',
-  C1: 'Sounding local'
-}
 
 // Checkpoint state per level. Always takeable: studied learners get a quiz
 // over their material, everyone else gets a placement quiz over the level -
@@ -87,13 +78,16 @@ const sections = computed(() => {
     }
     s.nodes.push(n)
   }
-  return secs.map((s) => {
+  return secs.map((s, stageIndex) => {
     const total = s.nodes.reduce((t, n) => t + (Number(n.lesson.sentences_count) || 0), 0)
     const mastered = s.nodes.reduce((t, n) => t + (Number(n.lesson.mastered_count) || 0), 0)
     const masteredLessons = s.nodes.filter((n) => n.status === 'mastered').length
     return {
       ...s,
-      name: LEVEL_NAMES[s.level] ?? '',
+      // The level remains an internal routing/placement key. The learner sees
+      // a numbered, plain-language stage instead of a proficiency claim.
+      stageNumber: stageIndex + 1,
+      name: pathStageName(s.level),
       masteredLessons,
       pct: total ? Math.round((mastered / total) * 100) : 0,
       done: s.nodes.length > 0 && masteredLessons === s.nodes.length,
@@ -140,19 +134,19 @@ function jumpTo(level) {
     </p>
 
     <!-- the whole journey at a glance -->
-    <div class="level-map" role="navigation" aria-label="Course levels">
+    <div class="level-map" role="navigation" aria-label="Course stages">
       <button
         v-for="s in sections"
         :key="s.level"
         class="map-step"
         :class="{ done: s.done, current: s.current, locked: s.locked }"
-        :title="`${s.level} · ${s.name} — ${s.masteredLessons}/${s.nodes.length} lessons mastered`"
+        :title="`Stage ${s.stageNumber}: ${s.name} — ${s.masteredLessons}/${s.nodes.length} lessons mastered`"
         @click="jumpTo(s.level)"
       >
         <span class="map-code">
-          <Medal v-if="s.done && s.checkpoint.passed" class="map-ico" aria-label="Level mastered, checkpoint passed" />
-          <Check v-else-if="s.done" class="map-ico" aria-label="Level mastered" />
-          <template v-else>{{ s.level }}</template>
+          <Medal v-if="s.done && s.checkpoint.passed" class="map-ico" aria-label="Stage mastered, checkpoint passed" />
+          <Check v-else-if="s.done" class="map-ico" aria-label="Stage mastered" />
+          <template v-else>{{ s.stageNumber }}</template>
         </span>
         <span class="map-track"><span class="map-fill" :style="{ width: s.pct + '%' }"></span></span>
         <span class="map-name">{{ s.name }}</span>
@@ -168,17 +162,17 @@ function jumpTo(level) {
     >
       <button class="section-head" :aria-expanded="open[s.level] ? 'true' : 'false'" @click="toggle(s.level)">
         <span class="section-badge">
-          <Medal v-if="s.done && s.checkpoint.passed" class="badge-ico" aria-label="Level mastered, checkpoint passed" />
-          <Check v-else-if="s.done" class="badge-ico" aria-label="Level mastered" />
-          <template v-else>{{ s.level }}</template>
+          <Medal v-if="s.done && s.checkpoint.passed" class="badge-ico" aria-label="Stage mastered, checkpoint passed" />
+          <Check v-else-if="s.done" class="badge-ico" aria-label="Stage mastered" />
+          <template v-else>{{ s.stageNumber }}</template>
         </span>
         <span class="section-info">
           <span class="section-title">
-            <template v-if="!s.done">{{ s.level }} · </template>{{ s.name }}
+            {{ s.name }}
             <span v-if="s.current" class="section-now">You're here</span>
           </span>
           <span class="section-sub">
-            {{ s.done ? 'Level mastered' : `${s.masteredLessons}/${s.nodes.length} lessons mastered` }}
+            {{ s.done ? 'Stage mastered' : `${s.masteredLessons}/${s.nodes.length} lessons mastered` }}
           </span>
         </span>
         <span class="section-side">
@@ -200,13 +194,13 @@ function jumpTo(level) {
           :is-last="i === s.nodes.length - 1"
         />
         <router-link
-          :to="`/checkpoint/${s.checkpoint.level}`"
+          :to="`/checkpoint/${pathStageSlug(s.checkpoint.level)}`"
           class="checkpoint-chip"
           :class="{ passed: s.checkpoint.passed }"
         >
-          <template v-if="s.checkpoint.passed"><Medal class="chip-ico" aria-hidden="true" /> {{ s.checkpoint.level }} checkpoint passed - retake any time</template>
-          <template v-else-if="s.locked"><Target class="chip-ico" aria-hidden="true" /> Know {{ s.level }} already? Test out and skip ahead</template>
-          <template v-else><Target class="chip-ico" aria-hidden="true" /> Take the {{ s.checkpoint.level }} checkpoint - pass to unlock the next level instantly</template>
+          <template v-if="s.checkpoint.passed"><Medal class="chip-ico" aria-hidden="true" /> Stage checkpoint passed - retake any time</template>
+          <template v-else-if="s.locked"><Target class="chip-ico" aria-hidden="true" /> Already know this material? Take a quick check and skip ahead</template>
+          <template v-else><Target class="chip-ico" aria-hidden="true" /> Take the stage checkpoint - pass to unlock the next stage instantly</template>
         </router-link>
       </div>
     </section>

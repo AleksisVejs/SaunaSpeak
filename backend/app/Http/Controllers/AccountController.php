@@ -49,6 +49,9 @@ class AccountController extends Controller
             'review_history' => \App\Models\ReviewLog::where('user_id', $user->id)
                 ->orderBy('created_at')
                 ->get(['kind', 'grade', 'created_at']),
+            'product_funnel' => $user->productEvents()
+                ->orderBy('created_at')
+                ->get(['event', 'metadata', 'created_at']),
         ], 200, [
             'Content-Disposition' => 'attachment; filename="saunaspeak-export.json"',
         ]);

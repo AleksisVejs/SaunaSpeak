@@ -22,6 +22,15 @@ const TABS = [
   { id: 'users', label: '👥 Users' },
   { id: 'feedback', label: '💬 Feedback' }
 ]
+const FREE_FUNNEL_STEPS = [
+  { event: 'free_situation_offered', label: 'Offered' },
+  { event: 'free_situation_opened', label: 'Opened' },
+  { event: 'free_situation_started', label: 'Started' },
+  { event: 'free_situation_completed', label: 'Completed' },
+  { event: 'free_situation_upsell_clicked', label: 'Upsell click' },
+  { event: 'checkout_started', label: 'Checkout' },
+  { event: 'subscription_started', label: 'Subscribed' }
+]
 const tab = ref('pulse')
 
 const stats = ref(null)
@@ -841,6 +850,19 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
               <span class="sub">{{ stats.premium_trialing }} trial · {{ stats.premium_comped }} comped</span>
             </div>
           </div>
+
+          <h3 class="group-label">Free Situation → Löyly+</h3>
+          <div class="card funnel-card">
+            <div
+              v-for="(step, i) in FREE_FUNNEL_STEPS"
+              :key="step.event"
+              class="funnel-step"
+            >
+              <span v-if="i" class="funnel-arrow" aria-hidden="true">›</span>
+              <span class="funnel-value">{{ stats.free_situation_funnel?.[step.event] ?? 0 }}</span>
+              <span class="funnel-label">{{ step.label }}</span>
+            </div>
+          </div>
         </template>
 
         <template v-if="trends">
@@ -1396,6 +1418,33 @@ const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '-')
 .export-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 .export-hint { font-size: 11px; color: var(--text-dim); }
+
+/* ---- free Situation conversion funnel ---- */
+.funnel-card {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(72px, 1fr));
+  gap: 6px;
+  padding: 14px;
+  overflow-x: auto;
+}
+.funnel-step {
+  position: relative;
+  min-width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+.funnel-value { font-size: 22px; font-weight: 850; color: var(--accent); }
+.funnel-label { font-size: 10.5px; font-weight: 700; color: var(--text-dim); }
+.funnel-arrow {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  color: var(--text-faint);
+  font-size: 20px;
+}
 
 /* ---- 30-day trend strips ---- */
 .trend-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }

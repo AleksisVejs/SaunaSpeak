@@ -27,6 +27,12 @@ export default defineConfig({
         // Scenario art (scenes/) stays out of the precache - ~2MB that only
         // Löyly+ users in a scenario need; it's runtime-cached below instead.
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        manifestTransforms: [async (entries) => ({
+          manifest: [...entries].sort((left, right) => (
+            left.url < right.url ? -1 : left.url > right.url ? 1 : 0
+          )),
+          warnings: []
+        })],
         // og-image is for link-unfurl crawlers only - no user ever loads it.
         globIgnores: ['scenes/**', 'sw-kill.js', 'og-image.png'],
         navigateFallback: '/index.html',

@@ -7,6 +7,7 @@ use App\Models\ReviewLog;
 use App\Models\User;
 use App\Models\UserProgress;
 use App\Models\Sentence;
+use App\Support\Scenarios;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -126,6 +127,10 @@ class AuthController extends Controller
         // Free-taste chat allowance; null = unlimited. The chat UI keys its
         // banner and gate off this, so it must ride on the same payload.
         $fresh->chat_free_remaining = $fresh->chatFreeRemaining();
+        $fresh->free_situation = [
+            'id' => Scenarios::FREE_TASTE_ID,
+            'available' => Scenarios::freeTasteAvailable($fresh),
+        ];
 
         return response()->json([
             'user' => $fresh,

@@ -12,12 +12,13 @@ const FREE = [
   'Kuuntelu - whole conversations at natural speed',
   'Taivutus - Finnish inflection drills',
   'Word bank + flashcard reviews',
-  'Level checkpoints and streaks'
+  'Stage checkpoints and streaks',
+  'One guided Situation - meet your neighbor'
 ]
 
 const PLUS = [
   'Sauna Chat - free AI conversation with Väinö',
-  'Situations - real-life roleplay missions',
+  'All Situations - unlimited real-life roleplay missions',
   'AI feedback on your written and spoken attempts',
   'Weekly insights into your learning'
 ]
@@ -35,11 +36,11 @@ const plusPrice = computed(() => INTERVALS[interval.value])
 const FAQ = [
   {
     q: 'Is Free really free forever?',
-    a: 'Yes. Every lesson, session, review and checkpoint - no trial clock, no lesson caps, no ads. Löyly+ only adds the AI conversation features on top.'
+    a: 'Yes. Every lesson, session, review and checkpoint, plus one guided Situation - no trial clock, no lesson caps, no ads. Löyly+ unlocks the full AI conversation layer.'
   },
   {
     q: 'Do I need Löyly+ to learn Finnish here?',
-    a: 'No. The whole learning path is on the free plan. Löyly+ is for when you want to practice talking - open conversation, roleplay missions, and AI feedback on your own sentences.'
+    a: 'No. The whole learning path and one guided speaking mission are on the free plan. Löyly+ is for unlimited open conversation, every roleplay mission, and AI feedback on your own sentences.'
   },
   {
     q: 'How does the 3-day Löyly+ trial work?',

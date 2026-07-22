@@ -16,6 +16,7 @@ import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { usePrefs } from '../composables/usePrefs'
+import { pathStageLevel, pathStageName, pathStageSlug } from '../utils/pathStages'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,12 +28,16 @@ const { seedPlacement } = usePrefs()
 // floor, so the ladder starts at A1; only levels the curriculum actually has.
 const INTAKE_LADDER = ['A1', 'A2', 'B1', 'B2']
 
-const level = computed(() => String(route.params.level || 'A0').toUpperCase())
+const level = computed(() => pathStageLevel(route.params.level))
+const stageName = computed(() => pathStageName(level.value))
 const intake = computed(() => route.query.intake === '1')
 const nextPlacementLevel = computed(() => {
   const i = INTAKE_LADDER.indexOf(level.value)
   return i >= 0 && i < INTAKE_LADDER.length - 1 ? INTAKE_LADDER[i + 1] : null
 })
+const nextStageName = computed(() => (
+  nextPlacementLevel.value ? pathStageName(nextPlacementLevel.value) : null
+))
 
 const loading = ref(true)
 const ready = ref(false)
@@ -118,7 +123,7 @@ async function startFresh() {
 }
 
 function continueChain() {
-  router.push({ name: 'checkpoint', params: { level: nextPlacementLevel.value }, query: { intake: '1', go: '1' } })
+  router.push({ name: 'checkpoint', params: { level: pathStageSlug(nextPlacementLevel.value) }, query: { intake: '1', go: '1' } })
 }
 
 // End the intake chain. Placed out of nothing (failed or quit the very first
@@ -192,7 +197,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <img class="big-icon vaino" src="/vaino-oops.png" alt="Väinö shrugging" />
       <h1>Not quite yet</h1>
       <p class="muted">
-        The {{ level }} checkpoint opens after you've studied {{ needed }} sentences -
+        The {{ stageName }} checkpoint opens after you've studied {{ needed }} sentences -
         you're at {{ studied }}. A Sauna Session or two will get you there.
       </p>
       <router-link to="/session" class="btn btn-primary btn-block loyly-cta"><LoylyIcon class="cta-ico" aria-hidden="true" /> Start a session</router-link>
@@ -206,29 +211,29 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :src="passed ? '/vaino-medal.png' : '/vaino-flex.png'"
         :alt="passed ? 'Väinö holding a gold medal' : 'Väinö flexing encouragement'"
       />
-      <h1>{{ passed ? (placement ? `You tested out of ${level}!` : `${level} checkpoint passed!`) : 'Good training!' }}</h1>
+      <h1>{{ passed ? (placement ? `You tested out of ${stageName}!` : `${stageName} checkpoint passed!`) : 'Good training!' }}</h1>
       <div class="score" :class="{ pass: passed }">{{ correct }}/{{ total }} · {{ scorePct }}%</div>
       <p v-if="passed && xpGained" class="xp-note">+{{ xpGained }} XP badge bonus</p>
       <p class="muted">
         {{ passed
           ? (placement
-            ? `The path past ${level} is unlocked and your daily sessions skip straight to the next level. The ${level} lessons stay open whenever you want them.`
+            ? `The path past ${stageName} is unlocked and your daily sessions skip straight to the next stage. The ${stageName} lessons stay open whenever you want them.`
             : 'Your badge is on the journey path. Retake it any time - recalling is rehearsing.')
           : (placement
-            ? `Not this time - you need 80% to place out of ${level}. Its lessons will get you there fast, and you can retake this any time.`
+            ? `Not this time - you need 80% to place out of ${stageName}. Its lessons will get you there fast, and you can retake this any time.`
             : 'No pressure - every attempt strengthens the memories it touched. Do a session or two and come back; you need 80% to pass.') }}
       </p>
       <!-- Intake placement: pass → offer the next rung; fail/last → into the app -->
       <template v-if="intake">
         <button v-if="passed && nextPlacementLevel" class="btn btn-primary btn-block loyly-cta" @click="continueChain">
-          <Rocket class="cta-ico" aria-hidden="true" /> Try {{ nextPlacementLevel }} next
+          <Rocket class="cta-ico" aria-hidden="true" /> Try {{ nextStageName }} next
         </button>
         <button
           class="btn btn-block"
           :class="passed && nextPlacementLevel ? 'btn-ghost' : 'btn-primary'"
           @click="finishIntake"
         >
-          {{ passed ? 'Start learning' : `Start at ${level}` }}
+          {{ passed ? 'Start learning' : `Start with ${stageName}` }}
         </button>
       </template>
       <router-link v-else to="/dashboard" class="btn btn-primary btn-block">Back to the path</router-link>
@@ -239,7 +244,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <img class="big-icon vaino" src="/vaino-flex.png" alt="Väinö flexing encouragement" />
       <h1>Know some already?</h1>
       <p class="muted">
-        Take a quick check and skip straight past the levels you already know -
+        Take a quick check and skip straight past the stages you already know -
         each one you pass unlocks the path and earns a badge. Or start from the
         very beginning, no pressure.
       </p>
@@ -258,12 +263,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </div>
 
       <p class="stakes-note">
-        <template v-if="placement"><Rocket class="sn-ico" aria-hidden="true" /> Placement: score 80% and skip straight past {{ level }}.</template>
+        <template v-if="placement"><Rocket class="sn-ico" aria-hidden="true" /> Placement: score 80% and skip straight past {{ stageName }}.</template>
         <template v-else>Low stakes: taking this quiz is itself practice. Say each one out loud.</template>
       </p>
 
       <div class="card quiz-card">
-        <p class="hint"><Brain class="hint-ico" aria-hidden="true" /> {{ level }} {{ placement ? 'placement' : 'checkpoint' }} - say it in Finnish</p>
+        <p class="hint"><Brain class="hint-ico" aria-hidden="true" /> {{ stageName }} {{ placement ? 'placement' : 'checkpoint' }} - say it in Finnish</p>
         <p class="prompt">{{ current.english_text }}</p>
 
         <template v-if="revealed">
