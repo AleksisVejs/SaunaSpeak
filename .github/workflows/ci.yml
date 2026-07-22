@@ -60,5 +60,6 @@ jobs:
           if ! git diff --quiet -- dist; then
             echo "::error::frontend/dist is stale - run 'npx vite build' and commit the result."
             git diff --stat -- dist
+            git diff -- dist
             exit 1
           fi
