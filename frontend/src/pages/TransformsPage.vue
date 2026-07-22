@@ -8,6 +8,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { CircleCheck, Wrench } from 'lucide-vue-next'
 import api from '../api'
+import { pathStageName } from '../utils/pathStages'
 
 const sets = ref([])
 const loading = ref(true)
@@ -54,7 +55,7 @@ const doneCount = computed(() => sets.value.filter((s) => s.done).length)
           </p>
         </div>
         <p class="set-rule">{{ s.rule }}</p>
-        <p class="set-meta muted">{{ s.level }} · {{ s.items_count }} transforms</p>
+        <p class="set-meta muted">{{ pathStageName(s.level) }} · {{ s.items_count }} transforms</p>
       </router-link>
     </div>
   </div>

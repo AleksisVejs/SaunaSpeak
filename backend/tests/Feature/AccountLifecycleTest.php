@@ -83,7 +83,7 @@ class AccountLifecycleTest extends TestCase
         $this->getJson('/api/account/export')
             ->assertOk()
             ->assertJsonPath('account.email', 'testi@example.com')
-            ->assertJsonStructure(['exported_at', 'account', 'sentence_progress', 'word_bank', 'review_history']);
+            ->assertJsonStructure(['exported_at', 'account', 'sentence_progress', 'word_bank', 'review_history', 'product_funnel']);
     }
 
     public function test_delete_requires_the_correct_password(): void

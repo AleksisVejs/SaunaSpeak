@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ChatDay;
+use App\Models\ProductEvent;
 use App\Models\ReviewLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -96,12 +97,38 @@ class AdminExportTest extends TestCase
             ->assertOk()
             ->assertJsonStructure([
                 'meta' => ['generated_at', 'today', 'week_started', 'schema_version'],
-                'notes' => ['partial_week', 'analytics_gap'],
-                'stats' => ['users_total', 'premium_paying', 'premium_comped', 'users_verified'],
+                'notes' => ['partial_week', 'analytics_gap', 'product_funnel'],
+                'stats' => ['users_total', 'premium_paying', 'premium_comped', 'users_verified', 'free_situation_funnel'],
                 'trends' => ['days'],
                 'retention' => ['cohorts'],
-                'users',
+                'users' => ['*' => ['product_funnel']],
             ]);
+    }
+
+    public function test_product_funnel_counts_learners_but_excludes_staff(): void
+    {
+        $admin = $this->admin();
+        $learner = User::create([
+            'name' => 'Learner', 'email' => 'learner@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $unrelatedBuyer = User::create([
+            'name' => 'Buyer', 'email' => 'buyer@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        ProductEvent::record($learner, ProductEvent::FREE_SITUATION_OFFERED);
+        ProductEvent::record($learner, ProductEvent::CHECKOUT_STARTED);
+        ProductEvent::record($unrelatedBuyer, ProductEvent::CHECKOUT_STARTED);
+        ProductEvent::record($admin, ProductEvent::FREE_SITUATION_OFFERED);
+
+        Sanctum::actingAs($admin);
+        $response = $this->getJson('/api/admin/export')->assertOk();
+
+        $response->assertJsonPath('stats.free_situation_funnel.free_situation_offered', 1);
+        $response->assertJsonPath('stats.free_situation_funnel.checkout_started', 1);
+        $rows = collect($response->json('users'))->keyBy('id');
+        $this->assertArrayHasKey(ProductEvent::FREE_SITUATION_OFFERED, $rows[$learner->id]['product_funnel']);
     }
 
     /**

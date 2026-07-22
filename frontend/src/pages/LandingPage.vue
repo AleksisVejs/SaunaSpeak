@@ -81,9 +81,9 @@ const FEATURES = [
   { icon: Wrench, title: 'Taivutus - bend the endings', body: 'Finnish hides its grammar in the endings. Make it negative, make it yesterday, make it a question - so you can build sentences, not just recite them.' },
   { icon: Repeat, title: 'Spaced repetition', body: 'Sentences and your own saved words come back right on time.' },
   { icon: Star, title: 'Word bank', body: 'Tap any word to save it; review your collection as flashcards.' },
-  { icon: Flag, title: 'Checkpoints', body: 'Prove each level with a low-stakes recall quiz - retake it any time.' },
+  { icon: Flag, title: 'Checkpoints', body: 'Complete each stage with a low-stakes recall quiz - retake it any time.' },
   { icon: MessageCircle, title: 'Sauna Chat with Väinö', body: 'Free-form AI conversation with a patient old Finn who knows your level - and your weak words. Löyly+' },
-  { icon: Drama, title: 'Situations', body: 'Real-life missions - buy groceries, order coffee, meet the neighbor - played out in spoken Finnish. Löyly+' }
+  { icon: Drama, title: 'Situations', body: 'Try the neighbor mission free, then unlock every real-life roleplay in Löyly+.' }
 ]
 
 // Rendered FAQ and the FAQPage JSON-LD are built from the same array, so the
@@ -91,7 +91,7 @@ const FEATURES = [
 const FAQ = [
   {
     q: 'Is SaunaSpeak free?',
-    a: 'Yes - the whole learning path (lessons, daily sessions, spaced repetition, flashcards, audio and checkpoints) is free, forever. Löyly+ (€4.99/month) adds AI conversation practice, real-life roleplay Situations, AI feedback and weekly insights.'
+    a: 'Yes - the whole learning path (lessons, daily sessions, spaced repetition, flashcards, audio and checkpoints) plus one guided Situation is free, forever. Löyly+ (€4.99/month) unlocks open AI conversation, every roleplay Situation, AI feedback and weekly insights.'
   },
   {
     q: 'What is puhekieli?',
@@ -169,14 +169,14 @@ onBeforeUnmount(() => faqLd?.remove())
         <router-link to="/register" class="btn btn-ghost cta">Create free account</router-link>
       </div>
       <p class="muted tiny">
-        The learning path is free forever - AI conversation (Sauna Chat &amp; Situations) is
+        The learning path and your first guided Situation are free forever. Unlimited AI conversation is
         <router-link to="/pricing" class="tiny-link">Löyly+</router-link>.
       </p>
     </section>
 
     <!-- the scale in one glance (update the counts as the course grows) -->
     <section class="stats-band" aria-label="Course size">
-      <div class="stat-item"><b>A0</b><span>starts from zero</span></div>
+      <div class="stat-item"><b>Zero</b><span>beginner friendly</span></div>
       <div class="stat-item"><b>69</b><span>lessons</span></div>
       <div class="stat-item"><b>540+</b><span>voiced sentences</span></div>
       <div v-if="nativeCount" class="stat-item"><b><Mic class="stat-ico" aria-hidden="true" /> {{ nativeCount }}</b><span>voiced by a native Finn</span></div>

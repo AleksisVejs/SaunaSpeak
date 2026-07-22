@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductEvent;
 use App\Models\User;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\JsonResponse;
@@ -129,6 +130,8 @@ class BillingController extends Controller
             return response()->json(['message' => 'Could not start checkout. Try again.'], 502);
         }
 
+        ProductEvent::record($user, ProductEvent::CHECKOUT_STARTED, ['plan' => $plan]);
+
         return response()->json(['url' => $response->json('url')]);
     }
 
@@ -255,6 +258,10 @@ class BillingController extends Controller
         $subscription
             ? $this->syncSubscription($subscription)
             : $user->update(['premium_until' => now()->addDays(35)]);
+
+        ProductEvent::record($user, ProductEvent::SUBSCRIPTION_STARTED, [
+            'status' => $subscription['status'] ?? 'checkout_completed',
+        ]);
     }
 
     /** Renewals extend premium_until; cancellations let it lapse at period end. */
@@ -289,6 +296,7 @@ class BillingController extends Controller
             // Store the true period end; the renewal-processing grace window
             // lives in User::isPremium() so displayed dates stay honest.
             $user->update(['premium_until' => now()->setTimestamp($periodEnd)]);
+            ProductEvent::record($user, ProductEvent::SUBSCRIPTION_STARTED, ['status' => $status]);
         } elseif ($status === 'past_due') {
             // Failed renewal charge: Stripe retries for days. Keep access with
             // a bounded allowance (extend-only, never shrink) instead of lapsing

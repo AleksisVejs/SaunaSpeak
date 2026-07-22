@@ -16,8 +16,6 @@ const auth = useAuthStore()
 const scenarios = ref(null)
 const error = ref('')
 
-// Same gate pattern as ChatPage: the backend enforces premium on /chat;
-// here we just route free users to the pitch instead of a dead chat.
 const premium = computed(() => auth.user?.is_premium !== false)
 
 onMounted(async () => {
@@ -33,6 +31,9 @@ onMounted(async () => {
 const recommended = computed(() => (scenarios.value ?? []).filter((s) => s.recommended))
 const others = computed(() => (scenarios.value ?? []).filter((s) => !s.recommended))
 const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).length)
+const freeTasteAvailable = computed(() => (
+  (scenarios.value ?? []).some((s) => s.free_taste && s.available)
+))
 </script>
 
 <template>
@@ -53,10 +54,15 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
 
     <template v-else>
       <div v-if="!premium" class="card lock-note">
-        <span class="lock-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
-        <p>
-          Situations are part of <b>Löyly+</b> - browse them freely, and
-          <router-link to="/upgrade">upgrade</router-link> to step into one.
+        <span v-if="freeTasteAvailable" class="lock-badge free"><Target class="lb-ico" aria-hidden="true" /> One free</span>
+        <span v-else class="lock-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
+        <p v-if="freeTasteAvailable">
+          Your first guided mission is included. Finish it once for free; the
+          rest unlock with <router-link to="/upgrade">Löyly+</router-link>.
+        </p>
+        <p v-else>
+          You completed the free guided mission. <router-link to="/upgrade">Unlock Löyly+</router-link>
+          to keep practicing real-life Situations.
         </p>
       </div>
 
@@ -64,12 +70,12 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
         <h2 class="group-title">Recommended for you</h2>
         <div class="grid">
           <component
-            :is="premium ? 'router-link' : 'div'"
+            :is="s.available ? 'router-link' : 'div'"
             v-for="s in recommended"
             :key="s.id"
-            :to="premium ? { name: 'chat', query: { scenario: s.id } } : undefined"
+            :to="s.available ? { name: 'chat', query: { scenario: s.id } } : undefined"
             class="scene-card"
-            :class="{ locked: !premium }"
+            :class="{ locked: !s.available }"
           >
             <img
               v-if="SCENE_ART[s.id] && !artFailed[s.id]"
@@ -88,7 +94,8 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
               <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time"><Check class="sd-ico" aria-hidden="true" /></span>
-              <span v-else-if="!premium" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
+              <span v-else-if="s.free_taste && s.available" class="scene-free">Free</span>
+              <span v-else-if="!s.available" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
               <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
@@ -99,12 +106,12 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
         <h2 v-if="recommended.length" class="group-title">All situations</h2>
         <div class="grid">
           <component
-            :is="premium ? 'router-link' : 'div'"
+            :is="s.available ? 'router-link' : 'div'"
             v-for="s in others"
             :key="s.id"
-            :to="premium ? { name: 'chat', query: { scenario: s.id } } : undefined"
+            :to="s.available ? { name: 'chat', query: { scenario: s.id } } : undefined"
             class="scene-card"
-            :class="{ locked: !premium }"
+            :class="{ locked: !s.available }"
           >
             <img
               v-if="SCENE_ART[s.id] && !artFailed[s.id]"
@@ -123,7 +130,8 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
             <span class="scene-meta">
               <span class="pill" :class="s.difficulty">{{ s.difficulty }}</span>
               <span v-if="s.done" class="scene-done" title="Mission accomplished - replay any time"><Check class="sd-ico" aria-hidden="true" /></span>
-              <span v-else-if="!premium" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
+              <span v-else-if="s.free_taste && s.available" class="scene-free">Free</span>
+              <span v-else-if="!s.available" class="scene-lock"><Lock class="sd-ico" aria-hidden="true" /></span>
               <span v-else class="scene-xp" title="First-completion reward">+{{ s.xp }} XP</span>
             </span>
           </component>
@@ -185,6 +193,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
   gap: 5px;
 }
 .lock-note a { color: var(--accent); font-weight: 700; }
+.lock-badge.free { color: var(--green); background: var(--green-soft); }
 
 .group { display: flex; flex-direction: column; gap: 10px; }
 .group-title { font-size: 14px; font-weight: 800; letter-spacing: 0.01em; color: var(--text-dim); text-transform: uppercase; }
@@ -225,6 +234,7 @@ const doneCount = computed(() => (scenarios.value ?? []).filter((s) => s.done).l
 .pill.easy { background: var(--green-soft); border-color: var(--green); color: var(--green); }
 .pill.hard { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .scene-lock { color: var(--text-dim); display: inline-flex; }
+.scene-free { font-size: 11px; font-weight: 800; color: var(--green); }
 .scene-xp { font-size: 11px; font-weight: 800; color: var(--accent); white-space: nowrap; }
 
 .free-chat { text-align: center; font-size: 13px; }

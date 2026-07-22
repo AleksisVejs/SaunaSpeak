@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChatDay;
+use App\Models\ProductEvent;
 use App\Models\User;
 use App\Models\UserMistake;
 use App\Models\UserWord;
@@ -46,10 +47,20 @@ class ChatController extends Controller
         'casual' => 'they are learning for fun',
     ];
 
-    /** GET /api/scenarios - the Tilanteet catalog, recommended-first. */
+    /** GET /api/scenarios - free mission first for free learners, then recommendations. */
     public function scenarios(Request $request): JsonResponse
     {
-        $goal = $request->user()->preferences['goal'] ?? null;
+        $user = $request->user();
+        $goal = $user->preferences['goal'] ?? null;
+        $premium = $user->isPremium();
+        $catalog = Scenarios::forGoal(is_string($goal) ? $goal : null);
+
+        if (! $premium) {
+            $catalog = array_values(array_merge(
+                array_filter($catalog, fn (array $s) => Scenarios::isFreeTaste($s['id'])),
+                array_filter($catalog, fn (array $s) => ! Scenarios::isFreeTaste($s['id'])),
+            ));
+        }
 
         $public = array_map(fn (array $s) => [
             'id' => $s['id'],
@@ -63,9 +74,11 @@ class ChatController extends Controller
             'xp' => Scenarios::xpFor($s),
             'opener' => $s['opener_fi'],
             'opener_translation' => $s['opener_en'],
-            'recommended' => $s['recommended'],
-            'done' => isset($request->user()->scenarios_done[$s['id']]),
-        ], Scenarios::forGoal(is_string($goal) ? $goal : null));
+            'recommended' => $s['recommended'] || (! $premium && Scenarios::isFreeTaste($s['id'])),
+            'done' => isset(($user->scenarios_done ?? [])[$s['id']]),
+            'free_taste' => Scenarios::isFreeTaste($s['id']),
+            'available' => Scenarios::availableTo($user, $s['id']),
+        ], $catalog);
 
         return response()->json(['scenarios' => $public]);
     }
@@ -81,6 +94,14 @@ class ChatController extends Controller
         abort_unless($scenario !== null, 404);
 
         $user = $request->user();
+        if (! Scenarios::availableTo($user, $id)) {
+            return response()->json([
+                'message' => 'This is a LÃ¶yly+ feature.',
+                'code' => 'premium_required',
+            ], 402);
+        }
+
+        $freeTaste = ! $user->isPremium() && Scenarios::isFreeTaste($id);
         $done = $user->scenarios_done ?? [];
         $xp = 0;
 
@@ -91,6 +112,10 @@ class ChatController extends Controller
             $xp = Scenarios::xpFor($scenario);
             $user->update(['scenarios_done' => array_merge($done, [$id => now()->toIso8601String()])]);
             $user->increment('xp', $xp);
+
+            if ($freeTaste) {
+                ProductEvent::record($user, ProductEvent::FREE_SITUATION_COMPLETED, ['scenario' => $id]);
+            }
         }
 
         $user->refresh();
@@ -99,6 +124,7 @@ class ChatController extends Controller
             'scenarios_done' => $user->scenarios_done,
             'xp_gained' => $xp,
             'xp' => $user->xp,
+            'free_situation_available' => Scenarios::freeTasteAvailable($user),
         ]);
     }
 
@@ -114,21 +140,22 @@ class ChatController extends Controller
         $user = $request->user();
         $scenario = Scenarios::find($data['scenario'] ?? null);
 
-        if (! $user->isPremium()) {
-            // Scenarios are Löyly+ only; the free taste is Väinö's bench.
-            if ($scenario) {
-                return response()->json([
-                    'message' => 'This is a Löyly+ feature.',
-                    'code' => 'premium_required',
-                ], 402);
-            }
+        if ($scenario && ! Scenarios::availableTo($user, $scenario['id'])) {
+            return response()->json([
+                'message' => 'This is a Löyly+ feature.',
+                'code' => 'premium_required',
+            ], 402);
+        }
 
-            if ($user->chatFreeRemaining() <= 0) {
-                return response()->json([
-                    'message' => 'Your free messages with Väinö are used up.',
-                    'code' => 'chat_limit',
-                ], 402);
-            }
+        if (! $scenario && ! $user->isPremium() && $user->chatFreeRemaining() <= 0) {
+            return response()->json([
+                'message' => 'Your free messages with Väinö are used up.',
+                'code' => 'chat_limit',
+            ], 402);
+        }
+
+        if ($scenario && ! $user->isPremium() && Scenarios::isFreeTaste($scenario['id'])) {
+            ProductEvent::record($user, ProductEvent::FREE_SITUATION_STARTED, ['scenario' => $scenario['id']]);
         }
 
         // Count the sent message (a counter, never the content) - this is

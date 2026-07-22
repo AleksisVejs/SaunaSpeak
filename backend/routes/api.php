@@ -13,6 +13,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ListeningController;
 use App\Http\Controllers\MistakeController;
 use App\Http\Controllers\PublicLessonController;
+use App\Http\Controllers\ProductEventController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\PairController;
@@ -136,6 +137,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // Feedback box on the dashboard - throttled so it can't become a spam pipe.
     Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,10,feedback');
 
+    // Sparse, first-party funnel milestones. Server-observable steps (chat,
+    // checkout and subscription) are recorded by their own controllers.
+    Route::post('/product-events', [ProductEventController::class, 'store'])->middleware('throttle:30,1,events');
+
     // Recording studio (is_recorder users): human audio over TTS.
     Route::get('/record/queue', [RecordController::class, 'queue']);
     Route::get('/record/submitted', [RecordController::class, 'submitted']);
@@ -198,10 +203,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1,chat');
     Route::post('/tts', [TtsController::class, 'speak'])->middleware('throttle:30,1,tts');
 
-    // Löyly+ features. Completing a Situation lives here too: it awards XP
-    // and can only legitimately happen from inside a premium scenario chat.
+    // A completion awards XP. The controller allows one guided mission to free
+    // learners until they finish it; every other Situation requires premium.
+    Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
+
     Route::middleware('premium')->group(function () {
-        Route::post('/scenarios/{id}/complete', [ChatController::class, 'completeScenario']);
         Route::get('/insights/week', [InsightsController::class, 'week']);
     });
 });

@@ -9,6 +9,7 @@ import { Mic, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { setPageHead } from '../composables/usePageHead'
+import { pathStageName } from '../utils/pathStages'
 
 const route = useRoute()
 const { playSentence } = useFinnishAudio()
@@ -37,7 +38,7 @@ async function load(slug) {
 
     const first = data.lesson.sentences[0]
     setPageHead({
-      title: `${data.lesson.title} - ${data.lesson.level} spoken Finnish lesson - SaunaSpeak`,
+      title: `${data.lesson.title} - ${pathStageName(data.lesson.level)} spoken Finnish lesson - SaunaSpeak`,
       description: `Learn "${first?.finnish_text}" and ${data.lesson.sentences.length - 1} more real spoken-Finnish (puhekieli) sentences with audio, written Finnish and word-by-word explanations.`
     })
     setJsonLd(data.lesson, slug)
@@ -60,7 +61,7 @@ function setJsonLd(l, slug) {
     '@graph': [
       {
         '@type': 'Article',
-        headline: `${l.title} - ${l.level} spoken Finnish lesson`,
+        headline: `${l.title} - ${pathStageName(l.level)} spoken Finnish lesson`,
         inLanguage: 'en',
         about: 'Spoken Finnish (puhekieli)',
         author: { '@type': 'Organization', name: 'SaunaSpeak', url: 'https://saunaspeak.com' },
@@ -100,7 +101,7 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
 
     <template v-else>
       <header class="head">
-        <p class="level-chip">{{ lesson.level }}</p>
+        <p class="level-chip">{{ pathStageName(lesson.level) }}</p>
         <h1>{{ lesson.title }}</h1>
         <p class="muted lede">
           {{ lesson.sentences.length }} sentences of real spoken Finnish (puhekieli),
@@ -148,11 +149,11 @@ watch(() => route.params.slug, (slug) => { if (slug && route.name === 'lesson-pr
 
       <nav class="neighbors">
         <router-link v-if="previous" :to="`/lessons/${previous.slug}`" class="card neighbor">
-          <span class="muted dir">‹ Previous · {{ previous.level }}</span>
+          <span class="muted dir">‹ Previous · {{ pathStageName(previous.level) }}</span>
           <span class="n-title">{{ previous.title }}</span>
         </router-link>
         <router-link v-if="next" :to="`/lessons/${next.slug}`" class="card neighbor next">
-          <span class="muted dir">Next · {{ next.level }} ›</span>
+          <span class="muted dir">Next · {{ pathStageName(next.level) }} ›</span>
           <span class="n-title">{{ next.title }}</span>
         </router-link>
       </nav>

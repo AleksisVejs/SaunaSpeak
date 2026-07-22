@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { BookOpen, Check, Flame, MessageCircle, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
+import { BookOpen, Check, Drama, Flame, MessageCircle, PartyPopper, RotateCcw, Snowflake, Volume2, X, Zap } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { useSessionStore } from '../stores/session'
 import { useAuthStore } from '../stores/auth'
 import SentenceCard from '../components/SentenceCard.vue'
 import PracticeInput from '../components/PracticeInput.vue'
+import { recordProductEvent } from '../utils/productEvents'
 import ListeningStep from '../components/ListeningStep.vue'
 import TransformStep from '../components/TransformStep.vue'
 import UseStep from '../components/UseStep.vue'
@@ -256,7 +257,19 @@ const slotLabel = computed(() => {
 // dismissed - never again after either.
 const UPSELL_STORE = 'ss_upsell_session_done'
 const upsellDismissed = ref(localStorage.getItem(UPSELL_STORE) === '1')
-const showUpsell = computed(() => auth.user?.is_premium === false && !upsellDismissed.value)
+const showFreeSituation = computed(() => (
+  session.finished
+  && auth.user?.is_premium === false
+  && auth.user?.free_situation?.available === true
+))
+const freeSituationId = computed(() => auth.user?.free_situation?.id ?? 'naapuri')
+const showUpsell = computed(() => (
+  auth.user?.is_premium === false && !showFreeSituation.value && !upsellDismissed.value
+))
+
+watch(showFreeSituation, (shown) => {
+  if (shown && session.finished) recordProductEvent('free_situation_offered')
+}, { immediate: true })
 
 function upsellActed(source) {
   window.umami?.track('upsell_click', { source })
@@ -337,6 +350,21 @@ function confettiStyle(i) {
         </div>
       </template>
       <p v-else class="tomorrow-set muted">Väinö will save your seat {{ slotLabel }}. 🧖</p>
+    </div>
+
+    <div v-if="showFreeSituation" class="free-situation card">
+      <p class="free-situation-badge"><Drama class="free-situation-ico" aria-hidden="true" /> Included free · once</p>
+      <h3>Use your Finnish in a real mission</h3>
+      <p class="muted">
+        Meet your new neighbor Ritva. Say hello, introduce yourself and keep the
+        small talk going — she responds in spoken Finnish and helps when needed.
+      </p>
+      <router-link
+        :to="{ name: 'chat', query: { scenario: freeSituationId } }"
+        class="btn btn-primary btn-block"
+      >
+        Meet Ritva — free
+      </router-link>
     </div>
 
     <!-- Löyly+ at the moment it makes sense: the session just surfaced real
@@ -601,6 +629,28 @@ function confettiStyle(i) {
 }
 .slot-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
 .tomorrow-set { font-size: 13px; }
+
+.free-situation {
+  text-align: left;
+  border-color: var(--green);
+  background: var(--green-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.free-situation h3 { font-size: 17px; }
+.free-situation .muted { font-size: 14px; line-height: 1.5; }
+.free-situation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.free-situation-ico { width: 15px; height: 15px; }
 
 /* the trial pitch after the celebration */
 .upsell {

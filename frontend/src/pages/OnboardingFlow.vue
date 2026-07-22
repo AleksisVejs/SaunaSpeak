@@ -111,7 +111,7 @@ function finish() {
   if (beginner) {
     router.push({ name: 'session' })
   } else {
-    router.push({ name: 'checkpoint', params: { level: 'A1' }, query: { intake: '1' } })
+    router.push({ name: 'checkpoint', params: { level: 'everyday-life' }, query: { intake: '1' } })
   }
 }
 </script>

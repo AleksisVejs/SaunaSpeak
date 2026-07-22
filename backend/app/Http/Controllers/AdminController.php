@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatDay;
 use App\Models\Lesson;
+use App\Models\ProductEvent;
 use App\Models\ReviewLog;
 use App\Models\Sentence;
 use App\Models\User;
@@ -35,6 +36,24 @@ class AdminController extends Controller
         $wordsHuman = count(array_filter($manifest, fn ($url) => str_starts_with((string) $url, '/audio/human/')));
         $phrases = Transforms::ownPhrases();
         $pairClips = MinimalPairs::wordClips();
+        $learnerIds = User::where('is_admin', false)->where('is_recorder', false)->pluck('id');
+        $freeSituationEvents = array_slice(ProductEvent::FUNNEL, 0, 5);
+        $downstreamEvents = array_slice(ProductEvent::FUNNEL, 5);
+        $funnelLearnerIds = ProductEvent::whereIn('user_id', $learnerIds)
+            ->whereIn('event', $freeSituationEvents)
+            ->distinct()
+            ->pluck('user_id');
+        $funnelCounts = ProductEvent::whereIn('user_id', $learnerIds)
+            ->where(function ($query) use ($freeSituationEvents, $downstreamEvents, $funnelLearnerIds) {
+                $query->whereIn('event', $freeSituationEvents)
+                    ->orWhere(function ($downstream) use ($downstreamEvents, $funnelLearnerIds) {
+                        $downstream->whereIn('event', $downstreamEvents)
+                            ->whereIn('user_id', $funnelLearnerIds);
+                    });
+            })
+            ->selectRaw('event, count(*) as total')
+            ->groupBy('event')
+            ->pluck('total', 'event');
 
         // One definition of "has Löyly+ right now", reused by the four counts
         // below so the breakdown always sums to the headline number.
@@ -69,6 +88,10 @@ class AdminController extends Controller
             'reviews_today' => ReviewLog::whereDate('created_at', today())->count(),
             'reviews_7d' => ReviewLog::where('created_at', '>=', $now->copy()->subDays(7))->count(),
             'sentences_mastered_total' => UserProgress::where('status', UserProgress::STATUS_MASTERED)->count(),
+            // First-party and staff-free: the actual route from a free guided
+            // mission into checkout, even when browser analytics is blocked.
+            'free_situation_funnel' => collect(ProductEvent::FUNNEL)
+                ->mapWithKeys(fn ($event) => [$event => (int) ($funnelCounts[$event] ?? 0)]),
             'content' => [
                 'lessons' => Lesson::count(),
                 'sentences' => Sentence::count(),
@@ -514,12 +537,13 @@ class AdminController extends Controller
             ->groupBy('user_id')
             ->get()
             ->keyBy('user_id');
+        $productEvents = ProductEvent::orderBy('created_at')->get()->groupBy('user_id');
 
         $users = User::orderBy('id')
             ->get(['id', 'email_verified_at', 'xp', 'streak', 'last_active_date', 'premium_until',
                 'stripe_subscription_id', 'stripe_status', 'review_emails', 'checkpoints', 'scenarios_done',
                 'listening_done', 'transforms_done', 'is_admin', 'is_recorder', 'created_at'])
-            ->map(function (User $u) use ($reviewStats, $reviewDays, $chatStats) {
+            ->map(function (User $u) use ($reviewStats, $reviewDays, $chatStats, $productEvents) {
                 $reviews = $reviewStats->get($u->id);
                 $chat = $chatStats->get($u->id);
                 $firstReview = $reviews?->first_at ? Carbon::parse($reviews->first_at) : null;
@@ -541,6 +565,11 @@ class AdminController extends Controller
                     ->map(fn ($t) => Carbon::parse($t));
 
                 $firstSeen = collect([$firstReview, $firstChat])->concat($mapTimes)->filter()->min();
+                $funnel = ($productEvents->get($u->id) ?? collect())
+                    ->mapWithKeys(fn (ProductEvent $event) => [$event->event => [
+                        'at' => $event->created_at->toIso8601String(),
+                        'metadata' => $event->metadata,
+                    ]]);
 
                 return [
                     'id' => $u->id,
@@ -568,6 +597,7 @@ class AdminController extends Controller
                     'streak' => $u->streak,
                     'premium_source' => $this->premiumSource($u),
                     'premium_until' => $u->premium_until?->toIso8601String(),
+                    'product_funnel' => $funnel,
                     // Opted out of mail. Defaults true, so false means the
                     // learner actively turned it off - do not email them.
                     'review_emails' => (bool) $u->review_emails,
@@ -584,7 +614,7 @@ class AdminController extends Controller
                 'timezone' => config('app.timezone'),
                 'today' => today()->toDateString(),
                 'week_started' => today()->startOfWeek()->toDateString(),
-                'schema_version' => 1,
+                'schema_version' => 2,
             ],
             'notes' => [
                 'identity' => 'Names and emails are deliberately omitted. `id` matches the Users tab.',
@@ -592,6 +622,7 @@ class AdminController extends Controller
                 'grace' => 'premium_count and premium_source use User::isPremium()\'s 2-day renewal grace, so a subscriber mid-renewal still counts as premium.',
                 'legacy_status' => 'stripe_status was added 2026-07-20. Subscribers from before that have a null status and are reported as paying until their next webhook.',
                 'analytics_gap' => 'Umami register events undercount signups (adblockers, in-app browsers, privacy tooling). This DB export is ground truth; do not compute activation from Umami denominators.',
+                'product_funnel' => 'The free Situation funnel is recorded first-party, once per learner and milestone. Staff are excluded from stats.free_situation_funnel; per-user rows remain flaggable via is_admin/is_recorder.',
                 'activity_streams' => 'activated = ever logged a review, a chat day, a checkpoint pass, a listening scene, a transform set or a scenario. Opening a lesson without grading anything still leaves no trace.',
                 'last_active_vs_activity' => 'last_active_date is the STREAK ANCHOR - written only when a session is completed, so it is null for people who reviewed but never finished one. It is not "last seen"; users_active_* and the panel status chip are counted from the activity streams instead.',
             ],

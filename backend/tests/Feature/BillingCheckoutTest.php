@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ProductEvent;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -43,6 +44,11 @@ class BillingCheckoutTest extends TestCase
         $this->postJson('/api/billing/checkout')
             ->assertOk()
             ->assertJsonPath('url', 'https://checkout.stripe.com/c/pay/cs_123');
+
+        $this->assertDatabaseHas('product_events', [
+            'user_id' => $this->user->id,
+            'event' => ProductEvent::CHECKOUT_STARTED,
+        ]);
 
         Http::assertSent(fn ($request) => str_contains($request->body(), 'success_url')
             && str_contains($request->body(), 'cancel_url')

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ProductEvent;
 use App\Models\User;
 use App\Models\UserWord;
 use App\Services\Llm;
@@ -41,9 +42,71 @@ class ScenarioChatTest extends TestCase
         $this->assertArrayHasKey('mission', $first);
         $this->assertArrayHasKey('opener', $first);
         $this->assertArrayHasKey('xp', $first);
+        $this->assertArrayHasKey('free_taste', $first);
+        $this->assertArrayHasKey('available', $first);
         // Prompt internals must not leak to the client.
         $this->assertArrayNotHasKey('scene', $first);
         $this->assertArrayNotHasKey('goal_check', $first);
+    }
+
+    public function test_free_situation_is_first_for_free_learners(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+        $this->user->update(['preferences' => ['goal' => 'move']]);
+
+        $first = $this->getJson('/api/scenarios')->assertOk()->json('scenarios.0');
+
+        $this->assertSame(Scenarios::FREE_TASTE_ID, $first['id']);
+        $this->assertTrue($first['free_taste']);
+        $this->assertTrue($first['available']);
+        $this->assertTrue($first['recommended']);
+    }
+
+    public function test_free_learner_can_finish_the_neighbor_situation_once(): void
+    {
+        config([
+            'services.stripe.secret' => 'sk_test_x',
+            'services.ai.key' => null,
+            'services.ai.gemini_key' => null,
+            'services.ai.openrouter_key' => null,
+        ]);
+
+        $this->postJson('/api/chat', [
+            'messages' => [['role' => 'user', 'content' => 'Moi, mä oon Testi!']],
+            'scenario' => Scenarios::FREE_TASTE_ID,
+        ])->assertOk();
+
+        $this->assertDatabaseHas('product_events', [
+            'user_id' => $this->user->id,
+            'event' => ProductEvent::FREE_SITUATION_STARTED,
+        ]);
+
+        $this->postJson('/api/scenarios/'.Scenarios::FREE_TASTE_ID.'/complete')
+            ->assertOk()
+            ->assertJsonPath('free_situation_available', false);
+
+        $this->assertDatabaseHas('product_events', [
+            'user_id' => $this->user->id,
+            'event' => ProductEvent::FREE_SITUATION_COMPLETED,
+        ]);
+
+        $this->postJson('/api/chat', [
+            'messages' => [['role' => 'user', 'content' => 'Moi taas!']],
+            'scenario' => Scenarios::FREE_TASTE_ID,
+        ])->assertStatus(402)->assertJsonPath('code', 'premium_required');
+    }
+
+    public function test_browser_funnel_events_are_allowlisted_and_idempotent(): void
+    {
+        $this->postJson('/api/product-events', ['event' => ProductEvent::FREE_SITUATION_OFFERED])
+            ->assertStatus(204);
+        $this->postJson('/api/product-events', ['event' => ProductEvent::FREE_SITUATION_OFFERED])
+            ->assertStatus(204);
+
+        $this->assertDatabaseCount('product_events', 1);
+
+        $this->postJson('/api/product-events', ['event' => ProductEvent::CHECKOUT_STARTED])
+            ->assertUnprocessable();
     }
 
     public function test_scenarios_matching_the_intake_goal_come_first(): void

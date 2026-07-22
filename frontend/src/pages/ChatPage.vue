@@ -15,19 +15,26 @@ import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
 import { SCENE_ART } from '../utils/sceneArt'
+import { recordProductEvent } from '../utils/productEvents'
 
 const { playSpoken } = useFinnishAudio()
 const auth = useAuthStore()
 const route = useRoute()
+const scenario = ref(null)
+const sceneLoading = ref(!!route.query.scenario)
 
 // Löyly+ gate: the backend enforces it (402); this just shows the pitch
 // instead of a chat box that would error on send. Free accounts get a
-// lifetime taste of Väinö's bench (chat_free_remaining, server-counted);
-// Situations stay Löyly+ only.
+// lifetime taste of Väinö's bench (chat_free_remaining, server-counted), plus
+// one guided Situation that a free learner may finish once.
 const premium = computed(() => auth.user?.is_premium !== false)
 const freeRemaining = computed(() => auth.user?.chat_free_remaining ?? 0)
 const scenarioMode = computed(() => !!route.query.scenario)
-const canChat = computed(() => premium.value || (!scenarioMode.value && freeRemaining.value > 0))
+const canChat = computed(() => (
+  scenarioMode.value
+    ? scenario.value?.available === true
+    : (premium.value || freeRemaining.value > 0)
+))
 // The taste is over: same lock screen, but honest about why. Keyed to an
 // explicit 0 so a not-yet-fetched user sees the generic pitch, not a false
 // "all used up".
@@ -35,6 +42,9 @@ const tasteUsed = computed(() => auth.user?.chat_free_remaining === 0 && !scenar
 
 function trackUpsell(source) {
   window.umami?.track('upsell_click', { source })
+  if (source.startsWith('free_situation')) {
+    recordProductEvent('free_situation_upsell_clicked')
+  }
 }
 
 // (Re)enter the scene: pick the character and their first line. Runs on
@@ -47,17 +57,24 @@ async function enterScene() {
   charOk.value = true
 
   const id = route.query.scenario
+  sceneLoading.value = !!id
   if (!id) {
     scenario.value = null
     messages.value = restoreChat() ?? [randomOpener()]
+    sceneLoading.value = false
     return
   }
 
   try {
     const { data } = await api.get('/scenarios')
     scenario.value = data.scenarios.find((s) => s.id === id) ?? null
+    if (scenario.value?.free_taste && scenario.value.available) {
+      recordProductEvent('free_situation_opened')
+    }
   } catch {
     scenario.value = null
+  } finally {
+    sceneLoading.value = false
   }
 
   messages.value = scenario.value
@@ -138,7 +155,6 @@ function useHint(h) {
 // Scenario mode: metadata for the situation named in ?scenario=, or null for
 // Väinö's free-form bench. Fetched from the catalog so prompts and openers
 // have one source of truth (the backend).
-const scenario = ref(null)
 const missionDone = ref(false)
 // First-completion XP reward, shown in the done mission strip.
 const xpGained = ref(0)
@@ -282,6 +298,9 @@ async function send() {
         .then(({ data: d }) => {
           xpGained.value = d.xp_gained ?? 0
           if (auth.user && typeof d.xp === 'number') auth.user.xp = d.xp
+          if (auth.user?.free_situation && typeof d.free_situation_available === 'boolean') {
+            auth.user.free_situation.available = d.free_situation_available
+          }
         })
         .catch(() => {})
     }
@@ -349,10 +368,11 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 </script>
 
 <template>
+  <div v-if="sceneLoading" class="spinner"></div>
+
   <!-- Löyly+ paywall: the backend enforces it (402); this shows the pitch
-       instead of a chat box that would error on send. Reached only once the
-       free taste is spent (bench) or immediately (Situations). -->
-  <div v-if="!canChat" class="chat-locked">
+       instead of a chat box that would error on send. -->
+  <div v-else-if="!canChat" class="chat-locked">
     <div class="locked-card">
       <div class="locked-vaino-wrap">
         <span class="locked-glow" aria-hidden="true"></span>
@@ -361,9 +381,13 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
 
       <div class="locked-body">
         <span class="locked-badge"><Lock class="lb-ico" aria-hidden="true" /> Löyly+</span>
-        <h1>{{ tasteUsed ? 'Väinö saved your seat' : "Väinö's bench" }}</h1>
+        <h1>{{ scenarioMode ? 'Keep practicing real situations' : (tasteUsed ? 'Väinö saved your seat' : "Väinö's bench") }}</h1>
         <p class="muted locked-lead">
-          <template v-if="tasteUsed">
+          <template v-if="scenarioMode">
+            You completed the free guided mission. The rest of the real-life
+            Situations are waiting for you in Löyly+.
+          </template>
+          <template v-else-if="tasteUsed">
             Your free messages are used up - and that little chat is exactly what
             daily practice feels like on Löyly+. The bench stays warm.
           </template>
@@ -380,7 +404,7 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
         </ul>
 
         <div class="locked-actions">
-          <router-link to="/upgrade" class="btn btn-primary loyly-btn" @click="trackUpsell(tasteUsed ? 'chat_taste_used' : 'chat_gate')"><LoylyIcon class="lb-ico" aria-hidden="true" /> Try Löyly+ free for 3 days</router-link>
+          <router-link to="/upgrade" class="btn btn-primary loyly-btn" @click="trackUpsell(scenarioMode ? 'free_situation_gate' : (tasteUsed ? 'chat_taste_used' : 'chat_gate'))"><LoylyIcon class="lb-ico" aria-hidden="true" /> Try Löyly+ free for 3 days</router-link>
           <router-link to="/dashboard" class="btn btn-ghost">Back to learning</router-link>
         </div>
 
@@ -464,7 +488,13 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
         </span>
         <p class="mission-text">{{ missionDone ? 'Mission accomplished!' : scenario.mission }}</p>
         <span v-if="missionDone && xpGained" class="mission-xp">+{{ xpGained }} XP</span>
-        <router-link v-if="missionDone" to="/scenarios" class="mission-next">Next situation ›</router-link>
+        <router-link
+          v-if="missionDone && scenario?.free_taste && !premium"
+          to="/upgrade"
+          class="mission-next"
+          @click="trackUpsell('free_situation_complete')"
+        >Keep going with Löyly+ ›</router-link>
+        <router-link v-else-if="missionDone" to="/scenarios" class="mission-next">Next situation ›</router-link>
       </div>
 
       <div ref="listRef" class="bubbles">
@@ -555,8 +585,12 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
       </div>
 
       <div v-else class="dock">
-        <!-- free taste: the countdown doubles as the honest pitch -->
-        <p v-if="!premium" class="taste-note">
+        <p v-if="!premium && scenario?.free_taste" class="taste-note">
+          This guided mission is included free ·
+          <router-link to="/upgrade" class="taste-link" @click="trackUpsell('free_situation_banner')">Löyly+ unlocks every Situation</router-link>
+        </p>
+        <!-- free bench taste: the countdown doubles as the honest pitch -->
+        <p v-else-if="!premium" class="taste-note">
           Free taste: <b>{{ freeRemaining }}</b> message{{ freeRemaining === 1 ? '' : 's' }} left ·
           <router-link to="/upgrade" class="taste-link" @click="trackUpsell('chat_banner')">Löyly+ for unlimited</router-link>
         </p>
