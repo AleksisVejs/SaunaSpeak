@@ -270,7 +270,7 @@ async function scrollToEnd() {
 
 async function send() {
   const text = draft.value.trim()
-  if (!text || sending.value || messages.value.length >= MAX_TURNS) return
+  if (!text || sending.value || missionDone.value || messages.value.length >= MAX_TURNS) return
 
   stopListening()
   draft.value = ''
@@ -314,7 +314,8 @@ async function send() {
     if (e?.response?.status === 402) {
       // Allowance exhausted (or a race beat the local counter): zero it so
       // the view flips to the lock screen instead of erroring on every send.
-      if (auth.user) auth.user.chat_free_remaining = 0
+      if (scenario.value) scenario.value.available = false
+      else if (auth.user) auth.user.chat_free_remaining = 0
     } else {
       messages.value.push({
         role: 'assistant',
@@ -471,6 +472,7 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
             @click="autoTranslate = !autoTranslate"
           ><Languages class="hbtn-ico" aria-hidden="true" /></button>
           <button
+            v-if="!missionDone || premium"
             class="hbtn"
             :class="{ warn: confirmReset }"
             :title="confirmReset ? 'Tap again to start over' : 'Start a new chat'"
@@ -579,7 +581,19 @@ const lowTurns = computed(() => turnsLeft.value > 0 && turnsLeft.value <= 6)
         </div>
       </div>
 
-      <div v-if="full()" class="full-note">
+      <div v-if="missionDone" class="full-note mission-finished">
+        <p>That conversation is complete. Nice work!</p>
+        <router-link
+          v-if="scenario?.free_taste && !premium"
+          to="/upgrade"
+          class="btn btn-primary"
+          @click="trackUpsell('free_situation_complete')"
+        >Unlock every Situation</router-link>
+        <router-link v-else to="/scenarios" class="btn btn-primary">Choose another Situation</router-link>
+        <router-link to="/dashboard" class="btn btn-ghost">Back to learning</router-link>
+      </div>
+
+      <div v-else-if="full()" class="full-note">
         <p>The löyly ran out - great chat! 🧖</p>
         <button class="scene-btn" @click="reset"><RotateCcw class="scene-btn-ico" aria-hidden="true" /> Start a fresh chat</button>
       </div>
