@@ -58,3 +58,8 @@ saunaspeak-release.tar.gz
 # They are NOT in git, so the server is their only copy: back this directory
 # up before wiping the account, because re-voicing costs credits again.
 /backend/public/audio/eleven/
+
+# Agent-specific local overrides and credentials
+/.claude/settings.local.json
+/.codex/auth.json
+/.codex/**/*.local.toml

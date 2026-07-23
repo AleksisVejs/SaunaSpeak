@@ -1,0 +1,6 @@
+# Project-scoped Codex defaults. Keep credentials in environment variables or
+# user-level Codex configuration.
+sandbox_mode = "workspace-write"
+
+[mcp_servers.stripe]
+url = "https://mcp.stripe.com"
