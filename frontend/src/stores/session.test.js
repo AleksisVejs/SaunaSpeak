@@ -198,7 +198,7 @@ describe('resuming an abandoned session', () => {
 })
 
 describe('lapse requeue', () => {
-  it('re-inserts an "again" sentence before the woven tail and delays the commit', async () => {
+  it('re-inserts an "again" sentence before the woven tail', async () => {
     mockApi([sentence(1), sentence(2)], { listening: { id: 'a', title: 'A' } })
     const store = useSessionStore()
     await store.loadToday()
@@ -208,6 +208,42 @@ describe('lapse requeue', () => {
     expect(store.steps.length).toBe(before + 1) // one more sentence queued
     expect(store.wovenStart).toBe(3) // block grew, woven pushed back
     expect(store.steps[2].type).toBe('sentence') // requeued before the listen
-    expect(store.committed).toBe(false) // block isn't done yet
+    expect(store.committed).toBe(false) // still one original sentence to go
+  })
+
+  // The requeue moves the splice boundary but must not move the day's credit:
+  // a learner who gets everything wrong does more cards, not a longer wait for
+  // the streak. Every retention hook (streak, "N due tomorrow", the reminder
+  // anchor, the free Situation offer) fires off this commit.
+  it('commits the day after the block as served, not after the requeued cards', async () => {
+    mockApi([sentence(1), sentence(2)], { listening: { id: 'a', title: 'A' } })
+    const store = useSessionStore()
+    await store.loadToday()
+
+    expect(store.commitAt).toBe(2)
+
+    await store.completeSentence('again') // sentence 1 lapses, requeued at the end
+    expect(store.wovenStart).toBe(3) // boundary moved
+    expect(store.commitAt).toBe(2) // credit did not
+
+    await store.completeSentence('again') // sentence 2 lapses too
+    expect(store.committed).toBe(true) // both served sentences cleared
+    expect(sessionCompletes()).toBe(1)
+    expect(store.finished).toBe(false) // requeues and the listen still ahead
+  })
+
+  it('restores a session saved before commitAt existed', async () => {
+    mockApi([sentence(1), sentence(2)], {})
+    const store = useSessionStore()
+    await store.loadToday()
+
+    // A session persisted by the previous build: wovenStart, no commitAt.
+    const saved = JSON.parse(localStorage.getItem('ss_session'))
+    delete saved.commitAt
+    localStorage.setItem('ss_session', JSON.stringify(saved))
+
+    const resumed = useSessionStore()
+    await resumed.loadToday()
+    expect(resumed.commitAt).toBe(saved.wovenStart)
   })
 })

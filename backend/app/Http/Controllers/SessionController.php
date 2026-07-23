@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lesson;
+use App\Models\ProductEvent;
 use App\Models\ReviewLog;
 use App\Models\Sentence;
 use App\Models\UserProgress;
@@ -80,9 +81,16 @@ class SessionController extends Controller
         }
 
         $focus = $this->focus($reviews, $fresh);
+        $sentences = $this->interleave($reviews, $fresh)->values();
+
+        // Only when cards actually went out: an empty payload is a content
+        // problem, not a learner who was served and did nothing.
+        if ($sentences->isNotEmpty()) {
+            ProductEvent::record($user, ProductEvent::SESSION_SERVED);
+        }
 
         return response()->json([
-            'sentences' => $this->interleave($reviews, $fresh)->values(),
+            'sentences' => $sentences,
             'due_count' => $due->count(),
             // The four-skill weave: what to LISTEN to, BEND and USE after the
             // sentence block, so the guided path exercises comprehension and

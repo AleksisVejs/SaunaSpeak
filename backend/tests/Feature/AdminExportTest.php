@@ -132,6 +132,36 @@ class AdminExportTest extends TestCase
     }
 
     /**
+     * The Situation funnel is sliced positionally out of ProductEvent::FUNNEL,
+     * so activation milestones have to report through their own key without
+     * shifting or inflating any step of it.
+     */
+    public function test_activation_funnel_is_reported_separately_from_the_situation_funnel(): void
+    {
+        $admin = $this->admin();
+        $learner = User::create([
+            'name' => 'Learner', 'email' => 'learner@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        ProductEvent::record($learner, ProductEvent::ONBOARDING_STARTED);
+        ProductEvent::record($learner, ProductEvent::SESSION_SERVED);
+        ProductEvent::record($admin, ProductEvent::ONBOARDING_STARTED);
+
+        Sanctum::actingAs($admin);
+        $response = $this->getJson('/api/admin/export')->assertOk();
+
+        $response->assertJsonPath('stats.activation_funnel.onboarding_started', 1);
+        $response->assertJsonPath('stats.activation_funnel.session_served', 1);
+        $response->assertJsonPath('stats.activation_funnel.onboarding_finished', 0);
+        // The Situation funnel keeps exactly its own seven steps.
+        $this->assertSame(
+            ProductEvent::FUNNEL,
+            array_keys($response->json('stats.free_situation_funnel')),
+        );
+    }
+
+    /**
      * isPremium() opens every feature while billing is unconfigured, so the
      * export must not use it to attribute revenue - otherwise a keyless
      * instance reports the entire user table as comped. This test runs with

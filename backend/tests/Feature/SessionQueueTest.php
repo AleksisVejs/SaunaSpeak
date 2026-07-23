@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Lesson;
+use App\Models\ProductEvent;
 use App\Models\User;
 use App\Models\UserProgress;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -172,5 +173,34 @@ class SessionQueueTest extends TestCase
             ->assertOk()
             ->assertJsonCount(2, 'sentences')
             ->assertJsonPath('due_count', 2);
+    }
+
+    /**
+     * Recorded server-side so it survives a browser that blocks or breaks:
+     * paired with the client's first_card_rendered it separates "cards were
+     * sent and never painted" from "never asked for a session at all".
+     */
+    public function test_serving_a_session_records_the_activation_milestone(): void
+    {
+        $this->makeSentences(2);
+
+        $this->getJson('/api/today-session')->assertOk();
+        $this->getJson('/api/today-session')->assertOk();
+
+        $this->assertSame(1, ProductEvent::where('user_id', $this->user->id)
+            ->where('event', ProductEvent::SESSION_SERVED)
+            ->count(), 'the milestone is once per learner, not once per request');
+    }
+
+    public function test_a_caught_up_day_records_nothing(): void
+    {
+        $this->getJson('/api/today-session')
+            ->assertOk()
+            ->assertJsonCount(0, 'sentences');
+
+        $this->assertDatabaseMissing('product_events', [
+            'user_id' => $this->user->id,
+            'event' => ProductEvent::SESSION_SERVED,
+        ]);
     }
 }

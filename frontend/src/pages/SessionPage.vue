@@ -54,6 +54,16 @@ watch(
 // (listening / bend / use). The sentence-card computeds all key off this.
 const sentenceStep = computed(() => (session.current?.type === 'sentence' ? session.current.sentence : null))
 
+// The first card of the learner's life, once. Paired with the server-side
+// session_served: cards sent but this never firing means the payload arrived
+// and the page failed to paint it - a bug, not a learner who lost interest.
+const firstCardReported = ref(false)
+watch(sentenceStep, (sentence) => {
+  if (!sentence || firstCardReported.value) return
+  firstCardReported.value = true
+  recordProductEvent('first_card_rendered')
+}, { immediate: true })
+
 // study | cloze | dictation | recall - the exercise gets harder as the SRS stage rises.
 const kind = computed(() => cardKind(sentenceStep.value?.status))
 

@@ -54,6 +54,13 @@ class AdminController extends Controller
             ->selectRaw('event, count(*) as total')
             ->groupBy('event')
             ->pluck('total', 'event');
+        // Separate query, separate key: the activation steps precede the
+        // Situation funnel and must not be folded into its positional slices.
+        $activationCounts = ProductEvent::whereIn('user_id', $learnerIds)
+            ->whereIn('event', ProductEvent::ACTIVATION_FUNNEL)
+            ->selectRaw('event, count(*) as total')
+            ->groupBy('event')
+            ->pluck('total', 'event');
 
         // One definition of "has Löyly+ right now", reused by the four counts
         // below so the breakdown always sums to the headline number.
@@ -92,6 +99,10 @@ class AdminController extends Controller
             // mission into checkout, even when browser analytics is blocked.
             'free_situation_funnel' => collect(ProductEvent::FUNNEL)
                 ->mapWithKeys(fn ($event) => [$event => (int) ($funnelCounts[$event] ?? 0)]),
+            // Signup → first graded card: where accounts that never earn any XP
+            // actually stop. Only counts accounts created after this shipped.
+            'activation_funnel' => collect(ProductEvent::ACTIVATION_FUNNEL)
+                ->mapWithKeys(fn ($event) => [$event => (int) ($activationCounts[$event] ?? 0)]),
             'content' => [
                 'lessons' => Lesson::count(),
                 'sentences' => Sentence::count(),
@@ -623,6 +634,7 @@ class AdminController extends Controller
                 'legacy_status' => 'stripe_status was added 2026-07-20. Subscribers from before that have a null status and are reported as paying until their next webhook.',
                 'analytics_gap' => 'Umami register events undercount signups (adblockers, in-app browsers, privacy tooling). This DB export is ground truth; do not compute activation from Umami denominators.',
                 'product_funnel' => 'The free Situation funnel is recorded first-party, once per learner and milestone. Staff are excluded from stats.free_situation_funnel; per-user rows remain flaggable via is_admin/is_recorder.',
+                'activation_funnel' => 'stats.activation_funnel covers signup -> first graded card and was added 2026-07-23, so it counts only accounts created after that; earlier learners are absent, not stalled. session_served is written server-side, the other three by the browser - a gap between session_served and first_card_rendered means cards were sent but never painted, which is a bug rather than a bored learner.',
                 'activity_streams' => 'activated = ever logged a review, a chat day, a checkpoint pass, a listening scene, a transform set or a scenario. Opening a lesson without grading anything still leaves no trace.',
                 'last_active_vs_activity' => 'last_active_date is the STREAK ANCHOR - written only when a session is completed, so it is null for people who reviewed but never finished one. It is not "last seen"; users_active_* and the panel status chip are counted from the activity streams instead.',
             ],

@@ -61,6 +61,13 @@ export const useSessionStore = defineStore('session', {
     // just before them, so it comes back at the end of the sentence block, not
     // after the listening.
     wovenStart: 0,
+    // How many sentence cards the day's credit is owed after - the block length
+    // as first served, frozen. Deliberately NOT wovenStart: a re-queued lapse
+    // has to move the splice boundary, and when the two shared one variable
+    // every "again" pushed the streak one card further away. A learner who
+    // missed most of a 12-card block had to clear 24 before the app
+    // acknowledged the day, which is the opposite of who needs the credit.
+    commitAt: 0,
     // Whether the day has been committed (streak + daily bonus). Fires when the
     // sentence block clears, NOT at the very end - see advance().
     committed: false,
@@ -113,6 +120,9 @@ export const useSessionStore = defineStore('session', {
         this.wovenXp = saved.wovenXp ?? 0
         this.bonusXp = saved.bonusXp ?? 0
         this.wovenStart = saved.wovenStart ?? saved.steps.length
+        // Sessions saved before commitAt existed fall back to the old meaning,
+        // so a session resumed across the deploy still commits.
+        this.commitAt = saved.commitAt ?? saved.wovenStart ?? saved.steps.length
         this.requeuedIds = saved.requeuedIds ?? []
         this.committed = saved.committed ?? false
         this.resumed = true
@@ -129,6 +139,7 @@ export const useSessionStore = defineStore('session', {
         this.sentences = data.sentences
         this.steps = this.buildSteps(data.sentences, data.woven)
         this.wovenStart = data.sentences.length
+        this.commitAt = data.sentences.length
         this.save()
       } finally {
         this.loading = false
@@ -155,6 +166,7 @@ export const useSessionStore = defineStore('session', {
             wovenXp: this.wovenXp,
             bonusXp: this.bonusXp,
             wovenStart: this.wovenStart,
+            commitAt: this.commitAt,
             requeuedIds: this.requeuedIds,
             committed: this.committed
           })
@@ -209,7 +221,9 @@ export const useSessionStore = defineStore('session', {
         this.progressRecorded = true
 
         // A lapsed sentence comes back once more before the woven steps -
-        // retrying within the session is where the learning happens.
+        // retrying within the session is where the learning happens. Only the
+        // splice boundary moves; commitAt stays where the block started, so the
+        // retry costs an extra card but never the day's streak.
         if (grade === 'again' && !this.requeuedIds.includes(sentence.id)) {
           this.requeuedIds.push(sentence.id)
           this.steps.splice(this.wovenStart, 0, { type: 'sentence', sentence: { ...sentence, status: data.status } })
@@ -229,7 +243,8 @@ export const useSessionStore = defineStore('session', {
     },
 
     // Commit the day: streak + daily bonus. Fires the moment the SENTENCE block
-    // is done, not at the end of the woven tail. Streaks run on loss aversion,
+    // as served is done - not at the end of the woven tail, and not after the
+    // re-queued lapses either. Streaks run on loss aversion,
     // so withholding the streak after the core daily work is the exact churn
     // trigger to avoid - the listen/bend/produce steps are enrichment, not a
     // gate on the streak. Idempotent server-side (once per local day).
@@ -245,8 +260,10 @@ export const useSessionStore = defineStore('session', {
       // The resume notice is for the moment of landing only.
       this.resumed = false
 
-      // index+1 reaching wovenStart means the last sentence just cleared.
-      if (!this.committed && this.index + 1 >= this.wovenStart) {
+      // index+1 reaching commitAt means the block as originally served is done.
+      // Cards re-queued by an "again" sit past this point: still worth doing,
+      // never a condition of the streak.
+      if (!this.committed && this.index + 1 >= this.commitAt) {
         await this.commitDay()
       }
 

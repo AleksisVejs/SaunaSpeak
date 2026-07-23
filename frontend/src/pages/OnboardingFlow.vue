@@ -1,14 +1,20 @@
 <script setup>
 // 2-minute intake: goal, level, daily time. Personalizes the daily goal and
 // drops the learner straight into their first session (value in session one).
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { BicepsFlexed, BookOpen, Check, Coffee, Egg, Flame, Heart, Home, Moon, Plane, RotateCcw, Sprout, Sun, Sunset } from 'lucide-vue-next'
 import LoylyIcon from '../components/icons/LoylyIcon.vue'
 import { usePrefs } from '../composables/usePrefs'
+import { recordProductEvent } from '../utils/productEvents'
 
 const router = useRouter()
 const { savePrefs } = usePrefs()
+
+// Brackets the intake: reaching it vs. answering all of it. An account that
+// never earns XP leaves no other trace, so this is the only way to tell an
+// abandoned intake apart from one that finished and stalled further on.
+onMounted(() => recordProductEvent('onboarding_started'))
 
 const step = ref(0)
 const answers = ref({ goal: null, level: null, minutes: null, practice_time: null })
@@ -105,6 +111,7 @@ function finish() {
     },
     { placement: false }
   )
+  recordProductEvent('onboarding_finished')
   // Beginners go straight into the first session - earn value immediately.
   // Everyone else is offered a placement check that tests them out of levels
   // they already know, starting at A1 (A0 survival basics are the seeded floor).
