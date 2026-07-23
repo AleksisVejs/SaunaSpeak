@@ -1,38 +1,19 @@
 <script setup>
-// Guest "try it now" taste - no account needed. Runs six real sentences with
-// listen + reveal (plus the textbook form for contrast), then invites signup.
+// Guest "try it now" taste - no account needed. Five real sentences, each one
+// an ear test: hear it, commit to what you heard, then get the meaning and the
+// textbook form. Ends on a score and the signup invite.
 // Self-contained sample content so it works without the backend/auth.
 import { ref, computed, onMounted } from 'vue'
-import { BookOpen, Eye, Flame, Lightbulb, Mic, Turtle, Volume2 } from 'lucide-vue-next'
+import { BookOpen, EyeOff, Flame, Lightbulb, Mic, Turtle, Volume2 } from 'lucide-vue-next'
 import api from '../api'
 import { useFinnishAudio } from '../composables/useFinnishAudio'
+import { TRY_SAMPLES } from '../utils/trySamples'
 
 const { playSentence } = useFinnishAudio()
 
-// The audio files are the committed course MP3s (sentence ids from the seed
-// order), so the demo voice is exactly the voice inside the app. On mount we
-// ask the backend for each sentence's CURRENT audio - once a human recording
-// is approved, the demo plays the human voice too (see tryAudio upgrade below).
-// Five cards, not seven: attention decays fast in a passive tap-through, and
-// the demo's job is momentum, not coverage. Card 3 flips passive to active -
-// an ear test, because catching spoken-vs-textbook BY EAR is the product's
-// entire thesis in one interaction.
-const samples = [
-  { fi: 'Moi! Mä oon Anna.', book: 'Hei! Minä olen Anna.', en: "Hi! I'm Anna.", note: '“Mä” is spoken Finnish for “minä” (I).', audio: '/audio/try-1.mp3' },
-  { fi: 'Onks sul nälkä?', book: 'Onko sinulla nälkä?', en: 'Are you hungry?', note: '“Onks” = “onko” (is), “sul” = “sinulla” (you have).', audio: '/audio/try-2.mp3' },
-  {
-    kind: 'pick',
-    fi: 'Emmä tiiä.',
-    book: 'En minä tiedä.',
-    en: "I don't know.",
-    note: 'Three textbook words melt into two spoken ones - you\'ll hear this daily.',
-    audio: '/audio/sentence-emma-tiia-1838ce.mp3',
-    options: ['En minä tiedä.', 'Emmä tiiä.']
-  },
-  { fi: 'Moikka, nähään!', book: 'Hei hei, nähdään!', en: 'Bye, see you!', note: '“Nähään” = “nähdään” - literally “we\'ll be seen”.', audio: '/audio/sentence-moikka-nahaan-a128dd.mp3' },
-  // A taste from further down the path - slang the textbooks never touch.
-  { fi: 'Nyt meni kyl överiks.', book: 'Nyt se meni kyllä liian pitkälle.', en: 'Now that went too far.', note: 'From further down the same course - “överiks” is Helsinki slang, borrowed from Swedish “över”. The path keeps going into Finnish the textbooks never touch.', audio: '/audio/sentence-nyt-meni-kyl-overiks-6a792b.mp3' }
-]
+// Card content lives in utils/ so its decoy quality is unit-testable - see
+// trySamples.test.js, which fails if a decoy ever becomes guessable by shape.
+const samples = TRY_SAMPLES
 
 // Upgrade the hardcoded MP3s to whatever the course currently plays for the
 // same sentences (human takes once approved). Failure changes nothing - the
@@ -55,22 +36,39 @@ onMounted(async () => {
 
 const index = ref(0)
 const revealed = ref(false)
-// The ear-test card: which option the visitor tapped (null = not yet).
+// Which option the visitor tapped on this card (null = not yet).
 const picked = ref(null)
+// Whether this card's audio has been played. Cards 2+ set it from next(), which
+// runs inside the tap that advanced them - so only card 1 makes the visitor
+// press play, and it has to, because a fresh navigation carries no user
+// activation and the browser would refuse to autoplay anyway. The options stay
+// hidden until then: the first thing a visitor does here is HEAR Finnish, not
+// read it. Card 1 was previously the only silent card in the whole demo.
+const heard = ref(false)
+const score = ref(0)
 
 const current = computed(() => samples[index.value])
 // True once the upgrade above swapped in an approved human recording.
 const nativeAudio = computed(() => !!current.value.audio?.startsWith('/audio/human/'))
 const isLast = computed(() => index.value === samples.length - 1)
-const isPick = computed(() => current.value.kind === 'pick')
 const pickedRight = computed(() => picked.value === current.value.fi)
+// Card 1 pits spoken against written; the rest pit two spoken sentences against
+// each other, so a miss there means "heard a different sentence", not "reached
+// for the textbook". The wrong-answer copy has to say the right thing.
+const decoyIsWritten = computed(() => current.value.options.includes(current.value.book))
 const done = ref(false)
 
 function play(rate = null) {
+  heard.value = true
   playSentence(current.value.fi, current.value.audio, rate)
 }
 
-function reveal() {
+// Escape hatch for silent playback - the Facebook in-app browser is a large
+// slice of this page's traffic and its audio is unreliable. Without this a
+// visitor whose sound never fires is stuck on a card with nothing to tap.
+// Skipping forfeits the point rather than guessing on the visitor's behalf.
+function revealWithoutGuessing() {
+  heard.value = true
   revealed.value = true
 }
 
@@ -78,17 +76,24 @@ function pick(option) {
   if (picked.value) return
   picked.value = option
   revealed.value = true
+  if (option === current.value.fi) score.value++
 }
 
 function next() {
   if (isLast.value) {
     done.value = true
-    // Reached the finish screen - the mid-funnel step between try_start and register.
-    window.umami?.track('try_complete')
+    // Mid-funnel step between try_start and register. The score rides along so
+    // the drop-off can be read against how well people actually did.
+    window.umami?.track('try_complete', { score: `${score.value}/${samples.length}` })
   } else {
     index.value++
     revealed.value = false
     picked.value = null
+    heard.value = false
+    // Fired on ENTERING each card, so the counts are a drop-off curve: card 1
+    // is try_start, and 250 try_start against 80 try_complete used to be the
+    // whole picture, with no way to tell which card lost them.
+    window.umami?.track('try_card', { index: index.value + 1 })
     play()
   }
 }
@@ -99,24 +104,38 @@ function next() {
     <template v-if="!done">
       <div class="try-top">
         <router-link to="/" class="skip">‹ Home</router-link>
-        <div class="dots">
-          <span v-for="(s, i) in samples" :key="i" class="dot" :class="{ active: i <= index }"></span>
+        <div class="dots-wrap">
+          <div class="dots">
+            <span v-for="(s, i) in samples" :key="i" class="dot" :class="{ active: i <= index }"></span>
+          </div>
+          <!-- Appears only once there's something to show: a 0 on card one reads
+               as failure before the visitor has had a chance to hear anything. -->
+          <p v-if="score" class="score-chip">{{ score }} caught 👂</p>
         </div>
         <!-- Skipping the taste = ready to start: that's the register page. -->
         <router-link to="/register" class="skip">Skip</router-link>
       </div>
 
-      <p class="kicker">Try a real sentence <Flame class="kicker-ico" aria-hidden="true" /></p>
+      <p class="kicker">Can you catch it? <Flame class="kicker-ico" aria-hidden="true" /></p>
 
       <div class="card sample-card">
-        <div class="audio-row">
-          <button class="audio" @click="play()" aria-label="Play audio"><Volume2 class="audio-ico" aria-hidden="true" /> Listen</button>
-          <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly"><Turtle class="audio-ico" aria-hidden="true" /> Slow</button>
+        <!-- Card 1 before its first play: one affordance, nothing to read. -->
+        <div v-if="!heard" class="listen-gate">
+          <button class="listen-big" @click="play()">
+            <Volume2 class="listen-big-ico" aria-hidden="true" />
+            Tap to hear it
+          </button>
+          <p class="listen-hint">Real spoken Finnish, at natural speed.</p>
         </div>
-        <p v-if="nativeAudio" class="native-note"><Mic class="note-ico" aria-hidden="true" /> recorded by a native Finnish speaker</p>
 
-        <!-- The ear test: the sentence stays hidden until the visitor commits -->
-        <template v-if="isPick">
+        <template v-else>
+          <div class="audio-row">
+            <button class="audio" @click="play()" aria-label="Play audio"><Volume2 class="audio-ico" aria-hidden="true" /> Again</button>
+            <button class="audio slow" @click="play(0.65)" aria-label="Play audio slowly" title="Play slowly"><Turtle class="audio-ico" aria-hidden="true" /> Slow</button>
+          </div>
+          <p v-if="nativeAudio" class="native-note"><Mic class="note-ico" aria-hidden="true" /> recorded by a native Finnish speaker</p>
+
+          <!-- The ear test: the sentence stays hidden until the visitor commits -->
           <p class="pick-q">Which one did you hear?</p>
           <div class="pick-row">
             <button
@@ -128,11 +147,12 @@ function next() {
               @click="pick(o)"
             >{{ o }}</button>
           </div>
-          <p v-if="revealed" class="pick-verdict" :class="{ good: pickedRight }">
-            {{ pickedRight ? 'Your ear caught it! 👂 That instinct is exactly what we train.' : 'You picked the textbook form - but what you heard was the spoken one. That gap is exactly what we train.' }}
+          <p v-if="revealed && picked" class="pick-verdict" :class="{ good: pickedRight }">
+            <template v-if="pickedRight">Your ear caught it! 👂 That instinct is exactly what we train.</template>
+            <template v-else-if="decoyIsWritten">You picked the textbook form - but what you heard was the spoken one. That gap is exactly what we train.</template>
+            <template v-else>Close - that's a real sentence too, just not this one. Telling them apart at speed is exactly what we train.</template>
           </p>
         </template>
-        <p v-else class="fi">{{ current.fi }}</p>
 
         <!-- :duration guarantees the leave element is removed even if the tab
              is throttled and transition events never fire (stale text would
@@ -148,19 +168,36 @@ function next() {
         </transition>
       </div>
 
-      <button v-if="!revealed && !isPick" class="btn btn-ghost btn-block reveal-btn" @click="reveal"><Eye class="audio-ico" aria-hidden="true" /> Show meaning</button>
-      <button v-else-if="revealed" class="btn btn-primary btn-block" @click="next">
+      <button v-if="revealed" class="btn btn-primary btn-block" @click="next">
         {{ isLast ? 'See how it works →' : 'Next sentence →' }}
+      </button>
+      <!-- Only while a guess is still possible: once revealed there's nothing
+           left to escape from, and on the gate it would compete with pressing play. -->
+      <button v-else-if="heard" class="no-sound" @click="revealWithoutGuessing">
+        <EyeOff class="audio-ico" aria-hidden="true" /> No sound? Show the answer
       </button>
     </template>
 
     <template v-else>
       <div class="finish">
         <img class="finish-icon" src="/vaino-wave.png" alt="Väinö waving hello" />
-        <h1>That's spoken Finnish.</h1>
+        <h1>{{ score ? `You caught ${score} of ${samples.length}.` : "That's spoken Finnish." }}</h1>
         <p class="finish-affirm">
-          You just understood {{ samples.length }} sentences of the Finnish textbooks
-          skip - the everyday Finnish people actually say to you.
+          <!-- Both readings sell the same thing: the ear is trainable. A perfect
+               score means the instinct is already there, a low one means the gap
+               is real and measurable - neither is a reason to stop. -->
+          <template v-if="score === samples.length">
+            Every one, by ear. That instinct is what most textbook learners are
+            missing - you already have it, and the course sharpens it.
+          </template>
+          <template v-else-if="score">
+            You just heard the Finnish textbooks skip - and told it apart from the
+            written form {{ score }} {{ score === 1 ? 'time' : 'times' }} without ever having studied it.
+          </template>
+          <template v-else>
+            You just heard {{ samples.length }} sentences of the Finnish textbooks
+            skip - the everyday Finnish people actually say to you.
+          </template>
         </p>
         <p class="finish-text">
           From here, each sentence comes back right when you'd forget it - listen, fill
@@ -183,9 +220,12 @@ function next() {
   flex-direction: column;
   padding: max(20px, 5vh) 4px 28px;
 }
-.try-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
-.skip { color: var(--text-dim); font-size: 14px; font-weight: 600; }
+.try-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 28px; }
+.skip { color: var(--text-dim); font-size: 14px; font-weight: 600; white-space: nowrap; }
 .dots { display: flex; gap: 6px; }
+/* Fixed height so the chip appearing after card 1 doesn't shove the card down. */
+.dots-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; min-height: 30px; }
+.score-chip { font-size: 12px; font-weight: 800; color: var(--green); white-space: nowrap; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s ease; }
 .dot.active { background: var(--accent); }
 
@@ -218,6 +258,46 @@ function next() {
 .en { font-size: 17px; color: var(--text-dim); }
 .book { font-size: 13.5px; color: var(--text-dim); margin-top: 10px; }
 .note { font-size: 14px; color: var(--text); background: var(--bg-soft); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 12px; line-height: 1.5; }
+
+/* Card 1's opening state: a single tap target, deliberately large, with no
+   sentence on screen to read instead of listening to. */
+.listen-gate { padding: 14px 0 6px; }
+.listen-big {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 18px 30px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+.listen-big:hover { filter: brightness(1.06); }
+.listen-big:active { transform: scale(0.98); }
+.listen-big-ico { width: 22px; height: 22px; }
+.listen-hint { font-size: 13.5px; color: var(--text-dim); margin-top: 14px; }
+
+.no-sound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px;
+  cursor: pointer;
+}
+.no-sound:hover { color: var(--text); }
 
 /* the ear test */
 .pick-q { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
